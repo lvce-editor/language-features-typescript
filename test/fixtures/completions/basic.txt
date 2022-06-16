@@ -1,0 +1,14 @@
+previousText:
+const apple = 1
+const x = app|
+
+nextText:
+const apple = 1
+const x = apple
+
+completions:
+[
+  {
+    name: apple
+  }
+]

@@ -1,0 +1,22 @@
+previousText:
+interface TFunction {
+  (_: 'abc.abc2', __ ?: {}): string;
+  (_: 'abc.abc', __?: {}): string;
+}
+const f: TFunction = (() => { }) as any;
+f('abc.abc|')
+
+nextText:
+interface TFunction {
+  (_: 'abc.abc2', __ ?: {}): string;
+  (_: 'abc.abc', __?: {}): string;
+}
+const f: TFunction = (() => { }) as any;
+f('abc.abc')
+
+completions:
+[
+  {
+    name: 'abc.abc'
+  }
+]

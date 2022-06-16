@@ -1,0 +1,22 @@
+previousText:
+class A {
+  abc = 1
+  foo() {
+    this.|abc
+  }
+}
+
+nextText:
+class A {
+  abc = 1
+  foo() {
+    this.|abc
+  }
+}
+
+completions:
+[
+  {
+    text: abc
+  }
+]

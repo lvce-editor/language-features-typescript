@@ -1,0 +1,14 @@
+previousText:
+const x = { "hello world": 1 };
+x.|
+
+nextText:
+const x = { "hello world": 1 };
+x["hello world"]
+
+completions:
+[
+  {
+    name: "hello world"
+  }
+]

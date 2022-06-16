@@ -1,0 +1,14 @@
+previousText:
+const x = { "z-z": 1, a: 1 };
+x.|
+
+nextText:
+const x = { "z-z": 1, a: 1 };
+x.a
+
+completions:
+[
+  {
+    name: a
+  }
+]

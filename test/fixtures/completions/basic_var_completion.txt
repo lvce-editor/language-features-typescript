@@ -1,0 +1,14 @@
+previousText:
+const abcdef = 123;
+ab|;
+
+nextText:
+const abcdef = 123;
+abcdef;
+
+completions:
+[
+  {
+    name: abcdef
+  }
+]

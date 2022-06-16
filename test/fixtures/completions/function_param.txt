@@ -1,0 +1,8 @@
+previousText:
+export const getCompletions = (document|)
+
+nextText:
+export const getCompletions = (document)
+
+completions:
+[]

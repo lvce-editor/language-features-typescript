@@ -1,0 +1,14 @@
+previousText:
+function abcdef(x, y, z) { }
+abcdef|
+
+nextText:
+function abcdef(x, y, z) { }
+abcdef(x, y, z)
+
+completions:
+[
+  {
+    text: (x, y, z)
+  }
+]

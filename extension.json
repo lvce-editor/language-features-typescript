@@ -1,0 +1,36 @@
+{
+  "id": "builtin.language-features-typescript",
+  "name": "Language Features TypeScript",
+  "main": "src/languageFeaturesTypeScriptMain.js",
+  "icon": "icon.png",
+  "activation": [
+    "onBraceCompletion:javascript",
+    "onBraceCompletion:typescript",
+    "onCompletion:typescript",
+    "onCompletion:javascript",
+    "onDefinition:javascript",
+    "onDefinition:typescript",
+    "onDiagnostic:javascript",
+    "onDiagnostic:typescript",
+    "onLanguage:javascript",
+    "onLanguage:typescript",
+    "onReferences:javascript",
+    "onReferences:typescript",
+    "onImplementation:javascript",
+    "onImplementation:typescript",
+    "onClosingTag:javascript",
+    "onClosingTag:typescript",
+    "onSemanticTokens:javascript",
+    "onSemanticTokens:typescript"
+  ],
+  "languages": [
+    {
+      "id": "typescript",
+      "extensions": [".ts"]
+    },
+    {
+      "id": "javascript",
+      "extensions": [".js"]
+    }
+  ]
+}
