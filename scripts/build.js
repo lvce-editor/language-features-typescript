@@ -1,5 +1,5 @@
 import { execSync } from 'child_process'
-import fs from 'fs'
+import fs, { readFileSync } from 'fs'
 import path, { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 import { packageExtension } from '@lvce-editor/package-extension'
@@ -47,7 +47,18 @@ fs.rmSync(join(root, 'dist'), { recursive: true, force: true })
 
 fs.mkdirSync(path.join(root, 'dist'))
 
-fs.copyFileSync(join(root, 'package.json'), join(root, 'dist', 'package.json'))
+const packageJson = JSON.parse(
+  readFileSync(join(root, 'package.json')).toString()
+)
+delete packageJson.xo
+delete packageJson.jest
+delete packageJson.prettier
+delete packageJson.devDependencies
+
+fs.writeFileSync(
+  join(root, 'dist', 'package.json'),
+  JSON.stringify(packageJson, null, 2) + '\n'
+)
 fs.copyFileSync(join(root, 'README.md'), join(root, 'dist', 'README.md'))
 fs.copyFileSync(join(root, 'icon.png'), join(root, 'dist', 'icon.png'))
 fs.copyFileSync(
