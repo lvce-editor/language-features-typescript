@@ -14,10 +14,11 @@
   "dependencies": {
     "debug": "^4.3.4",
     "exit-hook": "^3.0.0",
-    "verror": "^1.10.1",
-    "wait-for-expect": "^3.0.2"
+    "typescript": "^4.7.4",
+    "verror": "^1.10.1"
   },
   "devDependencies": {
+    "@lvce-editor/package-extension": "git+https://github.com/lvce-editor/package-extension.git#v0.0.2",
     "@types/debug": "^4.1.7",
     "@types/jest": "^28.1.1",
     "@types/normalize-path": "^3.0.0",
@@ -25,7 +26,7 @@
     "jest": "^28.1.1",
     "normalize-path": "^3.0.0",
     "prettier": "^2.7.1",
-    "typescript": "^4.7.3"
+    "wait-for-expect": "^3.0.2"
   },
   "jest": {
     "testMatch": [
@@ -68,5 +69,9 @@
     "ignores": [
       "distmin"
     ]
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true
   }
 }
