@@ -20,7 +20,7 @@
   "devDependencies": {
     "@lvce-editor/package-extension": "git+https://github.com/lvce-editor/package-extension.git#v0.0.2",
     "@types/debug": "^4.1.7",
-    "@types/jest": "^28.1.1",
+    "@types/jest": "^28.1.3",
     "@types/normalize-path": "^3.0.0",
     "@types/verror": "^1.10.5",
     "jest": "^28.1.1",
