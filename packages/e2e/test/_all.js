@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const getTestFiles = async () => {
   return readdirSync(__dirname)
-    .filter((x) => x !== '_all.js')
+    .filter((x) => x !== '_all.js' && x !== '_timeout.js')
     .map((x) => './' + x)
 }
 
