@@ -6,10 +6,10 @@ import { runWithExtension, test } from '../src/runWithExtension.js'
 import { TIMEOUT_LONG } from './_timeout.js'
 
 const getTmpDir = () => {
-  return mkdtemp(join(tmpdir(), 'typescript-completion'))
+  return mkdtemp(join(tmpdir(), 'typescript-brace-completion'))
 }
 
-test('typescript.completion', async () => {
+test('typescript.brace-completion', async () => {
   const tmpDir = await getTmpDir()
   await writeFile(join(tmpDir, 'test.ts'), 'win')
   const page = await runWithExtension({
@@ -19,15 +19,15 @@ test('typescript.completion', async () => {
   await testTs.click()
   const tokenText = page.locator('.Token.Text')
   await tokenText.click()
+  const cursor = page.locator('.EditorCursor')
+  await expect(cursor).toHaveCSS('top', '0px')
+  await expect(cursor).toHaveCSS('left', '9px')
+
   await page.keyboard.press('End')
-  await page.keyboard.press('Control+Space')
+  await expect(cursor).toHaveCSS('top', '0px')
+  await expect(cursor).toHaveCSS('left', '27px')
 
-  const completions = page.locator('#Completions')
-  await expect(completions).toBeVisible()
-
-  const completionItems = completions.locator('.EditorCompletionItem')
-  const completionItemOne = completionItems.nth(0)
-  await expect(completionItemOne).toHaveText('AbortController', {
-    timeout: TIMEOUT_LONG,
-  })
+  await page.keyboard.type('{')
+  const editor = page.locator('.Editor')
+  await expect(editor).toHaveText('win{}', { timeout: TIMEOUT_LONG })
 })

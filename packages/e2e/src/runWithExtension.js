@@ -145,6 +145,10 @@ export const test = async (name, fn) => {
   }
 }
 
+test.skip = (name, fn) => {
+  state.tests.push({ name, fn, status: 'skipped' })
+}
+
 export const startAll = async () => {
   const port = await getPort()
   await launchServer({
