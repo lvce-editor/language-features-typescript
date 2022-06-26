@@ -17,7 +17,7 @@ test('typescript.completion', async () => {
   })
   const testTs = page.locator('text=test.ts')
   await testTs.click()
-  const tokenText = page.locator('.Token.Text')
+  const tokenText = page.locator('.Token').first()
   await tokenText.click()
   await page.keyboard.press('End')
   await page.keyboard.press('Control+Space')

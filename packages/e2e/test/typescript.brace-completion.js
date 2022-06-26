@@ -17,7 +17,7 @@ test('typescript.brace-completion', async () => {
   })
   const testTs = page.locator('text=test.ts')
   await testTs.click()
-  const tokenText = page.locator('.Token.Text')
+  const tokenText = page.locator('.Token').first()
   await tokenText.click()
   const cursor = page.locator('.EditorCursor')
   await expect(cursor).toHaveCSS('top', '0px')
