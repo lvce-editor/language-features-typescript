@@ -6,7 +6,7 @@ import { runWithExtension, test } from '../src/runWithExtension.js'
 import { TIMEOUT_LONG } from './_timeout.js'
 
 const getTmpDir = () => {
-  return mkdtemp(join(tmpdir(), 'css-completion'))
+  return mkdtemp(join(tmpdir(), 'typescript-completion'))
 }
 
 test('typescript.completion', async () => {
