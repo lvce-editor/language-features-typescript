@@ -1,16 +1,11 @@
 import {
+  expect,
+  getTmpDir,
   runWithExtension,
   test,
-  expect,
 } from '@lvce-editor/test-with-playwright'
-import { mkdtemp, writeFile } from 'fs/promises'
-import { join } from 'node:path'
-import { tmpdir } from 'os'
+import { writeFile } from 'fs/promises'
 import { TIMEOUT_LONG } from './_timeout.js'
-
-const getTmpDir = () => {
-  return mkdtemp(join(tmpdir(), 'typescript-references'))
-}
 
 test('typescript.semantic-highlighting', async () => {
   const tmpDir = await getTmpDir()

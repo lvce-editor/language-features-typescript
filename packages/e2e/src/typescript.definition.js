@@ -1,15 +1,11 @@
-import { mkdtemp, writeFile } from 'fs/promises'
-import { join } from 'node:path'
-import { tmpdir } from 'os'
 import {
+  expect,
+  getTmpDir,
   runWithExtension,
   test,
-  expect,
 } from '@lvce-editor/test-with-playwright'
-
-const getTmpDir = () => {
-  return mkdtemp(join(tmpdir(), 'typescript-definition'))
-}
+import { writeFile } from 'fs/promises'
+import { join } from 'node:path'
 
 test.skip('typescript.definition', async () => {
   const tmpDir = await getTmpDir()
