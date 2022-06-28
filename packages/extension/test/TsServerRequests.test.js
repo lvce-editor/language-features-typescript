@@ -679,46 +679,10 @@ test(
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
 
-// TODO find a test case where it returns a result
-test(
-  'jsxClosingTag - tsServerError - no content available',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.tsx'),
-      'export const Button = () => <button></'
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.tsx'),
-        },
-      ],
-    })
-    await expect(
-      TsServerRequests.jsxClosingTag({
-        file: join(tmpDir, 'index.tsx'),
-        line: 1,
-        offset: 30,
-      })
-    ).rejects.toThrowError(
-      new Error(
-        'TsServer.jsxClosingTag failed to execute: No content available.'
-      )
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
 test(
   'jsxClosingTag',
   async () => {
     const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.tsx'),
-      'export const Button = () => <button></'
-    )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
       openFiles: [
@@ -763,6 +727,55 @@ test(
       caretOffset: 0,
       newText: '</div>',
     })
+  },
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+)
+
+test(
+  'jsxClosingTag - when typing slash',
+  async () => {
+    const tmpDir = await getTmpDir()
+    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
+    await TsServerRequests.updateOpen({
+      openFiles: [
+        {
+          file: join(tmpDir, 'index.tsx'),
+          fileContent: `const button = () => {
+  return <div><
+}
+`,
+          projectRootPath: tmpDir,
+          scriptKindName: 'TSX',
+        },
+      ],
+    })
+    await TsServerRequests.updateOpen({
+      changedFiles: [
+        {
+          fileName: join(tmpDir, 'index.tsx'),
+          textChanges: [
+            {
+              newText: '/',
+              start: {
+                line: 2,
+                offset: 16,
+              },
+              end: {
+                line: 2,
+                offset: 16,
+              },
+            },
+          ],
+        },
+      ],
+    })
+    expect(
+      await TsServerRequests.jsxClosingTag({
+        file: join(tmpDir, 'index.tsx'),
+        line: 2,
+        offset: 17,
+      })
+    ).toBeUndefined()
   },
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
