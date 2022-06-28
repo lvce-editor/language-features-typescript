@@ -2,7 +2,6 @@ import { performance } from 'node:perf_hooks'
 import * as Debug from './parts/Debug/Debug.js'
 import * as ExtensionHostBraceCompletionProviderJavaScript from './parts/ExtensionHost/ExtensionHostBraceCompletionProviderJavaScript.js'
 import * as ExtensionHostBraceCompletionProviderTypeScript from './parts/ExtensionHost/ExtensionHostBraceCompletionProviderTypeScript.js'
-import * as EXtensionHostClosingTagProviderTypeScript from './parts/ExtensionHost/ExtensionHostClosingTagProviderTypeScript.js'
 import * as ExtensionHostCompletionProviderJavaScript from './parts/ExtensionHost/ExtensionHostCompletionProviderJavaScript.js'
 import * as ExtensionHostCompletionProviderTypeScript from './parts/ExtensionHost/ExtensionHostCompletionProviderTypeScript.js'
 import * as ExtensionHostDefinitionProviderJavaScript from './parts/ExtensionHost/ExtensionHostDefinitionProviderJavaScript.js'
@@ -61,7 +60,7 @@ export const activate = async () => {
   vscode.registerBraceCompletionProvider(ExtensionHostBraceCompletionProviderJavaScript)
   vscode.registerBraceCompletionProvider(ExtensionHostBraceCompletionProviderTypeScript)
 
-  vscode.registerClosingTagProvider(EXtensionHostClosingTagProviderTypeScript)
+  // vscode.registerClosingTagProvider(EXtensionHostClosingTagProviderTypeScript)
 
   vscode.registerCompletionProvider(ExtensionHostCompletionProviderJavaScript)
   vscode.registerCompletionProvider(ExtensionHostCompletionProviderTypeScript)
