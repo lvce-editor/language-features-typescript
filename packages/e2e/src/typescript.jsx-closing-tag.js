@@ -1,8 +1,11 @@
-import { expect } from '@playwright/test'
+import {
+  expect,
+  runWithExtension,
+  test,
+} from '@lvce-editor/test-with-playwright'
 import { mkdtemp, writeFile } from 'fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'os'
-import { runWithExtension, test } from '../src/runWithExtension.js'
 
 const getTmpDir = () => {
   return mkdtemp(join(tmpdir(), 'typescript-jsx-closing-tag'))
