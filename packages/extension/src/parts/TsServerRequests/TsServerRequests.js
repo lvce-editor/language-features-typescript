@@ -341,7 +341,7 @@ export const indentation = async (params) => {
 
 /**
  * @param {import('typescript/lib/protocol').JsxClosingTagRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').JsxClosingTagResponse['body']>}
+ * @returns {Promise<import('typescript/lib/protocol').JsxClosingTagResponse['body']|undefined>}
  */
 export const jsxClosingTag = async (params) => {
   const message = await TsPrimaryServer.invoke({
@@ -351,6 +351,9 @@ export const jsxClosingTag = async (params) => {
     seq: state.seq++,
   })
   if (!message.success) {
+    if (message.message === 'No content available.') {
+      return undefined
+    }
     throw new TsServerError(message, 'jsxClosingTag')
   }
   return message.body
