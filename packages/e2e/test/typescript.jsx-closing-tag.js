@@ -3,13 +3,12 @@ import { mkdtemp, writeFile } from 'fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'os'
 import { runWithExtension, test } from '../src/runWithExtension.js'
-import { TIMEOUT_LONG } from './_timeout.js'
 
 const getTmpDir = () => {
   return mkdtemp(join(tmpdir(), 'typescript-jsx-closing-tag'))
 }
 
-test('typescript.jsx-closing-tag', async () => {
+test.skip('typescript.jsx-closing-tag', async () => {
   const tmpDir = await getTmpDir()
   await writeFile(
     `${tmpDir}/button.tsx`,
@@ -36,8 +35,9 @@ test('typescript.jsx-closing-tag', async () => {
   await page.keyboard.press('End')
   await expect(cursor).toHaveCSS('left', '117px')
 
-  // await page.waitForTimeout(4000)
+  const tokenButton = page.locator('.Token', { hasText: 'button' })
+  await expect(tokenButton).toHaveClass('Token Function')
 
-  // await page.keyboard.type('>')
+  await page.keyboard.type('>')
   // await expect(rowTwo).toHaveText('return <div></div>')
 })
