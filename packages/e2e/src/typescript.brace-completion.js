@@ -1,8 +1,11 @@
-import { expect } from '@playwright/test'
 import { mkdtemp, writeFile } from 'fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'os'
-import { runWithExtension, test } from '../src/runWithExtension.js'
+import {
+  runWithExtension,
+  test,
+  expect,
+} from '@lvce-editor/test-with-playwright'
 import { TIMEOUT_LONG } from './_timeout.js'
 
 const getTmpDir = () => {
