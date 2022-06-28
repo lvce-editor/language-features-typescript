@@ -52,14 +52,31 @@ export const handleWillChangeTextDocument = async (textDocument, edits) => {
   })
 }
 
+const getScriptKind = (textDocument) => {
+  if (textDocument.uri.endsWith('.tsx')) {
+    return 'TSX'
+  }
+  if (textDocument.uri.endsWith('.ts')) {
+    return 'TS'
+  }
+  if (textDocument.uri.endsWith('.jsx')) {
+    return 'JSX'
+  }
+  if (textDocument.uri.endsWith('.js')) {
+    return 'JS'
+  }
+  return 'JS'
+}
+
 /**
  * @param {vscode.TextDocument} textDocument
- * @returns
+ * @returns {import('typescript/lib/protocol').OpenRequestArgs}
  */
 const getTsFileToOpen = (textDocument) => {
   return {
     file: textDocument.uri,
     fileContent: vscode.getTextFromTextDocument(textDocument),
+    scriptKindName: getScriptKind(textDocument),
   }
 }
 

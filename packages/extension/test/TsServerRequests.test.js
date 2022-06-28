@@ -16,8 +16,10 @@ const DEFAULT_TSCONFIG = `{
   "moduleResolution": "node",
   "newLine": "lf",
   "skipLibCheck": true,
-  "skipDefaultLibCheck": true
-}`
+  "skipDefaultLibCheck": true,
+  "rootDir": "."
+}
+`
 
 const TS_SERVER_CONFIGURE_TIMEOUT = 45_000
 const TS_SERVER_TEST_TIMEOUT = 15_000
@@ -705,6 +707,62 @@ test(
         'TsServer.jsxClosingTag failed to execute: No content available.'
       )
     )
+  },
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+)
+
+test(
+  'jsxClosingTag',
+  async () => {
+    const tmpDir = await getTmpDir()
+    await writeFile(
+      join(tmpDir, 'index.tsx'),
+      'export const Button = () => <button></'
+    )
+    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
+    await TsServerRequests.updateOpen({
+      openFiles: [
+        {
+          file: join(tmpDir, 'index.tsx'),
+          fileContent: `const button = () => {
+  return <div
+}
+`,
+          projectRootPath: tmpDir,
+          scriptKindName: 'TSX',
+        },
+      ],
+    })
+    await TsServerRequests.updateOpen({
+      changedFiles: [
+        {
+          fileName: join(tmpDir, 'index.tsx'),
+          textChanges: [
+            {
+              newText: '>',
+              start: {
+                line: 2,
+                offset: 14,
+              },
+              end: {
+                line: 2,
+                offset: 14,
+              },
+            },
+          ],
+        },
+      ],
+    })
+    expect(
+      await TsServerRequests.jsxClosingTag({
+        file: join(tmpDir, 'index.tsx'),
+        line: 2,
+        offset: 15,
+      })
+    ).toEqual({
+      caretOffset: 0,
+      newText: '</div>',
+    })
   },
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
