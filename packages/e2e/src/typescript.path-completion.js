@@ -16,14 +16,11 @@ test('typescript.completion', async () => {
   })
   const testTs = page.locator('text=test.ts')
   await testTs.click()
-  const token = page.locator('.Token').first()
-  await token.click()
+  const row = page.locator('.EditorRow').first()
+  await row.click()
   const cursor = page.locator('.EditorCursor')
   await expect(cursor).toHaveCount(1)
   await expect(cursor).toHaveCSS('top', '0px')
-  await expect(cursor).toHaveCSS('left', '27px')
-
-  await page.keyboard.press('End')
   await expect(cursor).toHaveCSS('left', '90px')
 
   await page.keyboard.press('Control+Space')
