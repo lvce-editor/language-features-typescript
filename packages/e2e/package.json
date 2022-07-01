@@ -12,7 +12,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@lvce-editor/test-with-playwright": "git+https://github.com/lvce-editor/test-with-playwright.git#v0.0.6",
+    "@lvce-editor/test-with-playwright": "^0.0.11",
     "@types/node": "^18.0.0"
   }
 }
