@@ -7,7 +7,8 @@ import { expect } from '@playwright/test'
 import { writeFile } from 'fs/promises'
 import { TIMEOUT_LONG } from './_timeout.js'
 
-test('typescript.implementations', async () => {
+// TODO test is flaky https://github.com/lvce-editor/language-features-typescript/runs/7559120396?check_suite_focus=true
+test.skip('typescript.implementations', async () => {
   const tmpDir = await getTmpDir()
   await writeFile(
     `${tmpDir}/add.js`,
