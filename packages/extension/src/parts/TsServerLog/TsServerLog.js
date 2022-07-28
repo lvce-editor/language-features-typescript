@@ -1,11 +1,14 @@
 import * as fs from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
 
 export const state = {
   writeStream: undefined,
 }
 
 const createWriteStream = () => {
-  const writeStream = fs.createWriteStream('/tmp/ts-log.txt')
+  const tmpDir = tmpdir()
+  const writeStream = fs.createWriteStream(join(tmpDir, 'ts-log.txt'))
   return writeStream
 }
 
