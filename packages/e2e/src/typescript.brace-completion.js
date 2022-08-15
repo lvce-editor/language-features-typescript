@@ -8,7 +8,7 @@ import { writeFile } from 'fs/promises'
 import { join } from 'node:path'
 import { TIMEOUT_LONG } from './_timeout.js'
 
-test('typescript.brace-completion', async () => {
+test.skip('typescript.brace-completion', async () => {
   const tmpDir = await getTmpDir()
   await writeFile(join(tmpDir, 'test.ts'), 'win')
   const page = await runWithExtension({
