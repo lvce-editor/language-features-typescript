@@ -57,6 +57,7 @@ export const initializeProject = async () => {
 
 // prettier-ignore
 export const activate = async () => {
+  console.log('active typescript extension')
   vscode.registerBraceCompletionProvider(ExtensionHostBraceCompletionProviderJavaScript)
   vscode.registerBraceCompletionProvider(ExtensionHostBraceCompletionProviderTypeScript)
 

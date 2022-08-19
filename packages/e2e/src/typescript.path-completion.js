@@ -1,32 +1,20 @@
-import {
-  getTmpDir,
-  runWithExtension,
-  test,
-} from '@lvce-editor/test-with-playwright'
-import { expect } from '@playwright/test'
-import { writeFile } from 'fs/promises'
-import { TIMEOUT_LONG } from './_timeout.js'
-
 test('typescript.completion', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(`${tmpDir}/test.ts`, "import './")
-  await writeFile(`${tmpDir}/add.ts`, 'export const add = (a, b) => a + b')
-  const page = await runWithExtension({
-    folder: tmpDir,
-  })
-  const testTs = page.locator('text=test.ts')
-  await testTs.click()
-  const row = page.locator('.EditorRow').first()
-  await row.click()
-  const cursor = page.locator('.EditorCursor')
-  await expect(cursor).toHaveCount(1)
-  await expect(cursor).toHaveCSS('top', '0px')
-  await expect(cursor).toHaveCSS('left', '90px')
+  // arrange
+  const tmpDir = await FileSystem.getTmpDir()
+  await FileSystem.writeFile(`${tmpDir}/test.ts`, "import './")
+  await FileSystem.writeFile(
+    `${tmpDir}/add.ts`,
+    'export const add = (a, b) => a + b'
+  )
+  await Main.openUri(`${tmpDir}/test.ts`)
+  await Editor.setCursor(0, 10)
 
-  await page.keyboard.press('Control+Space')
+  // act
+  await Editor.openCompletion()
 
-  const completions = page.locator('#Completions')
-  await expect(completions).toBeVisible({ timeout: TIMEOUT_LONG })
+  // assert
+  const completions = Locator('#Completions')
+  await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(1)
   const completionItemOne = completionItems.nth(0)
