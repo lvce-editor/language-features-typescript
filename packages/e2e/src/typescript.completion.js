@@ -1,4 +1,4 @@
-test.skip('typescript.completion', async () => {
+test('typescript.completion', async () => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')

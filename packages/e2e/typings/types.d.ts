@@ -1,20 +1,27 @@
+declare const Command: {
+  readonly execute: (id: string, ...args: any[]) => Promise<void>
+}
+
 declare const ContextMenu: {
   readonly selectItem: (name: string) => Promise<void>
 }
 
 declare const Editor: {
-  readonly setCursor: (rowIndex: number, columnIndex: number) => Promise<void>
-  readonly openCompletion: () => Promise<void>
-  readonly executeTabCompletion: () => Promise<void>
-  readonly openEditorContextMenu: () => Promise<void>
-  readonly executeBraceCompletion: (brace: string) => Promise<void>
-  readonly cursorUp: () => Promise<void>
+  readonly copyLineDown: () => Promise<void>
+  readonly cursorCharacterLeft: () => Promise<void>
+  readonly cursorCharacterRight: () => Promise<void>
   readonly cursorDown: () => Promise<void>
+  readonly cursorUp: () => Promise<void>
   readonly cursorWordLeft: () => Promise<void>
   readonly cursorWordRight: () => Promise<void>
-  readonly cursorCharacterRight: () => Promise<void>
-  readonly cursorCharacterLeft: () => Promise<void>
-  readonly copyLineDown: () => Promise<void>
+  readonly executeBraceCompletion: (brace: string) => Promise<void>
+  readonly executeTabCompletion: () => Promise<void>
+  readonly goToDefinition: () => Promise<void>
+  readonly goToTypeDefinition: () => Promise<void>
+  readonly openCompletion: () => Promise<void>
+  readonly openEditorContextMenu: () => Promise<void>
+  readonly setCursor: (rowIndex: number, columnIndex: number) => Promise<void>
+  readonly type: (text: string) => Promise<void>
 }
 
 declare const Explorer: {
@@ -37,6 +44,7 @@ declare const FileSystem: {
   readonly getTmpDir: () => Promise<string>
   readonly writeFile: (uri: string, content: string) => Promise<void>
   readonly mkdir: (uri: string) => Promise<void>
+  readonly chmod: (uri: string, permissions: string) => Promise<void>
 }
 
 declare const KeyBoard: {
@@ -54,12 +62,20 @@ declare const QuickPick: {
   readonly setValue: (value: string) => Promise<void>
 }
 
+declare const Platform: {
+  readonly getNodePath: () => Promise<string>
+}
+
 declare const SideBar: {
   readonly open: (id: string) => Promise<void>
 }
 
 declare const Search: {
   readonly setValue: (value: string) => Promise<void>
+}
+
+declare const Settings: {
+  readonly update: (newSettings: any) => Promise<void>
 }
 
 declare const Workspace: {
