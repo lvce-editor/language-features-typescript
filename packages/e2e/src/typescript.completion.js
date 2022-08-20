@@ -1,6 +1,6 @@
 test('typescript.completion', async () => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')
   await Main.openUri(`${tmpDir}/test.ts`)
   await Editor.setCursor(0, 3)

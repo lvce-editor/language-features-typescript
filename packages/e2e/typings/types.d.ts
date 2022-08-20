@@ -41,7 +41,9 @@ declare const Extension: {
 }
 
 declare const FileSystem: {
-  readonly getTmpDir: () => Promise<string>
+  readonly getTmpDir: (options?: {
+    scheme?: 'memfs' | 'file'
+  }) => Promise<string>
   readonly writeFile: (uri: string, content: string) => Promise<void>
   readonly mkdir: (uri: string) => Promise<void>
   readonly chmod: (uri: string, permissions: string) => Promise<void>
@@ -60,6 +62,7 @@ declare const QuickPick: {
   readonly focusNext: () => Promise<void>
   readonly open: () => Promise<void>
   readonly setValue: (value: string) => Promise<void>
+  readonly selectItem: (value: string) => Promise<void>
 }
 
 declare const Platform: {

@@ -1,6 +1,6 @@
 test('typescript.references', async () => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(
     `${tmpDir}/add.js`,
     `export const add = () => {}
@@ -27,14 +27,9 @@ add(1,2)
   await expect(viewletReferencesMessage).toHaveText('3 results in 2 files')
   const referenceItems = viewletLocations.locator('.TreeItem')
   await expect(referenceItems).toHaveCount(5)
-  const referenceItemOne = referenceItems.nth(0)
-  await expect(referenceItemOne).toHaveText('test.js')
-  const referenceItemTwo = referenceItems.nth(1)
-  await expect(referenceItemTwo).toHaveText(`import {add} from './add.js'`)
-  const referenceItemThree = referenceItems.nth(2)
-  await expect(referenceItemThree).toHaveText(`add(1,2)`)
-  const referenceItemFour = referenceItems.nth(3)
-  await expect(referenceItemFour).toHaveText(`add.js`)
-  const referenceItemFive = referenceItems.nth(4)
-  await expect(referenceItemFive).toHaveText(`export const add = () => {}`)
+  await expect(referenceItems.nth(0)).toHaveText('test.js')
+  await expect(referenceItems.nth(1)).toHaveText(`import {add} from './add.js'`)
+  await expect(referenceItems.nth(2)).toHaveText(`add(1,2)`)
+  await expect(referenceItems.nth(3)).toHaveText(`add.js`)
+  await expect(referenceItems.nth(4)).toHaveText(`export const add = () => {}`)
 })

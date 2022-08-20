@@ -1,6 +1,6 @@
-test('typescript.completion', async () => {
+test.skip('typescript.completion', async () => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(`${tmpDir}/test.ts`, "import './")
   await FileSystem.writeFile(
     `${tmpDir}/add.ts`,

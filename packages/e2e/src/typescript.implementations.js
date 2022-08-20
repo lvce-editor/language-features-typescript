@@ -1,7 +1,7 @@
 // TODO test is flaky https://github.com/lvce-editor/language-features-typescript/runs/7559120396?check_suite_focus=true
 test.skip('typescript.implementations', async () => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(
     `${tmpDir}/add.js`,
     `export const add = () => {}

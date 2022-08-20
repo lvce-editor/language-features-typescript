@@ -1,6 +1,6 @@
 test('typescript.semantic-highlighting', async () => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(
     `${tmpDir}/add.js`,
     `export const add = () => {}

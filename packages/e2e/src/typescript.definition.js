@@ -1,6 +1,6 @@
 test.skip('typescript.definition', async () => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'window')
   await Main.openUri(`${tmpDir}/test.ts`)
 

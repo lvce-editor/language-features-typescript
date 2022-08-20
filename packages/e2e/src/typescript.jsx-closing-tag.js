@@ -1,6 +1,6 @@
 test.skip('typescript.jsx-closing-tag', async () => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(
     `${tmpDir}/button.tsx`,
     `const button = () => {
