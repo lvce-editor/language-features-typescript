@@ -15,10 +15,10 @@ add(1,2)
   )
   await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
   await Main.openUri(`${tmpDir}/test.js`)
+  await Editor.setCursor(0, 9)
 
   // act
-  await Editor.openEditorContextMenu()
-  await ContextMenu.selectItem('Find all references')
+  await Editor.findAllReferences()
 
   // assert
   const viewletLocations = Locator('.Viewlet[data-viewlet-id="Locations"]')
