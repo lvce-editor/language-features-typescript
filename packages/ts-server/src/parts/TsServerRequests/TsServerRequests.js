@@ -346,12 +346,13 @@ export const implementation = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').IndentationRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').IndentationResponse>}
  *
  */
-export const indentation = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const indentation = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'indentation',
     arguments: params,
@@ -364,11 +365,12 @@ export const indentation = async (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').JsxClosingTagRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').JsxClosingTagResponse['body']|undefined>}
  */
-export const jsxClosingTag = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const jsxClosingTag = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'jsxClosingTag',
     arguments: params,
@@ -384,11 +386,12 @@ export const jsxClosingTag = async (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').RenameRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').RenameResponseBody>}
  */
-export const rename = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const rename = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'rename',
     arguments: params,

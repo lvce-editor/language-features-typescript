@@ -755,24 +755,33 @@ test('implementation - error - no project', async () => {
   )
 })
 
-test.skip('indentation', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(join(tmpDir, 'index.ts'), `  const add = (a, b) => {}`)
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('indentation', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: { indentation: 2, position: 9 },
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.indentation({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.indentation(server, {
+      file: '/test/index.ts',
       line: 1,
       offset: 10,
     })
   ).toEqual({ indentation: 2, position: 9 })
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+      line: 1,
+      offset: 10,
+    },
+    command: 'indentation',
+    seq: 1,
+    type: 'request',
+  })
 })
 
 test.skip('jsxClosingTag', async () => {
