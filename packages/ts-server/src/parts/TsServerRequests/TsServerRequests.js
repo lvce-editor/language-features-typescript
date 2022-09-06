@@ -2,6 +2,7 @@
 
 import VError from 'verror'
 import * as Id from '../Id/Id.js'
+import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
 // TODO somehow tsserver stack is not printed
 class TsServerError extends VError {
@@ -33,7 +34,7 @@ class TsServerError extends VError {
  */
 export const braceCompletion = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'braceCompletion',
     arguments: params,
     seq: Id.create(),
@@ -50,7 +51,7 @@ export const braceCompletion = async (server, params) => {
  */
 export const change = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'change',
     arguments: params,
   })
@@ -62,7 +63,7 @@ export const change = (server, params) => {
  */
 export const close = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'close',
     arguments: params,
   })
@@ -74,7 +75,7 @@ export const close = (server, params) => {
  */
 export const closeExternalProject = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'closeExternalProject',
     arguments: params,
   })
@@ -87,7 +88,7 @@ export const closeExternalProject = (server, params) => {
  */
 export const commentSelection = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'commentSelection',
     arguments: params,
   })
@@ -104,7 +105,7 @@ export const commentSelection = async (server, params) => {
  */
 export const completionDetails = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'completionEntryDetails',
     arguments: params,
   })
@@ -121,7 +122,7 @@ export const completionDetails = async (server, params) => {
  */
 export const completionInfo = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'completionInfo',
     arguments: params,
     seq: Id.create(),
@@ -138,7 +139,7 @@ export const completionInfo = async (server, params) => {
  */
 export const compileOnSaveAffectedFileList = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'compileOnSaveAffectedFileList',
     arguments: params,
   })
@@ -151,7 +152,7 @@ export const compileOnSaveAffectedFileList = (server, params) => {
  */
 export const configure = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'configure',
     arguments: params,
   })
@@ -168,7 +169,7 @@ export const configure = async (server, params) => {
  */
 export const definition = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'definition',
     arguments: params,
     seq: Id.create(),
@@ -185,7 +186,7 @@ export const definition = async (server, params) => {
  */
 export const definitionAndBoundSpan = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'definitionAndBoundSpan',
     arguments: params,
   })
@@ -198,7 +199,7 @@ export const definitionAndBoundSpan = (server, params) => {
  */
 export const documentHighlights = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'documentHighlights',
     arguments: params,
     seq: Id.create(),
@@ -216,7 +217,7 @@ export const documentHighlights = async (server, params) => {
  */
 export const encodedSemanticClassificationsFull = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'encodedSemanticClassifications-full',
     arguments: params,
     seq: Id.create(),
@@ -232,7 +233,7 @@ export const encodedSemanticClassificationsFull = async (server, params) => {
  */
 export const exit = async (server) => {
   await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'exit',
   })
 }
@@ -244,7 +245,7 @@ export const exit = async (server) => {
  */
 export const fileReferences = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'fileReferences',
     arguments: params,
     seq: Id.create(),
@@ -261,7 +262,7 @@ export const fileReferences = async (server, params) => {
  */
 export const format = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'format',
     arguments: params,
   })
@@ -273,7 +274,7 @@ export const format = (server, params) => {
  */
 export const getCodeFixes = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getCodeFixes',
     arguments: params,
   })
@@ -285,7 +286,7 @@ export const getCodeFixes = (server, params) => {
  */
 export const getEditsForFileRename = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getEditsForFileRename',
     arguments: params,
   })
@@ -297,7 +298,7 @@ export const getEditsForFileRename = (server, params) => {
  */
 export const getOutliningSpans = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getOutliningSpans',
     arguments: params,
   })
@@ -309,7 +310,7 @@ export const getOutliningSpans = (server, params) => {
  */
 export const getSpanOfEnclosingComment = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getSpanOfEnclosingComment',
     arguments: params,
   })
@@ -321,7 +322,7 @@ export const getSpanOfEnclosingComment = (server, params) => {
  */
 export const getSupportedCodeFixes = (server, params) => {
   server.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getSupportedCodeFixes',
     arguments: params,
   })
@@ -334,7 +335,7 @@ export const getSupportedCodeFixes = (server, params) => {
  */
 export const implementation = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'implementation',
     arguments: params,
     seq: Id.create(),
@@ -353,7 +354,7 @@ export const implementation = async (server, params) => {
  */
 export const indentation = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'indentation',
     arguments: params,
     seq: Id.create(),
@@ -371,7 +372,7 @@ export const indentation = async (server, params) => {
  */
 export const jsxClosingTag = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'jsxClosingTag',
     arguments: params,
     seq: Id.create(),
@@ -391,7 +392,7 @@ export const jsxClosingTag = async (server, params) => {
  */
 export const organizeImports = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'organizeImports',
     arguments: params,
     seq: Id.create(),
@@ -408,7 +409,7 @@ export const organizeImports = async (server, params) => {
  */
 export const prepareCallHierarchy = async (server, params) => {
   await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'prepareCallHierarchy',
     arguments: params,
   })
@@ -420,7 +421,7 @@ export const prepareCallHierarchy = async (server, params) => {
  */
 export const provideCallHierarchyIncomingCalls = async (server, params) => {
   await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'provideCallHierarchyIncomingCalls',
     arguments: params,
   })
@@ -432,7 +433,7 @@ export const provideCallHierarchyIncomingCalls = async (server, params) => {
  */
 export const provideCallHierarchyOutgoingCalls = async (server, params) => {
   await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'provideCallHierarchyOutgoingCalls',
     arguments: params,
   })
@@ -444,7 +445,7 @@ export const provideCallHierarchyOutgoingCalls = async (server, params) => {
  */
 export const provideInlayHints = async (server, params) => {
   await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'provideInlayHints',
     arguments: params,
   })
@@ -456,7 +457,7 @@ export const provideInlayHints = async (server, params) => {
  */
 export const references = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'references',
     arguments: params,
   })
@@ -471,7 +472,7 @@ export const references = async (params) => {
  */
 export const reload = async (params) => {
   await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'reload',
     arguments: params,
   })
@@ -484,7 +485,7 @@ export const reload = async (params) => {
  */
 export const rename = async (server, params) => {
   const message = await server.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'rename',
     arguments: params,
   })
@@ -500,7 +501,7 @@ export const rename = async (server, params) => {
  */
 export const semanticDiagnosticsSync = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'semanticDiagnosticsSync',
     arguments: params,
     seq: Id.create(),
@@ -516,7 +517,7 @@ export const semanticDiagnosticsSync = async (params) => {
  */
 export const toggleLineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'toggleLineComment',
     arguments: params,
     seq: Id.create(),
@@ -532,7 +533,7 @@ export const toggleLineComment = async (params) => {
  */
 export const toggleMultilineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'toggleMultilineComment',
     arguments: params,
     seq: Id.create(),
@@ -549,7 +550,7 @@ export const toggleMultilineComment = async (params) => {
  */
 export const typeDefinition = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'typeDefinition',
     arguments: params,
     seq: Id.create(),
@@ -566,7 +567,7 @@ export const typeDefinition = async (params) => {
  */
 export const updateOpen = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'updateOpen',
     arguments: params,
     seq: Id.create(),
