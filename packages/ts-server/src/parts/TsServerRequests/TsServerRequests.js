@@ -256,10 +256,11 @@ export const fileReferences = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').FormatRequest['arguments']} params
  */
-export const format = (params) => {
-  TsPrimaryServer.send({
+export const format = (server, params) => {
+  server.send({
     type: 'request',
     command: 'format',
     arguments: params,
@@ -267,10 +268,11 @@ export const format = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').CodeFixRequest['arguments']} params
  */
-export const getCodeFixes = (params) => {
-  TsPrimaryServer.send({
+export const getCodeFixes = (sever, params) => {
+  server.send({
     type: 'request',
     command: 'getCodeFixes',
     arguments: params,
@@ -278,10 +280,11 @@ export const getCodeFixes = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').GetEditsForFileRenameRequest['arguments']} params
  */
-export const getEditsForFileRename = (params) => {
-  TsPrimaryServer.send({
+export const getEditsForFileRename = (server, params) => {
+  server.send({
     type: 'request',
     command: 'getEditsForFileRename',
     arguments: params,
@@ -289,10 +292,11 @@ export const getEditsForFileRename = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').OutliningSpansRequest['arguments']} params
  */
-export const getOutliningSpans = (params) => {
-  TsPrimaryServer.send({
+export const getOutliningSpans = (server, params) => {
+  server.send({
     type: 'request',
     command: 'getOutliningSpans',
     arguments: params,
@@ -300,10 +304,11 @@ export const getOutliningSpans = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').SpanOfEnclosingCommentRequest['arguments']} params
  */
-export const getSpanOfEnclosingComment = (params) => {
-  TsPrimaryServer.send({
+export const getSpanOfEnclosingComment = (server, params) => {
+  server.send({
     type: 'request',
     command: 'getSpanOfEnclosingComment',
     arguments: params,
@@ -311,10 +316,11 @@ export const getSpanOfEnclosingComment = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').GetSupportedCodeFixesRequest['arguments']} params
  */
-export const getSupportedCodeFixes = (params) => {
-  TsPrimaryServer.send({
+export const getSupportedCodeFixes = (server, params) => {
+  server.send({
     type: 'request',
     command: 'getSupportedCodeFixes',
     arguments: params,
@@ -322,11 +328,12 @@ export const getSupportedCodeFixes = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ImplementationRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').ImplementationResponse['body']>}
  */
-export const implementation = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const implementation = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'implementation',
     arguments: params,

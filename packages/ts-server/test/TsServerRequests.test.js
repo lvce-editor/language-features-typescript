@@ -701,24 +701,26 @@ test('fileReferences - tsServerError - no project', async () => {
   )
 })
 
-test.skip('implementation', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `const add = (a, b) => a + b
-const sum = add(1, 2)`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('implementation', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: [
+          {
+            contextEnd: { line: 1, offset: 28 },
+            contextStart: { line: 1, offset: 1 },
+            end: { line: 1, offset: 10 },
+            file: '/test/index.ts',
+            start: { line: 1, offset: 7 },
+          },
+        ],
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.implementation({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.implementation(server, {
+      file: '/test/index.ts',
       line: 2,
       offset: 14,
     })
@@ -727,30 +729,24 @@ const sum = add(1, 2)`
       contextEnd: { line: 1, offset: 28 },
       contextStart: { line: 1, offset: 1 },
       end: { line: 1, offset: 10 },
-      file: normalize(join(tmpDir, 'index.ts')),
+      file: '/test/index.ts',
       start: { line: 1, offset: 7 },
     },
   ])
 })
 
-test.skip('implementation - error - no project', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `const add = (a, b) => a + b
-const sum = add(1, 2)`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('implementation - error - no project', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `No Project.`,
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.implementation({
-      file: join(tmpDir, 'cat.ts'),
+    TsServerRequests.implementation(server, {
+      file: '/test/cat.ts',
       line: 2,
       offset: 14,
     })
