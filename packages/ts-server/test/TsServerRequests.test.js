@@ -632,59 +632,69 @@ test('exit', async () => {
   })
 })
 
-test.skip('fileReferences', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-  )
-  await writeFile(
-    join(tmpDir, 'calculate.ts'),
-    `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('fileReferences', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: {
+          refs: [], // TODO should find reference to index.ts file
+          symbolName: `"/test/calculate.ts"`,
+        },
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.fileReferences({
-      file: join(tmpDir, 'calculate.ts'),
+    await TsServerRequests.fileReferences(server, {
+      file: '/test/calculate.ts',
     })
   ).toEqual({
     refs: [], // TODO should find reference to index.ts file
-    symbolName: `"${join(tmpDir, 'calculate.ts')}"`,
+    symbolName: `"/test/calculate.ts"`,
+  })
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/calculate.ts',
+    },
+    command: 'fileReferences',
+    seq: 1,
+    type: 'request',
   })
 })
 
-test.skip('fileReferences - tsServerError - no project', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-  )
-  await writeFile(
-    join(tmpDir, 'calculate.ts'),
-    `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('fileReferences - error - debug failure', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `Debug Failure. False expression.`,
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.fileReferences({
-      file: join(tmpDir, 'cat.ts'),
+    TsServerRequests.fileReferences(server, {
+      file: '/test/calculate.ts',
+    })
+  ).rejects.toThrowError(
+    new Error(
+      'TsServer.fileReferences failed to execute: Debug Failure. False expression.'
+    )
+  )
+})
+
+test('fileReferences - tsServerError - no project', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `No Project.`,
+      }
+    }),
+  }
+  await expect(
+    TsServerRequests.fileReferences(server, {
+      file: '/test/cat.ts',
     })
   ).rejects.toThrowError(
     new Error('TsServer.fileReferences failed to execute: No Project.')

@@ -238,11 +238,12 @@ export const exit = async (server) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').FileReferencesRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').FileReferencesResponse>}
  */
-export const fileReferences = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const fileReferences = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'fileReferences',
     arguments: params,
