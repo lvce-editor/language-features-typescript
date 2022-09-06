@@ -20,7 +20,29 @@ test('sample.file-references', async () => {
       file: join(fixture, 'src', 'calculate.ts'),
     })
   ).toEqual({
-    refs: [], // TODO should find reference to index.ts file
-    symbolName: `"${join(fixture, 'src', 'calculate.ts')}"`,
+    refs: [
+      {
+        contextEnd: {
+          line: 1,
+          offset: 44,
+        },
+        contextStart: {
+          line: 1,
+          offset: 1,
+        },
+        end: {
+          line: 1,
+          offset: 43,
+        },
+        file: join(fixture, 'src', 'index.ts'),
+        isWriteAccess: false,
+        lineText: "import { add, subtract } from './calculate'",
+        start: {
+          line: 1,
+          offset: 32,
+        },
+      },
+    ],
+    symbolName: '"' + join(fixture, 'src', 'calculate.ts') + '"',
   })
 })

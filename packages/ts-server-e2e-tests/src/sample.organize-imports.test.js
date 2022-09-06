@@ -32,8 +32,8 @@ test('sample.organize-imports', async () => {
           end: { line: 2, offset: 1 },
           newText:
             process.platform === 'win32'
-              ? "import { add } from './calculate.ts'\r\n"
-              : "import { add } from './calculate.ts'\n",
+              ? "import { add } from './calculate'\r\n"
+              : "import { add } from './calculate'\n",
           start: { line: 1, offset: 1 },
         },
       ],

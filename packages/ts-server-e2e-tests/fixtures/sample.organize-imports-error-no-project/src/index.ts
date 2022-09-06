@@ -1,2 +1,2 @@
-import { add, subtract } from './calculate.ts'
+import { add, subtract } from './calculate'
 add(1, 2)
