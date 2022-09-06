@@ -403,10 +403,11 @@ export const rename = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').OrganizeImportsRequest['arguments']} params
  */
-export const organizeImports = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const organizeImports = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'organizeImports',
     arguments: params,
@@ -419,10 +420,11 @@ export const organizeImports = async (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').PrepareCallHierarchyRequest['arguments']} params
  */
-export const prepareCallHierarchy = (params) => {
-  TsPrimaryServer.send({
+export const prepareCallHierarchy = async (server, params) => {
+  await server.invoke({
     type: 'request',
     command: 'prepareCallHierarchy',
     arguments: params,
@@ -430,10 +432,11 @@ export const prepareCallHierarchy = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ProvideCallHierarchyIncomingCallsRequest['arguments']} params
  */
-export const provideCallHierarchyIncomingCalls = (params) => {
-  TsPrimaryServer.send({
+export const provideCallHierarchyIncomingCalls = async (server, params) => {
+  await server.invoke({
     type: 'request',
     command: 'provideCallHierarchyIncomingCalls',
     arguments: params,
@@ -441,10 +444,11 @@ export const provideCallHierarchyIncomingCalls = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ProvideCallHierarchyOutgoingCallsRequest['arguments']} params
  */
-export const provideCallHierarchyOutgoingCalls = (params) => {
-  TsPrimaryServer.send({
+export const provideCallHierarchyOutgoingCalls = async (server, params) => {
+  await server.invoke({
     type: 'request',
     command: 'provideCallHierarchyOutgoingCalls',
     arguments: params,
@@ -452,10 +456,11 @@ export const provideCallHierarchyOutgoingCalls = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').InlayHintsRequest['arguments']} params
  */
-export const provideInlayHints = (params) => {
-  TsPrimaryServer.send({
+export const provideInlayHints = async (server, params) => {
+  await server.invoke({
     type: 'request',
     command: 'provideInlayHints',
     arguments: params,
