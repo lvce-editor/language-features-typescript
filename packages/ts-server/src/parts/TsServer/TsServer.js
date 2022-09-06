@@ -1,58 +1,42 @@
-import * as TsServerIpcType from '../TsServerIpcType/TsServerIpcType.js'
-import * as TsServerWithIpc from './TsServerWithIpc.js'
-import * as TsServerWithStdio from './TsServerWithStdio.js'
+import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
-// TODO should be xdg and windows compatible and only start when necessary and be in a different file (Logger.js)
-
-// TODO tsserver path should be overridable via configuration
-
-const TS_SERVER_MAX_MEMORY = 200
-
-/**
- *
- * @param {string} ipc
- * @returns
- */
-const getServerFactory = (ipc) => {
-  switch (ipc) {
-    case TsServerIpcType.Stdio:
-      return TsServerWithStdio
-    case TsServerIpcType.NodeIpc:
-      return TsServerWithIpc
-    default:
-      throw new Error('unexpected ipc type')
+export const create = (tsServerProcess) => {
+  const state = {
+    pendingRequests: Object.create(null),
   }
-}
-
-export const create = ({
-  disableAutomaticTypingAcquisition = true,
-  npmLocation = '',
-  tsServerPath = '',
-  ipc = TsServerIpcType.NodeIpc,
-  handleMessage = () => {},
-  handleError = () => {},
-  handleExit = () => {},
-} = {}) => {
-  const args = [`--max-old-space-size=${TS_SERVER_MAX_MEMORY}`, tsServerPath]
-  args.push('--useInferredProjectPerProjectRoot')
-  if (disableAutomaticTypingAcquisition) {
-    args.push('--disableAutomaticTypingAcquisition')
+  const handleMessage = (message) => {
+    console.log({ message })
+    switch (message.type) {
+      case TsServerMessageType.Response:
+        const pendingRequest = state.pendingRequests[message.request_seq]
+        pendingRequest.resolve(message)
+        break
+      case TsServerMessageType.Event:
+        // if (state.listeners[message.event]) {
+        //   for (const listener of state.listeners[message.event]) {
+        //     listener(message.body)
+        //   }
+        // }
+        break
+      // TODO handle error
+      default:
+        break
+    }
   }
-  if (npmLocation) {
-    args.push('--npmLocation', `${npmLocation}`)
+  tsServerProcess.onMessage(handleMessage)
+  return {
+    invoke(message) {
+      return new Promise((resolve, reject) => {
+        state.pendingRequests[message.seq] = {
+          resolve,
+          reject,
+          command: message.command,
+        }
+        tsServerProcess.send(message)
+      })
+    },
+    dispose() {
+      tsServerProcess.dispose()
+    },
   }
-  args.push('--locale', 'en')
-  args.push('--noGetErrOnBackgroundUpdate')
-  args.push('--validateDefaultNpmLocation')
-  args.push('--suppressDiagnosticEvents')
-
-  const factory = getServerFactory(ipc)
-
-  const instance = factory.create({
-    args,
-  })
-  instance.onError(handleError)
-  instance.onMessage(handleMessage)
-  instance.onExit(handleExit)
-  return instance
 }

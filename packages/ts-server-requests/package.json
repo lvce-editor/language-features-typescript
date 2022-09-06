@@ -2,7 +2,7 @@
   "name": "ts-server-requests",
   "version": "0.0.0-dev",
   "description": "",
-  "main": "index.js",
+  "main": "src/main.js",
   "type": "module",
   "scripts": {
     "test": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --bail --detectOpenHandles --forceExit",

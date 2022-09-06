@@ -3,11 +3,11 @@ import { fork } from 'node:child_process'
 export const create = ({ args }) => {
   const argsWithNodeIpc = [...args, '--useNodeIpc']
   const server = fork(argsWithNodeIpc[0], argsWithNodeIpc.slice(1), {
-    stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
+    stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     // stdio: 'inherit',
   })
-  // server.stderr.pipe(process.stderr)
-  // server.stdout.pipe(process.stdout)
+  server.stderr.pipe(process.stderr)
+  server.stdout.pipe(process.stdout)
   const handleDisconnect = () => {
     console.info('[tsserver] disconnected')
   }
