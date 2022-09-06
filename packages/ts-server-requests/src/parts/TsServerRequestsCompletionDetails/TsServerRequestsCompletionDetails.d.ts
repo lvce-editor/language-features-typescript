@@ -2,8 +2,7 @@ import type {
   CompletionDetailsRequest,
   CompletionDetailsResponse,
 } from 'typescript/lib/protocol'
-
-export interface TsServer {}
+import type { TsServer } from '../TsServer/TsServer.js'
 
 export const completionDetails: (
   server: TsServer,
