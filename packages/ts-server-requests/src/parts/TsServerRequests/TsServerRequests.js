@@ -196,7 +196,7 @@ export const definitionAndBoundSpan = (server, params) => {
 /**
  * @param {any} server
  * @param {import('typescript/lib/protocol').DocumentHighlightsRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').DocumentHighlightsResponse>}
+ * @returns {Promise<import('typescript/lib/protocol').DocumentHighlightsResponse['body']>}
  */
 export const documentHighlights = async (server, params) => {
   const message = await server.invoke({

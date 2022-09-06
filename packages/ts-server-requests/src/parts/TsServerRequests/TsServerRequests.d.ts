@@ -14,6 +14,8 @@ import type {
   UpdateOpenRequest,
   DefinitionRequest,
   DefinitionInfo,
+  DocumentHighlightsRequest,
+  DocumentHighlightsResponse,
 } from 'typescript/lib/protocol'
 
 export interface TsServer {}
@@ -67,6 +69,11 @@ export const definition: (
   server: TsServer,
   params: DefinitionRequest['arguments']
 ) => Promise<readonly DefinitionInfo[]>
+
+export const documentHighlights: (
+  server: TsServer,
+  params: DocumentHighlightsRequest['arguments']
+) => Promise<DocumentHighlightsResponse['body']>
 
 export const updateOpen: (
   server: TsServer,
