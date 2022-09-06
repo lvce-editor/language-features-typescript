@@ -8,121 +8,6 @@ import { TsServerError } from '../TsServerError/TsServerError.js'
 
 /**
  * @param {any} server
- * @param {import('typescript/lib/protocol').DocumentHighlightsRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').DocumentHighlightsResponse['body']>}
- */
-export const documentHighlights = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.DocumentHighlights,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.DocumentHighlights)
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').EncodedSemanticClassificationsRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').EncodedSemanticClassificationsResponse['body']>}
- */
-export const encodedSemanticClassificationsFull = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.EncodedSemanticClassificationsFull,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(
-      message,
-      TsServerCommandType.EncodedSemanticClassificationsFull
-    )
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
- */
-export const exit = async (server) => {
-  await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Exit,
-  })
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').FileReferencesRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').FileReferencesResponse>}
- */
-export const fileReferences = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.FileReferences,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.FileReferences)
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').FormatRequest['arguments']} params
- */
-export const format = async (server, params) => {
-  await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Format,
-    arguments: params,
-  })
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').CodeFixRequest['arguments']} params
- */
-export const getCodeFixes = async (server, params) => {
-  await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.GetCodeFixes,
-    arguments: params,
-  })
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').GetEditsForFileRenameRequest['arguments']} params
- */
-export const getEditsForFileRename = async (server, params) => {
-  await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.GetEditsForFileRename,
-    arguments: params,
-  })
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').OutliningSpansRequest['arguments']} params
- */
-export const getOutliningSpans = async (server, params) => {
-  await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.GetOutliningSpans,
-    arguments: params,
-  })
-}
-
-/**
- * @param {any} server
  * @param {import('typescript/lib/protocol').SpanOfEnclosingCommentRequest['arguments']} params
  */
 export const getSpanOfEnclosingComment = async (server, params) => {
@@ -147,43 +32,6 @@ export const getSupportedCodeFixes = async (server, params) => {
 
 /**
  * @param {any} server
- * @param {import('typescript/lib/protocol').ImplementationRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').ImplementationResponse['body']>}
- */
-export const implementation = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Implementation,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.Implementation)
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').IndentationRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').IndentationResponse>}
- *
- */
-export const indentation = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Indentation,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.Indentation)
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
  * @param {import('typescript/lib/protocol').JsxClosingTagRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').JsxClosingTagResponse['body']|undefined>}
  */
@@ -199,23 +47,6 @@ export const jsxClosingTag = async (server, params) => {
       return undefined
     }
     throw new TsServerError(message, TsServerCommandType.JsxClosingTag)
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').OrganizeImportsRequest['arguments']} params
- */
-export const organizeImports = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.OrganizeImports,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.OrganizeImports)
   }
   return message.body
 }
@@ -270,23 +101,6 @@ export const provideInlayHints = async (server, params) => {
 
 /**
  * @param {any} server
- * @param {import('typescript/lib/protocol').ReferencesRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').ReferencesResponseBody>}
- */
-export const references = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.References,
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.References)
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
  * @param {import('typescript/lib/protocol').ReloadRequest['arguments']} params
  */
 export const reload = async (server, params) => {
@@ -295,23 +109,6 @@ export const reload = async (server, params) => {
     command: TsServerCommandType.Reload,
     arguments: params,
   })
-}
-
-/**
- * @param {any} server
- * @param {import('typescript/lib/protocol').RenameRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').RenameResponseBody>}
- */
-export const rename = async (server, params) => {
-  const message = await server.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Rename,
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.Rename)
-  }
-  return message.body
 }
 
 /**
