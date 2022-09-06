@@ -1,27 +1,23 @@
-import * as TsServerRequests from 'ts-server'
+import * as TsServerRequests from 'ts-server/src/parts/TsServerRequests/TsServerRequests.js'
 import { join } from 'node:path'
 
-const DEFAULT_TSCONFIG = `{
-  "moduleResolution": "node",
-  "newLine": "lf",
-  "skipLibCheck": true,
-  "skipDefaultLibCheck": true,
-  "rootDir": "."
-}
-`
-
-const main = async () => {
-  const server = {
+const createServer = () => {
+  return {
     invoke() {
       return {
         success: true,
       }
     },
   }
-  const fixture = join
+}
+
+const main = async () => {
+  const server = createServer()
+  console.log(TsServerRequests)
+  const fixture = ``
   await TsServerRequests.configure(server, {})
   await TsServerRequests.braceCompletion(server, {
-    file: join(tmpDir, 'index.ts'),
+    file: join(fixture, 'src', 'index.ts'),
     line: 1,
     offset: 2,
     openingBrace: '{',
