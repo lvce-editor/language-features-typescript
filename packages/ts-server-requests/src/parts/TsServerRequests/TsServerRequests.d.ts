@@ -24,26 +24,6 @@ import type {
   ImplementationResponse,
 } from 'typescript/lib/protocol'
 
-export const braceCompletion: (
-  server: TsServer,
-  params: BraceCompletionRequest['arguments']
-) => Promise<unknown>
-
-export const change: (
-  server: TsServer,
-  params: ChangeRequest['arguments']
-) => void
-
-export const close: (
-  server: TsServer,
-  params: CloseRequest['arguments']
-) => void
-
-export const closeExternalProject: (
-  server: TsServer,
-  params: CloseExternalProjectRequest['arguments']
-) => void
-
 export const commentSelection: (
   server: TsServer,
   params: CommentSelectionRequest['arguments']
