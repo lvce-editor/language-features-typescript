@@ -13,10 +13,10 @@ const tsServerArgs = [
   '--useNodeIpc',
 ]
 
-test('sample.completion-info', async () => {
+test('sample.completion-info-property', async () => {
   const child = createChild({ tsServerArgs })
   const server = TsServer.create(child)
-  const fixture = getFixture('sample.completion')
+  const fixture = getFixture('sample.completion-info-property')
   await TsServerRequests.configure(server, {})
   await TsServerRequests.updateOpen(server, {
     openFiles: [
@@ -29,20 +29,31 @@ test('sample.completion-info', async () => {
     await TsServerRequests.completionInfo(server, {
       file: join(fixture, 'src', 'index.ts'),
       line: 1,
-      offset: 2,
+      offset: 11,
+      prefix: 'add',
     })
   ).toEqual({
     entries: expect.arrayContaining([
       {
-        kind: 'keyword',
-        kindModifiers: '',
-        name: 'const',
-        sortText: '15',
+        kind: 'method',
+        kindModifiers: 'declare',
+        name: 'addEventListener',
+        sortText: '11',
       },
     ]),
     flags: 0,
-    isGlobalCompletion: true,
-    isMemberCompletion: false,
+    isGlobalCompletion: false,
+    isMemberCompletion: true,
     isNewIdentifierLocation: false,
+    optionalReplacementSpan: {
+      end: {
+        line: 1,
+        offset: 11,
+      },
+      start: {
+        line: 1,
+        offset: 8,
+      },
+    },
   })
 })
