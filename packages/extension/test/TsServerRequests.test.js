@@ -348,42 +348,6 @@ const y = x`
 })
 
 test(
-  'implementation',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `const add = (a, b) => a + b
-const sum = add(1, 2)`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.implementation({
-        file: join(tmpDir, 'index.ts'),
-        line: 2,
-        offset: 14,
-      })
-    ).toEqual([
-      {
-        contextEnd: { line: 1, offset: 28 },
-        contextStart: { line: 1, offset: 1 },
-        end: { line: 1, offset: 10 },
-        file: normalize(join(tmpDir, 'index.ts')),
-        start: { line: 1, offset: 7 },
-      },
-    ])
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'implementation - error - no project',
   async () => {
     const tmpDir = await getTmpDir()
