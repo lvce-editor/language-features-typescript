@@ -3,10 +3,17 @@
   "version": "0.0.0-dev",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "ts-server": "file:../ts-server"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.15"
+  }
 }

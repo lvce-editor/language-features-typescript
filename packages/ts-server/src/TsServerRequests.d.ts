@@ -55,7 +55,7 @@ export const compileOnSaveAffectedFileList: (
   params: CompileOnSaveAffectedFileListRequest['arguments']
 ) => Promise<void>
 
-export const configure = (
+export const configure: (
   server: TsServer,
   params: ConfigureRequest['arguments']
 ) => Promise<ConfigureResponse>
