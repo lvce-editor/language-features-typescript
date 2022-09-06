@@ -20,6 +20,8 @@ import type {
   EncodedSemanticClassificationsResponse,
   FileReferencesRequest,
   FileReferencesResponse,
+  ImplementationRequest,
+  ImplementationResponse,
 } from 'typescript/lib/protocol'
 
 export interface TsServer {}
@@ -88,6 +90,11 @@ export const fileReferences: (
   server: TsServer,
   params: FileReferencesRequest['arguments']
 ) => Promise<FileReferencesResponse['body']>
+
+export const implementation: (
+  server: TsServer,
+  params: ImplementationRequest['arguments']
+) => Promise<ImplementationResponse['body']>
 
 export const updateOpen: (
   server: TsServer,
