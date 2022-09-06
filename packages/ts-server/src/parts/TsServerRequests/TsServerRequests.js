@@ -271,7 +271,7 @@ export const format = (server, params) => {
  * @param {any} server
  * @param {import('typescript/lib/protocol').CodeFixRequest['arguments']} params
  */
-export const getCodeFixes = (sever, params) => {
+export const getCodeFixes = (server, params) => {
   server.send({
     type: 'request',
     command: 'getCodeFixes',
@@ -387,23 +387,6 @@ export const jsxClosingTag = async (server, params) => {
 
 /**
  * @param {any} server
- * @param {import('typescript/lib/protocol').RenameRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').RenameResponseBody>}
- */
-export const rename = async (server, params) => {
-  const message = await server.invoke({
-    type: 'request',
-    command: 'rename',
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, 'rename')
-  }
-  return message.body
-}
-
-/**
- * @param {any} server
  * @param {import('typescript/lib/protocol').OrganizeImportsRequest['arguments']} params
  */
 export const organizeImports = async (server, params) => {
@@ -492,6 +475,23 @@ export const reload = async (params) => {
     command: 'reload',
     arguments: params,
   })
+}
+
+/**
+ * @param {any} server
+ * @param {import('typescript/lib/protocol').RenameRequest['arguments']} params
+ * @returns {Promise<import('typescript/lib/protocol').RenameResponseBody>}
+ */
+export const rename = async (server, params) => {
+  const message = await server.invoke({
+    type: 'request',
+    command: 'rename',
+    arguments: params,
+  })
+  if (!message.success) {
+    throw new TsServerError(message, 'rename')
+  }
+  return message.body
 }
 
 /**
