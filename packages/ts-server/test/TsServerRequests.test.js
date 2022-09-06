@@ -551,24 +551,34 @@ test('documentHighlights - tsServerError - debug failure', async () => {
   )
 })
 
-test.skip('encodedSemanticClassificationsFull', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('encodedSemanticClassificationsFull', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: {
+          endOfLineState: 0,
+          // prettier-ignore
+          spans: [
+            4 /* offset */,
+            1 /* length */,
+            2049 /* (2049 >> 8) - 1 = 7 = variable, 2049 & 255 = 1 = 2^0 = declaration  */,
+
+            16 /* offset */,
+            1 /* length */,
+            2057 /* (2057 >> 8) - 1 = 7 = variable, 2057 & 255 = 9 = 2^3 + 2^0 = declaration and readonly */,
+
+            20 /* offset */,
+            1 /* length */,
+            2048 /* (2048 >> 8) - 1 = 7 = variable, 2048 & 255 = 0 = none */,
+          ],
+        },
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.encodedSemanticClassificationsFull({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.encodedSemanticClassificationsFull(server, {
+      file: '/test/index.ts',
       format: '2020',
       start: 0,
       length: 21,
@@ -589,6 +599,18 @@ const y = x`
         1 /* length */,
         2048 /* (2048 >> 8) - 1 = 7 = variable, 2048 & 255 = 0 = none */,
       ],
+  })
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+      format: '2020',
+      length: 21,
+      start: 0,
+    },
+    command: 'encodedSemanticClassifications-full',
+    seq: 1,
+    type: 'request',
   })
 })
 
