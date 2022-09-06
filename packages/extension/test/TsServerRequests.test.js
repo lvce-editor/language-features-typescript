@@ -378,30 +378,6 @@ const sum = add(1, 2)`
 )
 
 test(
-  'indentation',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(join(tmpDir, 'index.ts'), `  const add = (a, b) => {}`)
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.indentation({
-        file: join(tmpDir, 'index.ts'),
-        line: 1,
-        offset: 10,
-      })
-    ).toEqual({ indentation: 2, position: 9 })
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'jsxClosingTag',
   async () => {
     const tmpDir = await getTmpDir()
@@ -498,56 +474,6 @@ test(
         offset: 17,
       })
     ).toBeUndefined()
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
-  'organizeImports',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-    )
-    await writeFile(
-      join(tmpDir, 'calculate.ts'),
-      `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.organizeImports({
-        scope: {
-          type: 'file',
-          args: {
-            file: join(tmpDir, 'index.ts'),
-          },
-        },
-      })
-    ).toEqual([
-      {
-        fileName: normalize(join(tmpDir, 'index.ts')),
-        textChanges: [
-          {
-            end: { line: 2, offset: 1 },
-            newText:
-              process.platform === 'win32'
-                ? "import { add } from './calculate.ts'\r\n"
-                : "import { add } from './calculate.ts'\n",
-            start: { line: 1, offset: 1 },
-          },
-        ],
-      },
-    ])
   },
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
