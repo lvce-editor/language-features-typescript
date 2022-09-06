@@ -362,13 +362,18 @@ The event listener is appended to target's event listener list and is not append
   ])
 })
 
-test.skip('completionInfo - tsServerError - no project', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(join(tmpDir, 'index.ts'), '')
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
+test('completionInfo - tsServerError - no project', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: 'No Project.',
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.completionInfo({
-      file: join(tmpDir, 'index.ts'),
+    TsServerRequests.completionInfo(server, {
+      file: '/test/index.ts',
       line: 0,
       offset: 0,
     })
