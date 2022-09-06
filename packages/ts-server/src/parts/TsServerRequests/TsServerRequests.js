@@ -3,6 +3,7 @@
 import VError from 'verror'
 import * as Id from '../Id/Id.js'
 import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
+import * as TsServerCommandType from '../TsServerCommandType/TsServerCommandType.js'
 
 // TODO somehow tsserver stack is not printed
 class TsServerError extends VError {
@@ -35,7 +36,7 @@ class TsServerError extends VError {
 export const braceCompletion = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'braceCompletion',
+    command: TsServerCommandType.BraceCompletion,
     arguments: params,
     seq: Id.create(),
   })
@@ -52,7 +53,7 @@ export const braceCompletion = async (server, params) => {
 export const change = (server, params) => {
   server.send({
     type: TsServerMessageType.Request,
-    command: 'change',
+    command: TsServerCommandType.Change,
     arguments: params,
   })
 }
@@ -64,7 +65,7 @@ export const change = (server, params) => {
 export const close = (server, params) => {
   server.send({
     type: TsServerMessageType.Request,
-    command: 'close',
+    command: TsServerCommandType.Close,
     arguments: params,
   })
 }
@@ -76,7 +77,7 @@ export const close = (server, params) => {
 export const closeExternalProject = (server, params) => {
   server.send({
     type: TsServerMessageType.Request,
-    command: 'closeExternalProject',
+    command: TsServerCommandType.CloseExternalProject,
     arguments: params,
   })
 }
@@ -89,11 +90,11 @@ export const closeExternalProject = (server, params) => {
 export const commentSelection = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'commentSelection',
+    command: TsServerCommandType.CommentSelection,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'commentSelection')
+    throw new TsServerError(message, TsServerCommandType.CommentSelection)
   }
   return message.body
 }
@@ -106,11 +107,11 @@ export const commentSelection = async (server, params) => {
 export const completionDetails = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'completionEntryDetails',
+    command: TsServerCommandType.CompletionEntryDetails,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'completionEntryDetails')
+    throw new TsServerError(message, TsServerCommandType.CompletionEntryDetails)
   }
   return message.body
 }
@@ -123,12 +124,12 @@ export const completionDetails = async (server, params) => {
 export const completionInfo = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'completionInfo',
+    command: TsServerCommandType.CompletionInfo,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'completionInfo')
+    throw new TsServerError(message, TsServerCommandType.CompletionInfo)
   }
   return message.body
 }
@@ -140,7 +141,7 @@ export const completionInfo = async (server, params) => {
 export const compileOnSaveAffectedFileList = (server, params) => {
   server.send({
     type: TsServerMessageType.Request,
-    command: 'compileOnSaveAffectedFileList',
+    command: TsServerCommandType.CompileOnSaveAffectedFileList,
     arguments: params,
   })
 }
@@ -153,11 +154,11 @@ export const compileOnSaveAffectedFileList = (server, params) => {
 export const configure = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'configure',
+    command: TsServerCommandType.Configure,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'configure')
+    throw new TsServerError(message, TsServerCommandType.Configure)
   }
   return message.body
 }
@@ -170,12 +171,12 @@ export const configure = async (server, params) => {
 export const definition = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'definition',
+    command: TsServerCommandType.Definition,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'definition')
+    throw new TsServerError(message, TsServerCommandType.Definition)
   }
   return message.body
 }
@@ -187,7 +188,7 @@ export const definition = async (server, params) => {
 export const definitionAndBoundSpan = (server, params) => {
   server.send({
     type: TsServerMessageType.Request,
-    command: 'definitionAndBoundSpan',
+    command: TsServerCommandType.DefinitionAndBoundSpan,
     arguments: params,
   })
 }
@@ -200,12 +201,12 @@ export const definitionAndBoundSpan = (server, params) => {
 export const documentHighlights = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'documentHighlights',
+    command: TsServerCommandType.DocumentHighlights,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'documentHighlights')
+    throw new TsServerError(message, TsServerCommandType.DocumentHighlights)
   }
   return message.body
 }
@@ -218,12 +219,15 @@ export const documentHighlights = async (server, params) => {
 export const encodedSemanticClassificationsFull = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'encodedSemanticClassifications-full',
+    command: TsServerCommandType.EncodedSemanticClassificationsFull,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'encodedSemanticClassificationsFull')
+    throw new TsServerError(
+      message,
+      TsServerCommandType.EncodedSemanticClassificationsFull
+    )
   }
   return message.body
 }
@@ -234,7 +238,7 @@ export const encodedSemanticClassificationsFull = async (server, params) => {
 export const exit = async (server) => {
   await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'exit',
+    command: TsServerCommandType.Exit,
   })
 }
 
@@ -246,12 +250,12 @@ export const exit = async (server) => {
 export const fileReferences = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'fileReferences',
+    command: TsServerCommandType.FileReferences,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'fileReferences')
+    throw new TsServerError(message, TsServerCommandType.FileReferences)
   }
   return message.body
 }
@@ -260,10 +264,10 @@ export const fileReferences = async (server, params) => {
  * @param {any} server
  * @param {import('typescript/lib/protocol').FormatRequest['arguments']} params
  */
-export const format = (server, params) => {
-  server.send({
+export const format = async (server, params) => {
+  await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'format',
+    command: TsServerCommandType.Format,
     arguments: params,
   })
 }
@@ -272,10 +276,10 @@ export const format = (server, params) => {
  * @param {any} server
  * @param {import('typescript/lib/protocol').CodeFixRequest['arguments']} params
  */
-export const getCodeFixes = (server, params) => {
-  server.send({
+export const getCodeFixes = async (server, params) => {
+  await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'getCodeFixes',
+    command: TsServerCommandType.GetCodeFixes,
     arguments: params,
   })
 }
@@ -284,10 +288,10 @@ export const getCodeFixes = (server, params) => {
  * @param {any} server
  * @param {import('typescript/lib/protocol').GetEditsForFileRenameRequest['arguments']} params
  */
-export const getEditsForFileRename = (server, params) => {
-  server.send({
+export const getEditsForFileRename = async (server, params) => {
+  await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'getEditsForFileRename',
+    command: TsServerCommandType.GetEditsForFileRename,
     arguments: params,
   })
 }
@@ -296,10 +300,10 @@ export const getEditsForFileRename = (server, params) => {
  * @param {any} server
  * @param {import('typescript/lib/protocol').OutliningSpansRequest['arguments']} params
  */
-export const getOutliningSpans = (server, params) => {
-  server.send({
+export const getOutliningSpans = async (server, params) => {
+  await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'getOutliningSpans',
+    command: TsServerCommandType.GetOutliningSpans,
     arguments: params,
   })
 }
@@ -308,10 +312,10 @@ export const getOutliningSpans = (server, params) => {
  * @param {any} server
  * @param {import('typescript/lib/protocol').SpanOfEnclosingCommentRequest['arguments']} params
  */
-export const getSpanOfEnclosingComment = (server, params) => {
-  server.send({
+export const getSpanOfEnclosingComment = async (server, params) => {
+  await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'getSpanOfEnclosingComment',
+    command: TsServerCommandType.GetSpanOfEnclosingComment,
     arguments: params,
   })
 }
@@ -320,10 +324,10 @@ export const getSpanOfEnclosingComment = (server, params) => {
  * @param {any} server
  * @param {import('typescript/lib/protocol').GetSupportedCodeFixesRequest['arguments']} params
  */
-export const getSupportedCodeFixes = (server, params) => {
-  server.send({
+export const getSupportedCodeFixes = async (server, params) => {
+  await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'getSupportedCodeFixes',
+    command: TsServerCommandType.GetSupportedCodeFixes,
     arguments: params,
   })
 }
@@ -336,12 +340,12 @@ export const getSupportedCodeFixes = (server, params) => {
 export const implementation = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'implementation',
+    command: TsServerCommandType.Implementation,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'implementation')
+    throw new TsServerError(message, TsServerCommandType.Implementation)
   }
   return message.body
 }
@@ -355,12 +359,12 @@ export const implementation = async (server, params) => {
 export const indentation = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'indentation',
+    command: TsServerCommandType.Indentation,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'indentation')
+    throw new TsServerError(message, TsServerCommandType.Indentation)
   }
   return message.body
 }
@@ -373,7 +377,7 @@ export const indentation = async (server, params) => {
 export const jsxClosingTag = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'jsxClosingTag',
+    command: TsServerCommandType.JsxClosingTag,
     arguments: params,
     seq: Id.create(),
   })
@@ -381,7 +385,7 @@ export const jsxClosingTag = async (server, params) => {
     if (message.message === 'No content available.') {
       return undefined
     }
-    throw new TsServerError(message, 'jsxClosingTag')
+    throw new TsServerError(message, TsServerCommandType.JsxClosingTag)
   }
   return message.body
 }
@@ -393,12 +397,12 @@ export const jsxClosingTag = async (server, params) => {
 export const organizeImports = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'organizeImports',
+    command: TsServerCommandType.OrganizeImports,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'organizeImports')
+    throw new TsServerError(message, TsServerCommandType.OrganizeImports)
   }
   return message.body
 }
@@ -410,7 +414,7 @@ export const organizeImports = async (server, params) => {
 export const prepareCallHierarchy = async (server, params) => {
   await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'prepareCallHierarchy',
+    command: TsServerCommandType.PrepareCallHierarchy,
     arguments: params,
   })
 }
@@ -422,7 +426,7 @@ export const prepareCallHierarchy = async (server, params) => {
 export const provideCallHierarchyIncomingCalls = async (server, params) => {
   await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'provideCallHierarchyIncomingCalls',
+    command: TsServerCommandType.ProvideCallHierarchyIncomingCalls,
     arguments: params,
   })
 }
@@ -434,7 +438,7 @@ export const provideCallHierarchyIncomingCalls = async (server, params) => {
 export const provideCallHierarchyOutgoingCalls = async (server, params) => {
   await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'provideCallHierarchyOutgoingCalls',
+    command: TsServerCommandType.ProvideCallHierarchyOutgoingCalls,
     arguments: params,
   })
 }
@@ -446,23 +450,24 @@ export const provideCallHierarchyOutgoingCalls = async (server, params) => {
 export const provideInlayHints = async (server, params) => {
   await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'provideInlayHints',
+    command: TsServerCommandType.ProvideInlayHints,
     arguments: params,
   })
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ReferencesRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').ReferencesResponseBody>}
  */
-export const references = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const references = async (server, params) => {
+  const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'references',
+    command: TsServerCommandType.References,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'references')
+    throw new TsServerError(message, TsServerCommandType.References)
   }
   return message.body
 }
@@ -473,7 +478,7 @@ export const references = async (params) => {
 export const reload = async (params) => {
   await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'reload',
+    command: TsServerCommandType.Reload,
     arguments: params,
   })
 }
