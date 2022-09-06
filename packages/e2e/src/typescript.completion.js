@@ -1,5 +1,11 @@
 test('typescript.completion', async () => {
+  const tsserverPath = await FileSystem.createExecutable(`
+  console.log(process.argv)
+  process.exit(1)`)
   // arrange
+  await Settings.update({
+    'typescript.tsserverPath': tsserverPath,
+  })
   const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')
   await Main.openUri(`${tmpDir}/test.ts`)
