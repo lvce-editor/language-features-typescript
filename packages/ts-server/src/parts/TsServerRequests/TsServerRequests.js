@@ -473,10 +473,11 @@ export const references = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ReloadRequest['arguments']} params
  */
-export const reload = async (params) => {
-  await TsPrimaryServer.invoke({
+export const reload = async (server, params) => {
+  await server.invoke({
     type: TsServerMessageType.Request,
     command: TsServerCommandType.Reload,
     arguments: params,
@@ -522,10 +523,11 @@ export const semanticDiagnosticsSync = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ToggleLineCommentRequest['arguments']} params
  */
-export const toggleLineComment = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const toggleLineComment = async (server, params) => {
+  const message = await server.invoke({
     type: TsServerMessageType.Request,
     command: TsServerCommandType.ToggleLineComment,
     arguments: params,
@@ -538,10 +540,11 @@ export const toggleLineComment = async (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ToggleMultilineCommentRequest['arguments']} params
  */
-export const toggleMultilineComment = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const toggleMultilineComment = async (server, params) => {
+  const message = await server.invoke({
     type: TsServerMessageType.Request,
     command: TsServerCommandType.ToggleMultilineComment,
     arguments: params,
