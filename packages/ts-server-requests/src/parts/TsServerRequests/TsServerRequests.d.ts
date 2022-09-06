@@ -12,6 +12,8 @@ import type {
   ConfigureRequest,
   ConfigureResponse,
   UpdateOpenRequest,
+  DefinitionRequest,
+  DefinitionInfo,
 } from 'typescript/lib/protocol'
 
 export interface TsServer {}
@@ -60,6 +62,11 @@ export const configure: (
   server: TsServer,
   params: ConfigureRequest['arguments']
 ) => Promise<ConfigureResponse>
+
+export const definition: (
+  server: TsServer,
+  params: DefinitionRequest['arguments']
+) => Promise<readonly DefinitionInfo[]>
 
 export const updateOpen: (
   server: TsServer,
