@@ -1003,24 +1003,71 @@ test('references', async () => {
   })
 })
 
-test.skip('rename - can rename', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `const add = (a,b) => a + b'
-add(1,2)`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('rename - can rename', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: {
+          info: {
+            canRename: true,
+            displayName: 'add',
+            fullDisplayName: 'add',
+            kind: 'const',
+            kindModifiers: '',
+            triggerSpan: {
+              end: {
+                line: 2,
+                offset: 4,
+              },
+              start: {
+                line: 2,
+                offset: 1,
+              },
+            },
+          },
+          locs: [
+            {
+              file: '/test/index.ts',
+              locs: [
+                {
+                  contextEnd: {
+                    line: 1,
+                    offset: 27,
+                  },
+                  contextStart: {
+                    line: 1,
+                    offset: 1,
+                  },
+                  end: {
+                    line: 1,
+                    offset: 10,
+                  },
+                  start: {
+                    line: 1,
+                    offset: 7,
+                  },
+                },
+                {
+                  end: {
+                    line: 2,
+                    offset: 4,
+                  },
+                  start: {
+                    line: 2,
+                    offset: 1,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.rename({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.rename(server, {
+      file: '/test/index.ts',
       line: 2,
       offset: 2,
     })
@@ -1044,7 +1091,7 @@ add(1,2)`
     },
     locs: [
       {
-        file: normalize(join(tmpDir, 'index.ts')),
+        file: '/test/index.ts',
         locs: [
           {
             contextEnd: {
@@ -1078,25 +1125,36 @@ add(1,2)`
       },
     ],
   })
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+      line: 2,
+      offset: 2,
+    },
+    command: TsServerCommandType.Rename,
+    type: TsServerMessageType.Request,
+  })
 })
 
-test.skip('rename - cannot rename', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    "export const add = (a,b) => a + b'"
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('rename - cannot rename', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: {
+          info: {
+            canRename: false,
+            localizedErrorMessage: 'You cannot rename this element.',
+          },
+          locs: [],
+        },
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.rename({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.rename(server, {
+      file: '/test/index.ts',
       line: 1,
       offset: 2,
     })
@@ -1109,23 +1167,18 @@ test.skip('rename - cannot rename', async () => {
   })
 })
 
-test.skip('rename - error - cannot read properties of undefined', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    "export const add = (a,b) => a + b'"
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('rename - error - cannot read properties of undefined', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `TypeError: Cannot read properties of undefined (reading 'lineOffsetToPosition')`,
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.rename({
-      file: join(tmpDir, 'cat.ts'),
+    TsServerRequests.rename(server, {
+      file: '/test/cat.ts',
       line: 1,
       offset: 2,
     })
