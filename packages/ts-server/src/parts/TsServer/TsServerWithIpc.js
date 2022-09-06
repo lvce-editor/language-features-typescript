@@ -1,4 +1,3 @@
-import * as ChildProcess from '../ChildProcess/ChildProcess.js'
 import { fork } from 'node:child_process'
 
 export const create = ({ args }) => {

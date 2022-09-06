@@ -1,5 +1,6 @@
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 import * as Position from '../Position/Position.js'
+import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 
 export const languageId = 'typescript'
 

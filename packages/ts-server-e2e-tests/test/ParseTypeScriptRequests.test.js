@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals'
-import * as ParseTypeScriptRequests from '../src/parts/ParseTypeScriptRequests/ParseTypeScriptRequests.js'
+import * as ParseTypeScriptRequests from '../../extension/src/parts/ParseTypeScriptRequests/ParseTypeScriptRequests.js'
 
 // test('parseTypeScriptRequests', () => {
 //   expect(

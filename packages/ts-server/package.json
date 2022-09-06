@@ -1,8 +1,9 @@
 {
-  "name": "builtin.language-features-typescript",
+  "name": "ts-server",
   "version": "0.0.0-dev",
   "description": "",
-  "main": "src/languageFeaturesTypeScriptMain.js",
+  "main": "src/main.js",
+  "types": "src/main.d.ts",
   "type": "module",
   "scripts": {
     "test": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --bail --detectOpenHandles --forceExit",
@@ -12,24 +13,11 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "debug": "^4.3.4",
-    "exit-hook": "^3.1.0",
-    "typescript": "^4.8.2",
-    "verror": "^1.10.1",
-    "ts-server": "file:../ts-server"
+    "verror": "^1.10.1"
   },
   "devDependencies": {
-    "@types/debug": "^4.1.7",
     "@types/jest": "^29.0.0",
-    "@types/normalize-path": "^3.0.0",
     "@types/verror": "^1.10.6",
-    "jest": "^29.0.2",
-    "normalize-path": "^3.0.0",
-    "wait-for-expect": "^3.0.2"
-  },
-  "jest": {
-    "testMatch": [
-      "<rootDir>/test/*.test.js"
-    ]
+    "jest": "^29.0.2"
   }
 }

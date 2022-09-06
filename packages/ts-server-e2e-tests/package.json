@@ -1,0 +1,12 @@
+{
+  "name": "ts-server-e2e-tests",
+  "version": "0.0.0-dev",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
