@@ -6,7 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const root = join(__dirname, '..', '..', '..')
 const fixtures = join(root, 'packages', 'ts-server-playground', 'fixtures')
-const workspace = join(fixtures, 'workspace-1')
+const workspace = join(fixtures, 'workspace-2')
 
 const tsserverPath = join(
   root,
@@ -25,7 +25,7 @@ const createChild = () => {
       '--locale',
       'en',
       '--noGetErrOnBackgroundUpdate',
-      '--suppressDiagnosticEvents',
+      // '--suppressDiagnosticEvents',
       '--useNodeIpc',
     ],
     {
@@ -67,7 +67,9 @@ const main = async () => {
     arguments: {
       openFiles: [
         {
-          file: join(workspace, 'src', 'index.js'),
+          file: join(workspace, 'src', 'index.ts'),
+          fileContent: `let x: string = 1
+            `,
         },
       ],
     },
@@ -75,13 +77,25 @@ const main = async () => {
   })
   child.send({
     type: 'request',
-    command: 'completionInfo',
+    command: 'braceCompletion',
     arguments: {
-      file: join(workspace, 'src', 'index.js'),
       line: 1,
-      offset: 1,
+      offset: 2,
+      openingBrace: '{',
     },
   })
+  // child.send({
+  //   type: 'request',
+  //   command: 'completionInfo',
+  //   arguments: [
+  //     {
+  //       file: join(workspace, 'src', 'index.js'),
+  //       line: 1,
+  //       offset: 1,
+  //     },
+  //   ],
+  //   seq: id(),
+  // })
 }
 
 main()
