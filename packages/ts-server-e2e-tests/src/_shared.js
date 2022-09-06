@@ -2,6 +2,11 @@ import { fork } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+/**
+ * @type {any[]}
+ */
+const disposables = []
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const root = join(__dirname, '..', '..', '..')
@@ -19,8 +24,23 @@ const tsServerPath = join(
  * @param {*} param0
  * @returns
  */
-export const createChild = ({ tsServerArgs }) => {
+export const createChild = ({
+  tsServerArgs = [
+    '--useInferredProjectPerProjectRoot',
+    '--disableAutomaticTypingAcquisition',
+    '--locale',
+    'en',
+    '--noGetErrOnBackgroundUpdate',
+    '--suppressDiagnosticEvents',
+    '--useNodeIpc',
+  ],
+} = {}) => {
   const child = fork(tsServerPath, [...tsServerArgs])
+  disposables.push({
+    dispose() {
+      child.kill()
+    },
+  })
   return {
     onMessage(listener) {
       child.on('message', listener)
@@ -43,3 +63,9 @@ export const getFixture = (name) => {
   const fixture = join(fixtures, name)
   return fixture
 }
+
+afterAll(() => {
+  for (const disposable of disposables) {
+    disposable.dispose()
+  }
+})
