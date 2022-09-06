@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals'
 import { writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import * as TsServerMessageType from '../src/parts/TsServerMessageType/TsServerMessageType.js'
+import * as TsServerCommandType from '../src/parts/TsServerCommandType/TsServerCommandType.js'
 
 jest.unstable_mockModule('../src/parts/Id/Id.js', () => {
   return {
@@ -40,9 +42,9 @@ test('braceCompletion', async () => {
       offset: 2,
       openingBrace: '{',
     },
-    command: 'braceCompletion',
+    command: TsServerCommandType.BraceCompletion,
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -421,9 +423,9 @@ test('definition', async () => {
       line: 2,
       offset: 7,
     },
-    command: 'definition',
+    command: TsServerCommandType.Definition,
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -524,9 +526,9 @@ test('documentHighlights', async () => {
       line: 1,
       offset: 5,
     },
-    command: 'documentHighlights',
+    command: TsServerCommandType.DocumentHighlights,
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -608,9 +610,9 @@ test('encodedSemanticClassificationsFull', async () => {
       length: 21,
       start: 0,
     },
-    command: 'encodedSemanticClassifications-full',
+    command: TsServerCommandType.EncodedSemanticClassificationsFull,
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -627,8 +629,8 @@ test('exit', async () => {
   TsServerRequests.exit(server)
   expect(server.invoke).toHaveBeenCalledTimes(1)
   expect(server.invoke).toHaveBeenCalledWith({
-    command: 'exit',
-    type: 'request',
+    command: TsServerCommandType.Exit,
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -657,9 +659,9 @@ test('fileReferences', async () => {
     arguments: {
       file: '/test/calculate.ts',
     },
-    command: 'fileReferences',
+    command: TsServerCommandType.FileReferences,
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -778,9 +780,9 @@ test('indentation', async () => {
       line: 1,
       offset: 10,
     },
-    command: 'indentation',
+    command: TsServerCommandType.Indentation,
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -813,9 +815,9 @@ test('jsxClosingTag', async () => {
       line: 2,
       offset: 15,
     },
-    command: 'jsxClosingTag',
+    command: TsServerCommandType.JsxClosingTag,
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
