@@ -1,27 +1,15 @@
 import type {
-  CloseRequest,
-  CloseExternalProjectRequest,
   CommentSelectionRequest,
-  BraceCompletionRequest,
-  ChangeRequest,
-  CompletionsRequest,
-  CompletionDetailsResponse,
-  CompletionDetailsRequest,
-  CompletionInfo,
   CompileOnSaveAffectedFileListRequest,
-  ConfigureRequest,
-  ConfigureResponse,
-  UpdateOpenRequest,
-  DefinitionRequest,
-  DefinitionInfo,
-  DocumentHighlightsRequest,
-  DocumentHighlightsResponse,
+  CompletionDetailsRequest,
+  CompletionDetailsResponse,
+  CompletionInfo,
+  CompletionsRequest,
   EncodedSemanticClassificationsRequest,
   EncodedSemanticClassificationsResponse,
-  FileReferencesRequest,
-  FileReferencesResponse,
   ImplementationRequest,
   ImplementationResponse,
+  UpdateOpenRequest,
 } from 'typescript/lib/protocol'
 
 export const commentSelection: (
@@ -44,30 +32,10 @@ export const compileOnSaveAffectedFileList: (
   params: CompileOnSaveAffectedFileListRequest['arguments']
 ) => Promise<void>
 
-export const configure: (
-  server: TsServer,
-  params: ConfigureRequest['arguments']
-) => Promise<ConfigureResponse>
-
-export const definition: (
-  server: TsServer,
-  params: DefinitionRequest['arguments']
-) => Promise<readonly DefinitionInfo[]>
-
-export const documentHighlights: (
-  server: TsServer,
-  params: DocumentHighlightsRequest['arguments']
-) => Promise<DocumentHighlightsResponse['body']>
-
 export const encodedSemanticClassificationsFull: (
   server: TsServer,
   params: EncodedSemanticClassificationsRequest['arguments']
 ) => Promise<EncodedSemanticClassificationsResponse['body']>
-
-export const fileReferences: (
-  server: TsServer,
-  params: FileReferencesRequest['arguments']
-) => Promise<FileReferencesResponse['body']>
 
 export const implementation: (
   server: TsServer,
