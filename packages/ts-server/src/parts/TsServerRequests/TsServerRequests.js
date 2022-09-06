@@ -192,11 +192,12 @@ export const definitionAndBoundSpan = (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').DocumentHighlightsRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').DocumentHighlightsResponse>}
  */
-export const documentHighlights = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const documentHighlights = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'documentHighlights',
     arguments: params,
@@ -209,11 +210,12 @@ export const documentHighlights = async (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').EncodedSemanticClassificationsRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').EncodedSemanticClassificationsResponse['body']>}
  */
-export const encodedSemanticClassificationsFull = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const encodedSemanticClassificationsFull = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'encodedSemanticClassifications-full',
     arguments: params,
@@ -225,7 +227,15 @@ export const encodedSemanticClassificationsFull = async (params) => {
   return message.body
 }
 
-export const exit = () => {}
+/**
+ * @param {any} server
+ */
+export const exit = async (server) => {
+  await server.invoke({
+    type: 'request',
+    command: 'exit',
+  })
+}
 
 /**
  * @param {import('typescript/lib/protocol').FileReferencesRequest['arguments']} params

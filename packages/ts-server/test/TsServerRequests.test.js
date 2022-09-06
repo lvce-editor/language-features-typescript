@@ -414,52 +414,74 @@ test('definition', async () => {
       start: { line: 2, offset: 7 },
     },
   ])
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+      line: 2,
+      offset: 7,
+    },
+    command: 'definition',
+    seq: 1,
+    type: 'request',
+  })
 })
 
-// TODO what to test?
-test.skip('exit', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
-  TsServerRequests.exit()
-})
-
-test.skip('documentHighlights', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('documentHighlights', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: [
+          {
+            file: '/test/index.ts',
+            highlightSpans: [
+              {
+                contextEnd: {
+                  line: 1,
+                  offset: 10,
+                },
+                contextStart: {
+                  line: 1,
+                  offset: 1,
+                },
+                end: {
+                  line: 1,
+                  offset: 6,
+                },
+                kind: 'writtenReference',
+                start: {
+                  line: 1,
+                  offset: 5,
+                },
+              },
+              {
+                end: {
+                  line: 2,
+                  offset: 12,
+                },
+                kind: 'reference',
+                start: {
+                  line: 2,
+                  offset: 11,
+                },
+              },
+            ],
+          },
+        ],
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.documentHighlights({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.documentHighlights(server, {
+      file: '/test/index.ts',
       line: 1,
       offset: 5,
-      filesToSearch: [join(tmpDir, 'index.ts')],
+      filesToSearch: ['/test/index.ts'],
     })
   ).toEqual([
     {
-      file: normalize(join(tmpDir, 'index.ts')),
+      file: '/test/index.ts',
       highlightSpans: [
         {
           contextEnd: {
@@ -494,26 +516,32 @@ const y = x`
       ],
     },
   ])
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenLastCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+      filesToSearch: ['/test/index.ts'],
+      line: 1,
+      offset: 5,
+    },
+    command: 'documentHighlights',
+    seq: 1,
+    type: 'request',
+  })
 })
 
-test.skip('documentHighlights - tsServerError - debug failure', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('documentHighlights - tsServerError - debug failure', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `Debug Failure. False expression.`,
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.documentHighlights({
-      file: join(tmpDir, 'index.ts'),
+    TsServerRequests.documentHighlights(server, {
+      file: '/test/index.ts',
       line: 1,
       offset: 5,
       filesToSearch: ['**'],
@@ -561,6 +589,24 @@ const y = x`
         1 /* length */,
         2048 /* (2048 >> 8) - 1 = 7 = variable, 2048 & 255 = 0 = none */,
       ],
+  })
+})
+
+// TODO what to test?
+test('exit', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: undefined,
+      }
+    }),
+  }
+  TsServerRequests.exit(server)
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    command: 'exit',
+    type: 'request',
   })
 })
 
