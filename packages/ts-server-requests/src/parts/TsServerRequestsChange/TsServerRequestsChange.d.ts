@@ -1,6 +1,5 @@
 import type { ChangeRequest } from 'typescript/lib/protocol'
-
-export interface TsServer {}
+import type { TsServer } from '../TsServer/TsServer.js'
 
 export const change: (
   server: TsServer,

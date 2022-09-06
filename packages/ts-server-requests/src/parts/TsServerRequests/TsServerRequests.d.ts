@@ -24,8 +24,6 @@ import type {
   ImplementationResponse,
 } from 'typescript/lib/protocol'
 
-export interface TsServer {}
-
 export const braceCompletion: (
   server: TsServer,
   params: BraceCompletionRequest['arguments']

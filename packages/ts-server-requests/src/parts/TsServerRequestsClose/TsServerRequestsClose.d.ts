@@ -1,8 +1,7 @@
 import type { CloseRequest } from 'typescript/lib/protocol'
+import type { TsServer } from '../TsServer/TsServer.js'
 
-export interface TsServer {}
-
-export const change: (
+export const close: (
   server: TsServer,
   params: CloseRequest['arguments']
 ) => void
