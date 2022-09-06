@@ -501,11 +501,12 @@ export const rename = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').SemanticDiagnosticsSyncRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').SemanticDiagnosticsSyncResponse>}
  */
-export const semanticDiagnosticsSync = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const semanticDiagnosticsSync = async (server, params) => {
+  const message = await server.invoke({
     type: TsServerMessageType.Request,
     command: TsServerCommandType.SemanticDiagnosticsSync,
     arguments: params,

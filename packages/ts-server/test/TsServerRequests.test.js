@@ -1189,24 +1189,32 @@ test('rename - error - cannot read properties of undefined', async () => {
   )
 })
 
-test.skip('semanticDiagnosticsSync', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('semanticDiagnosticsSync', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: [
+          {
+            category: 'error',
+            code: 2691,
+            end: {
+              line: 1,
+              offset: 45,
+            },
+            start: {
+              line: 1,
+              offset: 29,
+            },
+            text: "An import path cannot end with a '.ts' extension. Consider importing './calculate' instead.",
+          },
+        ],
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.semanticDiagnosticsSync({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.semanticDiagnosticsSync(server, {
+      file: '/test/index.ts',
     })
   ).toEqual([
     {
@@ -1223,26 +1231,29 @@ add(1, 2)`
       text: "An import path cannot end with a '.ts' extension. Consider importing './calculate' instead.",
     },
   ])
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+    },
+    command: 'semanticDiagnosticsSync',
+    seq: 1,
+    type: 'request',
+  })
 })
 
-test.skip('semanticDiagnosticsSync - error - no project', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('semanticDiagnosticsSync - error - no project', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `No Project.`,
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.semanticDiagnosticsSync({
-      file: join(tmpDir, 'cat.ts'),
+    TsServerRequests.semanticDiagnosticsSync(server, {
+      file: '/test/cat.ts',
     })
   ).rejects.toThrowError(
     new Error('TsServer.semanticDiagnosticsSync failed to execute: No Project.')
