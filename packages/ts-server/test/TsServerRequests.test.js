@@ -911,29 +911,50 @@ test('organizeImports - error - no project', async () => {
   )
 })
 
-test.skip('references', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `const add = (a,b) => {
-  return a + b
-}
-
-add(1,2)
-add(3,4)
-`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('references', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: {
+          refs: [
+            {
+              contextEnd: { line: 3, offset: 2 },
+              contextStart: { line: 1, offset: 1 },
+              end: { line: 1, offset: 10 },
+              file: '/test/index.ts',
+              isDefinition: true,
+              isWriteAccess: true,
+              lineText: 'const add = (a,b) => {',
+              start: { line: 1, offset: 7 },
+            },
+            {
+              end: { line: 5, offset: 4 },
+              file: '/test/index.ts',
+              isDefinition: false,
+              isWriteAccess: false,
+              lineText: 'add(1,2)',
+              start: { line: 5, offset: 1 },
+            },
+            {
+              end: { line: 6, offset: 4 },
+              file: '/test/index.ts',
+              isDefinition: false,
+              isWriteAccess: false,
+              lineText: 'add(3,4)',
+              start: { line: 6, offset: 1 },
+            },
+          ],
+          symbolDisplayString: 'const add: (a: any, b: any) => any',
+          symbolName: 'add',
+          symbolStartOffset: 7,
+        },
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.references({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.references(server, {
+      file: '/test/index.ts',
       line: 1,
       offset: 7,
     })
@@ -943,7 +964,7 @@ add(3,4)
         contextEnd: { line: 3, offset: 2 },
         contextStart: { line: 1, offset: 1 },
         end: { line: 1, offset: 10 },
-        file: fixPath(join(tmpDir, 'index.ts')),
+        file: '/test/index.ts',
         isDefinition: true,
         isWriteAccess: true,
         lineText: 'const add = (a,b) => {',
@@ -951,7 +972,7 @@ add(3,4)
       },
       {
         end: { line: 5, offset: 4 },
-        file: fixPath(join(tmpDir, 'index.ts')),
+        file: '/test/index.ts',
         isDefinition: false,
         isWriteAccess: false,
         lineText: 'add(1,2)',
@@ -959,7 +980,7 @@ add(3,4)
       },
       {
         end: { line: 6, offset: 4 },
-        file: fixPath(join(tmpDir, 'index.ts')),
+        file: '/test/index.ts',
         isDefinition: false,
         isWriteAccess: false,
         lineText: 'add(3,4)',
@@ -969,6 +990,16 @@ add(3,4)
     symbolDisplayString: 'const add: (a: any, b: any) => any',
     symbolName: 'add',
     symbolStartOffset: 7,
+  })
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+      line: 1,
+      offset: 7,
+    },
+    command: 'references',
+    type: 'request',
   })
 })
 
