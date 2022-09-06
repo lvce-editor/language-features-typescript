@@ -784,45 +784,21 @@ test('indentation', async () => {
   })
 })
 
-test.skip('jsxClosingTag', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.tsx'),
-        fileContent: `const button = () => {
-  return <div
-}
-`,
-        projectRootPath: tmpDir,
-        scriptKindName: 'TSX',
-      },
-    ],
-  })
-  await TsServerRequests.updateOpen({
-    changedFiles: [
-      {
-        fileName: join(tmpDir, 'index.tsx'),
-        textChanges: [
-          {
-            newText: '>',
-            start: {
-              line: 2,
-              offset: 14,
-            },
-            end: {
-              line: 2,
-              offset: 14,
-            },
-          },
-        ],
-      },
-    ],
-  })
+test('jsxClosingTag', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: {
+          caretOffset: 0,
+          newText: '</div>',
+        },
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.jsxClosingTag({
-      file: join(tmpDir, 'index.tsx'),
+    await TsServerRequests.jsxClosingTag(server, {
+      file: '/test/index.tsx',
       line: 2,
       offset: 15,
     })
@@ -830,47 +806,31 @@ test.skip('jsxClosingTag', async () => {
     caretOffset: 0,
     newText: '</div>',
   })
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.tsx',
+      line: 2,
+      offset: 15,
+    },
+    command: 'jsxClosingTag',
+    seq: 1,
+    type: 'request',
+  })
 })
 
-test.skip('jsxClosingTag - when typing slash', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.tsx'),
-        fileContent: `const button = () => {
-  return <div><
-}
-`,
-        projectRootPath: tmpDir,
-        scriptKindName: 'TSX',
-      },
-    ],
-  })
-  await TsServerRequests.updateOpen({
-    changedFiles: [
-      {
-        fileName: join(tmpDir, 'index.tsx'),
-        textChanges: [
-          {
-            newText: '/',
-            start: {
-              line: 2,
-              offset: 16,
-            },
-            end: {
-              line: 2,
-              offset: 16,
-            },
-          },
-        ],
-      },
-    ],
-  })
+test('jsxClosingTag - when typing slash', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: undefined,
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.jsxClosingTag({
-      file: join(tmpDir, 'index.tsx'),
+    await TsServerRequests.jsxClosingTag(server, {
+      file: '/test/index.tsx',
       line: 2,
       offset: 17,
     })
