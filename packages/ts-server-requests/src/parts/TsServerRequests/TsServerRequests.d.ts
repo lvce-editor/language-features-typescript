@@ -11,6 +11,7 @@ import type {
   CompileOnSaveAffectedFileListRequest,
   ConfigureRequest,
   ConfigureResponse,
+  UpdateOpenRequest,
 } from 'typescript/lib/protocol'
 
 export interface TsServer {}
@@ -59,3 +60,8 @@ export const configure: (
   server: TsServer,
   params: ConfigureRequest['arguments']
 ) => Promise<ConfigureResponse>
+
+export const updateOpen: (
+  server: TsServer,
+  params: UpdateOpenRequest['arguments']
+) => Promise<void>

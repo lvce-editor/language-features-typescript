@@ -1,22 +1,15 @@
 import { join } from 'node:path'
-import { TsServer, TsServerProcess } from 'ts-server'
+import { TsServer } from 'ts-server'
 import * as TsServerRequests from 'ts-server-requests'
-
-import { dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { fork } from 'node:child_process'
+import { dirname } from 'node:path'
+import test from 'node:test'
+import { fileURLToPath } from 'node:url'
+import { createChild } from './_shared.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const root = join(__dirname, '..', '..', '..')
-
-const tsServerPath = join(
-  root,
-  'node_modules',
-  'typescript',
-  'lib',
-  'tsserver.js'
-)
 
 const tsServerArgs = [
   '--useInferredProjectPerProjectRoot',
@@ -28,32 +21,24 @@ const tsServerArgs = [
   '--useNodeIpc',
 ]
 
-const createChild = ({ tsServerPath, tsServerArgs }) => {
-  const child = fork(tsServerPath, [...tsServerArgs])
-  return {
-    onMessage(listener) {
-      child.on('message', listener)
-    },
-    send(message) {
-      child.send(message)
-    },
-    dispose() {
-      child.kill()
-    },
-  }
-}
-
-const main = async () => {
-  const child = createChild({ tsServerPath, tsServerArgs })
+test('sample.brace-completion', async () => {
+  const child = createChild({ tsServerArgs })
   const server = TsServer.create(child)
-  const fixture = ``
+  const fixtures = join(root, 'packages', 'ts-server-e2e-tests', 'fixtures')
+  const fixture = join(fixtures, 'sample.brace-completion')
   await TsServerRequests.configure(server, {})
+  await TsServerRequests.updateOpen(server, {
+    openFiles: [
+      {
+        file: join(fixture, 'src', 'index.ts'),
+      },
+    ],
+  })
   await TsServerRequests.braceCompletion(server, {
     file: join(fixture, 'src', 'index.ts'),
     line: 1,
     offset: 2,
     openingBrace: '{',
   })
-}
-
-main()
+  child.dispose()
+})

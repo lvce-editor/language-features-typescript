@@ -5,7 +5,6 @@ export const create = (tsServerProcess) => {
     pendingRequests: Object.create(null),
   }
   const handleMessage = (message) => {
-    console.log({ message })
     switch (message.type) {
       case TsServerMessageType.Response:
         const pendingRequest = state.pendingRequests[message.request_seq]
