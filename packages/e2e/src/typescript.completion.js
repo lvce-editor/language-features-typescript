@@ -1,7 +1,10 @@
 test('typescript.completion', async () => {
   const tsserverPath = await FileSystem.createExecutable(`
   console.log(process.argv)
-  process.exit(1)`)
+
+  setTimeout(()=>{}, 10000000)
+  // process.exit(1)
+  `)
   // arrange
   await Settings.update({
     'typescript.tsserverPath': tsserverPath,

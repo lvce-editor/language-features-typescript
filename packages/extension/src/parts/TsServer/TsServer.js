@@ -1,4 +1,4 @@
-import * as ChildProcess from '../ChildProcess/ChildProcess.js'
+import * as TsServerIpcType from '../TsServerIpcType/TsServerIpcType.js'
 import * as TsServerWithIpc from './TsServerWithIpc.js'
 import * as TsServerWithStdio from './TsServerWithStdio.js'
 
@@ -6,11 +6,18 @@ import * as TsServerWithStdio from './TsServerWithStdio.js'
 
 // TODO tsserver path should be overridable via configuration
 
+const TS_SERVER_MAX_MEMORY = 200
+
+/**
+ *
+ * @param {string} ipc
+ * @returns
+ */
 const getServerFactory = (ipc) => {
   switch (ipc) {
-    case 'stdio':
+    case TsServerIpcType.Stdio:
       return TsServerWithStdio
-    case 'node-ipc':
+    case TsServerIpcType.NodeIpc:
       return TsServerWithIpc
     default:
       throw new Error('unexpected ipc type')
@@ -19,14 +26,14 @@ const getServerFactory = (ipc) => {
 
 export const create = ({
   disableAutomaticTypingAcquisition = true,
-  npmLocation = undefined,
+  npmLocation = '',
   tsServerPath = '',
-  ipc = 'stdio',
+  ipc = TsServerIpcType.NodeIpc,
   handleMessage = () => {},
   handleError = () => {},
   handleExit = () => {},
 } = {}) => {
-  const args = ['--max-old-space-size=200', tsServerPath]
+  const args = [`--max-old-space-size=${TS_SERVER_MAX_MEMORY}`, tsServerPath]
   args.push('--useInferredProjectPerProjectRoot')
   if (disableAutomaticTypingAcquisition) {
     args.push('--disableAutomaticTypingAcquisition')

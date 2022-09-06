@@ -1,9 +1,9 @@
-import assert from 'node:assert'
-import * as Platform from '../Platform/Platform.js'
-import * as TsServer from '../TsServer/TsServer.js'
-import * as TsServerLog from '../TsServerLog/TsServerLog.js'
-import * as Callback from '../Callback/Callback.js'
 import * as Assert from '../Assert/Assert.js'
+import * as Callback from '../Callback/Callback.js'
+import * as TsServer from '../TsServer/TsServer.js'
+import * as TsServerIpcType from '../TsServerIpcType/TsServerIpcType.js'
+import * as TsServerLog from '../TsServerLog/TsServerLog.js'
+import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
 export const state = {
   server: undefined,
@@ -37,7 +37,7 @@ const handleMessage = (message) => {
   TsServerLog.receive(message)
   // console.log({ message })
   switch (message.type) {
-    case 'response':
+    case TsServerMessageType.Response:
       const pendingRequest = state.pendingRequests[message.request_seq]
       pendingRequest.resolve(message)
       // if (message.success) {
@@ -48,7 +48,7 @@ const handleMessage = (message) => {
       //   )
       // }
       break
-    case 'event':
+    case TsServerMessageType.Event:
       if (state.listeners[message.event]) {
         for (const listener of state.listeners[message.event]) {
           listener(message.body)
@@ -75,8 +75,8 @@ const handlePrimaryServerError = (error) => {
   Callback.rejectAll(new Error(`[tsserver] encountered an error ${error}`))
 }
 
-export const start = ({ ipc = 'stdio', tsServerPath } = {}) => {
-  Assert._undefined(state.server)
+export const start = ({ ipc = TsServerIpcType.NodeIpc, tsServerPath } = {}) => {
+  // Assert._undefined(state.server) // TODO server should be undefined at this point
   Assert.string(tsServerPath)
   const server = TsServer.create({
     tsServerPath,

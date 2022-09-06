@@ -4,8 +4,10 @@ export const create = ({ args }) => {
   const argsWithNodeIpc = [...args, '--useNodeIpc']
   const server = ChildProcess.create(argsWithNodeIpc, {
     stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+    // stdio: 'inherit',
   })
   server.stderr.pipe(process.stderr)
+  server.stdout.pipe(process.stdout)
   server.on('disconnect', () => {
     console.info('[tsserver] disconnected')
   })

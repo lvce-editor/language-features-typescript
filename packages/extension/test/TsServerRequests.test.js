@@ -51,7 +51,7 @@ afterEach(() => {
 
 // TODO test errors
 
-test(
+test.only(
   'braceCompletion',
   async () => {
     const tmpDir = await getTmpDir()
