@@ -15,37 +15,6 @@ const TsServerRequests = await import(
 )
 // TODO test errors
 
-test('braceCompletion', async () => {
-  const server = {
-    invoke: jest.fn(() => {
-      return {
-        success: true,
-        body: true,
-      }
-    }),
-  }
-  expect(
-    await TsServerRequests.braceCompletion(server, {
-      file: '/test/index.ts',
-      line: 1,
-      offset: 2,
-      openingBrace: '{',
-    })
-  ).toBe(true)
-  expect(server.invoke).toHaveBeenCalledTimes(1)
-  expect(server.invoke).toHaveBeenCalledWith({
-    arguments: {
-      file: '/test/index.ts',
-      line: 1,
-      offset: 2,
-      openingBrace: '{',
-    },
-    command: TsServerCommandType.BraceCompletion,
-    seq: 1,
-    type: TsServerMessageType.Request,
-  })
-})
-
 test('completionInfo', async () => {
   const server = {
     invoke: jest.fn(() => {
