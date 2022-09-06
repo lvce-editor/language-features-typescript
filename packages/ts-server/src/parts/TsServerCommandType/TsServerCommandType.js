@@ -62,3 +62,15 @@ export const ProvideInlayHints = 'provideInlayHints'
 export const References = 'references'
 
 export const Reload = 'reload'
+
+export const Rename = 'rename'
+
+export const SemanticDiagnosticsSync = 'semanticDiagnosticsSync'
+
+export const ToggleLineComment = 'toggleLineComment'
+
+export const ToggleMultilineComment = 'toggleMultilineComment'
+
+export const TypeDefinition = 'typeDefinition'
+
+export const UpdateOpen = 'updateOpen'

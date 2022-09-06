@@ -491,11 +491,11 @@ export const reload = async (params) => {
 export const rename = async (server, params) => {
   const message = await server.invoke({
     type: TsServerMessageType.Request,
-    command: 'rename',
+    command: TsServerCommandType.Rename,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'rename')
+    throw new TsServerError(message, TsServerCommandType.Rename)
   }
   return message.body
 }
@@ -507,12 +507,15 @@ export const rename = async (server, params) => {
 export const semanticDiagnosticsSync = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'semanticDiagnosticsSync',
+    command: TsServerCommandType.SemanticDiagnosticsSync,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'semanticDiagnosticsSync')
+    throw new TsServerError(
+      message,
+      TsServerCommandType.SemanticDiagnosticsSync
+    )
   }
   return message.body
 }
@@ -523,12 +526,12 @@ export const semanticDiagnosticsSync = async (params) => {
 export const toggleLineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'toggleLineComment',
+    command: TsServerCommandType.ToggleLineComment,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'toggleLineComment')
+    throw new TsServerError(message, TsServerCommandType.ToggleLineComment)
   }
   return message.body
 }
@@ -539,12 +542,12 @@ export const toggleLineComment = async (params) => {
 export const toggleMultilineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'toggleMultilineComment',
+    command: TsServerCommandType.ToggleMultilineComment,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'toggleMultiLineComment')
+    throw new TsServerError(message, TsServerCommandType.ToggleMultilineComment)
   }
   return message.body
 }
@@ -556,12 +559,12 @@ export const toggleMultilineComment = async (params) => {
 export const typeDefinition = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'typeDefinition',
+    command: TsServerCommandType.TypeDefinition,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'typeDefinition')
+    throw new TsServerError(message, TsServerCommandType.TypeDefinition)
   }
   return message.body
 }
@@ -573,12 +576,12 @@ export const typeDefinition = async (params) => {
 export const updateOpen = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'updateOpen',
+    command: TsServerCommandType.UpdateOpen,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'updateOpen')
+    throw new TsServerError(message, TsServerCommandType.UpdateOpen)
   }
   return message.body
 }
