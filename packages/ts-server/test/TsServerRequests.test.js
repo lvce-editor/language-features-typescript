@@ -1326,24 +1326,41 @@ test('toggleLineComment - error - no project', async () => {
   )
 })
 
-test.skip('toggleMultilineComment', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('toggleMultilineComment', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: [
+          {
+            end: {
+              line: 1,
+              offset: 1,
+            },
+            newText: '/*',
+            start: {
+              line: 1,
+              offset: 1,
+            },
+          },
+          {
+            end: {
+              line: 1,
+              offset: 1,
+            },
+            newText: '*/',
+            start: {
+              line: 1,
+              offset: 1,
+            },
+          },
+        ],
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.toggleMultilineComment({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.toggleMultilineComment(server, {
+      file: '/test/index.ts',
       startLine: 1,
       startOffset: 1,
       endOffset: 1,
@@ -1373,33 +1390,40 @@ test.skip('toggleMultilineComment', async () => {
       },
     },
   ])
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      endLine: 1,
+      endOffset: 1,
+      file: '/test/index.ts',
+      startLine: 1,
+      startOffset: 1,
+    },
+    command: 'toggleMultilineComment',
+    seq: 1,
+    type: 'request',
+  })
 })
 
-test.skip('toggleMultilineComment - error - no project', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('toggleMultilineComment - error - no project', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `No Project.`,
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.toggleMultilineComment({
-      file: join(tmpDir, 'cat.ts'),
+    TsServerRequests.toggleMultilineComment(server, {
+      file: '/test/cat.ts',
       startLine: 1,
       startOffset: 1,
       endOffset: 1,
       endLine: 1,
     })
   ).rejects.toThrowError(
-    new Error('TsServer.toggleMultiLineComment failed to execute: No Project.')
+    new Error('TsServer.toggleMultilineComment failed to execute: No Project.')
   )
 })
 
