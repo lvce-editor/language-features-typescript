@@ -382,24 +382,26 @@ test('completionInfo - tsServerError - no project', async () => {
   )
 })
 
-test.skip('definition', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('definition', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: [
+          {
+            contextEnd: { line: 2, offset: 12 },
+            contextStart: { line: 2, offset: 1 },
+            end: { line: 2, offset: 8 },
+            file: '/test/index.ts',
+            start: { line: 2, offset: 7 },
+          },
+        ],
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.definition({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.definition(server, {
+      file: '/test/index.ts',
       line: 2,
       offset: 7,
     })
@@ -408,7 +410,7 @@ const y = x`
       contextEnd: { line: 2, offset: 12 },
       contextStart: { line: 2, offset: 1 },
       end: { line: 2, offset: 8 },
-      file: normalize(join(tmpDir, 'index.ts')),
+      file: '/test/index.ts',
       start: { line: 2, offset: 7 },
     },
   ])

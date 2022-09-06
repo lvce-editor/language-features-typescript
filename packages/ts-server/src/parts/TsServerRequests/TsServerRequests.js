@@ -133,10 +133,11 @@ export const completionInfo = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').CompileOnSaveAffectedFileListRequest['arguments']} params
  */
-export const compileOnSaveAffectedFileList = (params) => {
-  TsPrimaryServer.send({
+export const compileOnSaveAffectedFileList = (server, params) => {
+  server.send({
     type: 'request',
     command: 'compileOnSaveAffectedFileList',
     arguments: params,
@@ -144,11 +145,12 @@ export const compileOnSaveAffectedFileList = (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').ConfigureRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').ConfigureResponse>}
  */
-export const configure = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const configure = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'configure',
     arguments: params,
@@ -160,11 +162,12 @@ export const configure = async (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').DefinitionRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').DefinitionInfo[]>}
  */
-export const definition = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const definition = async (server, params) => {
+  const message = await server.invoke({
     type: 'request',
     command: 'definition',
     arguments: params,
@@ -177,10 +180,11 @@ export const definition = async (params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').DefinitionRequest['arguments']} params
  */
-export const definitionAndBoundSpan = (params) => {
-  TsPrimaryServer.send({
+export const definitionAndBoundSpan = (server, params) => {
+  server.send({
     type: 'request',
     command: 'definitionAndBoundSpan',
     arguments: params,
