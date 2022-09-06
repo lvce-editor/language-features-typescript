@@ -557,11 +557,12 @@ export const toggleMultilineComment = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').TypeDefinitionRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').TypeDefinitionResponse['body']>}
  */
-export const typeDefinition = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const typeDefinition = async (server, params) => {
+  const message = await server.invoke({
     type: TsServerMessageType.Request,
     command: TsServerCommandType.TypeDefinition,
     arguments: params,

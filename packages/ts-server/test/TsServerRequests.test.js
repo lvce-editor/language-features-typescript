@@ -1428,50 +1428,47 @@ test('toggleMultilineComment - error - no project', async () => {
 })
 
 // TODO should find test case that returns actual result
-test.skip('typeDefinition - no result', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `type X = number
-let x : X = 11
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('typeDefinition - no result', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: [],
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.typeDefinition({
-      file: join(tmpDir, 'index.ts'),
+    await TsServerRequests.typeDefinition(server, {
+      file: '/test/index.ts',
       line: 3,
       offset: 6,
     })
   ).toEqual([])
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      file: '/test/index.ts',
+      line: 3,
+      offset: 6,
+    },
+    command: 'typeDefinition',
+    seq: 1,
+    type: 'request',
+  })
 })
 
-test.skip('typeDefinition - error - no project', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `type X = number
-let x : X = 11
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
+test('typeDefinition - error - no project', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: `No Project.`,
+      }
+    }),
+  }
   await expect(
-    TsServerRequests.typeDefinition({
-      file: join(tmpDir, 'cat.ts'),
+    TsServerRequests.typeDefinition(server, {
+      file: '/test/cat.ts',
       line: 3,
       offset: 6,
     })
