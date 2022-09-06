@@ -8,6 +8,7 @@ interface TsServerProcess {
 
 interface TsServerProcessOptions {
   readonly tsServerPath: string
+  readonly tsServerArgs: readonly string[]
 }
 
 export const TsServerProcess: {

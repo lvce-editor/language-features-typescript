@@ -29,9 +29,13 @@ export const create = ({
   handleError = () => {},
   handleExit = () => {},
   maxMemory = 200,
-  tsArgs = [],
+  tsServerArgs = [],
 } = {}) => {
-  const args = [`--max-old-space-size=${maxMemory}`, tsServerPath, ...tsArgs]
+  const args = [
+    `--max-old-space-size=${maxMemory}`,
+    tsServerPath,
+    ...tsServerArgs,
+  ]
   console.log({ args })
   const factory = getServerFactory(ipc)
   console.log(factory)

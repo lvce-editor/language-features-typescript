@@ -1,10 +1,11 @@
 import { join } from 'node:path'
-import { TsServer, TsServerProcess } from 'ts-server'
+import { TsServer } from 'ts-server'
 import * as TsServerRequests from 'ts-server-requests'
-
+import { fork } from 'node:child_process'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { fork } from 'node:child_process'
+import assert from 'assert/strict'
+import test from 'node:test'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -43,17 +44,8 @@ const createChild = ({ tsServerPath, tsServerArgs }) => {
   }
 }
 
-const main = async () => {
+test('sample.configure', async () => {
   const child = createChild({ tsServerPath, tsServerArgs })
   const server = TsServer.create(child)
-  const fixture = ``
-  await TsServerRequests.configure(server, {})
-  await TsServerRequests.braceCompletion(server, {
-    file: join(fixture, 'src', 'index.ts'),
-    line: 1,
-    offset: 2,
-    openingBrace: '{',
-  })
-}
-
-main()
+  assert.strictEqual(await TsServerRequests.configure(server, {}), undefined)
+})
