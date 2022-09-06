@@ -575,11 +575,12 @@ export const typeDefinition = async (server, params) => {
 }
 
 /**
+ * @param {any} server
  * @param {import('typescript/lib/protocol').UpdateOpenRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').Response>}
  */
-export const updateOpen = async (params) => {
-  const message = await TsPrimaryServer.invoke({
+export const updateOpen = async (server, params) => {
+  const message = await server.invoke({
     type: TsServerMessageType.Request,
     command: TsServerCommandType.UpdateOpen,
     arguments: params,

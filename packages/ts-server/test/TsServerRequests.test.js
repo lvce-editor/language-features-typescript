@@ -999,7 +999,7 @@ test('references', async () => {
       offset: 7,
     },
     command: 'references',
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -1238,7 +1238,7 @@ test('semanticDiagnosticsSync', async () => {
     },
     command: 'semanticDiagnosticsSync',
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -1401,7 +1401,7 @@ test('toggleMultilineComment', async () => {
     },
     command: 'toggleMultilineComment',
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -1453,7 +1453,7 @@ test('typeDefinition - no result', async () => {
     },
     command: 'typeDefinition',
     seq: 1,
-    type: 'request',
+    type: TsServerMessageType.Request,
   })
 })
 
@@ -1477,23 +1477,20 @@ test('typeDefinition - error - no project', async () => {
   )
 })
 
-test.skip('updateOpen - issue with textChanges', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(join(tmpDir, 'index.ts'), '{')
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-        fileContent: `const add = (a: number, b: number) => {\n  return a + b;\n}`,
-      },
-    ],
-  })
+test('updateOpen - issue with textChanges', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: true,
+        body: true,
+      }
+    }),
+  }
   expect(
-    await TsServerRequests.updateOpen({
+    await TsServerRequests.updateOpen(server, {
       changedFiles: [
         {
-          fileName: join(tmpDir, 'index.ts'),
+          fileName: '/test/index.ts',
           textChanges: [
             {
               start: { line: 2, offset: 16 },
@@ -1505,4 +1502,30 @@ test.skip('updateOpen - issue with textChanges', async () => {
       ],
     })
   ).toBe(true)
+  expect(server.invoke).toHaveBeenCalledTimes(1)
+  expect(server.invoke).toHaveBeenCalledWith({
+    arguments: {
+      changedFiles: [
+        {
+          fileName: '/test/index.ts',
+          textChanges: [
+            {
+              end: {
+                line: 2,
+                offset: 16,
+              },
+              newText: ' ',
+              start: {
+                line: 2,
+                offset: 16,
+              },
+            },
+          ],
+        },
+      ],
+    },
+    command: 'updateOpen',
+    seq: 1,
+    type: TsServerMessageType.Request,
+  })
 })
