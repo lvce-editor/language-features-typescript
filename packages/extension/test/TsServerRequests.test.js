@@ -479,44 +479,6 @@ test(
 )
 
 test(
-  'organizeImports - error - no project',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-    )
-    await writeFile(
-      join(tmpDir, 'calculate.ts'),
-      `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    await expect(
-      TsServerRequests.organizeImports({
-        scope: {
-          type: 'file',
-          args: {
-            file: join(tmpDir, 'cat.ts'),
-          },
-        },
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.organizeImports failed to execute: No Project.')
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'references',
   async () => {
     const tmpDir = await getTmpDir()

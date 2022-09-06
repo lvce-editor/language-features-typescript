@@ -24,6 +24,7 @@ export * from '../TsServerRequestsPrepareCallHierarchy/TsServerRequestsPrepareCa
 export * from '../TsServerRequestsProvideCallHierarchyIncomingCalls/TsServerRequestsProvideCallHierarchyIncomingCalls.js'
 export * from '../TsServerRequestsProvideCallHierarchyOutgoingCalls/TsServerRequestsProvideCallHierarchyOutgoingCalls.js'
 export * from '../TsServerRequestsProvideInlayHints/TsServerRequestsProvideInlayHints.js'
+export * from '../TsServerRequestsReferences/TsServerRequestReferences.js'
 export * from '../TsServerRequestsReload/TsServerRequestsReload.js'
 export * from '../TsServerRequestsRename/TsServerRequestsRename.js'
 export * from '../TsServerRequestsSemanticDiagnosticsSync/TsServerRequestsSemanticDiagnosticsSync.js'

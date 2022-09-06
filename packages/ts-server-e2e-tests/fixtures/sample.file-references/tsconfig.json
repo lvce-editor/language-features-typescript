@@ -4,6 +4,9 @@
     "newLine": "lf",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "rootDir": "."
-  }
+    "rootDir": ".",
+    "types": [],
+    "isolatedModules": true
+  },
+  "include": ["src"]
 }
