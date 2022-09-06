@@ -998,7 +998,7 @@ test('references', async () => {
       line: 1,
       offset: 7,
     },
-    command: 'references',
+    command: TsServerCommandType.References,
     type: TsServerMessageType.Request,
   })
 })
@@ -1236,7 +1236,7 @@ test('semanticDiagnosticsSync', async () => {
     arguments: {
       file: '/test/index.ts',
     },
-    command: 'semanticDiagnosticsSync',
+    command: TsServerCommandType.SemanticDiagnosticsSync,
     seq: 1,
     type: TsServerMessageType.Request,
   })
@@ -1399,7 +1399,7 @@ test('toggleMultilineComment', async () => {
       startLine: 1,
       startOffset: 1,
     },
-    command: 'toggleMultilineComment',
+    command: TsServerCommandType.ToggleMultilineComment,
     seq: 1,
     type: TsServerMessageType.Request,
   })
@@ -1451,7 +1451,7 @@ test('typeDefinition - no result', async () => {
       line: 3,
       offset: 6,
     },
-    command: 'typeDefinition',
+    command: TsServerCommandType.TypeDefinition,
     seq: 1,
     type: TsServerMessageType.Request,
   })
@@ -1524,7 +1524,7 @@ test('updateOpen - issue with textChanges', async () => {
         },
       ],
     },
-    command: 'updateOpen',
+    command: TsServerCommandType.UpdateOpen,
     seq: 1,
     type: TsServerMessageType.Request,
   })
