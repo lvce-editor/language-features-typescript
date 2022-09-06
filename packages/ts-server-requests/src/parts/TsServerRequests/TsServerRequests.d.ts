@@ -18,6 +18,8 @@ import type {
   DocumentHighlightsResponse,
   EncodedSemanticClassificationsRequest,
   EncodedSemanticClassificationsResponse,
+  FileReferencesRequest,
+  FileReferencesResponse,
 } from 'typescript/lib/protocol'
 
 export interface TsServer {}
@@ -79,8 +81,13 @@ export const documentHighlights: (
 
 export const encodedSemanticClassificationsFull: (
   server: TsServer,
-  params: EncodedSemanticClassificationsRequest
+  params: EncodedSemanticClassificationsRequest['arguments']
 ) => Promise<EncodedSemanticClassificationsResponse['body']>
+
+export const fileReferences: (
+  server: TsServer,
+  params: FileReferencesRequest['arguments']
+) => Promise<FileReferencesResponse['body']>
 
 export const updateOpen: (
   server: TsServer,

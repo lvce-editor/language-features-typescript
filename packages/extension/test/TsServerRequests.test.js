@@ -348,51 +348,6 @@ const y = x`
 })
 
 test(
-  'encodedSemanticClassificationsFull',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `let x = 1
-const y = x`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.encodedSemanticClassificationsFull({
-        file: join(tmpDir, 'index.ts'),
-        format: '2020',
-        start: 0,
-        length: 21,
-      })
-    ).toEqual({
-      endOfLineState: 0,
-      // prettier-ignore
-      spans: [
-        4 /* offset */,
-        1 /* length */,
-        2049 /* (2049 >> 8) - 1 = 7 = variable, 2049 & 255 = 1 = 2^0 = declaration  */,
-
-        16 /* offset */,
-        1 /* length */,
-        2057 /* (2057 >> 8) - 1 = 7 = variable, 2057 & 255 = 9 = 2^3 + 2^0 = declaration and readonly */,
-
-        20 /* offset */,
-        1 /* length */,
-        2048 /* (2048 >> 8) - 1 = 7 = variable, 2048 & 255 = 0 = none */,
-      ],
-    })
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'fileReferences',
   async () => {
     const tmpDir = await getTmpDir()
