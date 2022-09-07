@@ -310,44 +310,6 @@ The event listener is appended to target's event listener list and is not append
 )
 
 test(
-  'completionInfo - tsServerError - no project',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(join(tmpDir, 'index.ts'), '')
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await expect(
-      TsServerRequests.completionInfo({
-        file: join(tmpDir, 'index.ts'),
-        line: 0,
-        offset: 0,
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.completionInfo failed to execute: No Project.')
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-// TODO what to test?
-test.skip('exit', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    join(tmpDir, 'index.ts'),
-    `let x = 1
-const y = x`
-  )
-  await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-  await TsServerRequests.updateOpen({
-    openFiles: [
-      {
-        file: join(tmpDir, 'index.ts'),
-      },
-    ],
-  })
-  TsServerRequests.exit()
-})
-
-test(
   'jsxClosingTag',
   async () => {
     const tmpDir = await getTmpDir()
