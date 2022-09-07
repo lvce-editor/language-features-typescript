@@ -4,10 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "type": "module",
-  "scripts": {
-    "test": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --bail --detectOpenHandles --forceExit",
-    "test:watch": "node --unhandled-rejections=warn --experimental-vm-modules ./node_modules/jest/bin/jest.js --bail --detectOpenHandles --watch"
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "MIT",

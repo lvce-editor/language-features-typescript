@@ -1,4 +1,4 @@
-import * as TsServerRequests from '../src/parts/TsServerRequests/TsServerRequests.js'
+import * as TsServerRequests from 'ts-server-requests'
 
 test.skip('completionInfo', () => {
   TsServerRequests.configure({

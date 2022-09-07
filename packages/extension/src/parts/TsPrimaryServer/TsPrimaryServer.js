@@ -3,7 +3,6 @@ import * as Callback from '../Callback/Callback.js'
 import { TsServer, TsServerProcess } from '../TsServer/TsServer.js'
 import * as TsServerIpcType from '../TsServerIpcType/TsServerIpcType.js'
 import * as TsServerLog from '../TsServerLog/TsServerLog.js'
-import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
 export const state = {
   server: undefined,
@@ -28,6 +27,9 @@ const handlePrimaryServerError = (error) => {
 export const start = ({ ipc = TsServerIpcType.NodeIpc, tsServerPath } = {}) => {
   // Assert._undefined(state.server) // TODO server should be undefined at this point
   Assert.string(tsServerPath)
+  if (state.server) {
+    return
+  }
   const tsServerArgs = []
   console.log({ tsServerPath, tsServerArgs })
   const child = TsServerProcess.create({
@@ -35,7 +37,6 @@ export const start = ({ ipc = TsServerIpcType.NodeIpc, tsServerPath } = {}) => {
     tsServerArgs,
   })
   const server = TsServer.create(child)
-
   state.server = server
 }
 
