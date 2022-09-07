@@ -348,36 +348,6 @@ const y = x`
 })
 
 test(
-  'implementation - error - no project',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `const add = (a, b) => a + b
-const sum = add(1, 2)`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    await expect(
-      TsServerRequests.implementation({
-        file: join(tmpDir, 'cat.ts'),
-        line: 2,
-        offset: 14,
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.implementation failed to execute: No Project.')
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'jsxClosingTag',
   async () => {
     const tmpDir = await getTmpDir()

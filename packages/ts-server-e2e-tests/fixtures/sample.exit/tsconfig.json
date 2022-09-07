@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "newLine": "lf",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "rootDir": ".",
+    "types": [],
+    "isolatedModules": true
+  },
+  "include": ["src"]
+}
