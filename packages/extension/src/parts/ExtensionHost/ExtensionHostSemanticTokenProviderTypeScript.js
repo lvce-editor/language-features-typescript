@@ -1,5 +1,5 @@
 import { performance } from 'node:perf_hooks'
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as TsServerRequests from 'ts-server-requests'
 
 export const languageId = 'typescript'
 

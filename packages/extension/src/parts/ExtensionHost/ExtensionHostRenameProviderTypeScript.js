@@ -1,4 +1,4 @@
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as TsServerRequests from 'ts-server-requests'
 import * as Position from '../Position/Position.js'
 
 export const languageId = 'typescript'

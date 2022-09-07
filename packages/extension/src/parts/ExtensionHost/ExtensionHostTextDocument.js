@@ -1,7 +1,7 @@
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as TsServerRequests from 'ts-server-requests'
 import * as Position from '../Position/Position.js'
 import { performance } from 'node:perf_hooks'
-
+import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 /**
  *
  * @param {vscode.TextDocument} textDocument
@@ -91,7 +91,8 @@ export const handleOpenTextDocuments = async (textDocuments) => {
   }
   const openFiles = tsDocuments.map(getTsFileToOpen)
   console.log('start-update-open', performance.now())
-  await TsServerRequests.updateOpen({
+  const server = TsPrimaryServer.getInstance()
+  await TsServerRequests.updateOpen(server, {
     openFiles,
   })
   console.log('finish-update-open', performance.now())

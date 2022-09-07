@@ -1,5 +1,5 @@
 import * as Debug from '../Debug/Debug.js'
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as TsServerRequests from 'ts-server-requests'
 
 export const languageId = 'typescript'
 

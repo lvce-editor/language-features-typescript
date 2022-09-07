@@ -22,7 +22,7 @@ import * as ExtensionHostTextDocument from './parts/ExtensionHost/ExtensionHostT
 import * as ExtensionHostTypeDefinitionProviderTypeScript from './parts/ExtensionHost/ExtensionHostTypeDefinitionProviderTypeScript.js'
 import * as Platform from './parts/Platform/Platform.js'
 import * as TsPrimaryServer from './parts/TsPrimaryServer/TsPrimaryServer.js'
-import * as TsServerRequests from './parts/TsServerRequests/TsServerRequests.js'
+import * as TsServerRequests from 'ts-server-requests'
 
 export const exitHook = () => {
   Debug.debug('stopping tsserver via exitHook')
@@ -38,7 +38,8 @@ export const initializeProject = async () => {
     tsServerPath: Platform.getTsServerPath(),
   })
   console.log('started-ts-server', performance.now())
-  await TsServerRequests.configure({
+  const server = TsPrimaryServer.getInstance()
+  await TsServerRequests.configure(server, {
     hostInfo: 'test',
     preferences: {
       importModuleSpecifierEnding: 'js',

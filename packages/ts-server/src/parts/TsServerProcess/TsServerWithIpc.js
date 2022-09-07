@@ -22,8 +22,8 @@ export const create = ({ args }) => {
   server.on('error', handleError)
   server.on('spawn', handleSpawn)
   return {
-    send() {
-      server.send('message')
+    send(message) {
+      server.send(message)
     },
     dispose() {
       server.kill()

@@ -1,5 +1,6 @@
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as TsServerRequests from 'ts-server-requests'
 import * as Position from '../Position/Position.js'
+import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 
 export const languageId = 'typescript'
 
@@ -34,7 +35,8 @@ const getReferencesFromTsResult = (textDocument, tsResult) => {
  */
 export const provideReferences = async (textDocument, offset) => {
   const tsPosition = Position.getTsPosition(textDocument, offset)
-  const tsResult = await TsServerRequests.references({
+  const server = TsPrimaryServer.getInstance()
+  const tsResult = await TsServerRequests.references(server, {
     file: textDocument.uri,
     line: tsPosition.line,
     offset: tsPosition.offset,

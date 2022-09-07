@@ -1,6 +1,7 @@
 import * as TsServerCommandType from '../TsServerCommandType/TsServerCommandType.js'
 import { TsServerError } from '../TsServerError/TsServerError.js'
 import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
+import * as Id from '../Id/Id.js'
 
 /**
  * @param {any} server
@@ -12,6 +13,7 @@ export const configure = async (server, params) => {
     type: TsServerMessageType.Request,
     command: TsServerCommandType.Configure,
     arguments: params,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, TsServerCommandType.Configure)
