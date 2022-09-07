@@ -593,36 +593,6 @@ test(
 )
 
 test(
-  'semanticDiagnosticsSync - error - no project',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    await expect(
-      TsServerRequests.semanticDiagnosticsSync({
-        file: join(tmpDir, 'cat.ts'),
-      })
-    ).rejects.toThrowError(
-      new Error(
-        'TsServer.semanticDiagnosticsSync failed to execute: No Project.'
-      )
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'toggleLineComment',
   async () => {
     const tmpDir = await getTmpDir()
