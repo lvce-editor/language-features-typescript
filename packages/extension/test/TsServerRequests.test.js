@@ -593,46 +593,6 @@ test(
 )
 
 test(
-  'semanticDiagnosticsSync',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `import {add, subtract} from './calculate.ts'
-add(1, 2)`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.semanticDiagnosticsSync({
-        file: join(tmpDir, 'index.ts'),
-      })
-    ).toEqual([
-      {
-        category: 'error',
-        code: 2691,
-        end: {
-          line: 1,
-          offset: 45,
-        },
-        start: {
-          line: 1,
-          offset: 29,
-        },
-        text: "An import path cannot end with a '.ts' extension. Consider importing './calculate' instead.",
-      },
-    ])
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'semanticDiagnosticsSync - error - no project',
   async () => {
     const tmpDir = await getTmpDir()
