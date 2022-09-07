@@ -11,11 +11,8 @@ jest.unstable_mockModule('../src/parts/Id/Id.js', () => {
 })
 
 const TsServerRequests = await import(
-  '../src/parts/TsServerRequests/TsServerRequests.js'
+  '../src/parts/TsServerRequestsExit/TsServerRequestsExit.js'
 )
-// TODO test errors
-
-// TODO what to test?
 test('exit', async () => {
   const server = {
     invoke: jest.fn(async () => {
@@ -25,7 +22,8 @@ test('exit', async () => {
       }
     }),
   }
-  TsServerRequests.exit(server)
+  // @ts-ignore
+  await TsServerRequests.exit(server)
   expect(server.invoke).toHaveBeenCalledTimes(1)
   expect(server.invoke).toHaveBeenCalledWith({
     command: TsServerCommandType.Exit,
