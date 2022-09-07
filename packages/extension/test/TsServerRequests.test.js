@@ -592,67 +592,6 @@ test(
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
 
-// TODO should find test case that returns actual result
-test(
-  'typeDefinition - no result',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `type X = number
-let x : X = 11
-const y = x`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.typeDefinition({
-        file: join(tmpDir, 'index.ts'),
-        line: 3,
-        offset: 6,
-      })
-    ).toEqual([])
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
-  'typeDefinition - error - no project',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `type X = number
-let x : X = 11
-const y = x`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    await expect(
-      TsServerRequests.typeDefinition({
-        file: join(tmpDir, 'cat.ts'),
-        line: 3,
-        offset: 6,
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.typeDefinition failed to execute: No Project.')
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
 test(
   'updateOpen - issue with textChanges',
   async () => {
