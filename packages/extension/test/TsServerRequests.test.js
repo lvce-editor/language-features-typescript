@@ -310,58 +310,6 @@ The event listener is appended to target's event listener list and is not append
 )
 
 test(
-  'jsxClosingTag',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.tsx'),
-          fileContent: `const button = () => {
-  return <div
-}
-`,
-          projectRootPath: tmpDir,
-          scriptKindName: 'TSX',
-        },
-      ],
-    })
-    await TsServerRequests.updateOpen({
-      changedFiles: [
-        {
-          fileName: join(tmpDir, 'index.tsx'),
-          textChanges: [
-            {
-              newText: '>',
-              start: {
-                line: 2,
-                offset: 14,
-              },
-              end: {
-                line: 2,
-                offset: 14,
-              },
-            },
-          ],
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.jsxClosingTag({
-        file: join(tmpDir, 'index.tsx'),
-        line: 2,
-        offset: 15,
-      })
-    ).toEqual({
-      caretOffset: 0,
-      newText: '</div>',
-    })
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'jsxClosingTag - when typing slash',
   async () => {
     const tmpDir = await getTmpDir()

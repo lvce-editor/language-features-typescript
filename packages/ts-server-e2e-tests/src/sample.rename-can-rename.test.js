@@ -3,7 +3,7 @@ import { TsServer } from 'ts-server'
 import * as TsServerRequests from 'ts-server-requests'
 import { createChild, getFixture } from './_shared.js'
 
-test.skip('sample.rename-can-rename', async () => {
+test('sample.rename-can-rename', async () => {
   const child = createChild()
   const server = TsServer.create(child)
   const fixture = getFixture('sample.rename-can-rename')
@@ -45,20 +45,30 @@ test.skip('sample.rename-can-rename', async () => {
         locs: [
           {
             contextEnd: {
-              line: 2,
-              offset: 12,
+              line: 1,
+              offset: 28,
             },
             contextStart: {
-              line: 2,
+              line: 1,
               offset: 1,
             },
             end: {
+              line: 1,
+              offset: 10,
+            },
+            start: {
+              line: 1,
+              offset: 7,
+            },
+          },
+          {
+            end: {
               line: 2,
-              offset: 8,
+              offset: 4,
             },
             start: {
               line: 2,
-              offset: 7,
+              offset: 1,
             },
           },
         ],
