@@ -11,7 +11,7 @@ jest.unstable_mockModule('../src/parts/Id/Id.js', () => {
 })
 
 const TsServerRequests = await import(
-  '../src/parts/TsServerRequests/TsServerRequests.js'
+  '../src/parts/TsServerRequestsDefinition/TsServerRequestsDefinition.js'
 )
 
 test('definition', async () => {

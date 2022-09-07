@@ -10,7 +10,7 @@ jest.unstable_mockModule('../src/parts/Id/Id.js', () => {
   }
 })
 
-const TsServerRequestsBraceCompletion = await import(
+const TsServerRequests = await import(
   '../src/parts/TsServerRequestsBraceCompletion/TsServerRequestsBraceCompletion.js'
 )
 // TODO test errors
@@ -26,7 +26,7 @@ test('braceCompletion', async () => {
   }
   expect(
     // @ts-ignore
-    await TsServerRequestsBraceCompletion.braceCompletion(server, {
+    await TsServerRequests.braceCompletion(server, {
       file: '/test/index.ts',
       line: 1,
       offset: 2,

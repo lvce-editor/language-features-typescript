@@ -8,7 +8,7 @@ jest.unstable_mockModule('../src/parts/Id/Id.js', () => {
   }
 })
 
-const TsServerRequestsCompletionInfo = await import(
+const TsServerRequests = await import(
   '../src/parts/TsServerRequestsCompletionInfo/TsServerRequestsCompletionInfo.js'
 )
 
@@ -36,7 +36,7 @@ test('completionInfo', async () => {
   }
   expect(
     // @ts-ignore
-    await TsServerRequestsCompletionInfo.completionInfo(server, {
+    await TsServerRequests.completionInfo(server, {
       file: '/test/index.ts',
       line: 1,
       offset: 2,
@@ -91,7 +91,7 @@ test('completionInfo - property', async () => {
   }
   expect(
     // @ts-ignore
-    await TsServerRequestsCompletionInfo.completionInfo(server, {
+    await TsServerRequests.completionInfo(server, {
       file: '/test/index.ts',
       line: 1,
       offset: 11,
@@ -134,7 +134,7 @@ test('completionInfo - tsServerError - no project', async () => {
   }
   await expect(
     // @ts-ignore
-    TsServerRequestsCompletionInfo.completionInfo(server, {
+    TsServerRequests.completionInfo(server, {
       file: '/test/index.ts',
       line: 0,
       offset: 0,
