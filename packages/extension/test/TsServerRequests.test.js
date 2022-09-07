@@ -591,37 +591,3 @@ test(
   },
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
-
-test(
-  'updateOpen - issue with textChanges',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(join(tmpDir, 'index.ts'), '{')
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-          fileContent: `const add = (a: number, b: number) => {\n  return a + b;\n}`,
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.updateOpen({
-        changedFiles: [
-          {
-            fileName: join(tmpDir, 'index.ts'),
-            textChanges: [
-              {
-                start: { line: 2, offset: 16 },
-                end: { line: 2, offset: 16 },
-                newText: ' ',
-              },
-            ],
-          },
-        ],
-      })
-    ).toBe(true)
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
