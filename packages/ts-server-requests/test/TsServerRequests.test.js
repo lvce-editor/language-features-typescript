@@ -33,35 +33,6 @@ test('exit', async () => {
   })
 })
 
-test('indentation', async () => {
-  const server = {
-    invoke: jest.fn(async () => {
-      return {
-        success: true,
-        body: { indentation: 2, position: 9 },
-      }
-    }),
-  }
-  expect(
-    await TsServerRequests.indentation(server, {
-      file: '/test/index.ts',
-      line: 1,
-      offset: 10,
-    })
-  ).toEqual({ indentation: 2, position: 9 })
-  expect(server.invoke).toHaveBeenCalledTimes(1)
-  expect(server.invoke).toHaveBeenCalledWith({
-    arguments: {
-      file: '/test/index.ts',
-      line: 1,
-      offset: 10,
-    },
-    command: TsServerCommandType.Indentation,
-    seq: 1,
-    type: TsServerMessageType.Request,
-  })
-})
-
 test('jsxClosingTag', async () => {
   const server = {
     invoke: jest.fn(async () => {
