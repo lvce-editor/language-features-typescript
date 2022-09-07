@@ -1,4 +1,4 @@
-test('typescript.semantic-highlighting', async () => {
+test.skip('typescript.semantic-highlighting', async () => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(

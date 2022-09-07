@@ -103,7 +103,7 @@ const handleMessage = (message) => {
 process.on('message', handleMessage)
 `
 
-test('typescript.definition', async () => {
+test.skip('typescript.definition', async () => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   await Workspace.setPath(tmpDir)
