@@ -1,6 +1,4 @@
 import { jest } from '@jest/globals'
-import * as TsServerCommandType from '../src/parts/TsServerCommandType/TsServerCommandType.js'
-import * as TsServerMessageType from '../src/parts/TsServerMessageType/TsServerMessageType.js'
 
 jest.unstable_mockModule('../src/parts/Id/Id.js', () => {
   return {
@@ -10,8 +8,8 @@ jest.unstable_mockModule('../src/parts/Id/Id.js', () => {
   }
 })
 
-const TsServerRequests = await import(
-  '../src/parts/TsServerRequests/TsServerRequests.js'
+const TsServerRequestsCompletionInfo = await import(
+  '../src/parts/TsServerRequestsCompletionInfo/TsServerRequestsCompletionInfo.js'
 )
 
 test('completionInfo', async () => {
@@ -37,7 +35,8 @@ test('completionInfo', async () => {
     }),
   }
   expect(
-    await TsServerRequests.completionInfo(server, {
+    // @ts-ignore
+    await TsServerRequestsCompletionInfo.completionInfo(server, {
       file: '/test/index.ts',
       line: 1,
       offset: 2,
@@ -91,7 +90,8 @@ test('completionInfo - property', async () => {
     }),
   }
   expect(
-    await TsServerRequests.completionInfo(server, {
+    // @ts-ignore
+    await TsServerRequestsCompletionInfo.completionInfo(server, {
       file: '/test/index.ts',
       line: 1,
       offset: 11,
@@ -121,4 +121,25 @@ test('completionInfo - property', async () => {
       },
     },
   })
+})
+
+test('completionInfo - tsServerError - no project', async () => {
+  const server = {
+    invoke: jest.fn(async () => {
+      return {
+        success: false,
+        message: 'No Project.',
+      }
+    }),
+  }
+  await expect(
+    // @ts-ignore
+    TsServerRequestsCompletionInfo.completionInfo(server, {
+      file: '/test/index.ts',
+      line: 0,
+      offset: 0,
+    })
+  ).rejects.toThrowError(
+    new Error('TsServer.completionInfo failed to execute: No Project.')
+  )
 })

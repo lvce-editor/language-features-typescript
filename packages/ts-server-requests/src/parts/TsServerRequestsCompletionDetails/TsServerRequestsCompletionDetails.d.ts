@@ -7,4 +7,4 @@ import type { TsServer } from '../TsServer/TsServer.js'
 export const completionDetails: (
   server: TsServer,
   params: CompletionDetailsRequest['arguments']
-) => Promise<CompletionDetailsResponse>
+) => Promise<CompletionDetailsResponse['body']>

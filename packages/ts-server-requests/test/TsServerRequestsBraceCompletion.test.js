@@ -25,6 +25,7 @@ test('braceCompletion', async () => {
     }),
   }
   expect(
+    // @ts-ignore
     await TsServerRequestsBraceCompletion.braceCompletion(server, {
       file: '/test/index.ts',
       line: 1,
