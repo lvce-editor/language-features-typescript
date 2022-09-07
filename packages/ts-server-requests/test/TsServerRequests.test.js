@@ -33,41 +33,6 @@ test('exit', async () => {
   })
 })
 
-test('jsxClosingTag', async () => {
-  const server = {
-    invoke: jest.fn(async () => {
-      return {
-        success: true,
-        body: {
-          caretOffset: 0,
-          newText: '</div>',
-        },
-      }
-    }),
-  }
-  expect(
-    await TsServerRequests.jsxClosingTag(server, {
-      file: '/test/index.tsx',
-      line: 2,
-      offset: 15,
-    })
-  ).toEqual({
-    caretOffset: 0,
-    newText: '</div>',
-  })
-  expect(server.invoke).toHaveBeenCalledTimes(1)
-  expect(server.invoke).toHaveBeenCalledWith({
-    arguments: {
-      file: '/test/index.tsx',
-      line: 2,
-      offset: 15,
-    },
-    command: TsServerCommandType.JsxClosingTag,
-    seq: 1,
-    type: TsServerMessageType.Request,
-  })
-})
-
 test('jsxClosingTag - when typing slash', async () => {
   const server = {
     invoke: jest.fn(async () => {
