@@ -592,40 +592,6 @@ test(
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
 
-test(
-  'toggleMultilineComment - error - no project',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `let x = 1
-`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    await expect(
-      TsServerRequests.toggleMultilineComment({
-        file: join(tmpDir, 'cat.ts'),
-        startLine: 1,
-        startOffset: 1,
-        endOffset: 1,
-        endLine: 1,
-      })
-    ).rejects.toThrowError(
-      new Error(
-        'TsServer.toggleMultiLineComment failed to execute: No Project.'
-      )
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
 // TODO should find test case that returns actual result
 test(
   'typeDefinition - no result',
