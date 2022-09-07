@@ -33,56 +33,6 @@ test('exit', async () => {
   })
 })
 
-// TODO should find test case that returns actual result
-test('typeDefinition - no result', async () => {
-  const server = {
-    invoke: jest.fn(async () => {
-      return {
-        success: true,
-        body: [],
-      }
-    }),
-  }
-  expect(
-    await TsServerRequests.typeDefinition(server, {
-      file: '/test/index.ts',
-      line: 3,
-      offset: 6,
-    })
-  ).toEqual([])
-  expect(server.invoke).toHaveBeenCalledTimes(1)
-  expect(server.invoke).toHaveBeenCalledWith({
-    arguments: {
-      file: '/test/index.ts',
-      line: 3,
-      offset: 6,
-    },
-    command: TsServerCommandType.TypeDefinition,
-    seq: 1,
-    type: TsServerMessageType.Request,
-  })
-})
-
-test('typeDefinition - error - no project', async () => {
-  const server = {
-    invoke: jest.fn(async () => {
-      return {
-        success: false,
-        message: `No Project.`,
-      }
-    }),
-  }
-  await expect(
-    TsServerRequests.typeDefinition(server, {
-      file: '/test/cat.ts',
-      line: 3,
-      offset: 6,
-    })
-  ).rejects.toThrowError(
-    new Error('TsServer.typeDefinition failed to execute: No Project.')
-  )
-})
-
 test('updateOpen - issue with textChanges', async () => {
   const server = {
     invoke: jest.fn(async () => {
