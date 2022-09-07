@@ -593,37 +593,6 @@ test(
 )
 
 test(
-  'rename - error - cannot read properties of undefined',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      "export const add = (a,b) => a + b'"
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    await expect(
-      TsServerRequests.rename({
-        file: join(tmpDir, 'cat.ts'),
-        line: 1,
-        offset: 2,
-      })
-    ).rejects.toThrowError(
-      new Error(
-        `TsServer.rename failed to execute: TypeError: Cannot read properties of undefined (reading 'lineOffsetToPosition')`
-      )
-    )
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'semanticDiagnosticsSync',
   async () => {
     const tmpDir = await getTmpDir()
