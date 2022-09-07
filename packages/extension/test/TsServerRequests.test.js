@@ -593,48 +593,6 @@ test(
 )
 
 test(
-  'toggleLineComment',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `let x = 1
-`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.toggleLineComment({
-        file: join(tmpDir, 'index.ts'),
-        startLine: 1,
-        startOffset: 1,
-        endOffset: 1,
-        endLine: 1,
-      })
-    ).toEqual([
-      {
-        end: {
-          line: 1,
-          offset: 1,
-        },
-        newText: '//',
-        start: {
-          line: 1,
-          offset: 1,
-        },
-      },
-    ])
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'toggleLineComment - error - no project',
   async () => {
     const tmpDir = await getTmpDir()
