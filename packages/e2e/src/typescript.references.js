@@ -1,8 +1,4 @@
-test('typescript.references', async () => {
-  // arrange
-  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
-  await Workspace.setPath(tmpDir)
-  const tsServerPath = await FileSystem.createExecutable(`
+const tsServerContent = `
 const Commands = {
   configure(){
     return undefined
@@ -105,7 +101,13 @@ const handleMessage = (message) => {
 }
 
 process.on('message', handleMessage)
-`)
+`
+
+test('typescript.references', async () => {
+  // arrange
+  const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
+  await Workspace.setPath(tmpDir)
+  const tsServerPath = await FileSystem.createExecutable(tsServerContent)
   await Settings.update({
     'typescript.tsserverPath': tsServerPath,
   })
@@ -145,3 +147,5 @@ add(1,2)
     `export const add = (a, b) => {}`
   )
 })
+
+export {}

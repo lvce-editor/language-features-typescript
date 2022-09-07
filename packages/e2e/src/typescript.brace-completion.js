@@ -1,4 +1,4 @@
-test('typescript.brace-completion', async () => {
+test.skip('typescript.brace-completion', async () => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir({ scheme: 'file' })
   console.log({ tmpDir })

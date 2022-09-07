@@ -1,5 +1,6 @@
 import * as TsServerRequests from 'ts-server-requests'
 import * as Position from '../Position/Position.js'
+import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 
 export const languageId = 'typescript'
 
@@ -49,7 +50,8 @@ const getCompletionFromTsResult = (tsResult) => {
  */
 export const provideCompletions = async (textDocument, offset) => {
   const tsPosition = Position.getTsPosition(textDocument, offset)
-  const tsResult = await TsServerRequests.completionInfo({
+  const server = TsPrimaryServer.getInstance()
+  const tsResult = await TsServerRequests.completionInfo(server, {
     file: textDocument.uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
