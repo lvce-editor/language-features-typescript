@@ -1,6 +1,8 @@
 import * as TsServerRequests from 'ts-server-requests'
 import * as Position from '../Position/Position.js'
 import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
+import * as ExtensionHostCompletionItemKind from '../ExtensionHostCompletionItemKind/ExtensionHostCompletionItemKind.js'
+import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
 
 export const languageId = 'typescript'
 
@@ -11,18 +13,18 @@ export const languageId = 'typescript'
  */
 const convertCompletionItemKind = (tsKind) => {
   switch (tsKind) {
-    case 'function':
-      return /* Function */ 3
-    case 'var':
-      return /* Variable */ 4
-    case 'keyword':
-      return /* Keyword */ 5
-    case 'directory':
-      return /* Folder */ 6
-    case 'script':
-      return /* File */ 7
+    case TsCompletionItemKind.Function:
+      return ExtensionHostCompletionItemKind.Function
+    case TsCompletionItemKind.Var:
+      return ExtensionHostCompletionItemKind.Variable
+    case TsCompletionItemKind.Keyword:
+      return ExtensionHostCompletionItemKind.Keyword
+    case TsCompletionItemKind.Directory:
+      return ExtensionHostCompletionItemKind.Folder
+    case TsCompletionItemKind.Script:
+      return ExtensionHostCompletionItemKind.File
     default:
-      return /* Unknown */ 0
+      return ExtensionHostCompletionItemKind.Unknown
   }
 }
 
