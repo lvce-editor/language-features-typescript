@@ -593,59 +593,6 @@ test(
 )
 
 test(
-  'toggleMultilineComment',
-  async () => {
-    const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      `let x = 1
-`
-    )
-    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await TsServerRequests.updateOpen({
-      openFiles: [
-        {
-          file: join(tmpDir, 'index.ts'),
-        },
-      ],
-    })
-    expect(
-      await TsServerRequests.toggleMultilineComment({
-        file: join(tmpDir, 'index.ts'),
-        startLine: 1,
-        startOffset: 1,
-        endOffset: 1,
-        endLine: 1,
-      })
-    ).toEqual([
-      {
-        end: {
-          line: 1,
-          offset: 1,
-        },
-        newText: '/*',
-        start: {
-          line: 1,
-          offset: 1,
-        },
-      },
-      {
-        end: {
-          line: 1,
-          offset: 1,
-        },
-        newText: '*/',
-        start: {
-          line: 1,
-          offset: 1,
-        },
-      },
-    ])
-  },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
-)
-
-test(
   'toggleMultilineComment - error - no project',
   async () => {
     const tmpDir = await getTmpDir()
