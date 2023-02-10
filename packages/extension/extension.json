@@ -26,11 +26,19 @@
   "languages": [
     {
       "id": "typescript",
-      "extensions": [".ts", ".tsx"]
+      "extensions": [".ts"]
+    },
+    {
+      "id": "tsx",
+      "extensions": [".tsx"]
     },
     {
       "id": "javascript",
-      "extensions": [".js", ".jsx"]
+      "extensions": [".js"]
+    },
+    {
+      "id": "jsx",
+      "extensions": [".jsx"]
     }
   ]
 }
