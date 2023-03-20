@@ -1111,7 +1111,7 @@ add(1, 2)`
           line: 1,
           offset: 29,
         },
-        text: "An import path cannot end with a '.ts' extension. Consider importing './calculate' instead.",
+        text: "Cannot find module './calculate.ts' or its corresponding type declarations.",
       },
     ])
   },
