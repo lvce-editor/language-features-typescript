@@ -549,7 +549,29 @@ export const subtract = (a,b) => a - b`
         file: join(tmpDir, 'calculate.ts'),
       })
     ).toEqual({
-      refs: [], // TODO should find reference to index.ts file
+      refs: [
+        {
+          contextEnd: {
+            line: 1,
+            offset: 45,
+          },
+          contextStart: {
+            line: 1,
+            offset: 1,
+          },
+          end: {
+            line: 1,
+            offset: 44,
+          },
+          file: join(tmpDir, 'index.ts'),
+          isWriteAccess: false,
+          lineText: "import {add, subtract} from './calculate.ts'",
+          start: {
+            line: 1,
+            offset: 30,
+          },
+        },
+      ],
       symbolName: `"${join(tmpDir, 'calculate.ts')}"`,
     })
   },
@@ -1102,7 +1124,7 @@ add(1, 2)`
     ).toEqual([
       {
         category: 'error',
-        code: 2691,
+        code: 2307,
         end: {
           line: 1,
           offset: 45,
@@ -1111,7 +1133,7 @@ add(1, 2)`
           line: 1,
           offset: 29,
         },
-        text: "An import path cannot end with a '.ts' extension. Consider importing './calculate' instead.",
+        text: "Cannot find module './calculate.ts' or its corresponding type declarations.",
       },
     ])
   },
