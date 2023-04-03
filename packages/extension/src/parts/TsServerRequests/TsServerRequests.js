@@ -3,8 +3,8 @@
 import VError from 'verror'
 import * as Id from '../Id/Id.js'
 import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
-import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 import * as TsServerCommandType from '../TsServerCommandType/TsServerCommandType.js'
+import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
 export const state = {
   seq: 1,
