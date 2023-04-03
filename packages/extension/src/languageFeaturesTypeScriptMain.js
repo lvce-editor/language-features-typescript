@@ -24,6 +24,45 @@ import * as Platform from './parts/Platform/Platform.js'
 import * as TsPrimaryServer from './parts/TsPrimaryServer/TsPrimaryServer.js'
 import * as TsServerRequests from './parts/TsServerRequests/TsServerRequests.js'
 
+// TODO for completion add object setting to filter completion items
+// ts.completion.ADDRCONFIG: false
+// ts.completion.ADDRGETNETWORKPARAMS: false
+// ts.completion.AudioDestinationNode: false
+// ts.completion.Audio: false
+// ts.completion.AudioBuffer: false
+// ts.completion.AudioBufferSourceNode: false
+// ts.completion.AudioContext: false
+// ts.completion.AudioListener: false
+// ts.completion.AudioNode: false
+// ts.completion.AudioParam: false
+// ts.completion.AudioParamMap: false
+// ts.completion.AudioScheduledSourceNode: false
+// ts.completion.AudioWorklet: false
+// ts.completion.AudioWorkletNode: false
+// ts.completion.AudioProcessingEvent: false
+// ts.completion.appendFile: false
+// ts.completion.appendFileSync: false
+// ts.completion.SocketAddress: false
+// ts.completion.alledNodeEnvironmentFlags: false
+// ts.completion.BaseAudioContext: false
+// ts.completion.AnalyserNode: false
+// ts.completion.OfflineAudioCompletionEvent: false
+// ts.completion.OfflineAudioContext: false
+// ts.completion.MediaStreamAudioDestinationNode: false
+// ts.completion.RTCEncodedAudioFrame: false
+// ts.completion.triggerAsyncId: false
+// ts.completion.MediaElementAudioSourceNode: false
+// ts.completion.executionAsync: false
+// ts.completion.ElementInternals: false
+// ts.completion.frameElement: false
+// ts.completion.CustomElementRegistry: false
+// ts.completion.SvgSetElement: false
+// ts.completion.SVGUseElement: false
+// ts.completion.getEventListeners: false
+// ts.completion.HtmlMapElement: false
+// ts.completion.HtmlModElement: false
+// ts.completion.hasUncaughtExceptionCaptureCallback: false
+
 export const exitHook = () => {
   Debug.debug('stopping tsserver via exitHook')
   TsPrimaryServer.stop()
@@ -42,6 +81,7 @@ export const initializeProject = async () => {
     hostInfo: 'test',
     preferences: {
       importModuleSpecifierEnding: 'js',
+      includeCompletionsForModuleExports: true,
     },
   })
   console.log('configured-ts-server', performance.now())
