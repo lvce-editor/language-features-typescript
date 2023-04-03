@@ -3,6 +3,7 @@
 import VError from 'verror'
 import * as Id from '../Id/Id.js'
 import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
+import * as TsServerCommandType from '../TsServerCommandType/TsServerCommandType.js'
 import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
 export const state = {
@@ -39,12 +40,12 @@ class TsServerError extends VError {
 export const braceCompletion = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'braceCompletion',
+    command: TsServerCommandType.BraceCompletion,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'braceCompletion')
+    throw new TsServerError(message, TsServerCommandType.BraceCompletion)
   }
   return message.body
 }
@@ -55,7 +56,7 @@ export const braceCompletion = async (params) => {
 export const change = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'change',
+    command: TsServerCommandType.Change,
     arguments: params,
   })
 }
@@ -66,7 +67,7 @@ export const change = (params) => {
 export const close = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'close',
+    command: TsServerCommandType.Close,
     arguments: params,
   })
 }
@@ -77,7 +78,7 @@ export const close = (params) => {
 export const closeExternalProject = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'closeExternalProject',
+    command: TsServerCommandType.CloseExternalProject,
     arguments: params,
   })
 }
@@ -89,11 +90,11 @@ export const closeExternalProject = (params) => {
 export const commentSelection = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'commentSelection',
+    command: TsServerCommandType.CommentSelection,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'commentSelection')
+    throw new TsServerError(message, TsServerCommandType.CommentSelection)
   }
   return message.body
 }
@@ -105,11 +106,11 @@ export const commentSelection = async (params) => {
 export const completionDetails = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'completionEntryDetails',
+    command: TsServerCommandType.CompletionEntryDetails,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'completionEntryDetails')
+    throw new TsServerError(message, TsServerCommandType.CompletionEntryDetails)
   }
   return message.body
 }
@@ -121,12 +122,12 @@ export const completionDetails = async (params) => {
 export const completionInfo = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'completionInfo',
+    command: TsServerCommandType.CompletionInfo,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'completionInfo')
+    throw new TsServerError(message, TsServerCommandType.CompletionInfo)
   }
   return message.body
 }
@@ -137,7 +138,7 @@ export const completionInfo = async (params) => {
 export const compileOnSaveAffectedFileList = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'compileOnSaveAffectedFileList',
+    command: TsServerCommandType.CompileOnSaveAffectedFileList,
     arguments: params,
   })
 }
@@ -149,11 +150,11 @@ export const compileOnSaveAffectedFileList = (params) => {
 export const configure = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'configure',
+    command: TsServerCommandType.Configure,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'configure')
+    throw new TsServerError(message, TsServerCommandType.Configure)
   }
   return message.body
 }
@@ -165,12 +166,12 @@ export const configure = async (params) => {
 export const definition = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'definition',
+    command: TsServerCommandType.Definition,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'definition')
+    throw new TsServerError(message, TsServerCommandType.Definition)
   }
   return message.body
 }
