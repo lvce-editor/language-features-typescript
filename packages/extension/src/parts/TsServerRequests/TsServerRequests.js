@@ -5,10 +5,6 @@ import * as Id from '../Id/Id.js'
 import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
-export const state = {
-  seq: 1,
-}
-
 // TODO somehow tsserver stack is not printed
 class TsServerError extends VError {
   // @ts-ignore
