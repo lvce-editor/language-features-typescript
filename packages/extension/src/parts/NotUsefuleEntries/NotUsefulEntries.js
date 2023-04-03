@@ -12,7 +12,6 @@ export const notUsefulEntries = new Set([
   'BroadcastChannel',
   'Atomics',
   'AggregateError',
-  'AbortController',
   'escape',
   'unescape',
   'btoa',
