@@ -492,12 +492,12 @@ export const toggleMultilineComment = async (params) => {
 export const typeDefinition = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'typeDefinition',
+    command: TsServerCommandType.TypeDefinition,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'typeDefinition')
+    throw new TsServerError(message, TsServerCommandType.TypeDefinition)
   }
   return message.body
 }
@@ -509,12 +509,12 @@ export const typeDefinition = async (params) => {
 export const updateOpen = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'updateOpen',
+    command: TsServerCommandType.UpdateOpen,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'updateOpen')
+    throw new TsServerError(message, TsServerCommandType.UpdateOpen)
   }
   return message.body
 }
