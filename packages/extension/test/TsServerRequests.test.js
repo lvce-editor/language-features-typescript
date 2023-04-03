@@ -1324,7 +1324,7 @@ test(
       })
     ).rejects.toThrowError(
       new Error(
-        'TsServer.toggleMultiLineComment failed to execute: No Project.'
+        'TsServer.toggleMultilineComment failed to execute: No Project.'
       )
     )
   },
