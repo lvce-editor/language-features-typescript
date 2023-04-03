@@ -563,7 +563,7 @@ export const subtract = (a,b) => a - b`
             line: 1,
             offset: 44,
           },
-          file: join(tmpDir, 'index.ts'),
+          file: fixPath(join(tmpDir, 'index.ts')),
           isWriteAccess: false,
           lineText: "import {add, subtract} from './calculate.ts'",
           start: {
