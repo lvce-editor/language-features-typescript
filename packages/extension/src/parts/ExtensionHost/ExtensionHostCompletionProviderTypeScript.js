@@ -1,5 +1,6 @@
 import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
 import * as Position from '../Position/Position.js'
+import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 
 export const languageId = 'typescript'
@@ -11,15 +12,15 @@ export const languageId = 'typescript'
  */
 const convertCompletionItemKind = (tsKind) => {
   switch (tsKind) {
-    case 'function':
+    case TsCompletionItemKind.Function:
       return /* Function */ 3
-    case 'var':
+    case TsCompletionItemKind.Var:
       return /* Variable */ 4
-    case 'keyword':
+    case TsCompletionItemKind.Keyword:
       return /* Keyword */ 5
-    case 'directory':
+    case TsCompletionItemKind.Directory:
       return /* Folder */ 6
-    case 'script':
+    case TsCompletionItemKind.Script:
       return /* File */ 7
     default:
       return /* Unknown */ 0
