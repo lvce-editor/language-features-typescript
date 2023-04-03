@@ -1,12 +1,8 @@
 // for reference, see https://github.com/Microsoft/TypeScript/blob/main/lib/protocol.d.ts#L5
 
-import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
-import * as Callback from '../Callback/Callback.js'
 import VError from 'verror'
-
-export const state = {
-  seq: 1,
-}
+import * as Id from '../Id/Id.js'
+import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 
 // TODO somehow tsserver stack is not printed
 class TsServerError extends VError {
@@ -40,7 +36,7 @@ export const braceCompletion = async (params) => {
     type: 'request',
     command: 'braceCompletion',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'braceCompletion')
@@ -122,7 +118,7 @@ export const completionInfo = async (params) => {
     type: 'request',
     command: 'completionInfo',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'completionInfo')
@@ -166,7 +162,7 @@ export const definition = async (params) => {
     type: 'request',
     command: 'definition',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'definition')
@@ -194,7 +190,7 @@ export const documentHighlights = async (params) => {
     type: 'request',
     command: 'documentHighlights',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'documentHighlights')
@@ -211,7 +207,7 @@ export const encodedSemanticClassificationsFull = async (params) => {
     type: 'request',
     command: 'encodedSemanticClassifications-full',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'encodedSemanticClassificationsFull')
@@ -230,7 +226,7 @@ export const fileReferences = async (params) => {
     type: 'request',
     command: 'fileReferences',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'fileReferences')
@@ -313,7 +309,7 @@ export const implementation = async (params) => {
     type: 'request',
     command: 'implementation',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'implementation')
@@ -331,7 +327,7 @@ export const indentation = async (params) => {
     type: 'request',
     command: 'indentation',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'indentation')
@@ -348,7 +344,7 @@ export const jsxClosingTag = async (params) => {
     type: 'request',
     command: 'jsxClosingTag',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     if (message.message === 'No content available.') {
@@ -383,7 +379,7 @@ export const organizeImports = async (params) => {
     type: 'request',
     command: 'organizeImports',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'organizeImports')
@@ -471,7 +467,7 @@ export const semanticDiagnosticsSync = async (params) => {
     type: 'request',
     command: 'semanticDiagnosticsSync',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'semanticDiagnosticsSync')
@@ -487,7 +483,7 @@ export const toggleLineComment = async (params) => {
     type: 'request',
     command: 'toggleLineComment',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'toggleLineComment')
@@ -503,7 +499,7 @@ export const toggleMultilineComment = async (params) => {
     type: 'request',
     command: 'toggleMultilineComment',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'toggleMultiLineComment')
@@ -520,7 +516,7 @@ export const typeDefinition = async (params) => {
     type: 'request',
     command: 'typeDefinition',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'typeDefinition')
@@ -537,7 +533,7 @@ export const updateOpen = async (params) => {
     type: 'request',
     command: 'updateOpen',
     arguments: params,
-    seq: state.seq++,
+    seq: Id.create(),
   })
   if (!message.success) {
     throw new TsServerError(message, 'updateOpen')
