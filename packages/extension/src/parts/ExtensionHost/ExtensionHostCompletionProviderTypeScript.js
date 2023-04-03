@@ -1,5 +1,6 @@
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
 import * as Position from '../Position/Position.js'
+import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 
 export const languageId = 'typescript'
 
@@ -38,11 +39,19 @@ const convertTsCompletionEntry = (tsEntry) => {
 }
 
 /**
+ *
+ * @param {import('typescript/lib/protocol').CompletionEntry} tsEntry
+ */
+const isUsefulEntry = (tsEntry) => {
+  return !NotUsefulEntries.notUsefulEntries.has(tsEntry.name)
+}
+
+/**
  * @param {import('typescript/lib/protocol').CompletionInfo} tsResult
  * @returns {vscode.Completion[]}
  */
 const getCompletionFromTsResult = (tsResult) => {
-  return tsResult.entries.map(convertTsCompletionEntry)
+  return tsResult.entries.filter(isUsefulEntry).map(convertTsCompletionEntry)
 }
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}
