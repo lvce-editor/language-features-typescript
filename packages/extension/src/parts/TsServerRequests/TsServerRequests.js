@@ -355,12 +355,12 @@ export const rename = async (params) => {
 export const organizeImports = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'organizeImports',
+    command: TsServerCommandType.OrganizeImports,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'organizeImports')
+    throw new TsServerError(message, TsServerCommandType.OrganizeImports)
   }
   return message.body
 }
@@ -371,7 +371,7 @@ export const organizeImports = async (params) => {
 export const prepareCallHierarchy = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'prepareCallHierarchy',
+    command: TsServerCommandType.PrepareCallHierarchy,
     arguments: params,
   })
 }
@@ -382,7 +382,7 @@ export const prepareCallHierarchy = (params) => {
 export const provideCallHierarchyIncomingCalls = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'provideCallHierarchyIncomingCalls',
+    command: TsServerCommandType.ProvideCallHierarchyIncomingCalls,
     arguments: params,
   })
 }
@@ -393,7 +393,7 @@ export const provideCallHierarchyIncomingCalls = (params) => {
 export const provideCallHierarchyOutgoingCalls = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'provideCallHierarchyOutgoingCalls',
+    command: TsServerCommandType.ProvideCallHierarchyOutgoingCalls,
     arguments: params,
   })
 }
@@ -404,7 +404,7 @@ export const provideCallHierarchyOutgoingCalls = (params) => {
 export const provideInlayHints = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'provideInlayHints',
+    command: TsServerCommandType.ProvideInlayHints,
     arguments: params,
   })
 }
@@ -416,11 +416,11 @@ export const provideInlayHints = (params) => {
 export const references = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'references',
+    command: TsServerCommandType.References,
     arguments: params,
   })
   if (!message.success) {
-    throw new TsServerError(message, 'references')
+    throw new TsServerError(message, TsServerCommandType.References)
   }
   return message.body
 }
@@ -431,7 +431,7 @@ export const references = async (params) => {
 export const reload = async (params) => {
   await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'reload',
+    command: TsServerCommandType.Reload,
     arguments: params,
   })
 }
@@ -443,12 +443,15 @@ export const reload = async (params) => {
 export const semanticDiagnosticsSync = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'semanticDiagnosticsSync',
+    command: TsServerCommandType.SemanticDiagnosticsSync,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'semanticDiagnosticsSync')
+    throw new TsServerError(
+      message,
+      TsServerCommandType.SemanticDiagnosticsSync
+    )
   }
   return message.body
 }
@@ -459,12 +462,12 @@ export const semanticDiagnosticsSync = async (params) => {
 export const toggleLineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'toggleLineComment',
+    command: TsServerCommandType.ToggleLineComment,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'toggleLineComment')
+    throw new TsServerError(message, TsServerCommandType.ToggleLineComment)
   }
   return message.body
 }
@@ -475,12 +478,12 @@ export const toggleLineComment = async (params) => {
 export const toggleMultilineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
     type: TsServerMessageType.Request,
-    command: 'toggleMultilineComment',
+    command: TsServerCommandType.ToggleMultilineComment,
     arguments: params,
     seq: Id.create(),
   })
   if (!message.success) {
-    throw new TsServerError(message, 'toggleMultiLineComment')
+    throw new TsServerError(message, TsServerCommandType.ToggleMultilineComment)
   }
   return message.body
 }
