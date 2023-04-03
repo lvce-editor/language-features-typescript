@@ -1,8 +1,8 @@
 // for reference, see https://github.com/Microsoft/TypeScript/blob/main/lib/protocol.d.ts#L5
 
-import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
-import * as Callback from '../Callback/Callback.js'
 import VError from 'verror'
+import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
+import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
 export const state = {
   seq: 1,
@@ -37,7 +37,7 @@ class TsServerError extends VError {
  */
 export const braceCompletion = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'braceCompletion',
     arguments: params,
     seq: state.seq++,
@@ -53,7 +53,7 @@ export const braceCompletion = async (params) => {
  */
 export const change = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'change',
     arguments: params,
   })
@@ -64,7 +64,7 @@ export const change = (params) => {
  */
 export const close = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'close',
     arguments: params,
   })
@@ -75,7 +75,7 @@ export const close = (params) => {
  */
 export const closeExternalProject = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'closeExternalProject',
     arguments: params,
   })
@@ -87,7 +87,7 @@ export const closeExternalProject = (params) => {
  */
 export const commentSelection = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'commentSelection',
     arguments: params,
   })
@@ -103,7 +103,7 @@ export const commentSelection = async (params) => {
  */
 export const completionDetails = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'completionEntryDetails',
     arguments: params,
   })
@@ -119,7 +119,7 @@ export const completionDetails = async (params) => {
  */
 export const completionInfo = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'completionInfo',
     arguments: params,
     seq: state.seq++,
@@ -135,7 +135,7 @@ export const completionInfo = async (params) => {
  */
 export const compileOnSaveAffectedFileList = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'compileOnSaveAffectedFileList',
     arguments: params,
   })
@@ -147,7 +147,7 @@ export const compileOnSaveAffectedFileList = (params) => {
  */
 export const configure = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'configure',
     arguments: params,
   })
@@ -163,7 +163,7 @@ export const configure = async (params) => {
  */
 export const definition = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'definition',
     arguments: params,
     seq: state.seq++,
@@ -179,7 +179,7 @@ export const definition = async (params) => {
  */
 export const definitionAndBoundSpan = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'definitionAndBoundSpan',
     arguments: params,
   })
@@ -191,7 +191,7 @@ export const definitionAndBoundSpan = (params) => {
  */
 export const documentHighlights = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'documentHighlights',
     arguments: params,
     seq: state.seq++,
@@ -208,7 +208,7 @@ export const documentHighlights = async (params) => {
  */
 export const encodedSemanticClassificationsFull = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'encodedSemanticClassifications-full',
     arguments: params,
     seq: state.seq++,
@@ -227,7 +227,7 @@ export const exit = () => {}
  */
 export const fileReferences = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'fileReferences',
     arguments: params,
     seq: state.seq++,
@@ -243,7 +243,7 @@ export const fileReferences = async (params) => {
  */
 export const format = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'format',
     arguments: params,
   })
@@ -254,7 +254,7 @@ export const format = (params) => {
  */
 export const getCodeFixes = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getCodeFixes',
     arguments: params,
   })
@@ -265,7 +265,7 @@ export const getCodeFixes = (params) => {
  */
 export const getEditsForFileRename = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getEditsForFileRename',
     arguments: params,
   })
@@ -276,7 +276,7 @@ export const getEditsForFileRename = (params) => {
  */
 export const getOutliningSpans = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getOutliningSpans',
     arguments: params,
   })
@@ -287,7 +287,7 @@ export const getOutliningSpans = (params) => {
  */
 export const getSpanOfEnclosingComment = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getSpanOfEnclosingComment',
     arguments: params,
   })
@@ -298,7 +298,7 @@ export const getSpanOfEnclosingComment = (params) => {
  */
 export const getSupportedCodeFixes = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'getSupportedCodeFixes',
     arguments: params,
   })
@@ -310,7 +310,7 @@ export const getSupportedCodeFixes = (params) => {
  */
 export const implementation = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'implementation',
     arguments: params,
     seq: state.seq++,
@@ -328,7 +328,7 @@ export const implementation = async (params) => {
  */
 export const indentation = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'indentation',
     arguments: params,
     seq: state.seq++,
@@ -345,7 +345,7 @@ export const indentation = async (params) => {
  */
 export const jsxClosingTag = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'jsxClosingTag',
     arguments: params,
     seq: state.seq++,
@@ -365,7 +365,7 @@ export const jsxClosingTag = async (params) => {
  */
 export const rename = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'rename',
     arguments: params,
   })
@@ -380,7 +380,7 @@ export const rename = async (params) => {
  */
 export const organizeImports = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'organizeImports',
     arguments: params,
     seq: state.seq++,
@@ -396,7 +396,7 @@ export const organizeImports = async (params) => {
  */
 export const prepareCallHierarchy = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'prepareCallHierarchy',
     arguments: params,
   })
@@ -407,7 +407,7 @@ export const prepareCallHierarchy = (params) => {
  */
 export const provideCallHierarchyIncomingCalls = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'provideCallHierarchyIncomingCalls',
     arguments: params,
   })
@@ -418,7 +418,7 @@ export const provideCallHierarchyIncomingCalls = (params) => {
  */
 export const provideCallHierarchyOutgoingCalls = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'provideCallHierarchyOutgoingCalls',
     arguments: params,
   })
@@ -429,7 +429,7 @@ export const provideCallHierarchyOutgoingCalls = (params) => {
  */
 export const provideInlayHints = (params) => {
   TsPrimaryServer.send({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'provideInlayHints',
     arguments: params,
   })
@@ -441,7 +441,7 @@ export const provideInlayHints = (params) => {
  */
 export const references = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'references',
     arguments: params,
   })
@@ -456,7 +456,7 @@ export const references = async (params) => {
  */
 export const reload = async (params) => {
   await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'reload',
     arguments: params,
   })
@@ -468,7 +468,7 @@ export const reload = async (params) => {
  */
 export const semanticDiagnosticsSync = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'semanticDiagnosticsSync',
     arguments: params,
     seq: state.seq++,
@@ -484,7 +484,7 @@ export const semanticDiagnosticsSync = async (params) => {
  */
 export const toggleLineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'toggleLineComment',
     arguments: params,
     seq: state.seq++,
@@ -500,7 +500,7 @@ export const toggleLineComment = async (params) => {
  */
 export const toggleMultilineComment = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'toggleMultilineComment',
     arguments: params,
     seq: state.seq++,
@@ -517,7 +517,7 @@ export const toggleMultilineComment = async (params) => {
  */
 export const typeDefinition = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'typeDefinition',
     arguments: params,
     seq: state.seq++,
@@ -534,7 +534,7 @@ export const typeDefinition = async (params) => {
  */
 export const updateOpen = async (params) => {
   const message = await TsPrimaryServer.invoke({
-    type: 'request',
+    type: TsServerMessageType.Request,
     command: 'updateOpen',
     arguments: params,
     seq: state.seq++,
