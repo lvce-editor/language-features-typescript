@@ -1,7 +1,7 @@
 {
   "id": "builtin.language-features-typescript",
   "name": "Language Features TypeScript",
-  "main": "src/languageFeaturesTypeScriptMain.js",
+  "browser": "src/languageFeaturesTypeScriptMain.js",
   "icon": "icon.png",
   "activation": [
     "onBraceCompletion:javascript",
