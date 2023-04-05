@@ -12,15 +12,14 @@ const handleMessage = (message) => {
 
 export const activate = async ({ path }) => {
   const tsPath = getTsPath(path)
-  const ipc = await vscode.createNodeIpc({
+  const rpc = await vscode.createNodeRpc({
     path: tsPath,
   })
-  ipc.onmessage = handleMessage
-  console.log({ ipc })
+  console.log({ rpc })
   vscode.registerCompletionProvider({
     languageId: 'typescript',
     async provideCompletions() {
-      const items = await JsonRpc.invoke(ipc, 'Completion.getCompletion')
+      const items = await rpc.invoke('Completion.getCompletion')
       return items
     },
   })
