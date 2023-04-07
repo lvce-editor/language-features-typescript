@@ -1,7 +1,6 @@
 import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
-import * as Position from '../Position/Position.js'
+import * as Rpc from '../Rpc/Rpc.js'
 import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 
 export const languageId = 'typescript'
 
@@ -58,14 +57,12 @@ const getCompletionFromTsResult = (tsResult) => {
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
 export const provideCompletions = async (textDocument, offset) => {
-  const tsPosition = Position.getTsPosition(textDocument, offset)
-  const tsResult = await TsServerRequests.completionInfo({
-    file: textDocument.uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
-  })
-  console.log(JSON.stringify({ tsResult }, null, 2))
-  return getCompletionFromTsResult(tsResult)
+  const items = await Rpc.invoke(
+    'Completion.getCompletion',
+    textDocument.uri,
+    offset
+  )
+  return items
 }
 
 // const getCompletionDetailsFromTsResult = (tsResult) => {

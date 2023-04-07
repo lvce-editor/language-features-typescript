@@ -1,26 +1,7 @@
-import * as JsonRpc from './parts/JsonRpc/JsonRpc.js'
-import * as Callback from './parts/Callback/Callback.js'
-
-const getTsPath = (path) => {
-  return `${path}/../node/src/typeScriptClient.js`
-}
-
-const handleMessage = (message) => {
-  console.log({ message })
-  Callback.resolve(message.id, message)
-}
+import * as CompletionProvider from './parts/ExtensionHost/ExtensionHostCompletionProviderTypeScript.js'
+import * as Rpc from './parts/Rpc/Rpc.js'
 
 export const activate = async ({ path }) => {
-  const tsPath = getTsPath(path)
-  const rpc = await vscode.createNodeRpc({
-    path: tsPath,
-  })
-  console.log({ rpc })
-  vscode.registerCompletionProvider({
-    languageId: 'typescript',
-    async provideCompletions() {
-      const items = await rpc.invoke('Completion.getCompletion')
-      return items
-    },
-  })
+  await Rpc.listen({ path })
+  vscode.registerCompletionProvider(CompletionProvider)
 }
