@@ -15,6 +15,10 @@ export const create = ({ args }) => {
   server.on('spawn', () => {
     console.info('[tsserver] spawn')
   })
+  return server
+}
+
+export const wrap = (server) => {
   return {
     send() {
       server.send('message')

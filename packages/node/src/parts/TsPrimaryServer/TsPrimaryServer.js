@@ -74,7 +74,7 @@ const handlePrimaryServerError = (error) => {
 }
 
 export const start = ({ ipc = 'stdio', tsServerPath } = {}) => {
-  Assert._undefined(state.server)
+  // Assert._undefined(state.server)
   Assert.string(tsServerPath)
   const server = TsServer.create({
     tsServerPath,
@@ -94,6 +94,9 @@ export const stop = () => {
 }
 
 export const send = (message) => {
+  if (!state.server) {
+    throw new Error(`tsserver must be initialized before sending requests`)
+  }
   state.server.send(message)
 }
 

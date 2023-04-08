@@ -40,9 +40,10 @@ export const create = ({
 
   const factory = getServerFactory(ipc)
 
-  const instance = factory.create({
+  const rawInstance = factory.create({
     args,
   })
+  const instance = factory.wrap(rawInstance)
   instance.onError(handleError)
   instance.onMessage(handleMessage)
   instance.onExit(handleExit)

@@ -1,10 +1,9 @@
 // TODO this should not be in core
 
 export const getTsPosition = (textDocument, offset) => {
-  const position = vscode.getPosition(textDocument, offset)
   return {
-    line: position.rowIndex + 1,
-    offset: position.columnIndex + 1,
+    line: 1,
+    offset: 1,
   }
 }
 

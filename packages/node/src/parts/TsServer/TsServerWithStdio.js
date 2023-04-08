@@ -6,6 +6,10 @@ export const create = ({ args }) => {
     stdio: 'pipe',
   })
   server.stderr.pipe(process.stderr)
+  return server
+}
+
+export const wrap = (server) => {
   return {
     send(message) {
       server.stdin.write(JSON.stringify(message) + '\r\n', 'utf-8')
