@@ -1,6 +1,7 @@
 import * as ChildProcess from '../ChildProcess/ChildProcess.js'
 
 export const create = ({ args }) => {
+  // TODO wait for server to be launched
   const argsWithNodeIpc = [...args, '--useNodeIpc']
   const server = ChildProcess.create(argsWithNodeIpc, {
     stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
