@@ -138,6 +138,18 @@ test(
   /* this can take some time */ TS_SERVER_TEST_TIMEOUT
 )
 
+test.skip(
+  'completionInfo - error - invalid argument',
+  async () => {
+    const tmpDir = await getTmpDir()
+    await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
+    await expect(
+      await TsServerRequests.completionInfo({})
+    ).rejects.toThrowError(new Error('abc'))
+  },
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+)
+
 test(
   'completionInfo - property',
   async () => {
