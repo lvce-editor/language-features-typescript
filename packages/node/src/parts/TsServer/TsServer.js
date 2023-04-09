@@ -1,5 +1,5 @@
-import * as TsServerWithIpc from './TsServerWithIpc.js'
-import * as TsServerWithStdio from './TsServerWithStdio.js'
+import * as TsServerWithIpc from '../TsServerWithIpc/TsServerWithIpc.js'
+import * as TsServerWithStdio from '../TsServerWithStdio/TsServerWithStdio.js'
 
 // TODO should be xdg and windows compatible and only start when necessary and be in a different file (Logger.js)
 

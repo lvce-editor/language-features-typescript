@@ -7,6 +7,7 @@ export const getFirstNodeProcessEvent = async (process) => {
       process.off('error', handleError)
       process.off('message', handleMessage)
       process.off('exit', handleExit)
+      process.off('spawn', handleSpawn)
       resolve(value)
     }
 
@@ -37,10 +38,17 @@ export const getFirstNodeProcessEvent = async (process) => {
         event,
       })
     }
+    const handleSpawn = (event) => {
+      cleanup({
+        type: FirstNodeProcessEventType.Spawn,
+        event,
+      })
+    }
     process.on('disconnect', handleDisconnect)
     process.on('error', handleError)
     process.on('message', handleMessage)
     process.on('exit', handleExit)
+    process.on('spawn', handleSpawn)
   })
   return {
     type,

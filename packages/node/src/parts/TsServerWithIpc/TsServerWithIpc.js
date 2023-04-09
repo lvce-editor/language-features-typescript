@@ -13,7 +13,7 @@ export const create = async ({ args }) => {
   server.stderr.pipe(process.stderr)
   const { type, event } =
     await GetFirstNodeProcessEvent.getFirstNodeProcessEvent(server)
-
+  console.log({ type, event })
   if (type === FirstNodeProcessEventType.Error) {
     throw new Error(`tsserver child process error: ${event}`)
   }

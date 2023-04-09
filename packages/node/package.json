@@ -13,5 +13,8 @@
   "dependencies": {
     "minimist": "^1.2.8",
     "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11"
   }
 }
