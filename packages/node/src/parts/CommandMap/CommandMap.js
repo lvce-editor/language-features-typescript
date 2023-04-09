@@ -2,6 +2,7 @@ import { CommandNotFoundError } from '../CommandNotFoundError/CommandNotFoundErr
 import * as CommandType from '../CommandType/CommandType.js'
 import * as Completion from '../Completion/Completion.js'
 import * as Initialize from '../Initialize/Initialize.js'
+import * as UpdateOpen from '../UpdateOpen/UpdateOpen.js'
 
 export const getFn = (method) => {
   switch (method) {
@@ -9,6 +10,8 @@ export const getFn = (method) => {
       return Completion.getCompletion
     case CommandType.Initialize:
       return Initialize.initialize
+    case CommandType.UpdateOpen:
+      return UpdateOpen.updateOpen
     default:
       throw new CommandNotFoundError(method)
   }

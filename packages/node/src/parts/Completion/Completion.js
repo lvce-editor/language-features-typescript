@@ -2,6 +2,7 @@ import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
 import * as Position from '../Position/Position.js'
 import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as TextDocuments from '../TextDocuments/TextDocuments.js'
 
 export const languageId = 'typescript'
 
@@ -58,6 +59,10 @@ const getCompletionFromTsResult = (tsResult) => {
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
 export const getCompletion = async (uri, offset) => {
+  if (!TextDocuments.hasUri(uri)) {
+    throw new Error(`Text document must be opened before requesting completion`)
+  }
+  console.log({ uri })
   const tsPosition = Position.getTsPosition(uri, offset)
   const tsResult = await TsServerRequests.completionInfo({
     file: uri,

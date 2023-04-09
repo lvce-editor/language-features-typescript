@@ -2,6 +2,7 @@ import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
 import * as Rpc from '../Rpc/Rpc.js'
 import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
 import * as Assert from '../Assert/Assert.js'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 
 export const languageId = 'typescript'
 
@@ -60,7 +61,9 @@ const getCompletionFromTsResult = (tsResult) => {
 export const provideCompletions = async (textDocument, offset) => {
   const uri = textDocument.uri
   Assert.string(uri)
+  await TextDocumentSync.openTextDocuments([textDocument])
   const items = await Rpc.invoke('Completion.getCompletion', uri, offset)
+  console.log({ items })
   return items
 }
 

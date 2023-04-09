@@ -23,5 +23,6 @@ export const listen = async ({ path }) => {
 
 export const invoke = async (method, ...params) => {
   const rpc = state.rpc
-  await state.rpc.invoke(method, ...params)
+  const result = await state.rpc.invoke(method, ...params)
+  return result
 }

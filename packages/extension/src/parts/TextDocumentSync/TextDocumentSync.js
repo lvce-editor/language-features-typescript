@@ -1,5 +1,5 @@
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 import * as Debug from '../Debug/Debug.js'
+import * as Rpc from '../Rpc/Rpc.js'
 
 export const onWillChangeTextDocument = async (textDocument, edits) => {
   console.log(textDocument, edits)
@@ -8,4 +8,5 @@ export const onWillChangeTextDocument = async (textDocument, edits) => {
 
 export const openTextDocuments = async (textDocuments) => {
   Debug.debug('open text documents', textDocuments)
+  await Rpc.invoke('UpdateOpen.updateOpen', textDocuments)
 }
