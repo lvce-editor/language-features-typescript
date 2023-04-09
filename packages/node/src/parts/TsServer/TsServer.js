@@ -39,8 +39,6 @@ export const create = async ({
   args.push('--suppressDiagnosticEvents')
 
   const factory = getServerFactory(ipc)
-  console.log({ factory, ipc })
-
   const rawInstance = await factory.create({
     args,
   })

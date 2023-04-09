@@ -92,7 +92,6 @@ export const start = async ({ ipc = 'node-ipc', tsServerPath } = {}) => {
     handleMessage,
     ipc,
   })
-  console.log({ server })
   state.server = server
 }
 
