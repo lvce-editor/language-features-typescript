@@ -37,7 +37,6 @@ const handleMessageResponse = (message) => {
   const request_seq = message.request_seq
   Assert.number(request_seq)
   const pendingRequest = state.pendingRequests[request_seq]
-  console.log({ message })
   if (!pendingRequest) {
     Logger.warn(
       `no matching request found for request with sequence number ${request_seq}`
@@ -116,7 +115,6 @@ export const invoke = (message) => {
   Assert.string(message.command)
   Assert.number(message.seq)
   TsServerLog.send(message)
-  console.log('invoke', message)
   return new Promise((resolve, reject) => {
     state.pendingRequests[message.seq] = {
       resolve,

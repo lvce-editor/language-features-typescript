@@ -23,7 +23,5 @@ export const updateOpen = (textDocuments) => {
     TextDocuments.setUri(textDocument.uri, textDocument.text)
   }
   const tsEdit = getTsEdit(textDocuments)
-  console.log({ tsEdit })
   TsServerRequests.updateOpen(tsEdit)
-  console.log({ textDocuments })
 }

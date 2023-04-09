@@ -9,7 +9,6 @@ const getTsPath = (path) => {
 }
 
 const handleMessage = (message) => {
-  console.log({ message })
   Callback.resolve(message.id, message)
 }
 
