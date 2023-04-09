@@ -73,16 +73,17 @@ const handlePrimaryServerError = (error) => {
   Callback.rejectAll(new Error(`[tsserver] encountered an error ${error}`))
 }
 
-export const start = ({ ipc = 'stdio', tsServerPath } = {}) => {
+export const start = async ({ ipc = 'node-ipc', tsServerPath } = {}) => {
   // Assert._undefined(state.server)
   Assert.string(tsServerPath)
-  const server = TsServer.create({
+  const server = await TsServer.create({
     tsServerPath,
     handleError: handlePrimaryServerError,
     handleExit: handlePrimaryServerExit,
     handleMessage,
     ipc,
   })
+  console.log({ server })
   state.server = server
 }
 

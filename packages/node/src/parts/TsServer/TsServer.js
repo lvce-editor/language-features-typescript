@@ -16,11 +16,11 @@ const getServerFactory = (ipc) => {
   }
 }
 
-export const create = ({
+export const create = async ({
   disableAutomaticTypingAcquisition = true,
   npmLocation = undefined,
   tsServerPath = '',
-  ipc = 'stdio',
+  ipc = 'node-ipc',
   handleMessage = () => {},
   handleError = () => {},
   handleExit = () => {},
@@ -39,8 +39,9 @@ export const create = ({
   args.push('--suppressDiagnosticEvents')
 
   const factory = getServerFactory(ipc)
+  console.log({ factory, ipc })
 
-  const rawInstance = factory.create({
+  const rawInstance = await factory.create({
     args,
   })
   const instance = factory.wrap(rawInstance)
