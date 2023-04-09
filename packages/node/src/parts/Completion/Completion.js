@@ -62,13 +62,11 @@ export const getCompletion = async (uri, offset) => {
   if (!TextDocuments.hasUri(uri)) {
     throw new Error(`Text document must be opened before requesting completion`)
   }
-  console.log({ uri })
   const tsPosition = Position.getTsPosition(uri, offset)
   const tsResult = await TsServerRequests.completionInfo({
     file: uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
   })
-  console.log(JSON.stringify({ tsResult }, null, 2))
   return getCompletionFromTsResult(tsResult)
 }
