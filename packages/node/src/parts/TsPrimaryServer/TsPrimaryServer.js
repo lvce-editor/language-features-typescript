@@ -3,6 +3,7 @@ import * as Callback from '../Callback/Callback.js'
 import * as TsServer from '../TsServer/TsServer.js'
 import * as TsServerLog from '../TsServerLog/TsServerLog.js'
 import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
+import * as Logger from '../Logger/Logger.js'
 
 export const state = {
   server: undefined,
@@ -32,31 +33,38 @@ const getTsServerErrorMessage = (message) => {
   }
 }
 
+const handleMessageResponse = (message) => {
+  const seq = message.seq
+  Assert.number(seq)
+  const pendingRequest = state.pendingRequests[seq]
+  console.log({ message })
+  if (!pendingRequest) {
+    Logger.warn(
+      `no matching request found for request with sequence number ${seq}`
+    )
+    return
+  }
+  pendingRequest.resolve(message)
+}
+
+const handleMessageEvent = (message) => {
+  if (state.listeners[message.event]) {
+    for (const listener of state.listeners[message.event]) {
+      listener(message.body)
+    }
+  }
+}
+
 const handleMessage = (message) => {
   TsServerLog.receive(message)
   // console.log({ message })
   switch (message.type) {
     case TsServerMessageType.Response:
-      const pendingRequest = state.pendingRequests[message.request_seq]
-      pendingRequest.resolve(message)
-      // if (message.success) {
-      //   pendingRequest.resolve(message.body)
-      // } else {
-      //   pendingRequest.reject(
-      //     new TsServerError(message.message, pendingRequest.command)
-      //   )
-      // }
-      break
+      return handleMessageResponse(message)
     case TsServerMessageType.Event:
-      if (state.listeners[message.event]) {
-        for (const listener of state.listeners[message.event]) {
-          listener(message.body)
-        }
-      }
-      break
-    // TODO handle error
+      return handleMessageEvent(message)
     default:
-      break
+      throw new Error(`unexpected message from tsserver: ${message.type}`)
   }
 }
 
@@ -106,7 +114,10 @@ export const send = (message) => {
  * @param {any} message
  */
 export const invoke = (message) => {
+  Assert.string(message.command)
+  Assert.number(message.seq)
   TsServerLog.send(message)
+  console.log('invoke', message)
   return new Promise((resolve, reject) => {
     state.pendingRequests[message.seq] = {
       resolve,
