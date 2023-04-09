@@ -10,10 +10,8 @@ export const create = async ({ args }) => {
   const server = ChildProcess.create(argsWithNodeIpc, {
     stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
   })
-  server.stderr.pipe(process.stderr)
   const { type, event } =
     await GetFirstNodeProcessEvent.getFirstNodeProcessEvent(server)
-  console.log({ type, event })
   if (type === FirstNodeProcessEventType.Error) {
     throw new Error(`tsserver child process error: ${event}`)
   }
@@ -23,7 +21,6 @@ export const create = async ({ args }) => {
   if (type === FirstNodeProcessEventType.Exit) {
     throw new Error(`tsserver child process exited with code: ${event}`)
   }
-  console.log({ event })
   server.on('disconnect', () => {
     console.info('[tsserver] disconnected')
   })
@@ -38,8 +35,8 @@ export const create = async ({ args }) => {
 
 export const wrap = (server) => {
   return {
-    send() {
-      server.send('message')
+    send(message) {
+      server.send(message)
     },
     dispose() {
       server.kill()

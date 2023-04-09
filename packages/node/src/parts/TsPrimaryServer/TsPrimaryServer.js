@@ -34,13 +34,13 @@ const getTsServerErrorMessage = (message) => {
 }
 
 const handleMessageResponse = (message) => {
-  const seq = message.seq
-  Assert.number(seq)
-  const pendingRequest = state.pendingRequests[seq]
+  const request_seq = message.request_seq
+  Assert.number(request_seq)
+  const pendingRequest = state.pendingRequests[request_seq]
   console.log({ message })
   if (!pendingRequest) {
     Logger.warn(
-      `no matching request found for request with sequence number ${seq}`
+      `no matching request found for request with sequence number ${request_seq}`
     )
     return
   }

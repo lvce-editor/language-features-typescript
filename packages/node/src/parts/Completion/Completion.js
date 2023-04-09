@@ -57,10 +57,10 @@ const getCompletionFromTsResult = (tsResult) => {
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
-export const getCompletion = async (textDocument, offset) => {
-  const tsPosition = Position.getTsPosition(textDocument, offset)
+export const getCompletion = async (uri, offset) => {
+  const tsPosition = Position.getTsPosition(uri, offset)
   const tsResult = await TsServerRequests.completionInfo({
-    file: textDocument.uri,
+    file: uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
   })

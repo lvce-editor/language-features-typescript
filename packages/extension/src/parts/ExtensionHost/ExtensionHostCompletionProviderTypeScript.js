@@ -1,6 +1,7 @@
 import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
 import * as Rpc from '../Rpc/Rpc.js'
 import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
+import * as Assert from '../Assert/Assert.js'
 
 export const languageId = 'typescript'
 
@@ -57,11 +58,9 @@ const getCompletionFromTsResult = (tsResult) => {
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
 export const provideCompletions = async (textDocument, offset) => {
-  const items = await Rpc.invoke(
-    'Completion.getCompletion',
-    textDocument.uri,
-    offset
-  )
+  const uri = textDocument.uri
+  Assert.string(uri)
+  const items = await Rpc.invoke('Completion.getCompletion', uri, offset)
   return items
 }
 
