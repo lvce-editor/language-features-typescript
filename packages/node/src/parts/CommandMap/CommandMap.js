@@ -2,11 +2,16 @@ import { CommandNotFoundError } from '../CommandNotFoundError/CommandNotFoundErr
 import * as CommandType from '../CommandType/CommandType.js'
 import * as Completion from '../Completion/Completion.js'
 import * as Definition from '../Definition/Definition.js'
+import * as FileSystem from '../FileSystem/FileSystem.js'
 import * as GetTsServerPath from '../GetTsServerPath/GetTsServerPath.js'
+import * as Implementation from '../Implementation/Implementation.js'
 import * as Initialize from '../Initialize/Initialize.js'
 import * as References from '../Refererences/References.js'
 import * as UpdateOpen from '../UpdateOpen/UpdateOpen.js'
 
+/**
+ * @param {string} method
+ */
 export const getFn = (method) => {
   switch (method) {
     case CommandType.CompletionGetCompletion:
@@ -21,6 +26,10 @@ export const getFn = (method) => {
       return Definition.getDefinition
     case CommandType.GetReferences:
       return References.getReferences
+    case CommandType.GetImplementations:
+      return Implementation.getImplementations
+    case CommandType.FileSystemReadFile:
+      return FileSystem.readFile
     default:
       throw new CommandNotFoundError(method)
   }

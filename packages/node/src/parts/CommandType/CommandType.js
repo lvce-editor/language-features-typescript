@@ -9,3 +9,7 @@ export const GetTsServerPath = 'GetTsServerPath.getTsServerPath'
 export const GetDefinition = 'Definition.getDefinition'
 
 export const GetReferences = 'References.getReferences'
+
+export const GetImplementations = 'Implementation.getImplementations'
+
+export const FileSystemReadFile = 'FileSystem.readFile'

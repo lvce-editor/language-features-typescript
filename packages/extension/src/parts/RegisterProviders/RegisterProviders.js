@@ -11,6 +11,10 @@ const registerProvider = (provider) => {
     vscode.registerReferenceProvider(provider)
     return
   }
+  if ('provideImplementations' in provider) {
+    vscode.registerImplementationProvider(provider)
+    return
+  }
 }
 
 export const registerProviders = (providers) => {
