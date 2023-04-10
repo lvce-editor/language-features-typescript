@@ -4,6 +4,7 @@ import * as Completion from '../Completion/Completion.js'
 import * as Definition from '../Definition/Definition.js'
 import * as GetTsServerPath from '../GetTsServerPath/GetTsServerPath.js'
 import * as Initialize from '../Initialize/Initialize.js'
+import * as References from '../Refererences/References.js'
 import * as UpdateOpen from '../UpdateOpen/UpdateOpen.js'
 
 export const getFn = (method) => {
@@ -18,6 +19,8 @@ export const getFn = (method) => {
       return GetTsServerPath.getDefaultTsServerPath
     case CommandType.GetDefinition:
       return Definition.getDefinition
+    case CommandType.GetReferences:
+      return References.getReferences
     default:
       throw new CommandNotFoundError(method)
   }

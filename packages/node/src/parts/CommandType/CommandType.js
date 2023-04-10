@@ -7,3 +7,5 @@ export const UpdateOpen = 'UpdateOpen.updateOpen'
 export const GetTsServerPath = 'GetTsServerPath.getTsServerPath'
 
 export const GetDefinition = 'Definition.getDefinition'
+
+export const GetReferences = 'References.getReferences'
