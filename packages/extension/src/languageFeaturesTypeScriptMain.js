@@ -1,5 +1,6 @@
-import * as CompletionProvider from './parts/ExtensionHost/ExtensionHostCompletionProviderTypeScript.js'
 import * as GetTsServerPath from './parts/GetTsServerPath/GetTsServerPath.js'
+import * as Providers from './parts/Providers/Providers.js'
+import * as RegisterProviders from './parts/RegisterProviders/RegisterProviders.js'
 import * as Rpc from './parts/Rpc/Rpc.js'
 
 export const activate = async ({ path }) => {
@@ -8,6 +9,5 @@ export const activate = async ({ path }) => {
   await Rpc.invoke('Initialize.initialize', {
     tsServerPath,
   })
-  // vscode.onDidOpenTextDocument(TextDocumentSync.openTextDocuments)
-  vscode.registerCompletionProvider(CompletionProvider)
+  RegisterProviders.registerProviders(Object.values(Providers))
 }

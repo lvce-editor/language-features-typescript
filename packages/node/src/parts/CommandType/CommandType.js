@@ -5,3 +5,5 @@ export const Initialize = 'Initialize.initialize'
 export const UpdateOpen = 'UpdateOpen.updateOpen'
 
 export const GetTsServerPath = 'GetTsServerPath.getTsServerPath'
+
+export const GetDefinition = 'Definition.getDefinition'
