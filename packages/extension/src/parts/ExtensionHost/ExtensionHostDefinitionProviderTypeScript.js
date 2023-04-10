@@ -9,10 +9,13 @@ export const languageId = 'typescript'
  * @type{vscode.DefinitionProvider['provideDefinition']}
  */
 export const provideDefinition = async (textDocument, offset) => {
-  const uri = textDocument.uri
-  const tsPosition = Position.getTsPosition(textDocument, offset)
   await TextDocumentSync.openTextDocuments([textDocument])
-  const tsResult = await Rpc.invoke('Definition.getDefinition', uri, tsPosition)
+  const tsPosition = Position.getTsPosition(textDocument, offset)
+  const tsResult = await Rpc.invoke('Definition.getDefinition', {
+    file: textDocument.uri,
+    line: tsPosition.line,
+    offset: tsPosition.offset,
+  })
   const definition = GetDefinitionFromTsResult.getDefinitionFromTsResult(
     textDocument,
     tsResult

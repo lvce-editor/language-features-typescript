@@ -4,7 +4,6 @@ import VError from 'verror'
 export class TsServerError extends VError {
   // @ts-ignore
   constructor(message, command) {
-    // console.log({ message })
     const actualMessage = message.message
     const lines = actualMessage.split('\n')
     if (lines.length === 1) {

@@ -26,7 +26,7 @@ export const invoke = async (ipc, command, params) => {
     ipc.send(request)
   })
   if (!response.success) {
-    throw new TsServerError(request, command)
+    throw new TsServerError(response, command)
   }
   return response.body
 }
