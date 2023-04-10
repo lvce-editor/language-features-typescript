@@ -1,14 +1,13 @@
 import * as Assert from '../Assert/Assert.js'
 import * as Callback from '../Callback/Callback.js'
+import * as TsRpc from '../TsRpc/TsRpc.js'
 import * as TsServer from '../TsServer/TsServer.js'
 import * as TsServerLog from '../TsServerLog/TsServerLog.js'
 import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
-import * as Logger from '../Logger/Logger.js'
 
 export const state = {
   server: undefined,
   listeners: Object.create(null),
-  pendingRequests: Object.create(null),
 }
 
 const getTsServerErrorMessage = (message) => {
@@ -33,19 +32,6 @@ const getTsServerErrorMessage = (message) => {
   }
 }
 
-const handleMessageResponse = (message) => {
-  const request_seq = message.request_seq
-  Assert.number(request_seq)
-  const pendingRequest = state.pendingRequests[request_seq]
-  if (!pendingRequest) {
-    Logger.warn(
-      `no matching request found for request with sequence number ${request_seq}`
-    )
-    return
-  }
-  pendingRequest.resolve(message)
-}
-
 const handleMessageEvent = (message) => {
   if (state.listeners[message.event]) {
     for (const listener of state.listeners[message.event]) {
@@ -59,7 +45,7 @@ const handleMessage = (message) => {
   // console.log({ message })
   switch (message.type) {
     case TsServerMessageType.Response:
-      return handleMessageResponse(message)
+      return TsRpc.handleMessageResponse(message)
     case TsServerMessageType.Event:
       return handleMessageEvent(message)
     default:
@@ -109,18 +95,12 @@ export const send = (message) => {
 }
 
 /**
- * @param {any} message
+ * @param {any} command
+ * @param {any} params
  */
-export const invoke = (message) => {
-  Assert.string(message.command)
-  Assert.number(message.seq)
-  TsServerLog.send(message)
-  return new Promise((resolve, reject) => {
-    state.pendingRequests[message.seq] = {
-      resolve,
-      reject,
-      command: message.command,
-    }
-    send(message)
-  })
+export const invoke = (command, params) => {
+  const ipc = {
+    send,
+  }
+  return TsRpc.invoke(ipc, command, params)
 }

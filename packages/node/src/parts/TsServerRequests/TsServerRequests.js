@@ -1,36 +1,14 @@
 // for reference, see https://github.com/Microsoft/TypeScript/blob/main/lib/protocol.d.ts#L5
 
-import * as Id from '../Id/Id.js'
 import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 import * as TsServerCommandType from '../TsServerCommandType/TsServerCommandType.js'
-import { TsServerError } from '../TsServerError/TsServerError.js'
 import * as TsServerMessageType from '../TsServerMessageType/TsServerMessageType.js'
 
 /**
  * @param {import('typescript/lib/protocol').BraceCompletionRequest['arguments']} params
  */
-export const braceCompletion = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.BraceCompletion,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.BraceCompletion)
-  }
-  return message.body
-}
-
-/**
- * @param {import('typescript/lib/protocol').ChangeRequest['arguments']} params
- */
-export const change = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Change,
-    arguments: params,
-  })
+export const braceCompletion = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.BraceCompletion, params)
 }
 
 /**
@@ -59,49 +37,16 @@ export const closeExternalProject = (params) => {
  * @param {import('typescript/lib/protocol').CommentSelectionRequest['arguments']} params
  * @returns {Promise<any>}
  */
-export const commentSelection = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.CommentSelection,
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.CommentSelection)
-  }
-  return message.body
-}
-
-/**
- * @param {import('typescript/lib/protocol').CompletionDetailsRequest['arguments']} params
- * @returns {Promise<import('typescript/lib/protocol').CompletionDetailsResponse>}
- */
-export const completionDetails = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.CompletionEntryDetails,
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.CompletionEntryDetails)
-  }
-  return message.body
+export const commentSelection = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.CommentSelection, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').CompletionsRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').CompletionInfo>}
  */
-export const completionInfo = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.CompletionInfo,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.CompletionInfo)
-  }
-  return message.body
+export const completionInfo = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.CompletionInfo, params)
 }
 
 /**
@@ -119,33 +64,16 @@ export const compileOnSaveAffectedFileList = (params) => {
  * @param {import('typescript/lib/protocol').ConfigureRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').ConfigureResponse>}
  */
-export const configure = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Configure,
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.Configure)
-  }
-  return message.body
+export const configure = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.Configure, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').DefinitionRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').DefinitionInfo[]>}
  */
-export const definition = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Definition,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.Definition)
-  }
-  return message.body
+export const definition = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.Definition, params)
 }
 
 /**
@@ -164,16 +92,7 @@ export const definitionAndBoundSpan = (params) => {
  * @returns {Promise<import('typescript/lib/protocol').DocumentHighlightsResponse>}
  */
 export const documentHighlights = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: 'documentHighlights',
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, 'documentHighlights')
-  }
-  return message.body
+  return TsPrimaryServer.invoke('documentHighlights', params)
 }
 
 /**
@@ -181,16 +100,7 @@ export const documentHighlights = async (params) => {
  * @returns {Promise<import('typescript/lib/protocol').EncodedSemanticClassificationsResponse['body']>}
  */
 export const encodedSemanticClassificationsFull = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: 'encodedSemanticClassifications-full',
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, 'encodedSemanticClassificationsFull')
-  }
-  return message.body
+  return TsPrimaryServer.invoke('encodedSemanticClassifications-full', params)
 }
 
 export const exit = () => {}
@@ -200,99 +110,57 @@ export const exit = () => {}
  * @returns {Promise<import('typescript/lib/protocol').FileReferencesResponse>}
  */
 export const fileReferences = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: 'fileReferences',
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, 'fileReferences')
-  }
-  return message.body
+  return TsPrimaryServer.invoke('fileReferences', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').FormatRequest['arguments']} params
  */
 export const format = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: 'format',
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke('format', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').CodeFixRequest['arguments']} params
  */
 export const getCodeFixes = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: 'getCodeFixes',
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke('getCodeFixes', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').GetEditsForFileRenameRequest['arguments']} params
  */
 export const getEditsForFileRename = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: 'getEditsForFileRename',
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke('getEditsForFileRename', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').OutliningSpansRequest['arguments']} params
  */
 export const getOutliningSpans = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: 'getOutliningSpans',
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke('getOutliningSpans', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').SpanOfEnclosingCommentRequest['arguments']} params
  */
 export const getSpanOfEnclosingComment = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: 'getSpanOfEnclosingComment',
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke('getSpanOfEnclosingComment', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').GetSupportedCodeFixesRequest['arguments']} params
  */
 export const getSupportedCodeFixes = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: 'getSupportedCodeFixes',
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke('getSupportedCodeFixes', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').ImplementationRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').ImplementationResponse['body']>}
  */
-export const implementation = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: 'implementation',
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, 'implementation')
-  }
-  return message.body
+export const implementation = (params) => {
+  return TsPrimaryServer.invoke('implementation', params)
 }
 
 /**
@@ -300,37 +168,16 @@ export const implementation = async (params) => {
  * @returns {Promise<import('typescript/lib/protocol').IndentationResponse>}
  *
  */
-export const indentation = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: 'indentation',
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, 'indentation')
-  }
-  return message.body
+export const indentation = (params) => {
+  return TsPrimaryServer.invoke('indentation', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').JsxClosingTagRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').JsxClosingTagResponse['body']|undefined>}
  */
-export const jsxClosingTag = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: 'jsxClosingTag',
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    if (message.message === 'No content available.') {
-      return undefined
-    }
-    throw new TsServerError(message, 'jsxClosingTag')
-  }
-  return message.body
+export const jsxClosingTag = (params) => {
+  return TsPrimaryServer.invoke('jsxClosingTag', params)
 }
 
 /**
@@ -338,42 +185,24 @@ export const jsxClosingTag = async (params) => {
  * @returns {Promise<import('typescript/lib/protocol').RenameResponseBody>}
  */
 export const rename = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: 'rename',
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, 'rename')
-  }
-  return message.body
+  return TsPrimaryServer.invoke('rename', params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').OrganizeImportsRequest['arguments']} params
  */
 export const organizeImports = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.OrganizeImports,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.OrganizeImports)
-  }
-  return message.body
+  return TsPrimaryServer.invoke(TsServerCommandType.OrganizeImports, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').PrepareCallHierarchyRequest['arguments']} params
  */
 export const prepareCallHierarchy = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.PrepareCallHierarchy,
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.PrepareCallHierarchy,
+    params
+  )
 }
 
 /**
@@ -413,113 +242,59 @@ export const provideInlayHints = (params) => {
  * @param {import('typescript/lib/protocol').ReferencesRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').ReferencesResponseBody>}
  */
-export const references = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.References,
-    arguments: params,
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.References)
-  }
-  return message.body
+export const references = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.References, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').ReloadRequest['arguments']} params
  */
-export const reload = async (params) => {
-  await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.Reload,
-    arguments: params,
-  })
+export const reload = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.Reload, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').SemanticDiagnosticsSyncRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').SemanticDiagnosticsSyncResponse>}
  */
-export const semanticDiagnosticsSync = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.SemanticDiagnosticsSync,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(
-      message,
-      TsServerCommandType.SemanticDiagnosticsSync
-    )
-  }
-  return message.body
+export const semanticDiagnosticsSync = (params) => {
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.SemanticDiagnosticsSync,
+    params
+  )
 }
 
 /**
  * @param {import('typescript/lib/protocol').ToggleLineCommentRequest['arguments']} params
  */
-export const toggleLineComment = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.ToggleLineComment,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.ToggleLineComment)
-  }
-  return message.body
+export const toggleLineComment = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.ToggleLineComment, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').ToggleMultilineCommentRequest['arguments']} params
  */
-export const toggleMultilineComment = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.ToggleMultilineComment,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.ToggleMultilineComment)
-  }
-  return message.body
+export const toggleMultilineComment = (params) => {
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.ToggleMultilineComment,
+    params
+  )
 }
 
 /**
  * @param {import('typescript/lib/protocol').TypeDefinitionRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').TypeDefinitionResponse['body']>}
  */
-export const typeDefinition = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.TypeDefinition,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.TypeDefinition)
-  }
-  return message.body
+export const typeDefinition = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.TypeDefinition, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').UpdateOpenRequest['arguments']} params
  * @returns {Promise<import('typescript/lib/protocol').Response>}
  */
-export const updateOpen = async (params) => {
-  const message = await TsPrimaryServer.invoke({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.UpdateOpen,
-    arguments: params,
-    seq: Id.create(),
-  })
-  if (!message.success) {
-    throw new TsServerError(message, TsServerCommandType.UpdateOpen)
-  }
-  return message.body
+export const updateOpen = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.UpdateOpen, params)
 }
 
 export const openExternalProject = () => {}
