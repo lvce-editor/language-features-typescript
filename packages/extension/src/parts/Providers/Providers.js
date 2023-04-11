@@ -2,3 +2,4 @@ export * as CompletionProvider from '../ExtensionHost/ExtensionHostCompletionPro
 export * as DefinitionProvider from '../ExtensionHost/ExtensionHostDefinitionProviderTypeScript.js'
 export * as ReferenceProvider from '../ExtensionHost/ExtensionHostReferenceProviderTypeScript.js'
 export * as ImplementationProvider from '../ExtensionHost/ExtensionHostImplementationProviderTypeScript.js'
+export * as TypeDefinitionProvider from '../ExtensionHost/ExtensionHostTypeDefinitionProviderTypeScript.js'

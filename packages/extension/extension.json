@@ -21,7 +21,8 @@
     "onClosingTag:javascript",
     "onClosingTag:typescript",
     "onSemanticTokens:javascript",
-    "onSemanticTokens:typescript"
+    "onSemanticTokens:typescript",
+    "onTypeDefinition:typescript"
   ],
   "languages": [
     {

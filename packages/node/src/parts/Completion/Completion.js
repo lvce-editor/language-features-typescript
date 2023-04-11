@@ -1,7 +1,5 @@
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 
-export const languageId = 'typescript'
-
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}
  */

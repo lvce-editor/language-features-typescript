@@ -1,7 +1,5 @@
 import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.js'
-import * as Position from '../Position/Position.js'
-import * as Rpc from '../Rpc/Rpc.js'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
+import * as References from '../Reference/Reference.js'
 
 export const languageId = 'typescript'
 
@@ -13,13 +11,7 @@ export const languageId = 'typescript'
  * @type{vscode.ReferenceProvider['provideReferences']}
  */
 export const provideReferences = async (textDocument, offset) => {
-  await TextDocumentSync.openTextDocuments([textDocument])
-  const tsPosition = Position.getTsPosition(textDocument, offset)
-  const tsResult = await Rpc.invoke('References.getReferences', {
-    file: textDocument.uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
-  })
+  const tsResult = await References.getReferences(textDocument, offset)
   const references = GetReferencesFromTsResult.getReferencesFromTsResult(
     textDocument,
     tsResult

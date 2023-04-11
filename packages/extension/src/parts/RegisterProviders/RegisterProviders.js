@@ -15,6 +15,10 @@ const registerProvider = (provider) => {
     vscode.registerImplementationProvider(provider)
     return
   }
+  if ('provideTypeDefinition') {
+    vscode.registerTypeDefinitionProvider(provider)
+    return
+  }
 }
 
 export const registerProviders = (providers) => {

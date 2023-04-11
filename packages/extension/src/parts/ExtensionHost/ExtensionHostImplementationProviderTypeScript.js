@@ -1,7 +1,5 @@
 import * as GetImplementationFromTsResult from '../GetImplementationFromTsResult/GetImplementationFromTsResult.js'
-import * as Position from '../Position/Position.js'
-import * as Rpc from '../Rpc/Rpc.js'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
+import * as Implementation from '../Implementation/Implementation.js'
 
 export const languageId = 'typescript'
 
@@ -9,14 +7,7 @@ export const languageId = 'typescript'
  * @type{vscode.ImplementationProvider['provideImplementations']}
  */
 export const provideImplementations = async (textDocument, offset) => {
-  await TextDocumentSync.openTextDocuments([textDocument])
-  const uri = textDocument.uri
-  const tsPosition = Position.getTsPosition(textDocument, offset)
-  const tsResult = await Rpc.invoke('Implementation.getImplementations', {
-    file: uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
-  })
+  const tsResult = await Implementation.getImplementations(textDocument, offset)
   const implementations =
     await GetImplementationFromTsResult.getImplementationsFromTsResult(
       textDocument,

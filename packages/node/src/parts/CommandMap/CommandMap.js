@@ -7,6 +7,7 @@ import * as GetTsServerPath from '../GetTsServerPath/GetTsServerPath.js'
 import * as Implementation from '../Implementation/Implementation.js'
 import * as Initialize from '../Initialize/Initialize.js'
 import * as References from '../Refererences/References.js'
+import * as TypeDefinition from '../TypeDefinition/TypeDefinition.js'
 import * as UpdateOpen from '../UpdateOpen/UpdateOpen.js'
 
 /**
@@ -30,6 +31,8 @@ export const getFn = (method) => {
       return Implementation.getImplementations
     case CommandType.FileSystemReadFile:
       return FileSystem.readFile
+    case CommandType.GetTypeDefinition:
+      return TypeDefinition.getTypeDefinition
     default:
       throw new CommandNotFoundError(method)
   }

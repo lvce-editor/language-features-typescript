@@ -13,3 +13,5 @@ export const GetReferences = 'References.getReferences'
 export const GetImplementations = 'Implementation.getImplementations'
 
 export const FileSystemReadFile = 'FileSystem.readFile'
+
+export const GetTypeDefinition = 'TypeDefinition.getTypeDefinition'
