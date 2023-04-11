@@ -20,8 +20,6 @@
     "onImplementation:typescript",
     "onClosingTag:javascript",
     "onClosingTag:typescript",
-    "onSemanticTokens:javascript",
-    "onSemanticTokens:typescript",
     "onTypeDefinition:typescript"
   ],
   "languages": [
