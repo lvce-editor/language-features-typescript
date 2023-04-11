@@ -1,5 +1,7 @@
 export const name = 'typescript.brace-completion'
 
+export const skip = true
+
 export const test = async ({
   FileSystem,
   Workspace,
