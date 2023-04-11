@@ -21,5 +21,5 @@ export const test = async ({
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems.nth(0)).toHaveText('AbortController')
+  await expect(completionItems.nth(0)).toHaveText('PictureInPictureWindow')
 }
