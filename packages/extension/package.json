@@ -14,7 +14,7 @@
   "dependencies": {
     "debug": "^4.3.4",
     "exit-hook": "^3.2.0",
-    "typescript": "^5.0.3",
+    "typescript": "^5.0.4",
     "verror": "^1.10.1"
   },
   "devDependencies": {
