@@ -1,31 +1,21 @@
-import {
-  expect,
-  getTmpDir,
-  runWithExtension,
-  test,
-} from '@lvce-editor/test-with-playwright'
-import { writeFile } from 'fs/promises'
-import { join } from 'node:path'
+export const name='typescript.definition'
 
-test.skip('typescript.definition', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(join(tmpDir, 'test.ts'), 'window')
-  const page = await runWithExtension({
-    folder: tmpDir,
-  })
-  const testTs = page.locator('text=test.ts')
-  await testTs.click()
-  const tokenText = page.locator('.Token.Text')
-  await tokenText.click({
-    modifiers: ['Alt'],
-  })
+export const test= async ({FileSystem,Main, Editor, Locator, expect }) => {
+  // arrange
+  const tmpDir = await FileSystem. getTmpDir()
+  await FileSystem. writeFile(`${tmpDir}/test.ts`, 'window')
+  await Main .openUri(`${tmpDir}/test.ts`)
+  await Editor.setCursor(0,3)
 
-  const mainTabs = page.locator('.MainTab')
+  // act
+  await Editor.goToDefinition()
+
+  // assert
+  const mainTabs = Locator('.MainTab')
   await expect(mainTabs).toHaveCount(2)
   const mainTabTwo = mainTabs.nth(1)
   await expect(mainTabTwo).toHaveText('lib.dom.d.ts')
-
-  const editor = page.locator('.Editor')
+  const editor = Locator('.Editor')
   await expect(editor).toContainText(
     `interface AddEventListenerOptions extends EventListenerOptions {`
   )
