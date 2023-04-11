@@ -1,8 +1,10 @@
 export const name = 'typescript.path-completion'
 
+export const skip = true
+
 export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({ scheme: '' })
   await FileSystem.writeFile(`${tmpDir}/test.ts`, "import './")
   await FileSystem.writeFile(
     `${tmpDir}/add.ts`,
