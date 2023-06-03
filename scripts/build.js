@@ -1,6 +1,6 @@
 import { packageExtension } from '@lvce-editor/package-extension'
 import { execSync } from 'child_process'
-import fs, { cpSync, readFileSync } from 'fs'
+import fs, { cpSync, readFileSync, writeFileSync } from 'fs'
 import path, { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -111,6 +111,25 @@ cpSync(
   join(root, 'packages', 'node', 'package.json'),
   join(dist, 'node', 'package.json')
 )
+
+const replace = ({ path, occurrence, replacement }) => {
+  const oldContent = readFileSync(path, 'utf-8')
+  const newContent = oldContent.replace(occurrence, replacement)
+  writeFileSync(path, newContent)
+}
+
+replace({
+  path: join(
+    root,
+    'dist',
+    'src',
+    'parts',
+    'GetTsClientPath',
+    'GetTsClientPath.js'
+  ),
+  occurrence: '../node/',
+  replacement: 'node/',
+})
 
 await packageExtension({
   highestCompression: true,
