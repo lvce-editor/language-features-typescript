@@ -1,19 +1,11 @@
-import * as Callback from '../Callback/Callback.js'
+import * as GetTsClientPath from '../GetTsClientPath/GetTsClientPath.js'
 
 export const state = {
   rpc: undefined,
 }
 
-const getTsPath = (path) => {
-  return `${path}/../node/src/typeScriptClient.js`
-}
-
-const handleMessage = (message) => {
-  Callback.resolve(message.id, message)
-}
-
 export const listen = async ({ path }) => {
-  const tsPath = getTsPath(path)
+  const tsPath = GetTsClientPath.getTsClientPath(path)
   const rpc = await vscode.createNodeRpc({
     path: tsPath,
   })
