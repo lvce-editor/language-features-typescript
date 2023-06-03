@@ -1,57 +1,38 @@
-import {
-  getTmpDir,
-  runWithExtension,
-  test,
-} from '@lvce-editor/test-with-playwright'
-import { expect } from '@playwright/test'
-import { writeFile } from 'fs/promises'
-import { TIMEOUT_LONG } from './_timeout.js'
+export const name = 'typescript.implementations'
 
-// TODO test is flaky https://github.com/lvce-editor/language-features-typescript/runs/7559120396?check_suite_focus=true
-test.skip('typescript.implementations', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
+export const skip = true
+
+export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+  // arrange
+  const tmpDir = await FileSystem.getTmpDir()
+  await FileSystem.writeFile(
     `${tmpDir}/add.js`,
     `export const add = () => {}
 `
   )
-  await writeFile(
+  await FileSystem.writeFile(
     `${tmpDir}/test.js`,
     `import {add} from './add.js'
 
 add(1,2)
 `
   )
-  await writeFile(`${tmpDir}/tsconfig.json`, `{}`)
-  const page = await runWithExtension({
-    folder: tmpDir,
-  })
-  const testJs = page.locator('text=test.js')
-  await testJs.click()
+  await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
+  await Main.openUri(`${tmpDir}/test.js`)
+  await Editor.setCursor(0, 3)
 
-  const token = page.locator('.Token').first()
-  await token.click({
-    button: 'right',
-  })
+  // act
+  await Editor.findAllImplementations()
 
-  const contextMenuItemFindAllImplementations = page.locator('.MenuItem', {
-    hasText: 'Find all implementations',
-  })
-  await contextMenuItemFindAllImplementations.click()
-
-  const viewletLocations = page.locator('.Viewlet[data-viewlet-id="Locations"]')
-  await expect(viewletLocations).toBeVisible({
-    timeout: TIMEOUT_LONG,
-  })
-
-  const viewletImplementationsMessage = page.locator('.LocationsMessage')
+  // assert
+  const viewletLocations = Locator('.Viewlet[data-viewlet-id="Locations"]')
+  await expect(viewletLocations).toBeVisible()
+  const viewletImplementationsMessage = Locator('.LocationsMessage')
   await expect(viewletImplementationsMessage).toHaveText('1 result in 1 file')
-
   const referenceItems = viewletLocations.locator('.TreeItem')
   await expect(referenceItems).toHaveCount(2)
-
   const implementationItemOne = referenceItems.nth(0)
   await expect(implementationItemOne).toHaveText('add.js')
   const implementationItemTwo = referenceItems.nth(1)
   await expect(implementationItemTwo).toHaveText(`export const add = () => {}`)
-})
+}

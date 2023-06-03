@@ -1,10 +1,16 @@
+import { packageExtension } from '@lvce-editor/package-extension'
 import { execSync } from 'child_process'
-import fs, { readFileSync } from 'fs'
+import fs, { cpSync, readFileSync, writeFileSync } from 'fs'
 import path, { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { packageExtension } from '@lvce-editor/package-extension'
 
 const NOT_NEEDED = [
+  'node_modules/minimist/.github',
+  'node_modules/minimist/example',
+  'node_modules/minimist/test',
+  'node_modules/minimist/.eslintrc',
+  'node_modules/minimist/.nycrc',
+  'node_modules/minimist/CHANGELOG.md',
   'node_modules/typescript/bin',
   'node_modules/typescript/loc',
   'node_modules/typescript/AUTHORS.md',
@@ -42,10 +48,12 @@ const NOT_NEEDED = [
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
 const extension = path.join(root, 'packages', 'extension')
+const node = path.join(root, 'packages', 'node')
+const dist = join(root, 'dist')
 
-fs.rmSync(join(root, 'dist'), { recursive: true, force: true })
+fs.rmSync(dist, { recursive: true, force: true })
 
-fs.mkdirSync(path.join(root, 'dist'))
+fs.mkdirSync(dist)
 
 const packageJson = JSON.parse(
   readFileSync(join(extension, 'package.json')).toString()
@@ -54,16 +62,13 @@ delete packageJson.jest
 delete packageJson.devDependencies
 
 fs.writeFileSync(
-  join(root, 'dist', 'package.json'),
+  join(dist, 'package.json'),
   JSON.stringify(packageJson, null, 2) + '\n'
 )
-fs.copyFileSync(join(root, 'README.md'), join(root, 'dist', 'README.md'))
-fs.copyFileSync(join(extension, 'icon.png'), join(root, 'dist', 'icon.png'))
-fs.copyFileSync(
-  join(extension, 'extension.json'),
-  join(root, 'dist', 'extension.json')
-)
-fs.cpSync(join(extension, 'src'), join(root, 'dist', 'src'), {
+fs.copyFileSync(join(root, 'README.md'), join(dist, 'README.md'))
+fs.copyFileSync(join(extension, 'icon.png'), join(dist, 'icon.png'))
+fs.copyFileSync(join(extension, 'extension.json'), join(dist, 'extension.json'))
+fs.cpSync(join(extension, 'src'), join(dist, 'src'), {
   recursive: true,
 })
 
@@ -74,31 +79,60 @@ const getAllDependencies = (obj) => {
   return [obj, ...Object.values(obj.dependencies).flatMap(getAllDependencies)]
 }
 
-const getDependencies = () => {
+const getDependencies = (cwd) => {
   const stdout = execSync('npm list --omit=dev --parseable --all', {
-    cwd: extension,
+    cwd,
   }).toString()
   const lines = stdout.split('\n')
   return lines.slice(1, -1)
 }
 
-const dependencies = getDependencies()
-for (const dependency of dependencies) {
-  fs.cpSync(
-    dependency,
-    join(root, 'dist', dependency.slice(extension.length)),
-    {
+const copyDependencies = (from, to) => {
+  const dependencies = getDependencies(from)
+  for (const dependency of dependencies) {
+    fs.cpSync(dependency, join(dist, to, dependency.slice(from.length)), {
       recursive: true,
-    }
-  )
+    })
+  }
 }
 
+copyDependencies(extension, '')
+
+copyDependencies(node, 'node')
+
 for (const notNeeded of NOT_NEEDED) {
-  fs.rmSync(join(root, 'dist', notNeeded), { force: true, recursive: true })
+  fs.rmSync(join(dist, 'node', notNeeded), { force: true, recursive: true })
 }
+
+cpSync(join(root, 'packages', 'node', 'src'), join(dist, 'node', 'src'), {
+  recursive: true,
+})
+cpSync(
+  join(root, 'packages', 'node', 'package.json'),
+  join(dist, 'node', 'package.json')
+)
+
+const replace = ({ path, occurrence, replacement }) => {
+  const oldContent = readFileSync(path, 'utf-8')
+  const newContent = oldContent.replace(occurrence, replacement)
+  writeFileSync(path, newContent)
+}
+
+replace({
+  path: join(
+    root,
+    'dist',
+    'src',
+    'parts',
+    'GetTsClientPath',
+    'GetTsClientPath.js'
+  ),
+  occurrence: '../node/',
+  replacement: 'node/',
+})
 
 await packageExtension({
   highestCompression: true,
-  inDir: join(root, 'dist'),
+  inDir: join(dist),
   outFile: join(root, 'extension.tar.br'),
 })

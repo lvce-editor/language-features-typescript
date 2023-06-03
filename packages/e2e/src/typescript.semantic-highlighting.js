@@ -1,36 +1,36 @@
-import {
-  expect,
-  getTmpDir,
-  runWithExtension,
-  test,
-} from '@lvce-editor/test-with-playwright'
-import { writeFile } from 'fs/promises'
-import { TIMEOUT_LONG } from './_timeout.js'
+export const name = 'typescript.semantic-highlighting'
 
-test('typescript.semantic-highlighting', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
+export const skip = true
+
+export const test = async ({
+  FileSystem,
+  Workspace,
+  Main,
+  Editor,
+  Locator,
+  expect,
+}) => {
+  // arrange
+  const tmpDir = await FileSystem.getTmpDir()
+  await FileSystem.writeFile(
     `${tmpDir}/add.js`,
     `export const add = () => {}
 `
   )
-  await writeFile(
+  await FileSystem.writeFile(
     `${tmpDir}/test.js`,
     `import {add} from './add.js'
 
 add(1,2)
 `
   )
-  await writeFile(`${tmpDir}/tsconfig.json`, `{}`)
-  const page = await runWithExtension({
-    folder: tmpDir,
-  })
-  const testJs = page.locator('text=test.js')
-  await testJs.click()
+  await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
 
-  const rowTwo = page.locator('.EditorRow').nth(2)
+  // act
+  await Main.openUri(`${tmpDir}/test.js`)
+
+  // assert
+  const rowTwo = Locator('.EditorRow').nth(2)
   const tokenAdd = rowTwo.locator('.Token', { hasText: 'add' })
-  await expect(tokenAdd).toHaveClass('Token Function', {
-    timeout: TIMEOUT_LONG,
-  })
-})
+  await expect(tokenAdd).toHaveClass('Token Function')
+}

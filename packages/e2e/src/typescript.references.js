@@ -1,62 +1,40 @@
-import {
-  getTmpDir,
-  runWithExtension,
-  test,
-} from '@lvce-editor/test-with-playwright'
-import { expect } from '@playwright/test'
-import { writeFile } from 'fs/promises'
-import { TIMEOUT_LONG } from './_timeout.js'
+export const name = 'typescript.references'
 
-test('typescript.references', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(
-    `${tmpDir}/add.js`,
+export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+  const tmpDir = await FileSystem.getTmpDir({ scheme: '' })
+  await FileSystem.writeFile(
+    `${tmpDir}/add.ts`,
     `export const add = () => {}
 `
   )
-  await writeFile(
-    `${tmpDir}/test.js`,
-    `import {add} from './add.js'
+  await FileSystem.writeFile(
+    `${tmpDir}/test.ts`,
+    `import {add} from './add.ts'
 
 add(1,2)
 `
   )
-  await writeFile(`${tmpDir}/tsconfig.json`, `{}`)
-  const page = await runWithExtension({
-    folder: tmpDir,
-  })
-  const testJs = page.locator('text=test.js')
-  await testJs.click()
+  await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
+  await Main.openUri(`${tmpDir}/test.ts`)
 
-  const token = page.locator('.Token').first()
-  await token.click({
-    button: 'right',
-  })
+  // act
+  await Editor.findAllReferences()
 
-  const contextMenuItemFindAllReferences = page.locator('.MenuItem', {
-    hasText: 'Find all references',
-  })
-  await contextMenuItemFindAllReferences.click()
-
-  const viewletLocations = page.locator('.Viewlet[data-viewlet-id="Locations"]')
-  await expect(viewletLocations).toBeVisible({
-    timeout: TIMEOUT_LONG,
-  })
-
-  const viewletReferencesMessage = page.locator('.LocationsMessage')
+  // assert
+  const viewletLocations = Locator('.Locations')
+  await expect(viewletLocations).toBeVisible()
+  const viewletReferencesMessage = Locator('.LocationsMessage')
   await expect(viewletReferencesMessage).toHaveText('3 results in 2 files')
-
   const referenceItems = viewletLocations.locator('.TreeItem')
   await expect(referenceItems).toHaveCount(5)
-
   const referenceItemOne = referenceItems.nth(0)
-  await expect(referenceItemOne).toHaveText('test.js')
+  await expect(referenceItemOne).toHaveText('test.ts')
   const referenceItemTwo = referenceItems.nth(1)
-  await expect(referenceItemTwo).toHaveText(`import {add} from './add.js'`)
+  await expect(referenceItemTwo).toHaveText(`import {add} from './add.ts'`)
   const referenceItemThree = referenceItems.nth(2)
   await expect(referenceItemThree).toHaveText(`add(1,2)`)
   const referenceItemFour = referenceItems.nth(3)
-  await expect(referenceItemFour).toHaveText(`add.js`)
+  await expect(referenceItemFour).toHaveText(`add.ts`)
   const referenceItemFive = referenceItems.nth(4)
   await expect(referenceItemFive).toHaveText(`export const add = () => {}`)
-})
+}

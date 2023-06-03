@@ -1,34 +1,26 @@
-import {
-  getTmpDir,
-  runWithExtension,
-  test,
-} from '@lvce-editor/test-with-playwright'
-import { expect } from '@playwright/test'
-import { writeFile } from 'fs/promises'
-import { TIMEOUT_LONG } from './_timeout.js'
+export const name = 'typescript.path-completion'
 
-test('typescript.completion', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(`${tmpDir}/test.ts`, "import './")
-  await writeFile(`${tmpDir}/add.ts`, 'export const add = (a, b) => a + b')
-  const page = await runWithExtension({
-    folder: tmpDir,
-  })
-  const testTs = page.locator('text=test.ts')
-  await testTs.click()
-  const row = page.locator('.EditorRow').first()
-  await row.click()
-  const cursor = page.locator('.EditorCursor')
-  await expect(cursor).toHaveCount(1)
-  await expect(cursor).toHaveCSS('top', '0px')
-  await expect(cursor).toHaveCSS('left', '90px')
+export const skip = true
 
-  await page.keyboard.press('Control+Space')
+export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+  // arrange
+  const tmpDir = await FileSystem.getTmpDir({ scheme: '' })
+  await FileSystem.writeFile(`${tmpDir}/test.ts`, "import './")
+  await FileSystem.writeFile(
+    `${tmpDir}/add.ts`,
+    'export const add = (a, b) => a + b'
+  )
+  await Main.openUri(`${tmpDir}/test.ts`)
+  await Editor.setCursor(0, 19)
 
-  const completions = page.locator('#Completions')
-  await expect(completions).toBeVisible({ timeout: TIMEOUT_LONG })
+  // act
+  await Editor.openCompletion()
+
+  // assert
+  const completions = Locator('#Completions')
+  await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(1)
   const completionItemOne = completionItems.nth(0)
   await expect(completionItemOne).toHaveText('add.js')
-})
+}

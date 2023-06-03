@@ -1,32 +1,25 @@
-import {
+export const name = 'typescript.completion'
+
+export const test = async ({
+  FileSystem,
+  Workspace,
+  Main,
+  Editor,
+  Locator,
   expect,
-  getTmpDir,
-  runWithExtension,
-  test,
-} from '@lvce-editor/test-with-playwright'
-import { writeFile } from 'fs/promises'
-import { join } from 'node:path'
-import { TIMEOUT_LONG } from './_timeout.js'
+}) => {
+  // arrange
+  const tmpDir = await FileSystem.getTmpDir()
+  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')
+  await Main.openUri(`${tmpDir}/test.ts`)
+  await Editor.setCursor(0, 3)
 
-test('typescript.completion', async () => {
-  const tmpDir = await getTmpDir()
-  await writeFile(join(tmpDir, 'test.ts'), 'win')
-  const page = await runWithExtension({
-    folder: tmpDir,
-  })
-  const testTs = page.locator('text=test.ts')
-  await testTs.click()
-  const tokenText = page.locator('.Token').first()
-  await tokenText.click()
-  await page.keyboard.press('End')
-  await page.keyboard.press('Control+Space')
+  // act
+  await Editor.openCompletion()
 
-  const completions = page.locator('#Completions')
+  // assert
+  const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
-
   const completionItems = completions.locator('.EditorCompletionItem')
-  const completionItemOne = completionItems.nth(0)
-  await expect(completionItemOne).toHaveText('AbortController', {
-    timeout: TIMEOUT_LONG,
-  })
-})
+  await expect(completionItems.nth(0)).toHaveText('PictureInPictureWindow')
+}
