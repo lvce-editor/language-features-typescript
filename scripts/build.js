@@ -1,8 +1,8 @@
+import { packageExtension } from '@lvce-editor/package-extension'
 import { execSync } from 'child_process'
-import fs, { cpSync, mkdirSync, readFileSync } from 'fs'
+import fs, { cpSync, readFileSync } from 'fs'
 import path, { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
-import { packageExtension } from '@lvce-editor/package-extension'
 
 const NOT_NEEDED = [
   'node_modules/minimist/.github',
