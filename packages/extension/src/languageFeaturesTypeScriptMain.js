@@ -3,6 +3,13 @@ import * as Providers from './parts/Providers/Providers.js'
 import * as RegisterProviders from './parts/RegisterProviders/RegisterProviders.js'
 import * as Rpc from './parts/Rpc/Rpc.js'
 
+const toJsProvider = (provider) => {
+  return {
+    ...provider,
+    languageId: 'javascript',
+  }
+}
+
 export const activate = async ({ path }) => {
   await Rpc.listen({ path })
   const tsServerPath = await GetTsServerPath.getTsServerPath()
@@ -10,4 +17,7 @@ export const activate = async ({ path }) => {
     tsServerPath,
   })
   RegisterProviders.registerProviders(Object.values(Providers))
+  RegisterProviders.registerProviders(
+    Object.values(Providers).map(toJsProvider)
+  )
 }
