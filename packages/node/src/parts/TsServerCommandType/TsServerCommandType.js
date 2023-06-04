@@ -59,6 +59,8 @@ export const ProvideCallHierarchyOutgoingCalls =
 
 export const ProvideInlayHints = 'provideInlayHints'
 
+export const Quickinfo = 'quickinfo'
+
 export const References = 'references'
 
 export const Reload = 'reload'
