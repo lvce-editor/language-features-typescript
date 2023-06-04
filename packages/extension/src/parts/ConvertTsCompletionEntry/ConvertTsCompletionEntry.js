@@ -5,9 +5,10 @@ import * as ConvertCompletionItemKind from '../ConvertCompletionItemKind/Convert
  * @param {import('typescript/lib/protocol').CompletionEntry} tsEntry
  */
 export const convertTsCompletionEntry = (tsEntry) => {
+  const { name, kind } = tsEntry
   return {
-    label: tsEntry.name,
-    snippet: tsEntry.name,
-    kind: ConvertCompletionItemKind.convertCompletionItemKind(tsEntry.kind),
+    label: name,
+    snippet: name,
+    kind: ConvertCompletionItemKind.convertCompletionItemKind(kind),
   }
 }

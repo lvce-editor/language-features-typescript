@@ -1,4 +1,5 @@
 import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
+import * as CompletionItemKind from '../CompletionKind/CompletionKind.js'
 
 /**
  *
@@ -8,16 +9,19 @@ import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemK
 export const convertCompletionItemKind = (tsKind) => {
   switch (tsKind) {
     case TsCompletionItemKind.Function:
-      return /* Function */ 3
+    case TsCompletionItemKind.Method:
+      return CompletionItemKind.Function
     case TsCompletionItemKind.Var:
-      return /* Variable */ 4
+      return CompletionItemKind.Variable
     case TsCompletionItemKind.Keyword:
-      return /* Keyword */ 5
+      return CompletionItemKind.Keyword
     case TsCompletionItemKind.Directory:
-      return /* Folder */ 6
+      return CompletionItemKind.Folder
     case TsCompletionItemKind.Script:
-      return /* File */ 7
+      return CompletionItemKind.File
+    case TsCompletionItemKind.Property:
+      return CompletionItemKind.Field
     default:
-      return /* Unknown */ 0
+      return CompletionItemKind.Unknown
   }
 }
