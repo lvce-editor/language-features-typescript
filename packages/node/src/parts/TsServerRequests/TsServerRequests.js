@@ -209,33 +209,34 @@ export const prepareCallHierarchy = (params) => {
  * @param {import('typescript/lib/protocol').ProvideCallHierarchyIncomingCallsRequest['arguments']} params
  */
 export const provideCallHierarchyIncomingCalls = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.ProvideCallHierarchyIncomingCalls,
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.ProvideCallHierarchyIncomingCalls,
+    params
+  )
 }
 
 /**
  * @param {import('typescript/lib/protocol').ProvideCallHierarchyOutgoingCallsRequest['arguments']} params
  */
 export const provideCallHierarchyOutgoingCalls = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.ProvideCallHierarchyOutgoingCalls,
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.ProvideCallHierarchyOutgoingCalls,
+    params
+  )
 }
 
 /**
  * @param {import('typescript/lib/protocol').InlayHintsRequest['arguments']} params
  */
 export const provideInlayHints = (params) => {
-  TsPrimaryServer.send({
-    type: TsServerMessageType.Request,
-    command: TsServerCommandType.ProvideInlayHints,
-    arguments: params,
-  })
+  return TsPrimaryServer.invoke(TsServerCommandType.ProvideInlayHints, params)
+}
+
+/**
+ * @param {import('typescript/lib/protocol').QuickInfoRequest['arguments']} params
+ */
+export const quickInfo = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.Quickinfo, params)
 }
 
 /**
