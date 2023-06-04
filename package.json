@@ -15,7 +15,7 @@
   "license": "MIT",
   "devDependencies": {
     "@lvce-editor/package-extension": "git+https://github.com/lvce-editor/package-extension.git#v0.0.5",
-    "@lvce-editor/server": "^0.15.25",
+    "@lvce-editor/server": "^0.15.26",
     "lerna": "^6.6.2",
     "prettier": "^2.8.8"
   },
