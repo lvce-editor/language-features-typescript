@@ -3,6 +3,7 @@ import * as Completion from '../Completion/Completion.js'
 import * as Definition from '../Definition/Definition.js'
 import * as FileSystem from '../FileSystem/FileSystem.js'
 import * as GetTsServerPath from '../GetTsServerPath/GetTsServerPath.js'
+import * as Hover from '../Hover/Hover.js'
 import * as Implementation from '../Implementation/Implementation.js'
 import * as Initialize from '../Initialize/Initialize.js'
 import * as References from '../Refererences/References.js'
@@ -19,4 +20,5 @@ export const commandMap = {
   [CommandType.GetImplementations]: Implementation.getImplementations,
   [CommandType.FileSystemReadFile]: FileSystem.readFile,
   [CommandType.GetTypeDefinition]: TypeDefinition.getTypeDefinition,
+  [CommandType.GetHover]: Hover.getHover,
 }

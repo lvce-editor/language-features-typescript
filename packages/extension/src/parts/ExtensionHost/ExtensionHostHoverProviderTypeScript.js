@@ -1,22 +1,18 @@
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
-import * as Position from '../Position/Position.js'
+import * as Hover from '../Hover/Hover.js'
 
 export const languageId = 'typescript'
 
 const getHoverFromTsResult = (tsResult) => {
-  return undefined
+  return {
+    displayString: tsResult.displayString,
+    documentation: tsResult.documentation,
+  }
 }
 
 /**
  * @type {vscode.HoverProvider['provideHover']}
  */
 export const provideHover = async (textDocument, offset) => {
-  const tsPosition = Position.getTsPosition(textDocument, offset)
-  // TODO should call hover method
-  const tsResult = await TsServerRequests.completionInfo({
-    file: textDocument.uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
-  })
+  const tsResult = await Hover.getHover(textDocument, offset)
   return getHoverFromTsResult(tsResult)
 }

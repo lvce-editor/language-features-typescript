@@ -20,7 +20,9 @@
     "onImplementation:typescript",
     "onClosingTag:javascript",
     "onClosingTag:typescript",
-    "onTypeDefinition:typescript"
+    "onTypeDefinition:typescript",
+    "onHover:javascript",
+    "onHover:typescript"
   ],
   "languages": [
     {

@@ -15,9 +15,12 @@ const registerProvider = (provider) => {
     vscode.registerImplementationProvider(provider)
     return
   }
-  if ('provideTypeDefinition') {
+  if ('provideTypeDefinition' in provider) {
     vscode.registerTypeDefinitionProvider(provider)
     return
+  }
+  if ('provideHover' in provider && vscode.registerHoverProvider) {
+    vscode.registerHoverProvider(provider)
   }
 }
 
