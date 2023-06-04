@@ -1,4 +1,4 @@
-// for reference, see https://github.com/Microsoft/TypeScript/blob/main/lib/protocol.d.ts#L5
+// for reference, see https://github.com/microsoft/TypeScript/blob/cbda2fcce95d7ac82841cee631f07b73be07c0f0/src/server/protocol.ts
 
 import * as TsPrimaryServer from '../TsPrimaryServer/TsPrimaryServer.js'
 import * as TsServerCommandType from '../TsServerCommandType/TsServerCommandType.js'
