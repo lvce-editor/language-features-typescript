@@ -25,6 +25,10 @@ export const getDefinitionFromTsResult = (textDocument, tsResult) => {
   const endOffset = 0
   return {
     uri: firstDefinition.file,
+    startRowIndex: firstDefinition.contextStart.line - 1,
+    startColumnIndex: firstDefinition.contextStart.offset - 1,
+    endRowIndex: firstDefinition.contextEnd.line - 1,
+    endColumnIndex: firstDefinition.contextEnd.offset - 1,
     startOffset,
     endOffset,
   }
