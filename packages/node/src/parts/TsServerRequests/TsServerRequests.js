@@ -82,7 +82,7 @@ export const definition = (params) => {
 export const definitionAndBoundSpan = (params) => {
   TsPrimaryServer.send({
     type: TsServerMessageType.Request,
-    command: 'definitionAndBoundSpan',
+    command: TsServerCommandType.DefinitionAndBoundSpan,
     arguments: params,
   })
 }
@@ -92,7 +92,7 @@ export const definitionAndBoundSpan = (params) => {
  * @returns {Promise<import('typescript/lib/protocol').DocumentHighlightsResponse>}
  */
 export const documentHighlights = async (params) => {
-  return TsPrimaryServer.invoke('documentHighlights', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.DocumentHighlights, params)
 }
 
 /**
@@ -100,7 +100,10 @@ export const documentHighlights = async (params) => {
  * @returns {Promise<import('typescript/lib/protocol').EncodedSemanticClassificationsResponse['body']>}
  */
 export const encodedSemanticClassificationsFull = async (params) => {
-  return TsPrimaryServer.invoke('encodedSemanticClassifications-full', params)
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.EncodedSemanticClassificationsFull,
+    params
+  )
 }
 
 export const exit = () => {}
@@ -110,49 +113,58 @@ export const exit = () => {}
  * @returns {Promise<import('typescript/lib/protocol').FileReferencesResponse>}
  */
 export const fileReferences = async (params) => {
-  return TsPrimaryServer.invoke('fileReferences', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.FileReferences, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').FormatRequest['arguments']} params
  */
 export const format = (params) => {
-  return TsPrimaryServer.invoke('format', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.Format, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').CodeFixRequest['arguments']} params
  */
 export const getCodeFixes = (params) => {
-  return TsPrimaryServer.invoke('getCodeFixes', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.GetCodeFixes, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').GetEditsForFileRenameRequest['arguments']} params
  */
 export const getEditsForFileRename = (params) => {
-  return TsPrimaryServer.invoke('getEditsForFileRename', params)
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.GetEditsForFileRename,
+    params
+  )
 }
 
 /**
  * @param {import('typescript/lib/protocol').OutliningSpansRequest['arguments']} params
  */
 export const getOutliningSpans = (params) => {
-  return TsPrimaryServer.invoke('getOutliningSpans', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.GetOutliningSpans, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').SpanOfEnclosingCommentRequest['arguments']} params
  */
 export const getSpanOfEnclosingComment = (params) => {
-  return TsPrimaryServer.invoke('getSpanOfEnclosingComment', params)
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.GetSpanOfEnclosingComment,
+    params
+  )
 }
 
 /**
  * @param {import('typescript/lib/protocol').GetSupportedCodeFixesRequest['arguments']} params
  */
 export const getSupportedCodeFixes = (params) => {
-  return TsPrimaryServer.invoke('getSupportedCodeFixes', params)
+  return TsPrimaryServer.invoke(
+    TsServerCommandType.GetSupportedCodeFixes,
+    params
+  )
 }
 
 /**
@@ -160,7 +172,7 @@ export const getSupportedCodeFixes = (params) => {
  * @returns {Promise<import('typescript/lib/protocol').ImplementationResponse['body']>}
  */
 export const implementation = (params) => {
-  return TsPrimaryServer.invoke('implementation', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.Implementation, params)
 }
 
 /**
@@ -169,7 +181,7 @@ export const implementation = (params) => {
  *
  */
 export const indentation = (params) => {
-  return TsPrimaryServer.invoke('indentation', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.Indentation, params)
 }
 
 /**
@@ -177,7 +189,7 @@ export const indentation = (params) => {
  * @returns {Promise<import('typescript/lib/protocol').JsxClosingTagResponse['body']|undefined>}
  */
 export const jsxClosingTag = (params) => {
-  return TsPrimaryServer.invoke('jsxClosingTag', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.JsxClosingTag, params)
 }
 
 /**
@@ -185,7 +197,7 @@ export const jsxClosingTag = (params) => {
  * @returns {Promise<import('typescript/lib/protocol').RenameResponseBody>}
  */
 export const rename = async (params) => {
-  return TsPrimaryServer.invoke('rename', params)
+  return TsPrimaryServer.invoke(TsServerCommandType.Rename, params)
 }
 
 /**
