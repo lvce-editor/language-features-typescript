@@ -1,6 +1,3 @@
-import * as TsServerWithIpc from '../TsServerWithIpc/TsServerWithIpc.js'
-import * as TsServerWithStdio from '../TsServerWithStdio/TsServerWithStdio.js'
-
 // TODO should be xdg and windows compatible and only start when necessary and be in a different file (Logger.js)
 
 // TODO tsserver path should be overridable via configuration
@@ -8,9 +5,9 @@ import * as TsServerWithStdio from '../TsServerWithStdio/TsServerWithStdio.js'
 const getServerFactory = (ipc) => {
   switch (ipc) {
     case 'stdio':
-      return TsServerWithStdio
+      return import('../TsServerIpcParentWithNodeSpawnedProcess/TsServerIpcParentWithNodeSpawnedProcess.js')
     case 'node-ipc':
-      return TsServerWithIpc
+      return import('../TsServerIpcParentWithNodeForkedProcess/TsServerIpcParentWithNodeForkedProcess.js')
     default:
       throw new Error('unexpected ipc type')
   }
@@ -25,22 +22,25 @@ export const create = async ({
   handleError = () => {},
   handleExit = () => {},
 } = {}) => {
-  const args = ['--max-old-space-size=200', tsServerPath]
-  args.push('--useInferredProjectPerProjectRoot')
+  const execArgv = ['--max-old-space-size=200']
+  const argv = []
+  argv.push('--useInferredProjectPerProjectRoot')
   if (disableAutomaticTypingAcquisition) {
-    args.push('--disableAutomaticTypingAcquisition')
+    argv.push('--disableAutomaticTypingAcquisition')
   }
   if (npmLocation) {
-    args.push('--npmLocation', `${npmLocation}`)
+    argv.push('--npmLocation', `${npmLocation}`)
   }
-  args.push('--locale', 'en')
-  args.push('--noGetErrOnBackgroundUpdate')
-  args.push('--validateDefaultNpmLocation')
-  args.push('--suppressDiagnosticEvents')
+  argv.push('--locale', 'en')
+  argv.push('--noGetErrOnBackgroundUpdate')
+  argv.push('--validateDefaultNpmLocation')
+  argv.push('--suppressDiagnosticEvents')
 
-  const factory = getServerFactory(ipc)
+  const factory = await getServerFactory(ipc)
   const rawInstance = await factory.create({
-    args,
+    path: tsServerPath,
+    argv,
+    execArgv,
   })
   const instance = factory.wrap(rawInstance)
   instance.onError(handleError)

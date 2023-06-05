@@ -22,10 +22,7 @@ const getTsServerErrorMessage = (message) => {
   }
   let betterShortDescription = shortDescription
   if (betterShortDescription.endsWith(betterActualError)) {
-    betterShortDescription = betterShortDescription.slice(
-      0,
-      -betterActualError.length
-    )
+    betterShortDescription = betterShortDescription.slice(0, -betterActualError.length)
   }
   if (betterShortDescription.endsWith('. ')) {
     betterShortDescription = betterShortDescription.slice(0, -2)
@@ -67,7 +64,7 @@ const handlePrimaryServerError = (error) => {
   Callback.rejectAll(new Error(`[tsserver] encountered an error ${error}`))
 }
 
-export const start = async ({ ipc = 'node-ipc', tsServerPath } = {}) => {
+export const start = async ({ ipc = 'node-ipc', tsServerPath = '' } = {}) => {
   // Assert._undefined(state.server)
   Assert.string(tsServerPath)
   const server = await TsServer.create({
