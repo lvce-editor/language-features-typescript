@@ -40,7 +40,6 @@ export const wrap = (server) => {
   return {
     server,
     send(message) {
-      console.log({ message })
       this.server.send(message)
     },
     dispose() {
