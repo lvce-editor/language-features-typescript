@@ -10,16 +10,13 @@ export const getFirstNodeProcessEvent = async (process) => {
       process.off('spawn', handleSpawn)
       resolve(value)
     }
-
     const handleDisconnect = (event) => {
-      console.log('disco')
       cleanup({
         type: FirstNodeProcessEventType.Disconnect,
         event,
       })
     }
     const handleError = (event) => {
-      console.log('er')
       cleanup({
         type: FirstNodeProcessEventType.Error,
         event,
@@ -32,7 +29,6 @@ export const getFirstNodeProcessEvent = async (process) => {
       })
     }
     const handleExit = (event) => {
-      console.log('exit')
       cleanup({
         type: FirstNodeProcessEventType.Exit,
         event,

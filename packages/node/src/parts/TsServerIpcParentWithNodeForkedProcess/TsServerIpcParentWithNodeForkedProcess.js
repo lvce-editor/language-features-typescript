@@ -1,17 +1,20 @@
-import * as ChildProcess from '../ChildProcess/ChildProcess.js'
-import * as GetFirstNodeProcessEvent from '../GetFirstNodeProcessEvent/GetFirstNodeProcessEvent.js'
+import { fork } from 'node:child_process'
 import * as FirstNodeProcessEventType from '../FirstNodeProcessEventType/FirstNodeProcessEventType.js'
+import * as GetFirstNodeProcessEvent from '../GetFirstNodeProcessEvent/GetFirstNodeProcessEvent.js'
 
-export const name = 'ipc'
-
-export const create = async ({ args }) => {
-  // TODO wait for server to be launched
-  const argsWithNodeIpc = [...args, '--useNodeIpc']
-  const server = ChildProcess.create(argsWithNodeIpc, {
-    stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
+/**
+ *
+ * @param {{path:string, argv:string[], execArgv:string[]}} param0
+ * @returns
+ */
+export const create = async ({ path, argv, execArgv }) => {
+  const actualArgv = [...argv, '--useNodeIpc']
+  const server = fork(path, actualArgv, {
+    execArgv,
+    stdio: 'inherit',
   })
-  const { type, event } =
-    await GetFirstNodeProcessEvent.getFirstNodeProcessEvent(server)
+
+  const { type, event } = await GetFirstNodeProcessEvent.getFirstNodeProcessEvent(server)
   if (type === FirstNodeProcessEventType.Error) {
     throw new Error(`tsserver child process error: ${event}`)
   }
@@ -35,20 +38,22 @@ export const create = async ({ args }) => {
 
 export const wrap = (server) => {
   return {
+    server,
     send(message) {
-      server.send(message)
+      this.server.send(message)
     },
     dispose() {
-      server.kill()
+      this.server.kill()
     },
     onError(handler) {
-      server.on('error', handler)
+      this.server.on('error', handler)
     },
     onExit(handler) {
-      server.on('exit', handler)
+      this.server.on('exit', handler)
     },
     onMessage(handler) {
-      server.on('message', handler)
+      console.log('set on message')
+      this.server.on('message', handler)
     },
   }
 }
