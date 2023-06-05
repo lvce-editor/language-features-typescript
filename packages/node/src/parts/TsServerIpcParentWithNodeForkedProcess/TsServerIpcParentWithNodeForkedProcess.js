@@ -1,6 +1,7 @@
 import { fork } from 'node:child_process'
 import * as FirstNodeProcessEventType from '../FirstNodeProcessEventType/FirstNodeProcessEventType.js'
 import * as GetFirstNodeProcessEvent from '../GetFirstNodeProcessEvent/GetFirstNodeProcessEvent.js'
+import { IpcError } from '../IpcError/IpcError.js'
 
 /**
  *
@@ -16,13 +17,13 @@ export const create = async ({ path, argv, execArgv }) => {
 
   const { type, event } = await GetFirstNodeProcessEvent.getFirstNodeProcessEvent(server)
   if (type === FirstNodeProcessEventType.Error) {
-    throw new Error(`tsserver child process error: ${event}`)
+    throw new IpcError(`tsserver child process error: ${event}`)
   }
   if (type === FirstNodeProcessEventType.Disconnect) {
-    throw new Error(`tsserver child process disconnected`)
+    throw new IpcError(`tsserver child process disconnected`)
   }
   if (type === FirstNodeProcessEventType.Exit) {
-    throw new Error(`tsserver child process exited with code: ${event}`)
+    throw new IpcError(`tsserver child process exited with code: ${event}`)
   }
   server.on('disconnect', () => {
     console.info('[tsserver] disconnected')
