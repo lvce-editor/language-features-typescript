@@ -52,7 +52,6 @@ export const wrap = (server) => {
       this.server.on('exit', handler)
     },
     onMessage(handler) {
-      console.log('set on message')
       this.server.on('message', handler)
     },
   }
