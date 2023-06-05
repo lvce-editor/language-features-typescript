@@ -14,28 +14,14 @@ const getServerFactory = (ipc) => {
 }
 
 export const create = async ({
-  disableAutomaticTypingAcquisition = true,
-  npmLocation = undefined,
   tsServerPath = '',
+  argv,
+  execArgv,
   ipc = 'node-ipc',
   handleMessage = () => {},
   handleError = () => {},
   handleExit = () => {},
 } = {}) => {
-  const execArgv = ['--max-old-space-size=200']
-  const argv = []
-  argv.push('--useInferredProjectPerProjectRoot')
-  if (disableAutomaticTypingAcquisition) {
-    argv.push('--disableAutomaticTypingAcquisition')
-  }
-  if (npmLocation) {
-    argv.push('--npmLocation', `${npmLocation}`)
-  }
-  argv.push('--locale', 'en')
-  argv.push('--noGetErrOnBackgroundUpdate')
-  argv.push('--validateDefaultNpmLocation')
-  argv.push('--suppressDiagnosticEvents')
-
   const factory = await getServerFactory(ipc)
   const rawInstance = await factory.create({
     path: tsServerPath,
