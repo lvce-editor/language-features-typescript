@@ -3,6 +3,10 @@ import * as FirstNodeProcessEventType from '../FirstNodeProcessEventType/FirstNo
 import * as GetFirstNodeProcessEvent from '../GetFirstNodeProcessEvent/GetFirstNodeProcessEvent.js'
 import { IpcError } from '../IpcError/IpcError.js'
 
+const addLogPrefix = (line) => {
+  return `[tsserver] ${line}`
+}
+
 /**
  *
  * @param {{path:string, argv:string[], execArgv:string[]}} param0
@@ -12,7 +16,7 @@ export const create = async ({ path, argv, execArgv }) => {
   const actualArgv = [...argv, '--useNodeIpc']
   const server = fork(path, actualArgv, {
     execArgv,
-    stdio: 'inherit',
+    stdio: 'pipe',
   })
 
   const { type, event } = await GetFirstNodeProcessEvent.getFirstNodeProcessEvent(server)
@@ -34,6 +38,15 @@ export const create = async ({ path, argv, execArgv }) => {
   server.on('spawn', () => {
     console.info('[tsserver] spawn')
   })
+
+  const handleStdErrData = (buffer) => {
+    const data = buffer.toString()
+    const lines = data.split('\n')
+    const logLines = lines.map(addLogPrefix)
+    const log = logLines.join('\n')
+    console.info(log)
+  }
+  server.stderr.on('data', handleStdErrData)
   return server
 }
 
