@@ -1,7 +1,8 @@
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 import * as Position from '../Position/Position.js'
+import * as LanguageId from '../LanguageId/LanguageId.js'
 
-export const languageId = 'typescript'
+export const languageId = LanguageId.TypeScript
 
 /**
  * @param {import('typescript/lib/protocol').RenameResponseBody} tsResult
@@ -31,11 +32,7 @@ export const prepareRename = async (textDocument, offset) => {
  * @param {string} newName
  * @returns {readonly vscode.WorkspaceEdit[]}
  */
-export const getRenameResultFromTsResult = (
-  textDocument,
-  tsResult,
-  newName
-) => {
+export const getRenameResultFromTsResult = (textDocument, tsResult, newName) => {
   if (!tsResult.info.canRename) {
     // TODO how to handle this kind of error vs programmer error?
     throw new Error('rename was not successful')
