@@ -1,4 +1,4 @@
-export const getTsServerArgv = ({ disableAutomaticTypingAcquisition = true, npmLocation = '' }) => {
+export const getTsServerArgv = ({ disableAutomaticTypingAcquisition = true, npmLocation = '', maxMemory = 1000 }) => {
   const argv = []
   argv.push('--useInferredProjectPerProjectRoot')
   if (disableAutomaticTypingAcquisition) {
@@ -12,7 +12,7 @@ export const getTsServerArgv = ({ disableAutomaticTypingAcquisition = true, npmL
   argv.push('--validateDefaultNpmLocation')
   argv.push('--suppressDiagnosticEvents')
 
-  const execArgv = ['--max-old-space-size=200']
+  const execArgv = [`--max-old-space-size=${maxMemory}`]
   return {
     argv,
     execArgv,
