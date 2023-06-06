@@ -22,7 +22,9 @@
     "onClosingTag:typescript",
     "onTypeDefinition:typescript",
     "onHover:javascript",
-    "onHover:typescript"
+    "onHover:typescript",
+    "onTabCompletion:javascript",
+    "onTabCompletion:typescript"
   ],
   "languages": [
     {

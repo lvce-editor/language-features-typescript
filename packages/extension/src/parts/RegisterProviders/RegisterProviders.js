@@ -22,6 +22,9 @@ const registerProvider = (provider) => {
   if ('provideHover' in provider && vscode.registerHoverProvider) {
     vscode.registerHoverProvider(provider)
   }
+  if ('provideTabCompletion' in provider && vscode.registerTabCompletionProvider) {
+    vscode.registerTabCompletionProvider(provider)
+  }
 }
 
 export const registerProviders = (providers) => {
