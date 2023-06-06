@@ -1,13 +1,14 @@
+import * as GetTsServerArgv from './parts/GetTsServerArgv/GetTsServerArgv.js'
 import * as GetTsServerPath from './parts/GetTsServerPath/GetTsServerPath.js'
+import * as LanguageId from './parts/LanguageId/LanguageId.js'
 import * as Providers from './parts/Providers/Providers.js'
 import * as RegisterProviders from './parts/RegisterProviders/RegisterProviders.js'
 import * as Rpc from './parts/Rpc/Rpc.js'
-import * as GetTsServerArgv from './parts/GetTsServerArgv/GetTsServerArgv.js'
 
 const toJsProvider = (provider) => {
   return {
     ...provider,
-    languageId: 'javascript',
+    languageId: LanguageId.JavaScript,
   }
 }
 

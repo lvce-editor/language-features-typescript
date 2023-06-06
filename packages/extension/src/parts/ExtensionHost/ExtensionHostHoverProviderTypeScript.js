@@ -1,11 +1,13 @@
 import * as Hover from '../Hover/Hover.js'
+import * as LanguageId from '../LanguageId/LanguageId.js'
 
-export const languageId = 'typescript'
+export const languageId = LanguageId.TypeScript
 
 const getHoverFromTsResult = (tsResult) => {
   return {
     displayString: tsResult.displayString,
     documentation: tsResult.documentation,
+    languageId: LanguageId.TypeScript,
   }
 }
 

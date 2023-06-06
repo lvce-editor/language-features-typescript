@@ -1,7 +1,8 @@
 import { performance } from 'node:perf_hooks'
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as LanguageId from '../LanguageId/LanguageId.js'
 
-export const languageId = 'typescript'
+export const languageId = LanguageId.TypeScript
 
 /**
  * @param {import('typescript/lib/protocol').EncodedSemanticClassificationsResponse['body']} tsResult
