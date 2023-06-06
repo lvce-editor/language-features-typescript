@@ -12,6 +12,8 @@ export const convertCompletionItemKind = (tsKind) => {
     case TsCompletionItemKind.Method:
       return CompletionItemKind.Function
     case TsCompletionItemKind.Var:
+    case TsCompletionItemKind.Const:
+    case TsCompletionItemKind.Let:
       return CompletionItemKind.Variable
     case TsCompletionItemKind.Keyword:
       return CompletionItemKind.Keyword
