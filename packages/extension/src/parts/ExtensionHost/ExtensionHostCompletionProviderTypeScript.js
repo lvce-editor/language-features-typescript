@@ -2,8 +2,6 @@ import * as Completion from '../Completion/Completion.js'
 import * as GetCompletionFromTsResult from '../GetCompletionFromTsResult/GetCompletionFromTsResult.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
 
-export const languageId = LanguageId.TypeScript
-
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}
  */

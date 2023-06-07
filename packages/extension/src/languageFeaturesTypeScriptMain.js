@@ -1,16 +1,8 @@
 import * as GetTsServerArgv from './parts/GetTsServerArgv/GetTsServerArgv.js'
 import * as GetTsServerPath from './parts/GetTsServerPath/GetTsServerPath.js'
-import * as LanguageId from './parts/LanguageId/LanguageId.js'
 import * as Providers from './parts/Providers/Providers.js'
 import * as RegisterProviders from './parts/RegisterProviders/RegisterProviders.js'
 import * as Rpc from './parts/Rpc/Rpc.js'
-
-const toJsProvider = (provider) => {
-  return {
-    ...provider,
-    languageId: LanguageId.JavaScript,
-  }
-}
 
 export const activate = async ({ path }) => {
   await Rpc.listen({ path })
@@ -23,5 +15,4 @@ export const activate = async ({ path }) => {
     execArgv,
   })
   RegisterProviders.registerProviders(Object.values(Providers))
-  RegisterProviders.registerProviders(Object.values(Providers).map(toJsProvider))
 }
