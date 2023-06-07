@@ -7,6 +7,7 @@ import * as Hover from '../Hover/Hover.js'
 import * as Implementation from '../Implementation/Implementation.js'
 import * as Initialize from '../Initialize/Initialize.js'
 import * as References from '../Refererences/References.js'
+import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.js'
 import * as TypeDefinition from '../TypeDefinition/TypeDefinition.js'
 import * as UpdateOpen from '../UpdateOpen/UpdateOpen.js'
 
@@ -21,4 +22,5 @@ export const commandMap = {
   [CommandType.FileSystemReadFile]: FileSystem.readFile,
   [CommandType.GetTypeDefinition]: TypeDefinition.getTypeDefinition,
   [CommandType.GetHover]: Hover.getHover,
+  [CommandType.ResolveCompletionItem]: ResolveCompletion.resolveCompletion,
 }
