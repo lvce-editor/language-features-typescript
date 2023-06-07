@@ -1,3 +1,5 @@
+import * as LanguageId from '../LanguageId/LanguageId.js'
+
 const registerProvider = (provider) => {
   if ('provideCompletions' in provider) {
     vscode.registerCompletionProvider(provider)
@@ -28,7 +30,13 @@ const registerProvider = (provider) => {
 }
 
 export const registerProviders = (providers) => {
-  for (const provider of providers) {
-    registerProvider(provider)
+  for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript]) {
+    for (const provider of providers) {
+      const actualProvider = {
+        ...provider,
+        languageId,
+      }
+      registerProvider(actualProvider)
+    }
   }
 }
