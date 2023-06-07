@@ -50,6 +50,14 @@ export const completionInfo = (params) => {
 }
 
 /**
+ * @param {import('typescript/lib/protocol').CompletionDetailsRequest['arguments']} params
+ * @returns {Promise<import('typescript/lib/protocol').CompletionEntryDetails[]>}
+ */
+export const completionEntryDetails = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.CompletionEntryDetails, params)
+}
+
+/**
  * @param {import('typescript/lib/protocol').CompileOnSaveAffectedFileListRequest['arguments']} params
  */
 export const compileOnSaveAffectedFileList = (params) => {
@@ -100,10 +108,7 @@ export const documentHighlights = async (params) => {
  * @returns {Promise<import('typescript/lib/protocol').EncodedSemanticClassificationsResponse['body']>}
  */
 export const encodedSemanticClassificationsFull = async (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.EncodedSemanticClassificationsFull,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.EncodedSemanticClassificationsFull, params)
 }
 
 export const exit = () => {}
@@ -134,10 +139,7 @@ export const getCodeFixes = (params) => {
  * @param {import('typescript/lib/protocol').GetEditsForFileRenameRequest['arguments']} params
  */
 export const getEditsForFileRename = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.GetEditsForFileRename,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.GetEditsForFileRename, params)
 }
 
 /**
@@ -151,20 +153,14 @@ export const getOutliningSpans = (params) => {
  * @param {import('typescript/lib/protocol').SpanOfEnclosingCommentRequest['arguments']} params
  */
 export const getSpanOfEnclosingComment = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.GetSpanOfEnclosingComment,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.GetSpanOfEnclosingComment, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').GetSupportedCodeFixesRequest['arguments']} params
  */
 export const getSupportedCodeFixes = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.GetSupportedCodeFixes,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.GetSupportedCodeFixes, params)
 }
 
 /**
@@ -211,30 +207,21 @@ export const organizeImports = async (params) => {
  * @param {import('typescript/lib/protocol').PrepareCallHierarchyRequest['arguments']} params
  */
 export const prepareCallHierarchy = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.PrepareCallHierarchy,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.PrepareCallHierarchy, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').ProvideCallHierarchyIncomingCallsRequest['arguments']} params
  */
 export const provideCallHierarchyIncomingCalls = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.ProvideCallHierarchyIncomingCalls,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.ProvideCallHierarchyIncomingCalls, params)
 }
 
 /**
  * @param {import('typescript/lib/protocol').ProvideCallHierarchyOutgoingCallsRequest['arguments']} params
  */
 export const provideCallHierarchyOutgoingCalls = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.ProvideCallHierarchyOutgoingCalls,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.ProvideCallHierarchyOutgoingCalls, params)
 }
 
 /**
@@ -271,10 +258,7 @@ export const reload = (params) => {
  * @returns {Promise<import('typescript/lib/protocol').SemanticDiagnosticsSyncResponse>}
  */
 export const semanticDiagnosticsSync = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.SemanticDiagnosticsSync,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.SemanticDiagnosticsSync, params)
 }
 
 /**
@@ -288,10 +272,7 @@ export const toggleLineComment = (params) => {
  * @param {import('typescript/lib/protocol').ToggleMultilineCommentRequest['arguments']} params
  */
 export const toggleMultilineComment = (params) => {
-  return TsPrimaryServer.invoke(
-    TsServerCommandType.ToggleMultilineComment,
-    params
-  )
+  return TsPrimaryServer.invoke(TsServerCommandType.ToggleMultilineComment, params)
 }
 
 /**
