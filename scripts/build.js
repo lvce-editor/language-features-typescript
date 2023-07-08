@@ -15,11 +15,8 @@ const NOT_NEEDED = [
   'node_modules/typescript/loc',
   'node_modules/typescript/AUTHORS.md',
   'node_modules/typescript/CODE_OF_CONDUCT.md',
-  'node_modules/typescript/CopyrightNotice.txt',
   'node_modules/typescript/LICENSE.txt',
-  'node_modules/typescript/README.md',
   'node_modules/typescript/SECURITY.md',
-  'node_modules/typescript/ThirdPartyNoticeText.txt',
   'node_modules/typescript/lib/cs',
   'node_modules/typescript/lib/de',
   'node_modules/typescript/lib/es',
@@ -37,7 +34,6 @@ const NOT_NEEDED = [
   'node_modules/typescript/lib/tsc.js',
   'node_modules/typescript/lib/tsserverlibrary.js',
   'node_modules/typescript/lib/tsserverlibrary.d.ts',
-  'node_modules/typescript/lib/typescript.js',
   'node_modules/typescript/lib/typescript.d.ts',
   'node_modules/typescript/lib/typescriptServices.js',
   'node_modules/typescript/lib/typescriptServices.d.ts',
@@ -55,16 +51,11 @@ fs.rmSync(dist, { recursive: true, force: true })
 
 fs.mkdirSync(dist)
 
-const packageJson = JSON.parse(
-  readFileSync(join(extension, 'package.json')).toString()
-)
+const packageJson = JSON.parse(readFileSync(join(extension, 'package.json')).toString())
 delete packageJson.jest
 delete packageJson.devDependencies
 
-fs.writeFileSync(
-  join(dist, 'package.json'),
-  JSON.stringify(packageJson, null, 2) + '\n'
-)
+fs.writeFileSync(join(dist, 'package.json'), JSON.stringify(packageJson, null, 2) + '\n')
 fs.copyFileSync(join(root, 'README.md'), join(dist, 'README.md'))
 fs.copyFileSync(join(extension, 'icon.png'), join(dist, 'icon.png'))
 fs.copyFileSync(join(extension, 'extension.json'), join(dist, 'extension.json'))
@@ -107,10 +98,7 @@ for (const notNeeded of NOT_NEEDED) {
 cpSync(join(root, 'packages', 'node', 'src'), join(dist, 'node', 'src'), {
   recursive: true,
 })
-cpSync(
-  join(root, 'packages', 'node', 'package.json'),
-  join(dist, 'node', 'package.json')
-)
+cpSync(join(root, 'packages', 'node', 'package.json'), join(dist, 'node', 'package.json'))
 
 const replace = ({ path, occurrence, replacement }) => {
   const oldContent = readFileSync(path, 'utf-8')
@@ -119,14 +107,7 @@ const replace = ({ path, occurrence, replacement }) => {
 }
 
 replace({
-  path: join(
-    root,
-    'dist',
-    'src',
-    'parts',
-    'GetTsClientPath',
-    'GetTsClientPath.js'
-  ),
+  path: join(root, 'dist', 'src', 'parts', 'GetTsClientPath', 'GetTsClientPath.js'),
   occurrence: '../node/',
   replacement: 'node/',
 })
