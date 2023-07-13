@@ -1,20 +1,5 @@
 import * as CompleteFunctionCall from '../CompleteFunctionCall/CompleteFunctionCall.js'
-import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
-
-/**
- *
- * @param {import('typescript/lib/typescript.js').CompletionEntryDetails} tsResult
- */
-const isFunction = (tsResult) => {
-  switch (tsResult.kind) {
-    case TsCompletionItemKind.Function:
-    case TsCompletionItemKind.LocalFunction:
-    case TsCompletionItemKind.Method:
-      return true
-    default:
-      return false
-  }
-}
+import * as IsTsFunction from '../IsTsFunction/IsTsFunction.js'
 
 /**
  *
@@ -26,7 +11,7 @@ export const getResolveCompletionItemFromTsResult = (tsResult) => {
     return undefined
   }
   const first = tsResult[0]
-  if (isFunction(first)) {
+  if (IsTsFunction.isFunction(first)) {
     const snippet = CompleteFunctionCall.completeFunctionCall(first.name, first.displayParts)
     return {
       name: first.name,

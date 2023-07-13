@@ -17,7 +17,6 @@ export const provideCompletions = async (textDocument, offset) => {
 //  */
 export const resolveCompletionItem = async (textDocument, offset, name) => {
   const tsResult = await ResolveCompletion.resolveCompletion(textDocument, offset, name)
-  console.log({ tsResult })
   const result = GetResolveCompletionItemFromTsResult.getResolveCompletionItemFromTsResult(tsResult)
   return result
 }
