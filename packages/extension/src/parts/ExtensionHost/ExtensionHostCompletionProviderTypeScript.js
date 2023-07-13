@@ -15,8 +15,8 @@ export const provideCompletions = async (textDocument, offset) => {
 // /**
 //  * @type {vscode.CompletionProvider['resolveCompletionItem']}
 //  */
-export const resolveCompletionItem = async (textDocument, offset, name) => {
-  const tsResult = await ResolveCompletion.resolveCompletion(textDocument, offset, name)
+export const resolveCompletionItem = async (textDocument, offset, name, completionItem) => {
+  const tsResult = await ResolveCompletion.resolveCompletion(textDocument, offset, name, completionItem)
   const result = GetResolveCompletionItemFromTsResult.getResolveCompletionItemFromTsResult(tsResult)
   return result
 }
