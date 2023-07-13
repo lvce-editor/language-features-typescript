@@ -2,7 +2,7 @@ import * as ConvertCompletionEntry from '../ConvertTsCompletionEntry/ConvertTsCo
 import * as IsUsefulEntry from '../IsUsefulEntry/IsUsefulEntry.js'
 
 /**
- * @param {import('typescript/lib/protocol').CompletionInfo} tsResult
+ * @param {import('../TsServerProtocol/TsServerProtocol.js').CompletionInfo} tsResult
  * @returns {vscode.Completion[]}
  */
 export const getCompletionFromTsResult = (tsResult) => {
