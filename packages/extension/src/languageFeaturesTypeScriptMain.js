@@ -1,3 +1,4 @@
+import * as GetConfigureOptions from './parts/GetConfigureOptions/GetConfigureOptions.js'
 import * as GetTsServerArgv from './parts/GetTsServerArgv/GetTsServerArgv.js'
 import * as GetTsServerPath from './parts/GetTsServerPath/GetTsServerPath.js'
 import * as Providers from './parts/Providers/Providers.js'
@@ -14,5 +15,6 @@ export const activate = async ({ path }) => {
     argv,
     execArgv,
   })
+  await Rpc.invoke('Configure.configure', GetConfigureOptions.getConfigureOptions())
   RegisterProviders.registerProviders(Object.values(Providers))
 }
