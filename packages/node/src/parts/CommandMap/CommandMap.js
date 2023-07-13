@@ -1,5 +1,6 @@
 import * as CommandType from '../CommandType/CommandType.js'
 import * as Completion from '../Completion/Completion.js'
+import * as Configure from '../Configure/Configure.js'
 import * as Definition from '../Definition/Definition.js'
 import * as FileSystem from '../FileSystem/FileSystem.js'
 import * as GetTsServerPath from '../GetTsServerPath/GetTsServerPath.js'
@@ -23,4 +24,5 @@ export const commandMap = {
   [CommandType.GetTypeDefinition]: TypeDefinition.getTypeDefinition,
   [CommandType.GetHover]: Hover.getHover,
   [CommandType.ResolveCompletionItem]: ResolveCompletion.resolveCompletion,
+  [CommandType.Configure]: Configure.configure,
 }
