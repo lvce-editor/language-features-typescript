@@ -1,11 +1,11 @@
-import * as GetTsClientPath from '../GetTsClientPath/GetTsClientPath.js'
+import * as GetTsClientPath from '../GetTsClientPathNode/GetTsClientPathNode.js'
 
 export const state = {
   rpc: undefined,
 }
 
 export const listen = async ({ path }) => {
-  const tsPath = GetTsClientPath.getTsClientPath(path)
+  const tsPath = GetTsClientPath.getTsClientPathNode(path)
   const rpc = await vscode.createNodeRpc({
     path: tsPath,
   })
