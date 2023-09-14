@@ -3,7 +3,6 @@ import * as GetTsClientPathWeb from '../GetTsClientPathWeb/GetTsClientPathWeb.js
 import * as IsWeb from '../IsWeb/IsWeb.js'
 
 const listenWeb = async (path) => {
-  console.log({ path })
   const tsPath = GetTsClientPathWeb.getTsClientPathWeb()
   // const ts = await LoadTypeScript.loadTypeScript(tsPath)
   const rpc = await vscode.createRpc({
