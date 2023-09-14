@@ -6,13 +6,12 @@ import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.js'
 const listenWeb = async (path) => {
   console.log({ path })
   const tsPath = GetTsClientPathWeb.getTsClientPathWeb()
-  const ts = await LoadTypeScript.loadTypeScript(tsPath)
-  console.log({ ts })
-  return {
-    invoke() {
-      throw new Error(`not implemented`)
-    },
-  }
+  // const ts = await LoadTypeScript.loadTypeScript(tsPath)
+  const rpc = await vscode.createRpc({
+    url: tsPath,
+    name: 'TypeScript Worker',
+  })
+  return rpc
 }
 
 const listenNode = async (path) => {
