@@ -1,4 +1,6 @@
+import * as LanguageServiceState from '../LanguageServiceState/LanguageServiceState.js'
+
 export const configure = (options) => {
-  // TODO
-  console.log('configure', options)
+  // const languageService = LanguageServiceState.get()
+  // languageService.configure(options)
 }

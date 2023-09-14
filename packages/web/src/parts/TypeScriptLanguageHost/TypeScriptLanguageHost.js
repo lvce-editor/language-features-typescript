@@ -4,9 +4,11 @@ export const create = (ts) => {
   /**  @type {import('typescript').LanguageServiceHost} */
   const languageServiceHost = {
     getNewLine() {
+      console.log('get new line')
       return '\n'
     },
     getDirectories() {
+      console.log('get directories')
       return []
     },
     useCaseSensitiveFileNames() {
@@ -16,6 +18,7 @@ export const create = (ts) => {
       return `${FileSystem.version}`
     },
     getScriptFileNames() {
+      console.log('get script file names')
       return FileSystem.getAllFiles()
     },
     getScriptVersion(fileName) {
@@ -38,6 +41,7 @@ export const create = (ts) => {
     },
     getScriptSnapshot(fileName) {
       const content = FileSystem.readFile(fileName)
+      console.log({ content })
       const snapshot = ts.ScriptSnapshot.fromString(content)
       return snapshot
     },
