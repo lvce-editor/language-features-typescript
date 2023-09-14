@@ -32,6 +32,8 @@ function updateDependencies {
                                                        updateDependencies             &&
 cd packages/e2e                                     && updateDependencies && cd ../.. &&
 cd packages/extension                               && updateDependencies && cd ../.. &&
+cd packages/web                                     && updateDependencies && cd ../.. &&
+cd packages/node                                    && updateDependencies && cd ../.. &&
 
 echo "Great Success!"
 
