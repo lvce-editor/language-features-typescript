@@ -23,6 +23,7 @@ export const create = (ts) => {
       return false
     },
     getProjectVersion() {
+      console.log('get version', FileSystem.getVersion())
       return `${FileSystem.getVersion()}`
     },
     getScriptFileNames() {
@@ -51,9 +52,6 @@ export const create = (ts) => {
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
-      if (fileName === '/lib.d.ts') {
-        return ts.ScriptSnapshot.fromString('')
-      }
       const content = FileSystem.readFile(fileName)
       console.log({ content, fileName })
       if (!content) {
