@@ -107,7 +107,7 @@ const replace = ({ path, occurrence, replacement }) => {
 }
 
 replace({
-  path: join(root, 'dist', 'src', 'parts', 'GetTsClientPath', 'GetTsClientPath.js'),
+  path: join(root, 'dist', 'src', 'parts', 'GetTsClientPathNode', 'GetTsClientPathNode.js'),
   occurrence: '../node/',
   replacement: 'node/',
 })

@@ -47,6 +47,8 @@ jobs:
         run: npm run e2e:headless
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Build
+        run: node scripts/build.js
       - name: Build static site
         run: node scripts/build-static.js
         env:
