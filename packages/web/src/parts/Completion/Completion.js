@@ -2,7 +2,8 @@ import * as LanguageServiceState from '../LanguageServiceState/LanguageServiceSt
 
 export const getCompletion = async (params) => {
   const languageService = LanguageServiceState.get()
-  const x = await languageService.getCompletionsAtPosition(params)
+  const { file, line, offset } = params
+  const x = await languageService.getCompletionsAtPosition('/index.ts', offset, {})
   return {
     entries: [],
   }

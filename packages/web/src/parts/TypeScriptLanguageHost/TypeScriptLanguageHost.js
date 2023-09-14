@@ -3,23 +3,32 @@ import * as FileSystem from '../FileSystem/FileSystem.js'
 export const create = (ts) => {
   /**  @type {import('typescript').LanguageServiceHost} */
   const languageServiceHost = {
+    fileExists(path) {
+      console.log({ path })
+      return true
+    },
+    readFile(path) {
+      console.log({ path })
+      return ''
+    },
     getNewLine() {
       console.log('get new line')
       return '\n'
     },
-    getDirectories() {
-      console.log('get directories')
+    getDirectories(x) {
+      console.log('get directories', x)
       return []
     },
     useCaseSensitiveFileNames() {
       return false
     },
     getProjectVersion() {
-      return `${FileSystem.version}`
+      return `${FileSystem.getVersion()}`
     },
     getScriptFileNames() {
-      console.log('get script file names')
-      return FileSystem.getAllFiles()
+      const files = FileSystem.getAllFiles()
+      console.log({ files })
+      return files
     },
     getScriptVersion(fileName) {
       return FileSystem.readVersion(fileName)
@@ -37,11 +46,19 @@ export const create = (ts) => {
       return '/'
     },
     getDefaultLibFileName(options) {
-      return '/' + ts.getDefaultLibFileName(options)
+      const defaultLibFileName = '/' + ts.getDefaultLibFileName(options)
+      console.log({ defaultLibFileName })
+      return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
+      if (fileName === '/lib.d.ts') {
+        return ts.ScriptSnapshot.fromString('')
+      }
       const content = FileSystem.readFile(fileName)
-      console.log({ content })
+      console.log({ content, fileName })
+      if (!content) {
+        return undefined
+      }
       const snapshot = ts.ScriptSnapshot.fromString(content)
       return snapshot
     },
