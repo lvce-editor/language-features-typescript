@@ -1,7 +1,6 @@
 import * as GetTsClientPath from '../GetTsClientPathNode/GetTsClientPathNode.js'
 import * as GetTsClientPathWeb from '../GetTsClientPathWeb/GetTsClientPathWeb.js'
 import * as IsWeb from '../IsWeb/IsWeb.js'
-import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.js'
 
 const listenWeb = async (path) => {
   console.log({ path })
