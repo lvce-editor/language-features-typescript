@@ -40,6 +40,9 @@ jobs:
         run: npm run e2e:headless
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Build
+        if: matrix.os != 'windows-2022'
+        run: node scripts/build.js
       - name: Build static site
         run: node scripts/build-static.js
         env:
