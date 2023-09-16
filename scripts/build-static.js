@@ -67,6 +67,26 @@ const getTypescriptPath = path.join(
 )
 
 await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript.js', '../../typescript/lib/typescript.js')
+
+const getTsServerLibraryPath = path.join(
+  root,
+  'dist',
+  commitHash,
+  'extensions',
+  'builtin.language-features-typescript',
+  'web',
+  'src',
+  'parts',
+  'GetTsServerLibraryPath',
+  'GetTsServerLibraryPath.js'
+)
+
+await replace(
+  getTsServerLibraryPath,
+  '../../../../extension/node_modules/typescript/lib/tsserverlibrary.js',
+  '../../typescript/lib/tsserverlibrary.js'
+)
+
 const typeScriptLibPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib')
 const typeScriptPath = join(root, 'packages', 'extension', 'node_modules', 'typescript')
 
@@ -74,7 +94,7 @@ await mkdir(join(root, 'dist', commitHash, 'extensions', 'builtin.language-featu
 
 const typescriptDirents = await readdir(typeScriptLibPath)
 for (const typeScriptDirent of typescriptDirents) {
-  if (typeScriptDirent.startsWith('lib.') || typeScriptDirent === 'typescript.js') {
+  if (typeScriptDirent.startsWith('lib.') || typeScriptDirent === 'typescript.js' || typeScriptDirent === 'tsserverlibrary.js') {
     await cp(
       join(typeScriptLibPath, typeScriptDirent),
       join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', 'lib', typeScriptDirent)
