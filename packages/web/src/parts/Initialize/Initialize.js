@@ -9,4 +9,8 @@ export const initialize = async () => {
   const languageServiceHost = TypeScriptLanguageHost.create(typescript)
   const languageService = typescript.createLanguageService(languageServiceHost, undefined, false)
   LanguageServiceState.set(languageService)
+
+  const tsServerLibraryPath = new URL('../../../../extension/node_modules/typescript/lib/tsserverlibrary.js', import.meta.url).toString()
+  const tsServerLibrary = await import(tsServerLibraryPath)
+  console.log({ tsServerLibrary })
 }

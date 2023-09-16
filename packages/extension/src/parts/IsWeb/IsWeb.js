@@ -1,1 +1,1 @@
-export const isWeb = false
+export const isWeb = true
