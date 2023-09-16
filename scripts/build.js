@@ -101,6 +101,9 @@ cpSync(join(root, 'packages', 'node', 'package.json'), join(dist, 'node', 'packa
 
 const replace = ({ path, occurrence, replacement }) => {
   const oldContent = readFileSync(path, 'utf-8')
+  if (!oldContent.includes(occurrence)) {
+    throw new Error(`occurrence not found ${occurrence}`)
+  }
   const newContent = oldContent.replace(occurrence, replacement)
   writeFileSync(path, newContent)
 }
