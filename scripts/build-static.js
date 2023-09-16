@@ -66,7 +66,7 @@ const getTypescriptPath = path.join(
   'GetTypeScriptPath.js'
 )
 
-await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript.js', '../../typescript/lib/typescript.js')
+await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript.js', '../../../../typescript/lib/typescript.js')
 
 const getTsServerLibraryPath = path.join(
   root,
@@ -84,7 +84,7 @@ const getTsServerLibraryPath = path.join(
 await replace(
   getTsServerLibraryPath,
   '../../../../extension/node_modules/typescript/lib/tsserverlibrary.js',
-  '../../typescript/lib/tsserverlibrary.js'
+  '../../../../typescript/lib/tsserverlibrary.js'
 )
 
 const typeScriptLibPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib')
