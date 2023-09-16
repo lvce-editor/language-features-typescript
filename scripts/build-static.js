@@ -39,6 +39,20 @@ const isWebPath = path.join(root, 'dist', commitHash, 'extensions', 'builtin.lan
 
 await replace(isWebPath, 'false', 'true')
 
+const tsClientPathWeb = path.join(
+  root,
+  'dist',
+  commitHash,
+  'extensions',
+  'builtin.language-features-typescript',
+  'src',
+  'parts',
+  'GetTsClientPathWeb',
+  'GetTsClientPathWeb.js'
+)
+
+await replace(tsClientPathWeb, '../../../../web/src/webMain.js', '../../../web/src/webMain.js')
+
 const getTypescriptPath = path.join(
   root,
   'dist',
