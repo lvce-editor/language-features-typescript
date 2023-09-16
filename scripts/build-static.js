@@ -39,6 +39,19 @@ const isWebPath = path.join(root, 'dist', commitHash, 'extensions', 'builtin.lan
 
 await replace(isWebPath, 'false', 'true')
 
+const getTypescriptPath = path.join(
+  root,
+  'dist',
+  commitHash,
+  'extensions',
+  'builtin.language-features-typescript',
+  'src',
+  'parts',
+  'GetTypeScriptPath',
+  'GetTypeScriptPath.js'
+)
+
+await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript.js', '../../typescript/lib/typescript.js')
 const typeScriptLibPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib')
 const typeScriptPath = join(root, 'packages', 'extension', 'node_modules', 'typescript')
 
