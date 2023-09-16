@@ -53,6 +53,20 @@ const tsClientPathWeb = path.join(
 
 await replace(tsClientPathWeb, '../../../../web/src/webMain.js', '../../../web/src/webMain.js')
 
+const getTypescriptPath = path.join(
+  root,
+  'dist',
+  commitHash,
+  'extensions',
+  'builtin.language-features-typescript',
+  'web',
+  'src',
+  'parts',
+  'GetTypeScriptPath',
+  'GetTypeScriptPath.js'
+)
+
+await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript.js', '../../typescript/lib/typescript.js')
 const typeScriptLibPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib')
 const typeScriptPath = join(root, 'packages', 'extension', 'node_modules', 'typescript')
 
