@@ -99,6 +99,10 @@ cpSync(join(root, 'packages', 'node', 'src'), join(dist, 'node', 'src'), {
 })
 cpSync(join(root, 'packages', 'node', 'package.json'), join(dist, 'node', 'package.json'))
 
+cpSync(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
+  recursive: true,
+})
+
 const replace = ({ path, occurrence, replacement }) => {
   const oldContent = readFileSync(path, 'utf-8')
   if (!oldContent.includes(occurrence)) {
