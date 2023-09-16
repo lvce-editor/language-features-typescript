@@ -3,7 +3,7 @@ import * as ImportScript from '../ImportScript/ImportScript.js'
 /**
  *
  * @param {string} path
- * @returns
+ * @returns {Promise<import('typescript/lib/tsserverlibrary.js')>}
  */
 export const loadTsServerLibrary = async (path) => {
   try {
