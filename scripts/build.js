@@ -32,7 +32,6 @@ const NOT_NEEDED = [
   'node_modules/typescript/lib/zh-tw',
   'node_modules/typescript/lib/README.md',
   'node_modules/typescript/lib/tsc.js',
-  'node_modules/typescript/lib/tsserverlibrary.js',
   'node_modules/typescript/lib/tsserverlibrary.d.ts',
   'node_modules/typescript/lib/typescript.d.ts',
   'node_modules/typescript/lib/typescriptServices.js',
