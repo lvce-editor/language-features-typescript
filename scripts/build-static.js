@@ -30,6 +30,9 @@ for (const dirent of ['src']) {
 
 const replace = async (path, occurrence, replacement) => {
   const oldContent = await readFile(path, 'utf8')
+  if (!oldContent.includes(occurrence)) {
+    throw new Error(`occurrence not found ${occurrence}`)
+  }
   // @ts-ignore
   const newContent = oldContent.replaceAll(occurrence, replacement)
   await writeFile(path, newContent)
