@@ -1,6 +1,8 @@
+import * as ImportScript from '../ImportScript/ImportScript.js'
+
 export const loadTypeScript = async (typescriptPath) => {
   try {
-    const module = await import(typescriptPath)
+    const module = await ImportScript.importScript(typescriptPath)
     if (!module || !module.ts) {
       throw new Error(`no ts export found`)
     }

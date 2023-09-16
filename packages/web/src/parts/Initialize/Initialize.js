@@ -1,3 +1,4 @@
+import * as GetTsServerLibraryPath from '../GetTsServerLibraryPath/GetTsServerLibraryPath.js'
 import * as GetTypeScriptPath from '../GetTypeScriptPath/GetTypeScriptPath.js'
 import * as LanguageServiceState from '../LanguageServiceState/LanguageServiceState.js'
 import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.js'
@@ -9,8 +10,7 @@ export const initialize = async () => {
   const languageServiceHost = TypeScriptLanguageHost.create(typescript)
   const languageService = typescript.createLanguageService(languageServiceHost, undefined, false)
   LanguageServiceState.set(languageService)
-
-  const tsServerLibraryPath = new URL('../../../../extension/node_modules/typescript/lib/tsserverlibrary.js', import.meta.url).toString()
+  const tsServerLibraryPath = GetTsServerLibraryPath.getTsServerLibraryPath()
   const tsServerLibrary = await import(tsServerLibraryPath)
   console.log({ tsServerLibrary })
 }
