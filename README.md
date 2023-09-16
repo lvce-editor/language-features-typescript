@@ -15,4 +15,4 @@ npm test
 
 ## Credits
 
-Extension is based on https://github.com/microsoft/vscode/tree/main/extensions/typescript-language-features by @microsoft (License MIT)
+This extension is based on https://github.com/microsoft/vscode/tree/main/extensions/typescript-language-features by Microsoft (License MIT)
