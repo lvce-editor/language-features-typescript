@@ -59,6 +59,7 @@ const getTypescriptPath = path.join(
   commitHash,
   'extensions',
   'builtin.language-features-typescript',
+  'web',
   'src',
   'parts',
   'GetTypeScriptPath',
