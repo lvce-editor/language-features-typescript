@@ -13,5 +13,4 @@ export const initialize = async () => {
   LanguageServiceState.set(languageService)
   const tsServerLibraryPath = GetTsServerLibraryPath.getTsServerLibraryPath()
   const tsServerLibrary = await ImportScript.importScript(tsServerLibraryPath)
-  console.log({ tsServerLibrary })
 }

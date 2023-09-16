@@ -12,23 +12,19 @@ export const create = (ts) => {
       return ''
     },
     getNewLine() {
-      console.log('get new line')
       return '\n'
     },
     getDirectories(x) {
-      console.log('get directories', x)
       return []
     },
     useCaseSensitiveFileNames() {
       return false
     },
     getProjectVersion() {
-      console.log('get version', FileSystem.getVersion())
       return `${FileSystem.getVersion()}`
     },
     getScriptFileNames() {
       const files = FileSystem.getAllFiles()
-      console.log({ files })
       return files
     },
     getScriptVersion(fileName) {
@@ -48,12 +44,10 @@ export const create = (ts) => {
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = '/' + ts.getDefaultLibFileName(options)
-      console.log({ defaultLibFileName })
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
       const content = FileSystem.readFile(fileName)
-      console.log({ content, fileName })
       if (!content) {
         return undefined
       }
