@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.5",
-    "@types/node": "^20.6.1",
+    "@types/node": "^20.6.2",
     "jest": "^29.7.0",
     "normalize-path": "^3.0.0"
   }
