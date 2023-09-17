@@ -1,4 +1,4 @@
-import VError from 'verror'
+import { VError } from '@lvce-editor/verror'
 
 // TODO somehow tsserver stack is not printed
 export class TsServerError extends VError {
