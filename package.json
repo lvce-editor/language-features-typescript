@@ -16,7 +16,7 @@
   "devDependencies": {
     "@lerna/legacy-package-management": "^7.3.0",
     "@lvce-editor/package-extension": "0.1.0",
-    "@lvce-editor/server": "^0.18.8",
+    "@lvce-editor/server": "^0.18.9",
     "lerna": "^7.3.0",
     "prettier": "^2.8.8"
   },
