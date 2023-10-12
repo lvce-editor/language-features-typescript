@@ -14,10 +14,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@lerna/legacy-package-management": "^7.3.0",
+    "@lerna/legacy-package-management": "^7.3.1",
     "@lvce-editor/package-extension": "0.1.0",
-    "@lvce-editor/server": "^0.18.10",
-    "lerna": "^7.3.0",
+    "@lvce-editor/server": "^0.18.12",
+    "lerna": "^7.3.1",
     "prettier": "^2.8.8"
   },
   "xo": {
