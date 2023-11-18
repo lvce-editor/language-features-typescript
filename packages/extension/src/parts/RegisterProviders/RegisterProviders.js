@@ -27,6 +27,9 @@ const registerProvider = (provider) => {
   if ('provideTabCompletion' in provider && vscode.registerTabCompletionProvider) {
     vscode.registerTabCompletionProvider(provider)
   }
+  if ('provideDiagnostics' in provider && vscode.registerDiagnosticProvider) {
+    vscode.registerDiagnosticProvider(provider)
+  }
 }
 
 export const registerProviders = (providers) => {

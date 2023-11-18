@@ -2,6 +2,7 @@ import * as CommandType from '../CommandType/CommandType.js'
 import * as Completion from '../Completion/Completion.js'
 import * as Configure from '../Configure/Configure.js'
 import * as Definition from '../Definition/Definition.js'
+import * as Diagnostic from '../Diagnostic/Diagnostic.js'
 import * as FileSystem from '../FileSystem/FileSystem.js'
 import * as GetTsServerPath from '../GetTsServerPath/GetTsServerPath.js'
 import * as Hover from '../Hover/Hover.js'
@@ -14,6 +15,7 @@ import * as UpdateOpen from '../UpdateOpen/UpdateOpen.js'
 
 export const commandMap = {
   [CommandType.CompletionGetCompletion]: Completion.getCompletion,
+  [CommandType.DiagnosticGetDiagnostics]: Diagnostic.getDiagnostic,
   [CommandType.Initialize]: Initialize.initialize,
   [CommandType.UpdateOpen]: UpdateOpen.updateOpen,
   [CommandType.GetTsServerPath]: GetTsServerPath.getDefaultTsServerPath,

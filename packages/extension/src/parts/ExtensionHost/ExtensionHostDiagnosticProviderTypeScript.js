@@ -1,5 +1,5 @@
 import * as Debug from '../Debug/Debug.js'
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
+import * as Diagnostic from '../Diagnostic/Diagnostic.js'
 
 export const languageId = 'typescript'
 
@@ -44,8 +44,6 @@ const getDiagnosticsFromTsResult = (textDocument, tsResult) => {
  */
 export const provideDiagnostics = async (textDocument) => {
   Debug.debug(`getting diagnostics for ${textDocument.uri}`)
-  const tsResult = await TsServerRequests.semanticDiagnosticsSync({
-    file: textDocument.uri,
-  })
+  const tsResult = await Diagnostic.getDiagnostics(textDocument)
   return getDiagnosticsFromTsResult(textDocument, tsResult)
 }
