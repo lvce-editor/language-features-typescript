@@ -23,6 +23,8 @@ const convertTsDiagnostic = (textDocument, diagnostic) => {
   return {
     rowIndex: diagnostic.start.line - 1,
     columnIndex: diagnostic.start.offset - 1, // TODO should be offset based here
+    endRowIndex: diagnostic.end.line - 1,
+    endColumnIndex: diagnostic.end.offset - 1,
     // endOffset,
     message: diagnostic.text,
     type: 'error',
