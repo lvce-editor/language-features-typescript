@@ -1,21 +1,29 @@
 import * as LanguageServiceState from '../LanguageServiceState/LanguageServiceState.js'
 
-const getDiagnosticFromTsResult = (diagnostic) => {
+const getDiagnosticFromTsResult = (languageService, file, tsDiagnostic) => {
+  const { start, length, messageText } = tsDiagnostic
+  const startPosition = languageService.toLineColumnOffset(file, start)
+  const endPosition = languageService.toLineColumnOffset(file, start + length)
   return {
     start: {
-      line: 1,
-      offset: 1,
+      line: startPosition.line + 1,
+      offset: startPosition.character + 1,
     },
     end: {
-      line: 1,
-      offset: 5,
+      line: endPosition.line + 1,
+      offset: endPosition.character + 1,
     },
-    text: diagnostic.messageText,
+    text: messageText,
   }
 }
 
-const getDiagnosticsFromTsResult = (tsResult) => {
-  return tsResult.map(getDiagnosticFromTsResult)
+const getDiagnosticsFromTsResult = (languageService, file, tsResult) => {
+  const diagnostics = []
+  for (const tsDiagnostic of tsResult) {
+    diagnostics.push(getDiagnosticFromTsResult(languageService, file, tsDiagnostic))
+  }
+  console.log({ diagnostics })
+  return diagnostics
 }
 
 export const getDiagnostics = (params) => {
@@ -23,6 +31,6 @@ export const getDiagnostics = (params) => {
   const { file } = params
   const languageService = LanguageServiceState.get()
   const tsResult = languageService.getSemanticDiagnostics(file)
-  const diagnostics = getDiagnosticsFromTsResult(tsResult)
+  const diagnostics = getDiagnosticsFromTsResult(languageService, file, tsResult)
   return diagnostics
 }
