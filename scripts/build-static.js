@@ -91,7 +91,7 @@ await replace(
   '../../../../typescript/lib/tsserverlibrary.js'
 )
 
-const readLibFile = path.join(
+const getLibFileUrl = path.join(
   root,
   'dist',
   commitHash,
@@ -100,11 +100,11 @@ const readLibFile = path.join(
   'web',
   'src',
   'parts',
-  'ReadLibFile',
-  'ReadLibFile.js'
+  'GetLibFileUrl',
+  'GetLibFileUrl.js'
 )
 
-await replace(readLibFile, '../../../../extension/node_modules/typescript', '../../../../typescript')
+await replace(getLibFileUrl, '../../../../extension/node_modules/typescript', '../../../../typescript')
 
 const typeScriptLibPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib')
 const typeScriptPath = join(root, 'packages', 'extension', 'node_modules', 'typescript')
