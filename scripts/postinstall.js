@@ -23,7 +23,11 @@ const modifyTypeScript = (typeScriptPath) => {
   const newContent2 = newContent.includes(`process.env.TS_ETW_MODULE_PATH) != null`)
     ? newContent.replace('process.env.TS_ETW_MODULE_PATH', `(typeof process === 'undefined' ? undefined : process.env.TS_ETW_MODULE_PATH)`)
     : newContent
-  writeFileSync(typeScriptPath, newContent2)
+  const newContent3 = newContent2.replace(
+    `const etwModulePath = process.env.TS_ETW_MODULE_PATH ?? "./node_modules/@microsoft/typescript-etw";`,
+    `const etwModulePath = typeof process === 'undefined' ? undefined : process.env.TS_ETW_MODULE_PATH ?? "./node_modules/@microsoft/typescript-etw";`
+  )
+  writeFileSync(typeScriptPath, newContent3)
 }
 
 const main = () => {
