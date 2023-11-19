@@ -1,4 +1,5 @@
 import { exportStatic } from '@lvce-editor/shared-process'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { cp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import path, { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -123,3 +124,11 @@ for (const typeScriptDirent of typescriptDirents) {
 for (const dirent of ['README.md', 'LICENSE.txt', 'package.json']) {
   await cp(join(typeScriptPath, dirent), join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', dirent))
 }
+
+const defaultSettingsPath = join(root, 'dist', commitHash, 'config', 'defaultSettings.json')
+const oldSettings = JSON.parse(readFileSync(defaultSettingsPath, 'utf8'))
+const newSettings = {
+  ...oldSettings,
+  'editor.diagnostics': true,
+}
+writeFileSync(defaultSettingsPath, JSON.stringify(newSettings, null, 2) + '\n')
