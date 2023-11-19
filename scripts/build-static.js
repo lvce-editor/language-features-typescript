@@ -104,7 +104,7 @@ const readLibFile = path.join(
   'ReadLibFile.js'
 )
 
-await replace(readLibFile, '../../../../extension/node_modules/typescript', '../../../typescript')
+await replace(readLibFile, '../../../../extension/node_modules/typescript', '../../../../typescript')
 
 const typeScriptLibPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib')
 const typeScriptPath = join(root, 'packages', 'extension', 'node_modules', 'typescript')
