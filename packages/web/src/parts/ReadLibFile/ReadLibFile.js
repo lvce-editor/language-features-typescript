@@ -7,7 +7,7 @@ export const readLibFile = (uri) => {
     return text
   }
   if (uri.startsWith('/node_modules/@typescript')) {
-    const relativePath = uri.replace('-', '.').slice('/node_modules/@typescript'.length, -3) + '.d.ts'
+    const relativePath = uri.replaceAll('-', '.').slice('/node_modules/@typescript'.length, -3) + '.d.ts'
     const libUrl = new URL(`../../../../extension/node_modules/typescript/lib${relativePath}`, import.meta.url).toString()
     const text = GetTextSync.getTextSync(libUrl)
     return text
