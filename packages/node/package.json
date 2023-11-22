@@ -14,10 +14,10 @@
   "dependencies": {
     "@lvce-editor/verror": "^1.1.2",
     "minimist": "^1.2.8",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.2"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.8",
+    "@types/jest": "^29.5.10",
     "@types/node": "^20.6.2",
     "jest": "^29.7.0",
     "normalize-path": "^3.0.0"
