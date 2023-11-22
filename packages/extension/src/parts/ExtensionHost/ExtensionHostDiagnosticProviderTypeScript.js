@@ -28,6 +28,7 @@ const convertTsDiagnostic = (textDocument, diagnostic) => {
     // endOffset,
     message: diagnostic.text,
     type: 'error',
+    uri: textDocument.uri,
   }
   // console.log({ diagnostic })
 }
