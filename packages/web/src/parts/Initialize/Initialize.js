@@ -1,7 +1,5 @@
-import * as GetTsServerLibraryPath from '../GetTsServerLibraryPath/GetTsServerLibraryPath.js'
 import * as GetTypeScriptPath from '../GetTypeScriptPath/GetTypeScriptPath.js'
 import * as LanguageServiceState from '../LanguageServiceState/LanguageServiceState.js'
-import * as LoadTsServerLibrary from '../LoadTsServerLibrary/LoadTsServerLibrary.js'
 import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.js'
 import * as TypeScriptLanguageHost from '../TypeScriptLanguageHost/TypeScriptLanguageHost.js'
 import * as TypeScriptServerHost from '../TypeScriptServerHost/TypeScriptServerHost.js'
@@ -14,9 +12,7 @@ export const initialize = async () => {
   const languageServiceHost = TypeScriptLanguageHost.create(typescript)
   const languageService = typescript.createLanguageService(languageServiceHost, undefined, false)
   LanguageServiceState.set(languageService)
-  const tsServerLibraryPath = GetTsServerLibraryPath.getTsServerLibraryPath()
-  const ts = await LoadTsServerLibrary.loadTsServerLibrary(tsServerLibraryPath)
   const host = TypeScriptServerHost.create()
-  const session = TypeScriptServerSession.create(ts, host)
+  const session = TypeScriptServerSession.create(typescript, host)
   TypeScriptServerSessionState.set(session)
 }

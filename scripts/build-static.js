@@ -72,25 +72,6 @@ const getTypescriptPath = path.join(
 
 await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript.js', '../../../../typescript/lib/typescript.js')
 
-const getTsServerLibraryPath = path.join(
-  root,
-  'dist',
-  commitHash,
-  'extensions',
-  'builtin.language-features-typescript',
-  'web',
-  'src',
-  'parts',
-  'GetTsServerLibraryPath',
-  'GetTsServerLibraryPath.js'
-)
-
-await replace(
-  getTsServerLibraryPath,
-  '../../../../extension/node_modules/typescript/lib/tsserverlibrary.js',
-  '../../../../typescript/lib/tsserverlibrary.js'
-)
-
 const getLibFileUrl = path.join(
   root,
   'dist',
