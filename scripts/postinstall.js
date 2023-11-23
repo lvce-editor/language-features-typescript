@@ -6,7 +6,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, '..')
 
 const typeScriptPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib', 'typescript.js')
-const tsServerLibraryPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib', 'tsserverlibrary.js')
 
 const removeSourceMapUrl = (typeScriptPath) => {
   const baseName = basename(typeScriptPath)
@@ -36,9 +35,7 @@ const modifyTypeScript = (typeScriptPath) => {
 
 const main = () => {
   removeSourceMapUrl(typeScriptPath)
-  removeSourceMapUrl(tsServerLibraryPath)
   modifyTypeScript(typeScriptPath)
-  modifyTypeScript(tsServerLibraryPath)
 }
 
 main()
