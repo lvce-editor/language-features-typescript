@@ -1,5 +1,8 @@
 import * as ImportScript from '../ImportScript/ImportScript.js'
 
+/**
+ * @param {string} typescriptPath
+ */
 export const loadTypeScript = async (typescriptPath) => {
   try {
     const module = await ImportScript.importScript(typescriptPath)
