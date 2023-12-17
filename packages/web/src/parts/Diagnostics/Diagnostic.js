@@ -22,7 +22,6 @@ const getDiagnosticsFromTsResult = (languageService, file, tsResult) => {
   for (const tsDiagnostic of tsResult) {
     diagnostics.push(getDiagnosticFromTsResult(languageService, file, tsDiagnostic))
   }
-  console.log({ diagnostics })
   return diagnostics
 }
 
