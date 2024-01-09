@@ -16,3 +16,9 @@ export const provideReferences = async (textDocument, offset) => {
   const references = GetReferencesFromTsResult.getReferencesFromTsResult(textDocument, tsResult)
   return references
 }
+
+export const provideFileReferences = async (textDocument) => {
+  const tsResult = await References.getReferences(textDocument)
+  const fileReferences = tsResult
+  return fileReferences
+}
