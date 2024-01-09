@@ -2,7 +2,12 @@ import * as Rpc from '../Rpc/Rpc.js'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 
 const getFileReference = (ref) => {
-  return ref
+  return {
+    uri: ref.file,
+    startOffset: 0,
+    endOffset: 0,
+    lineText: ref.lineText,
+  }
 }
 
 const getFileReferencesFromTsResult = (tsResult) => {
