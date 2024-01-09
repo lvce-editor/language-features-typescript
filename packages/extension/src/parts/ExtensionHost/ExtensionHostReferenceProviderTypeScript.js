@@ -1,6 +1,7 @@
 import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.js'
 import * as References from '../Reference/Reference.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
+import * as FileReferences from '../FileReferences/FileReferences.js'
 
 export const languageId = LanguageId.TypeScript
 
@@ -18,7 +19,7 @@ export const provideReferences = async (textDocument, offset) => {
 }
 
 export const provideFileReferences = async (textDocument) => {
-  const tsResult = await References.getReferences(textDocument)
+  const tsResult = await FileReferences.getFileReferences(textDocument)
   const fileReferences = tsResult
   return fileReferences
 }
