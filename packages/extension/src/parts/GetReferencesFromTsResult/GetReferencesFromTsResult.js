@@ -2,13 +2,13 @@ const getReferenceFromTsResult = (reference) => {
   const { start, end, file, lineText } = reference
   return {
     uri: file,
-    startRowIndex: start.line,
+    startRowIndex: start.line - 1,
     startColumnIndex: start.offset - 1,
-    endRowIndex: end.line,
+    endRowIndex: end.line - 1,
     endColumnIndex: end.offset - 1,
-    lineText: lineText,
 
     // deprecated
+    lineText: lineText,
     endOffset: end.offset - 1,
     startOffset: start.offset - 1,
   }
