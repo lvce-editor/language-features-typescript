@@ -1,4 +1,18 @@
-import * as Position from '../Position/Position.js'
+const getReferenceFromTsResult = (reference) => {
+  const { start, end, file, lineText } = reference
+  return {
+    uri: file,
+    startRowIndex: start.line,
+    startColumnIndex: start.offset - 1,
+    endRowIndex: end.line,
+    endColumnIndex: end.offset - 1,
+    lineText: lineText,
+
+    // deprecated
+    endOffset: end.offset - 1,
+    startOffset: start.offset - 1,
+  }
+}
 
 /**
  *
@@ -7,17 +21,6 @@ import * as Position from '../Position/Position.js'
  * @returns {readonly vscode.Reference[]}
  */
 export const getReferencesFromTsResult = (textDocument, tsResult) => {
-  const references = []
-  for (const ref of tsResult.refs) {
-    const startOffset = Position.getOffset(textDocument, ref.start)
-    const endOffset = Position.getOffset(textDocument, ref.end)
-    references.push({
-      uri: ref.file,
-      startOffset,
-      endOffset,
-      lineText: ref.lineText,
-    })
-  }
-  console.log(tsResult.refs)
+  const references = tsResult.refs.map(getReferenceFromTsResult)
   return references
 }
