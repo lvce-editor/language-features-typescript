@@ -30,6 +30,9 @@ const registerProvider = (provider) => {
   if ('provideDiagnostics' in provider && vscode.registerDiagnosticProvider) {
     vscode.registerDiagnosticProvider(provider)
   }
+  if ('provideCodeActions' in provider && vscode.registerCodeActionsProvider) {
+    vscode.registerCodeActionsProvider(provider)
+  }
 }
 
 export const registerProviders = (providers) => {
