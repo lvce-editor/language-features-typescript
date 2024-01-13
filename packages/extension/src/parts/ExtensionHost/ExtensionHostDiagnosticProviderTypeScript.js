@@ -30,6 +30,7 @@ const convertTsDiagnostic = (textDocument, diagnostic) => {
     type: 'error',
     uri: textDocument.uri,
     source: 'ts',
+    code: diagnostic.code,
   }
   // console.log({ diagnostic })
 }
