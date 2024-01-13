@@ -6,11 +6,6 @@ const getReferenceFromTsResult = (reference) => {
     startColumnIndex: start.offset - 1,
     endRowIndex: end.line - 1,
     endColumnIndex: end.offset - 1,
-
-    // deprecated
-    lineText: lineText,
-    endOffset: end.offset - 1,
-    startOffset: start.offset - 1,
   }
 }
 
