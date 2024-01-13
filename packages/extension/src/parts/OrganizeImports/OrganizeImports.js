@@ -10,7 +10,13 @@ export const organizeImports = async (textDocument) => {
   Assert.string(uri)
   await TextDocumentSync.openTextDocuments([textDocument])
   const tsResult = await Rpc.invoke('OrganizeImports.organizeImports', {
-    file: textDocument.uri,
+    scope: {
+      type: 'file',
+      args: {
+        file: textDocument.uri,
+      },
+    },
+    mode: 'All',
   })
   return tsResult
 }
