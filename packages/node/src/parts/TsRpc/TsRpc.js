@@ -26,6 +26,9 @@ export const invoke = async (ipc, command, params) => {
     ipc.send(request)
   })
   if (!response.success) {
+    if (response.message === 'No content available.') {
+      return undefined
+    }
     throw new TsServerError(response, command)
   }
   return response.body
@@ -36,9 +39,7 @@ export const handleMessageResponse = (message) => {
   Assert.number(request_seq)
   const pendingRequest = state.pendingRequests[request_seq]
   if (!pendingRequest) {
-    Logger.warn(
-      `no matching request found for request with sequence number ${request_seq}`
-    )
+    Logger.warn(`no matching request found for request with sequence number ${request_seq}`)
     return
   }
   delete state.pendingRequests[request_seq]

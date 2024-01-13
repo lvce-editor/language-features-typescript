@@ -4,6 +4,9 @@ import * as LanguageId from '../LanguageId/LanguageId.js'
 export const languageId = LanguageId.TypeScript
 
 const getHoverFromTsResult = (tsResult) => {
+  if (!tsResult) {
+    return undefined
+  }
   return {
     displayString: tsResult.displayString,
     documentation: tsResult.documentation,
