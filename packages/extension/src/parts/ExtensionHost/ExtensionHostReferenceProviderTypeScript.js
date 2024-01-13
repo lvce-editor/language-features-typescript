@@ -1,13 +1,9 @@
-import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.js'
-import * as References from '../Reference/Reference.js'
-import * as LanguageId from '../LanguageId/LanguageId.js'
 import * as FileReferences from '../FileReferences/FileReferences.js'
+import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.js'
+import * as LanguageId from '../LanguageId/LanguageId.js'
+import * as References from '../Reference/Reference.js'
 
 export const languageId = LanguageId.TypeScript
-
-// TODO should this function return positions or offsets?
-// when it returns offset, need to convert it to position anyway for references view
-// which might be very inefficient
 
 /**
  * @type{vscode.ReferenceProvider['provideReferences']}
