@@ -8,6 +8,7 @@ import * as GetTsServerPath from '../GetTsServerPath/GetTsServerPath.js'
 import * as Hover from '../Hover/Hover.js'
 import * as Implementation from '../Implementation/Implementation.js'
 import * as Initialize from '../Initialize/Initialize.js'
+import * as OrganizeImports from '../OrganizeImports/OrganizeImports.js'
 import * as References from '../Refererences/References.js'
 import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.js'
 import * as TypeDefinition from '../TypeDefinition/TypeDefinition.js'
@@ -28,4 +29,5 @@ export const commandMap = {
   [CommandType.Initialize]: Initialize.initialize,
   [CommandType.ResolveCompletionItem]: ResolveCompletion.resolveCompletion,
   [CommandType.UpdateOpen]: UpdateOpen.updateOpen,
+  [CommandType.OrganizeImports]: OrganizeImports.organizeImports,
 }
