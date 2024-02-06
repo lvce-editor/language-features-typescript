@@ -1,14 +1,9 @@
 import * as LanguageId from '../LanguageId/LanguageId.js'
+import * as Selection from '../Selection/Selection.js'
 
 export const languageId = LanguageId.TypeScript
 
-
-
-/**
- * @type {vscode.HoverProvider['provideHover']}
- */
-export const provideSelections = async (textDocument, offset) => {
-  // TODO expand selections
-  console.log('expand selections', textDocument, offset)
-  return []
+export const provideSelections = async (textDocument, positions) => {
+  const newSelections = await Selection.expandSelection(textDocument, positions)
+  return newSelections
 }

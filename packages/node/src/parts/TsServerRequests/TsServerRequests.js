@@ -292,7 +292,7 @@ export const updateOpen = (params) => {
 }
 /**
  * @param {import('../TsServerProtocol/TsServerProtocol.js').SelectionRangeRequest['arguments']} params
- * @returns {Promise<import('../TsServerProtocol/TsServerProtocol.js').Response>}
+ * @returns {Promise<import('../TsServerProtocol/TsServerProtocol.js').SelectionRangeResponse>}
  */
 export const selectionRange = (params) => {
   return TsPrimaryServer.invoke(TsServerCommandType.SelectionRange, params)

@@ -37,7 +37,7 @@ const registerProvider = (provider) => {
     vscode.registerCodeActionsProvider(provider)
     return
   }
-  if('provideSelections' in provider && vscode.registerSelectionProvider){
+  if ('provideSelections' in provider && vscode.registerSelectionProvider) {
     vscode.registerSelectionProvider(provider)
     return
   }
