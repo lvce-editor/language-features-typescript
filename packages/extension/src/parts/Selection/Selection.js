@@ -14,6 +14,5 @@ export const expandSelection = async (textDocument, positions) => {
       },
     ],
   })
-  console.log({ tsResult, positions })
   return tsResult
 }
