@@ -15,12 +15,12 @@ const getLocations = (positions) => {
   const locations = []
   let last = {
     line: 0,
-    column: 0,
+    offset: 0,
   }
   for (let i = 0; i < positions.length; i += 2) {
     const next = {
       line: positions[i] + 1,
-      column: positions[i + 1] + 1,
+      offset: positions[i + 1] + 1,
     }
     if (next.line === last.line && next.column === last.column) {
       continue
