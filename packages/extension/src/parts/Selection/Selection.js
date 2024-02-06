@@ -1,29 +1,70 @@
 import * as Rpc from '../Rpc/Rpc.js'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 
-const getPositionsFromTsResult = (tsResult) => {
+const getPositionsFromTsResult = (positions, tsResult) => {
   if (!tsResult || tsResult.length === 0) {
     return []
   }
+
+  const [startRowIndex, startColumnIndex, endRowIndex, endColumnIndex] = positions
+
   const [first] = tsResult
-  const { textSpan } = first
+  let current = first
+  while (true) {
+    const { textSpan } = current
+    const { start, end } = textSpan
+    const rangeStartRowIndex = start.line - 1
+    const rangeStartColumnIndex = start.offset - 1
+    const rangeEndRowIndex = end.line - 1
+    const rangeEndColumnIndex = end.offset - 1
+    if (
+      !(
+        rangeStartRowIndex >= startRowIndex &&
+        rangeStartColumnIndex >= startColumnIndex &&
+        rangeEndRowIndex <= endRowIndex &&
+        rangeEndColumnIndex <= endColumnIndex
+      )
+    ) {
+      break
+    }
+    if (!current.parent) {
+      return
+    }
+    current = current.parent
+  }
+
+  const { textSpan } = current
   const { start, end } = textSpan
   return [start.line - 1, start.offset - 1, end.line - 1, end.offset - 1]
 }
 
+const getLocations = (positions) => {
+  const locations = []
+  let last = {
+    line: 0,
+    offset: 0,
+  }
+  for (let i = 0; i < positions.length; i += 2) {
+    const next = {
+      line: positions[i] + 1,
+      offset: positions[i + 1] + 1,
+    }
+    if (next.line === last.line && next.offset === last.offset) {
+      continue
+    }
+    last = next
+    locations.push(next)
+  }
+  return locations
+}
+
 export const expandSelection = async (textDocument, positions) => {
   await TextDocumentSync.openTextDocuments([textDocument])
-  const rowIndex = positions[0]
-  const columnIndex = positions[1]
+  const locations = getLocations(positions)
   const tsResult = await Rpc.invoke('Selection.expandSelection', {
     file: textDocument.uri,
-    locations: [
-      {
-        line: rowIndex + 1,
-        offset: columnIndex + 1,
-      },
-    ],
+    locations,
   })
-  const newPositions = getPositionsFromTsResult(tsResult)
+  const newPositions = getPositionsFromTsResult(positions, tsResult)
   return newPositions
 }
