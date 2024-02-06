@@ -1,14 +1,17 @@
-import * as Position from '../Position/Position.js'
 import * as Rpc from '../Rpc/Rpc.js'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 
-export const expandSelection = async (textDocument, offset) => {
+export const expandSelection = async (textDocument, positions) => {
   await TextDocumentSync.openTextDocuments([textDocument])
-  const tsPosition = Position.getTsPosition(textDocument, offset)
+  const rowIndex = positions[0]
+  const columnIndex = positions[1]
   const tsResult = await Rpc.invoke('Selection.expandSelection', {
     file: textDocument.uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
+    locations: {
+      line: rowIndex + 1,
+      offset: columnIndex + 1,
+    },
   })
+  console.log({ tsResult, positions })
   return tsResult
 }
