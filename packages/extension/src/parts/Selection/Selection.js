@@ -7,10 +7,12 @@ export const expandSelection = async (textDocument, positions) => {
   const columnIndex = positions[1]
   const tsResult = await Rpc.invoke('Selection.expandSelection', {
     file: textDocument.uri,
-    locations: {
-      line: rowIndex + 1,
-      offset: columnIndex + 1,
-    },
+    locations: [
+      {
+        line: rowIndex + 1,
+        offset: columnIndex + 1,
+      },
+    ],
   })
   console.log({ tsResult, positions })
   return tsResult
