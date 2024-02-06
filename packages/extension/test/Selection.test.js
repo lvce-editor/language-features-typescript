@@ -33,16 +33,5 @@ test('expandSelection', async () => {
       },
     }
   })
-  expect(await Selection.expandSelection(textDocument, positions)).toEqual({
-    textSpan: {
-      start: {
-        line: 9,
-        offset: 9,
-      },
-      end: {
-        line: 9,
-        offset: 12,
-      },
-    },
-  })
+  expect(await Selection.expandSelection(textDocument, positions)).toEqual([8, 8, 8, 11])
 })

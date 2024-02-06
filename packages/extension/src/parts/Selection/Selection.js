@@ -1,6 +1,15 @@
 import * as Rpc from '../Rpc/Rpc.js'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 
+const getPositionsFromTsResult = (tsResult) => {
+  if (!tsResult) {
+    return []
+  }
+  const { textSpan } = tsResult
+  const { start, end } = textSpan
+  return [start.line - 1, start.offset - 1, end.line - 1, end.offset - 1]
+}
+
 export const expandSelection = async (textDocument, positions) => {
   await TextDocumentSync.openTextDocuments([textDocument])
   const rowIndex = positions[0]
@@ -14,5 +23,5 @@ export const expandSelection = async (textDocument, positions) => {
       },
     ],
   })
-  return tsResult
+  return getPositionsFromTsResult(tsResult)
 }
