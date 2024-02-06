@@ -1,27 +1,41 @@
 import * as Rpc from '../Rpc/Rpc.js'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 
-const getPositionsFromTsResult = (tsResult) => {
+const getPositionsFromTsResult = (positions, tsResult) => {
   if (!tsResult || tsResult.length === 0) {
     return []
   }
-  let minLine = Infinity
-  let minLineColumn = Infinity
-  let maxLine = 0
-  let maxLineColumn = 0
-  for (const element of tsResult) {
-    const { textSpan } = element
+
+  const [startRowIndex, startColumnIndex, endRowIndex, endColumnIndex] = positions
+
+  const [first] = tsResult
+  let current = first
+  while (true) {
+    const { textSpan } = current
     const { start, end } = textSpan
-    if (start.line < minLine) {
-      minLine = start.line
-      minLineColumn = start.offset
+    const rangeStartRowIndex = start.line - 1
+    const rangeStartColumnIndex = start.offset - 1
+    const rangeEndRowIndex = end.line - 1
+    const rangeEndColumnIndex = end.offset - 1
+    if (
+      !(
+        rangeStartRowIndex >= startRowIndex &&
+        rangeStartColumnIndex >= startColumnIndex &&
+        rangeEndRowIndex <= endRowIndex &&
+        rangeEndColumnIndex <= endColumnIndex
+      )
+    ) {
+      break
     }
-    if (end.line > maxLine) {
-      maxLine = end.line
-      maxLineColumn = end.offset
+    if (!current.parent) {
+      return
     }
+    current = current.parent
   }
-  return [minLine - 1, minLineColumn - 1, maxLine - 1, maxLineColumn - 1]
+
+  const { textSpan } = current
+  const { start, end } = textSpan
+  return [start.line - 1, start.offset - 1, end.line - 1, end.offset - 1]
 }
 
 const getLocations = (positions) => {
@@ -51,7 +65,6 @@ export const expandSelection = async (textDocument, positions) => {
     file: textDocument.uri,
     locations,
   })
-  const newPositions = getPositionsFromTsResult(tsResult)
-  console.log({ positions, locations, tsResult })
+  const newPositions = getPositionsFromTsResult(positions, tsResult)
   return newPositions
 }
