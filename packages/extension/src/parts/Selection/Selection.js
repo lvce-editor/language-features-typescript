@@ -2,10 +2,11 @@ import * as Rpc from '../Rpc/Rpc.js'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 
 const getPositionsFromTsResult = (tsResult) => {
-  if (!tsResult) {
+  if (!tsResult || tsResult.length === 0) {
     return []
   }
-  const { textSpan } = tsResult
+  const [first] = tsResult
+  const { textSpan } = first
   const { start, end } = textSpan
   return [start.line - 1, start.offset - 1, end.line - 1, end.offset - 1]
 }

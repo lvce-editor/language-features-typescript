@@ -20,18 +20,20 @@ test('expandSelection', async () => {
   const positions = [0, 0]
   // @ts-ignore
   Rpc.invoke.mockImplementation(() => {
-    return {
-      textSpan: {
-        start: {
-          line: 9,
-          offset: 9,
-        },
-        end: {
-          line: 9,
-          offset: 12,
+    return [
+      {
+        textSpan: {
+          start: {
+            line: 9,
+            offset: 9,
+          },
+          end: {
+            line: 9,
+            offset: 12,
+          },
         },
       },
-    }
+    ]
   })
   expect(await Selection.expandSelection(textDocument, positions)).toEqual([8, 8, 8, 11])
 })
