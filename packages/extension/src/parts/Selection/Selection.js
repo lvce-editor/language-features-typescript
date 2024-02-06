@@ -24,5 +24,6 @@ export const expandSelection = async (textDocument, positions) => {
       },
     ],
   })
-  return getPositionsFromTsResult(tsResult)
+  const newPositions = getPositionsFromTsResult(tsResult)
+  return newPositions
 }
