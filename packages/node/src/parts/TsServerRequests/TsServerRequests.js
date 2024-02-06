@@ -290,6 +290,13 @@ export const typeDefinition = (params) => {
 export const updateOpen = (params) => {
   return TsPrimaryServer.invoke(TsServerCommandType.UpdateOpen, params)
 }
+/**
+ * @param {import('../TsServerProtocol/TsServerProtocol.js').SelectionRangeRequest['arguments']} params
+ * @returns {Promise<import('../TsServerProtocol/TsServerProtocol.js').Response>}
+ */
+export const selectionRange = (params) => {
+  return TsPrimaryServer.invoke(TsServerCommandType.SelectionRange, params)
+}
 
 export const openExternalProject = () => {}
 
