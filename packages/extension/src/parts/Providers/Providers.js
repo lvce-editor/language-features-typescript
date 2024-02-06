@@ -5,5 +5,6 @@ export * as DiagnosticProvider from '../ExtensionHost/ExtensionHostDiagnosticPro
 export * as HoverProvider from '../ExtensionHost/ExtensionHostHoverProviderTypeScript.js'
 export * as ImplementationProvider from '../ExtensionHost/ExtensionHostImplementationProviderTypeScript.js'
 export * as ReferenceProvider from '../ExtensionHost/ExtensionHostReferenceProviderTypeScript.js'
+export * as Selection from '../ExtensionHost/ExtensionHostSelectionProviderTypeScript.js'
 export * as TabCompletionProvider from '../ExtensionHost/ExtensionHostTabCompletionProviderTypeScript.js'
 export * as TypeDefinitionProvider from '../ExtensionHost/ExtensionHostTypeDefinitionProviderTypeScript.js'
