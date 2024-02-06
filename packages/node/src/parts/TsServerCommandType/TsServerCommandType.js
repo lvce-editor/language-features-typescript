@@ -76,3 +76,5 @@ export const ToggleMultilineComment = 'toggleMultilineComment'
 export const TypeDefinition = 'typeDefinition'
 
 export const UpdateOpen = 'updateOpen'
+
+export const SelectionRange='selectionRange'
