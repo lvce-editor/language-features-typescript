@@ -19,6 +19,7 @@ export const commandMap = {
   [CommandType.CompletionGetCompletion]: Completion.getCompletion,
   [CommandType.Configure]: Configure.configure,
   [CommandType.DiagnosticGetDiagnostics]: Diagnostic.getDiagnostic,
+  [CommandType.ExpandSelection]: Selection.expandSelection,
   [CommandType.FileSystemReadFile]: FileSystem.readFile,
   [CommandType.GetDefinition]: Definition.getDefinition,
   [CommandType.GetFileReferences]: References.getFileReferences,
@@ -28,8 +29,7 @@ export const commandMap = {
   [CommandType.GetTsServerPath]: GetTsServerPath.getDefaultTsServerPath,
   [CommandType.GetTypeDefinition]: TypeDefinition.getTypeDefinition,
   [CommandType.Initialize]: Initialize.initialize,
+  [CommandType.OrganizeImports]: OrganizeImports.organizeImports,
   [CommandType.ResolveCompletionItem]: ResolveCompletion.resolveCompletion,
   [CommandType.UpdateOpen]: UpdateOpen.updateOpen,
-  [CommandType.OrganizeImports]: OrganizeImports.organizeImports,
-  [CommandType.ExpandSelection]: Selection.expandSelection,
 }
