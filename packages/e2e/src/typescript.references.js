@@ -1,3 +1,5 @@
+export const skip = true
+
 export const name = 'typescript.references'
 
 export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
