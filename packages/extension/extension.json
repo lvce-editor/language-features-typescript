@@ -33,7 +33,7 @@
       "extensions": [".ts"]
     },
     {
-      "id": "tsx",
+      "id": "typescriptreact",
       "extensions": [".tsx"]
     },
     {
@@ -41,7 +41,7 @@
       "extensions": [".js"]
     },
     {
-      "id": "jsx",
+      "id": "javascriptreact",
       "extensions": [".jsx"]
     }
   ]
