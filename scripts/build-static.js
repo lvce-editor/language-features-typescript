@@ -70,7 +70,7 @@ const getTypescriptPath = path.join(
   'GetTypeScriptPath.js'
 )
 
-await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript.js', '../../../../typescript/lib/typescript.js')
+await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript-esm.js', '../../../../typescript/lib/typescript-esm.js')
 
 const getLibFileUrl = path.join(
   root,
@@ -94,7 +94,7 @@ await mkdir(join(root, 'dist', commitHash, 'extensions', 'builtin.language-featu
 
 const typescriptDirents = await readdir(typeScriptLibPath)
 for (const typeScriptDirent of typescriptDirents) {
-  if (typeScriptDirent.startsWith('lib.') || typeScriptDirent === 'typescript.js' || typeScriptDirent === 'tsserverlibrary.js') {
+  if (typeScriptDirent.startsWith('lib.') || typeScriptDirent === 'typescript-esm.js' || typeScriptDirent === 'tsserverlibrary.js') {
     await cp(
       join(typeScriptLibPath, typeScriptDirent),
       join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', 'lib', typeScriptDirent)
