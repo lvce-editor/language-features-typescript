@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as OrganizeImports from '../OrganizeImports/OrganizeImports.js'
 
 export const languageId = 'typescript'

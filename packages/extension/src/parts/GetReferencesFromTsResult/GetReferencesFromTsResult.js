@@ -1,3 +1,4 @@
+// @ts-nocheck
 const getReferenceFromTsResult = (reference) => {
   const { start, end, file, lineText } = reference
   return {

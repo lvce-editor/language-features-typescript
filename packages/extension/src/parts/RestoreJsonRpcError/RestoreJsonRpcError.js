@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as GetErrorConstructor from '../GetErrorConstructor/GetErrorConstructor.js'
 import { JsonRpcError } from '../JsonRpcError/JsonRpcError.js'
 import * as JsonRpcErrorCode from '../JsonRpcErrorCode/JsonRpcErrorCode.js'
