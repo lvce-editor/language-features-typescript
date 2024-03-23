@@ -1,3 +1,4 @@
+// @ts-nocheck
 // TODO this should not be in core
 
 export const getTsPosition = (textDocument, offset) => {

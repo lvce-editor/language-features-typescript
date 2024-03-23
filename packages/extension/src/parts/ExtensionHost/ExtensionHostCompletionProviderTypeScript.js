@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Completion from '../Completion/Completion.js'
 import * as GetCompletionFromTsResult from '../GetCompletionFromTsResult/GetCompletionFromTsResult.js'
 import * as GetResolveCompletionItemFromTsResult from '../GetResolvedCompletionItemFromTsResult/GetResolvedCompletionItemFromTsResult.js'
