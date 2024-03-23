@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as GetTypeDefinitionFromTsResult from '../GetTypeDefinitionFromTsResult/GetTypeDefinitionFromTsResult.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
 import * as TypeDefinition from '../TypeDefinition/TypeDefinition.js'

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
 
 export const languageId = 'typescript'

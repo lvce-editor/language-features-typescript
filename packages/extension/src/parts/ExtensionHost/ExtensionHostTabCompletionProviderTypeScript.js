@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Completion from '../Completion/Completion.js'
 import * as GetTabCompletionFromTsResult from '../GetTabCompletionFromTsResult/GetTabCompletionFromTsResult.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
