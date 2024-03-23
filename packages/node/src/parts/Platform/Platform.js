@@ -11,6 +11,7 @@ export const state = {
     );
   },
   getTsServerPath() {
+    // @ts-ignore
     const configuredTsServerPath = vscode.getConfiguration(
       "typescript.tsserverPath"
     );

@@ -1,7 +1,7 @@
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 
 /**
- * @type {vscode.CompletionProvider['provideCompletions']}
+ * @type {any}
  */
 export const getHover = async (params) => {
   const tsResult = await TsServerRequests.quickInfo(params)
