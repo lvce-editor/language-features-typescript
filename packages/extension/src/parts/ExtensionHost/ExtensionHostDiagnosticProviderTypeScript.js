@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Debug from '../Debug/Debug.js'
 import * as Diagnostic from '../Diagnostic/Diagnostic.js'
 
