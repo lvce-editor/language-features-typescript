@@ -1,137 +1,123 @@
 import { packageExtension } from '@lvce-editor/package-extension'
-import fs, { readFileSync, writeFileSync } from 'node:fs'
-import path, { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { bundleJs } from './bundle-js.js'
+import { execSync } from 'child_process'
+import fs, { cpSync, readFileSync, writeFileSync } from 'fs'
+import path, { join } from 'path'
+import { root } from './root.js'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const NOT_NEEDED = [
+  'node_modules/minimist/.github',
+  'node_modules/minimist/example',
+  'node_modules/minimist/test',
+  'node_modules/minimist/.eslintrc',
+  'node_modules/minimist/.nycrc',
+  'node_modules/minimist/CHANGELOG.md',
+  'node_modules/typescript/bin',
+  'node_modules/typescript/loc',
+  'node_modules/typescript/AUTHORS.md',
+  'node_modules/typescript/CODE_OF_CONDUCT.md',
+  'node_modules/typescript/LICENSE.txt',
+  'node_modules/typescript/SECURITY.md',
+  'node_modules/typescript/lib/cs',
+  'node_modules/typescript/lib/de',
+  'node_modules/typescript/lib/es',
+  'node_modules/typescript/lib/fr',
+  'node_modules/typescript/lib/it',
+  'node_modules/typescript/lib/ja',
+  'node_modules/typescript/lib/ko',
+  'node_modules/typescript/lib/pl',
+  'node_modules/typescript/lib/pt-br',
+  'node_modules/typescript/lib/ru',
+  'node_modules/typescript/lib/tr',
+  'node_modules/typescript/lib/zh-cn',
+  'node_modules/typescript/lib/zh-tw',
+  'node_modules/typescript/lib/README.md',
+  'node_modules/typescript/lib/tsc.js',
+  'node_modules/typescript/lib/tsserverlibrary.d.ts',
+  'node_modules/typescript/lib/typescript.d.ts',
+  'node_modules/typescript/lib/typescriptServices.js',
+  'node_modules/typescript/lib/typescriptServices.d.ts',
+  'node_modules/typescript/lib/protocol.d.ts',
+  'node_modules/typescript/lib/typingsInstaller.js',
+]
 
-const root = path.join(__dirname, '..', '..', '..')
 const extension = path.join(root, 'packages', 'extension')
-const prettierWorker = path.join(root, 'packages', 'prettier-worker')
+const node = path.join(root, 'packages', 'node')
+const dist = join(root, 'dist')
 
-fs.rmSync(join(root, 'dist'), { recursive: true, force: true })
+fs.rmSync(dist, { recursive: true, force: true })
 
-fs.mkdirSync(path.join(root, 'dist'))
+fs.mkdirSync(dist)
 
-const packageJson = JSON.parse(
-  readFileSync(join(extension, 'package.json')).toString(),
-)
-delete packageJson.xo
+const packageJson = JSON.parse(readFileSync(join(extension, 'package.json')).toString())
 delete packageJson.jest
-delete packageJson.prettier
 delete packageJson.devDependencies
 
-fs.writeFileSync(
-  join(root, 'dist', 'package.json'),
-  JSON.stringify(packageJson, null, 2) + '\n',
-)
-fs.copyFileSync(join(root, 'README.md'), join(root, 'dist', 'README.md'))
-fs.copyFileSync(join(extension, 'icon.png'), join(root, 'dist', 'icon.png'))
-fs.copyFileSync(
-  join(extension, 'extension.json'),
-  join(root, 'dist', 'extension.json'),
-)
-fs.cpSync(join(extension, 'src'), join(root, 'dist', 'src'), {
+fs.writeFileSync(join(dist, 'package.json'), JSON.stringify(packageJson, null, 2) + '\n')
+fs.copyFileSync(join(root, 'README.md'), join(dist, 'README.md'))
+fs.copyFileSync(join(extension, 'icon.png'), join(dist, 'icon.png'))
+fs.copyFileSync(join(extension, 'extension.json'), join(dist, 'extension.json'))
+fs.cpSync(join(extension, 'src'), join(dist, 'src'), {
   recursive: true,
 })
 
-fs.mkdirSync(
-  join(root, 'dist', 'prettier-worker', 'third_party', 'prettier', 'plugins'),
-  {
-    recursive: true,
-  },
-)
-for (const file of ['standalone.mjs', 'README.md', 'LICENSE', 'package.json']) {
-  fs.cpSync(
-    join(root, 'node_modules', 'prettier', file),
-    join(root, 'dist', 'prettier-worker', 'third_party', 'prettier', file),
-    {
-      recursive: true,
-    },
-  )
+const getAllDependencies = (obj) => {
+  if (!obj || !obj.dependencies) {
+    return []
+  }
+  return [obj, ...Object.values(obj.dependencies).flatMap(getAllDependencies)]
 }
-const dirents = fs.readdirSync(
-  join(root, 'node_modules', 'prettier', 'plugins'),
-)
-for (const dirent of dirents) {
-  if (dirent.endsWith('.mjs')) {
-    fs.cpSync(
-      join(root, 'node_modules', 'prettier', 'plugins', dirent),
-      join(
-        root,
-        'dist',
-        'prettier-worker',
-        'third_party',
-        'prettier',
-        'plugins',
-        dirent,
-      ),
-    )
+
+const getDependencies = (cwd) => {
+  const stdout = execSync('npm list --omit=dev --parseable --all', {
+    cwd,
+  }).toString()
+  const lines = stdout.split('\n')
+  return lines.slice(1, -1)
+}
+
+const copyDependencies = (from, to) => {
+  const dependencies = getDependencies(from)
+  for (const dependency of dependencies) {
+    fs.cpSync(dependency, join(dist, to, dependency.slice(from.length)), {
+      recursive: true,
+    })
   }
 }
-fs.cpSync(
-  join(prettierWorker, 'src'),
-  join(root, 'dist', 'prettier-worker', 'src'),
-  {
-    recursive: true,
-  },
-)
+
+copyDependencies(extension, '')
+
+copyDependencies(node, 'node')
+
+for (const notNeeded of NOT_NEEDED) {
+  fs.rmSync(join(dist, 'node', notNeeded), { force: true, recursive: true })
+}
+
+cpSync(join(root, 'packages', 'node', 'src'), join(dist, 'node', 'src'), {
+  recursive: true,
+})
+cpSync(join(root, 'packages', 'node', 'package.json'), join(dist, 'node', 'package.json'))
+
+cpSync(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
+  recursive: true,
+})
 
 const replace = ({ path, occurrence, replacement }) => {
-  const oldContent = readFileSync(path, 'utf8')
+  const oldContent = readFileSync(path, 'utf-8')
+  if (!oldContent.includes(occurrence)) {
+    throw new Error(`occurrence not found ${occurrence}`)
+  }
   const newContent = oldContent.replace(occurrence, replacement)
   writeFileSync(path, newContent)
 }
 
-const workerUrlFilePath = path.join(
-  root,
-  'dist',
-  'src',
-  'parts',
-  'PrettierWorkerUrl',
-  'PrettierWorkerUrl.js',
-)
 replace({
-  path: workerUrlFilePath,
-  occurrence: '../../../../prettier-worker/src/prettierWorkerMain.ts',
-  replacement: '../prettier-worker/dist/prettierWorkerMain.js',
+  path: join(root, 'dist', 'src', 'parts', 'GetTsClientPathNode', 'GetTsClientPathNode.js'),
+  occurrence: '../node/',
+  replacement: 'node/',
 })
-
-const modulePath = path.join(
-  root,
-  'dist',
-  'prettier-worker',
-  'src',
-  'parts',
-  'PrettierModule',
-  'PrettierModule.ts',
-)
-
-replace({
-  path: modulePath,
-  occurrence: '../../../../../node_modules/prettier',
-  replacement: '../third_party/prettier',
-})
-
-replace({
-  path: join(root, 'dist', 'extension.json'),
-  occurrence: 'src/prettierMain.ts',
-  replacement: 'dist/prettierMain.js',
-})
-
-await bundleJs(
-  join(root, 'dist', 'prettier-worker', 'src', 'prettierWorkerMain.ts'),
-  join(root, 'dist', 'prettier-worker', 'dist', 'prettierWorkerMain.js'),
-)
-
-await bundleJs(
-  join(root, 'dist', 'src', 'prettierMain.ts'),
-  join(root, 'dist', 'dist', 'prettierMain.js'),
-)
 
 await packageExtension({
   highestCompression: true,
-  inDir: join(root, 'dist'),
+  inDir: join(dist),
   outFile: join(root, 'extension.tar.br'),
 })
