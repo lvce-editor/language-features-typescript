@@ -14,11 +14,23 @@
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
     "typescript": "^5.4.3"
   },
   "jest": {
-    "testMatch": [
-      "<rootDir>/test/*.test.js"
-    ]
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
   }
 }
