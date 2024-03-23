@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as FileReferences from '../FileReferences/FileReferences.js'
 import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'

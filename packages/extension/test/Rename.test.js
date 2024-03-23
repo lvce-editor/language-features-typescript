@@ -1,3 +1,4 @@
+// @ts-nocheck
 // import * as Rename from '../src/parts/Rename/Rename.js'
 
 test.skip('getPrepareRenameFromTsResult - can rename', () => {

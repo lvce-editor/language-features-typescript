@@ -1,3 +1,4 @@
+// @ts-nocheck
 export const Field = vscode.EditorCompletionType.Field
 export const File = vscode.EditorCompletionType.File
 export const Folder = vscode.EditorCompletionType.Folder

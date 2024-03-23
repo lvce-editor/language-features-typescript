@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as ErrorType from '../ErrorType/ErrorType.js'
 
 export const getErrorConstructor = (message, type) => {

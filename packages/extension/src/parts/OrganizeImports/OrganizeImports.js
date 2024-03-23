@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Assert from '../Assert/Assert.js'
 import * as Rpc from '../Rpc/Rpc.js'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'

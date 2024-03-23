@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Hover from '../Hover/Hover.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
 

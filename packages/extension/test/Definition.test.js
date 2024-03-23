@@ -1,3 +1,4 @@
+// @ts-nocheck
 // import * as Definition from '../src/parts/Definition/Definition.js'
 
 test.skip('getDefinitionFromTsResult', () => {

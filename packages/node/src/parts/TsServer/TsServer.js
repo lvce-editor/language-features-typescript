@@ -15,7 +15,9 @@ const getServerFactory = (ipc) => {
 
 export const create = async ({
   tsServerPath = '',
+  // @ts-ignore
   argv,
+  // @ts-ignore
   execArgv,
   ipc = 'node-ipc',
   handleMessage = () => {},

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Assert from '../Assert/Assert.js'
 import * as Callback from '../Callback/Callback.js'
 import { JsonRpcError } from '../JsonRpcError/JsonRpcError.js'

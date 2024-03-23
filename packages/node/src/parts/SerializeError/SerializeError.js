@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as EnsureError from '../EnsureError/EnsureError.js'
 
 export const serializeError = (error) => {

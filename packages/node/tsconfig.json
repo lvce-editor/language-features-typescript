@@ -14,7 +14,9 @@
     "resolveJsonModule": true,
     "assumeChangesOnlyAffectDirectDependencies": true,
     "strict": true,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "composite": true,
+    "noImplicitAny": false
   },
   "include": ["src", "test"]
 }

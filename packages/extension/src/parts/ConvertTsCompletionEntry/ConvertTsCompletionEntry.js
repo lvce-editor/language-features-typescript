@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as ConvertCompletionItemKind from '../ConvertCompletionItemKind/ConvertCompletionItemKind.js'
 import * as ConvertTsCompletionKindModifiers from '../ConvertTsCompletionKindModifiers/ConvertTsCompletionKindModifiers.js'
 

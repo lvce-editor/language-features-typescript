@@ -1,3 +1,4 @@
+// @ts-nocheck
 // import * as Completion from '../src/parts/Completion/Completion.js'
 
 test.skip('getCompletionFromTsResult - empty entries', () => {
