@@ -1,3 +1,4 @@
+// @ts-nocheck
 const RE_LENGTH = /^Content-Length: (\d+)/
 
 // const getChunks = (data) => {

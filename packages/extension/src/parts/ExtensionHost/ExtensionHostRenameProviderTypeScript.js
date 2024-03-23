@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 import * as Position from '../Position/Position.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'

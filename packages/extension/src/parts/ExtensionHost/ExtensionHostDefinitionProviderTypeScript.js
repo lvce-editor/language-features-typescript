@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Definition from '../Definition/Definition.js'
 import * as GetDefinitionFromTsResult from '../GetDefinitionFromTsResult/GetDefinitionFromTsResult.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'

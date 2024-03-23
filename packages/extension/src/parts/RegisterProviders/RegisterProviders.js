@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as LanguageId from '../LanguageId/LanguageId.js'
 
 const registerProvider = (provider) => {

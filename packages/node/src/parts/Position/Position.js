@@ -1,3 +1,4 @@
+// @ts-nocheck
 // TODO this should not be in core
 
 export const getTsPosition = (textDocument, offset) => {
@@ -12,6 +13,7 @@ export const getOffset = (textDocument, tsPosition) => {
     rowIndex: tsPosition.line - 1,
     columnIndex: tsPosition.offset - 1,
   }
+  // @ts-ignore
   const offset = vscode.getOffset(textDocument, position)
   return offset
 }

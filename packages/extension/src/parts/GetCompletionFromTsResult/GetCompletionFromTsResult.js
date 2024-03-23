@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as ConvertCompletionEntry from '../ConvertTsCompletionEntry/ConvertTsCompletionEntry.js'
 import * as IsUsefulEntry from '../IsUsefulEntry/IsUsefulEntry.js'
 

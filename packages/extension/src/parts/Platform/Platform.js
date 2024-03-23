@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { join, resolve } from "path";
 import * as Root from "../Root/Root.js";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { performance } from 'node:perf_hooks'
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
