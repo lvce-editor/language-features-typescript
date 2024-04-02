@@ -4,26 +4,17 @@ import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import path, { join } from 'node:path'
 import { root } from './root.js'
 
-
-await exportStatic({
+const { commitHash } = await exportStatic({
   extensionPath: 'packages/extension',
   testPath: 'packages/e2e',
   root,
 })
 
-const RE_COMMIT_HASH = /^[a-z\d]+$/
-const isCommitHash = (dirent) => {
-  return dirent.length === 7 && dirent.match(RE_COMMIT_HASH)
-}
-
-const dirents = await readdir(path.join(root, 'dist'))
-const commitHash = dirents.find(isCommitHash) || ''
-
 for (const dirent of ['src']) {
   await cp(
     path.join(root, 'packages', 'web', dirent),
     path.join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'web', dirent),
-    { recursive: true, force: true }
+    { recursive: true, force: true },
   )
 }
 
@@ -50,7 +41,7 @@ const tsClientPathWeb = path.join(
   'src',
   'parts',
   'GetTsClientPathWeb',
-  'GetTsClientPathWeb.js'
+  'GetTsClientPathWeb.js',
 )
 
 await replace(tsClientPathWeb, '../../../../web/src/webMain.js', '../../../web/src/webMain.js')
@@ -65,10 +56,14 @@ const getTypescriptPath = path.join(
   'src',
   'parts',
   'GetTypeScriptPath',
-  'GetTypeScriptPath.js'
+  'GetTypeScriptPath.js',
 )
 
-await replace(getTypescriptPath, '../../../../extension/node_modules/typescript/lib/typescript-esm.js', '../../../../typescript/lib/typescript-esm.js')
+await replace(
+  getTypescriptPath,
+  '../../../../extension/node_modules/typescript/lib/typescript-esm.js',
+  '../../../../typescript/lib/typescript-esm.js',
+)
 
 const getLibFileUrl = path.join(
   root,
@@ -80,7 +75,7 @@ const getLibFileUrl = path.join(
   'src',
   'parts',
   'GetLibFileUrl',
-  'GetLibFileUrl.js'
+  'GetLibFileUrl.js',
 )
 
 await replace(getLibFileUrl, '../../../../extension/node_modules/typescript', '../../../../typescript')
@@ -95,7 +90,7 @@ for (const typeScriptDirent of typescriptDirents) {
   if (typeScriptDirent.startsWith('lib.') || typeScriptDirent === 'typescript-esm.js' || typeScriptDirent === 'tsserverlibrary.js') {
     await cp(
       join(typeScriptLibPath, typeScriptDirent),
-      join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', 'lib', typeScriptDirent)
+      join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', 'lib', typeScriptDirent),
     )
   }
 }
@@ -132,5 +127,5 @@ writeFileSync(
   return a + b
 }
 
-add(1,2,3,4)`
+add(1,2,3,4)`,
 )
