@@ -1,6 +1,3 @@
-// @ts-nocheck
-import * as Debug from '../Debug/Debug.js'
-import * as Diagnostic from '../Diagnostic/Diagnostic.js'
 import * as TypeScriptErrorCodes from '../TypeScriptErrorCodes/TypeScriptErrorCodes.js'
 
 // Style check diagnostics that can be reported as warnings
@@ -26,9 +23,6 @@ const getSeverity = (diagnostic) => {
 }
 /**
  *
- * @param {vscode.TextDocument} textDocument
- * @param {*} diagnostic
- * @returns {vscode.Diagnostic}
  */
 const convertTsDiagnostic = (textDocument, diagnostic) => {
   const startPosition = {
@@ -39,8 +33,8 @@ const convertTsDiagnostic = (textDocument, diagnostic) => {
     rowIndex: diagnostic.end.line - 1,
     columnIndex: diagnostic.end.offset - 1,
   }
-  const startOffset = vscode.getOffset(textDocument, startPosition)
-  const endOffset = vscode.getOffset(textDocument, endPosition)
+  // const startOffset = vscode.getOffset(textDocument, startPosition)
+  // const endOffset = vscode.getOffset(textDocument, endPosition)
 
   return {
     rowIndex: diagnostic.start.line - 1,
@@ -54,11 +48,9 @@ const convertTsDiagnostic = (textDocument, diagnostic) => {
     source: 'ts',
     code: diagnostic.code,
   }
-  // console.log({ diagnostic })
 }
 
 export const getDiagnosticsFromTsResult = (textDocument, tsResult) => {
-  console.log(tsResult)
   const diagnostics = []
   for (const tsDiagnostic of tsResult) {
     diagnostics.push(convertTsDiagnostic(textDocument, tsDiagnostic))
