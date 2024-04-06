@@ -25,17 +25,6 @@ const getSeverity = (diagnostic) => {
  *
  */
 const convertTsDiagnostic = (textDocument, diagnostic) => {
-  const startPosition = {
-    rowIndex: diagnostic.start.line - 1,
-    columnIndex: diagnostic.start.offset - 1,
-  }
-  const endPosition = {
-    rowIndex: diagnostic.end.line - 1,
-    columnIndex: diagnostic.end.offset - 1,
-  }
-  // const startOffset = vscode.getOffset(textDocument, startPosition)
-  // const endOffset = vscode.getOffset(textDocument, endPosition)
-
   return {
     rowIndex: diagnostic.start.line - 1,
     columnIndex: diagnostic.start.offset - 1, // TODO should be offset based here

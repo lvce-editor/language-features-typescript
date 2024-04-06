@@ -1,7 +1,6 @@
-import * as Diagnostics from '../src/parts/Diagnostics/Diagnostics.ts'
-import * as GetCompletionFromTsResult from '../src/parts/GetCompletionFromTsResult/GetCompletionFromTsResult.ts'
-import { test, expect } from '@jest/globals'
+import { expect, test } from '@jest/globals'
 import type { CompletionInfo } from 'typescript'
+import * as GetCompletionFromTsResult from '../src/parts/GetCompletionFromTsResult/GetCompletionFromTsResult.ts'
 
 test('getCompletionFromTsResult', () => {
   const tsResult: CompletionInfo = {
