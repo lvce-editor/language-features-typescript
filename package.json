@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "lerna bootstrap --ci && node scripts/postinstall.js",
-    "test": "cd packages/extension && npm run test",
+    "test": "lerna run test",
     "dev": "node ./node_modules/@lvce-editor/server/bin/server.js --only-extension=packages/extension --test-path=packages/e2e",
     "type-check": "tsc -b",
     "e2e": "cd packages/e2e && npm run e2e",
