@@ -1,0 +1,9 @@
+export const Field = 8
+export const File = 7
+export const Folder = 6
+export const Function = 3
+export const Keyword = 5
+export const Property = 1
+export const Value = 2
+export const Variable = 4
+export const Unknown = 0
