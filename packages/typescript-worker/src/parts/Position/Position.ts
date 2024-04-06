@@ -3,7 +3,7 @@ import * as Rpc from '../Rpc/Rpc.ts'
 // TODO this should not be in core
 
 export const getTsPosition = async (textDocument, offset) => {
-  const position = await Rpc.invoke('Position.getTsPosition', textDocument, offset)
+  const position = await Rpc.invoke('Position.getPosition', textDocument, offset)
   return {
     line: position.rowIndex + 1,
     offset: position.columnIndex + 1,
