@@ -1,23 +1,17 @@
-// @ts-nocheck
-import * as Completion from '../Completion/Completion.js'
-import * as GetCompletionFromTsResult from '../GetCompletionFromTsResult/GetCompletionFromTsResult.js'
-import * as GetResolveCompletionItemFromTsResult from '../GetResolvedCompletionItemFromTsResult/GetResolvedCompletionItemFromTsResult.js'
-import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.js'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
 
 /**
- * @type {vscode.CompletionProvider['provideCompletions']}
+ * @type {any }
  */
 export const provideCompletions = async (textDocument, offset) => {
-  const tsResult = await Completion.getCompletion(textDocument, offset)
-  const items = GetCompletionFromTsResult.getCompletionFromTsResult(tsResult)
-  return items
+  const worker = await TypeScriptWorker.getInstance()
+  return worker.invoke('Completion.getCompletions', textDocument, offset)
 }
 
 // /**
-//  * @type {vscode.CompletionProvider['resolveCompletionItem']}
+//  * @type {any}
 //  */
 export const resolveCompletionItem = async (textDocument, offset, name, completionItem) => {
-  const tsResult = await ResolveCompletion.resolveCompletion(textDocument, offset, name, completionItem)
-  const result = GetResolveCompletionItemFromTsResult.getResolveCompletionItemFromTsResult(tsResult)
-  return result
+  const worker = await TypeScriptWorker.getInstance()
+  return worker.invoke('Completion.resolveCompletion', textDocument, offset, name, completionItem)
 }
