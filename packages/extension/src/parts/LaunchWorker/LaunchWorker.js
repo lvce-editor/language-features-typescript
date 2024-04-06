@@ -1,3 +1,5 @@
+import * as Command from '../Command/Command.js'
+
 export const launchWorker = async ({ url, name, contentSecurityPolicy }) => {
   // @ts-expect-error
   const rpc = await vscode.createRpc({
@@ -5,6 +7,7 @@ export const launchWorker = async ({ url, name, contentSecurityPolicy }) => {
     url: url,
     name,
     contentSecurityPolicy,
+    execute: Command.execute,
   })
   return rpc
 }
