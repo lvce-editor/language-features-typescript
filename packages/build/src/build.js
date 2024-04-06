@@ -1,4 +1,4 @@
-import { packageExtension, bundleJs } from '@lvce-editor/package-extension'
+import { packageExtension, bundleJs, replace } from '@lvce-editor/package-extension'
 import { execSync } from 'child_process'
 import fs, { cpSync, readFileSync, writeFileSync } from 'fs'
 import path, { join } from 'path'
@@ -101,26 +101,19 @@ cpSync(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
   recursive: true,
 })
 
-await bundleJs(
-  join(root, 'dist',  'src', 'languageFeaturesTypeScriptMain.js'),
-  join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
-)
+await replace({
+  path: join(root, 'dist', 'extension.json'),
+  occurrence: 'src/languageFeaturesTypeScriptMain.js',
+  replacement: 'dist/languageFeaturesTypeScriptMain.js',
+})
 
-
-const replace = ({ path, occurrence, replacement }) => {
-  const oldContent = readFileSync(path, 'utf-8')
-  if (!oldContent.includes(occurrence)) {
-    throw new Error(`occurrence not found ${occurrence}`)
-  }
-  const newContent = oldContent.replace(occurrence, replacement)
-  writeFileSync(path, newContent)
-}
-
-replace({
+await replace({
   path: join(root, 'dist', 'src', 'parts', 'GetTsClientPathNode', 'GetTsClientPathNode.js'),
   occurrence: '../node/',
   replacement: 'node/',
 })
+
+await bundleJs(join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'), join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'))
 
 await packageExtension({
   highestCompression: true,
