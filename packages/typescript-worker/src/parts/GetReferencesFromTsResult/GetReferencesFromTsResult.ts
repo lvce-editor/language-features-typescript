@@ -1,5 +1,5 @@
 const getReferenceFromTsResult = (reference) => {
-  const { start, end, file, lineText } = reference
+  const { start, end, file } = reference
   return {
     uri: file,
     startRowIndex: start.line - 1,
