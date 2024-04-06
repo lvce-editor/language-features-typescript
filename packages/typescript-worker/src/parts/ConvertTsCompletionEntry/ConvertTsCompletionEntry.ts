@@ -1,14 +1,11 @@
 import * as ConvertCompletionItemKind from '../ConvertCompletionItemKind/ConvertCompletionItemKind.ts'
 import * as ConvertTsCompletionKindModifiers from '../ConvertTsCompletionKindModifiers/ConvertTsCompletionKindModifiers.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.cts'
 
 // TODO don't pass lots of data to renderer worker
 // source and data properties are only necessary for resolveCompletionItem
 
-/**
- *
- * @param {import('../TsServerProtocol/TsServerProtocol.js').CompletionEntry} tsEntry
- */
-export const convertTsCompletionEntry = (tsEntry) => {
+export const convertTsCompletionEntry = (tsEntry: TypeScriptProtocol.CompletionEntry) => {
   const { name, kind, source, data, kindModifiers } = tsEntry
   return {
     label: name,
