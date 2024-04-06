@@ -64,6 +64,10 @@ await cp(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
   recursive: true,
 })
 
+await cp(join(root, 'packages', 'typescript-worker', 'src'), join(dist, 'typescript-worker', 'src'), {
+  recursive: true,
+})
+
 await replace({
   path: join(root, 'dist', 'extension.json'),
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
@@ -76,7 +80,15 @@ await replace({
   replacement: 'node/',
 })
 
-await bundleJs(join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'), join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'))
+await bundleJs(
+  join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'),
+  join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+)
+
+await bundleJs(
+  join(root, 'dist', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
+  join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+)
 
 await packageExtension({
   highestCompression: true,
