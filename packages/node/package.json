@@ -14,7 +14,7 @@
   "dependencies": {
     "@lvce-editor/verror": "^1.2.0",
     "minimist": "^1.2.8",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.4"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
