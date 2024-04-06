@@ -1,6 +1,7 @@
 import * as Assert from '../Assert/Assert.ts'
 import * as Position from '../Position/Position.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
+import * as GetCompletionFromTsResult from '../GetCompletionFromTsResult/GetCompletionFromTsResult.ts'
 import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
 
 /**
@@ -16,5 +17,6 @@ export const getCompletion = async (textDocument, offset) => {
     line: tsPosition.line,
     offset: tsPosition.offset,
   })
-  return tsResult
+  const completions = GetCompletionFromTsResult.getCompletionFromTsResult(tsResult)
+  return completions
 }

@@ -21,6 +21,8 @@ const getPosition = (textDocument, offset) => {
 const getFn = (method) => {
   switch (method) {
     case 'TypeScriptRpc.invoke':
+    case 'Completion.getCompletion':
+    case 'ResolveCompletion.resolveCompletion':
       return rpcInvoke
     case 'TypeScriptRpc.listen':
       return rpcListen
