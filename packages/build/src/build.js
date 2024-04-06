@@ -68,6 +68,21 @@ await cp(join(root, 'packages', 'typescript-worker', 'src'), join(dist, 'typescr
   recursive: true,
 })
 
+const assetDirPath = path.join(root, 'dist', 'src', 'parts', 'AssetDir', 'AssetDir.js')
+
+await replace({
+  path: assetDirPath,
+  occurrence: '../../../../',
+  replacement: '../',
+})
+
+const workerUrlFilePath = path.join(root, 'dist', 'src', 'parts', 'TypeScriptWorkerUrl', 'TypeScriptWorkerUrl.js')
+await replace({
+  path: workerUrlFilePath,
+  occurrence: 'src/typescriptWorkerMain.ts',
+  replacement: 'dist/typescriptWorkerMain.js',
+})
+
 await replace({
   path: join(root, 'dist', 'extension.json'),
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
@@ -80,7 +95,10 @@ await replace({
   replacement: 'node/',
 })
 
-await bundleJs(join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'), join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'))
+await bundleJs(
+  join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'),
+  join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+)
 
 await bundleJs(
   join(root, 'dist', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
