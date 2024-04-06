@@ -1,12 +1,5 @@
-import * as IsStyleDiagnostic from '../IsStyleDiagnostic/IsStyleDiagnostic.ts'
+import * as GetDiagnosticSeverity from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.cts'
-
-const getSeverity = (diagnostic) => {
-  if (IsStyleDiagnostic.isStyleCheckDiagnostic(diagnostic.code) && diagnostic.category === 'error') {
-    return 'warning'
-  }
-  return 'error'
-}
 
 /**
  *
@@ -19,7 +12,7 @@ const convertTsDiagnostic = (textDocument: any, diagnostic: TypeScriptProtocol.D
     endColumnIndex: diagnostic.end.offset - 1,
     // endOffset,
     message: diagnostic.text,
-    type: getSeverity(diagnostic),
+    type: GetDiagnosticSeverity.getDiagnosticSeverity(diagnostic),
     uri: textDocument.uri,
     source: 'ts',
     code: diagnostic.code,
