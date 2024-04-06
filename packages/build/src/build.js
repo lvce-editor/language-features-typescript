@@ -1,4 +1,4 @@
-import { packageExtension } from '@lvce-editor/package-extension'
+import { packageExtension, bundleJs } from '@lvce-editor/package-extension'
 import { execSync } from 'child_process'
 import fs, { cpSync, readFileSync, writeFileSync } from 'fs'
 import path, { join } from 'path'
@@ -100,6 +100,12 @@ cpSync(join(root, 'packages', 'node', 'package.json'), join(dist, 'node', 'packa
 cpSync(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
   recursive: true,
 })
+
+await bundleJs(
+  join(root, 'dist',  'src', 'languageFeaturesTypeScriptMain.js'),
+  join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+)
+
 
 const replace = ({ path, occurrence, replacement }) => {
   const oldContent = readFileSync(path, 'utf-8')
