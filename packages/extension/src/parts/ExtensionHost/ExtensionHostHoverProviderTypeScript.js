@@ -1,24 +1,11 @@
-// @ts-nocheck
-import * as Hover from '../Hover/Hover.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
 
 export const languageId = LanguageId.TypeScript
 
-const getHoverFromTsResult = (tsResult) => {
-  if (!tsResult) {
-    return undefined
-  }
-  return {
-    displayString: tsResult.displayString,
-    documentation: tsResult.documentation,
-    languageId: LanguageId.TypeScript,
-  }
-}
-
 /**
- * @type {vscode.HoverProvider['provideHover']}
  */
 export const provideHover = async (textDocument, offset) => {
-  const tsResult = await Hover.getHover(textDocument, offset)
-  return getHoverFromTsResult(tsResult)
+  const worker = await TypeScriptWorker.getInstance()
+  return worker.invoke('Hover.getHover', textDocument, offset)
 }
