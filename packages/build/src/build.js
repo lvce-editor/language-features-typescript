@@ -64,6 +64,21 @@ await cp(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
   recursive: true,
 })
 
+const assetDirPath = path.join(root, 'dist', 'src', 'parts', 'AssetDir', 'AssetDir.js')
+
+replace({
+  path: assetDirPath,
+  occurrence: '../../../../',
+  replacement: '../',
+})
+
+const workerUrlFilePath = path.join(root, 'dist', 'src', 'parts', 'TypeScriptWorkerUrl', 'TypeScriptWorkerUrl.js')
+replace({
+  path: workerUrlFilePath,
+  occurrence: 'src/typescriptWorkerMain.ts',
+  replacement: 'dist/typescriptWorkerMain.js',
+})
+
 await replace({
   path: join(root, 'dist', 'extension.json'),
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
