@@ -1,12 +1,10 @@
-import * as Diagnostic from '../Diagnostic/Diagnostic.js'
-import * as GetDiagnosticFromTsResult from '../GetDiagnosticFromTsResult/GetDiagnosticFromTsResult.js'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
 
 export const languageId = 'typescript'
 
 /**
  */
 export const provideDiagnostics = async (textDocument) => {
-  // Debug.debug(`getting diagnostics for ${textDocument.uri}`)
-  const tsResult = await Diagnostic.getDiagnostics(textDocument)
-  return GetDiagnosticFromTsResult.getDiagnosticsFromTsResult(textDocument, tsResult)
+  const worker = await TypeScriptWorker.getInstance()
+  return worker.invoke('Diagnostic.getDiagnostics', textDocument)
 }
