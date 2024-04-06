@@ -2,6 +2,7 @@ import * as Assert from '../Assert/Assert.ts'
 import * as Position from '../Position/Position.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
+import * as GetHoverFromTsResult from '../GetHoverFromTsResult/GetHoverFromTsResult.ts'
 
 export const getHover = async (textDocument: any, offset: number) => {
   const uri = textDocument.uri
@@ -14,6 +15,6 @@ export const getHover = async (textDocument: any, offset: number) => {
     line: tsPosition.line,
     offset: tsPosition.offset,
   })
-  console.log({ tsResult })
-  return tsResult
+  const hover = GetHoverFromTsResult.getHoverFromTsResult(tsResult)
+  return hover
 }
