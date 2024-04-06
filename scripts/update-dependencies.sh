@@ -30,11 +30,12 @@ function updateDependencies {
 
 
                                                        updateDependencies             &&
-cd packages/e2e                                     && updateDependencies && cd ../.. &&
 cd packages/build                                   && updateDependencies && cd ../.. &&
+cd packages/e2e                                     && updateDependencies && cd ../.. &&
 cd packages/extension                               && updateDependencies && cd ../.. &&
-cd packages/web                                     && updateDependencies && cd ../.. &&
 cd packages/node                                    && updateDependencies && cd ../.. &&
+cd packages/typescript-worker                       && updateDependencies && cd ../.. &&
+cd packages/web                                     && updateDependencies && cd ../.. &&
 
 echo "Great Success!"
 
