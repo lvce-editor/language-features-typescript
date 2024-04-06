@@ -1,4 +1,6 @@
-export const getHoverFromTsResult = (tsResult: any) => {
+import type * as Protocol from '../TypeScriptProtocol/TypeScriptProtocol.d.ts'
+
+export const getHoverFromTsResult = (tsResult: Protocol.QuickInfoResponseBody) => {
   if (!tsResult) {
     return undefined
   }
