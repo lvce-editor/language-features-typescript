@@ -24,3 +24,8 @@ test('getHoverFromTsResult', () => {
     languageId: 'typescript',
   })
 })
+
+test('getHoverFromTsResult - null', () => {
+  const tsResult = null
+  expect(GetHoverFromTsResult.getHoverFromTsResult(tsResult)).toBe(undefined)
+})
