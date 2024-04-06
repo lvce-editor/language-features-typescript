@@ -1,1 +1,1 @@
-console.log('hello from typescript worker')
+export * from '../CommandMap/CommandMap.ts'
