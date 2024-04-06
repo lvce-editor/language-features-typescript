@@ -1,43 +1,16 @@
-// @ts-nocheck
-// import * as Completion from '../src/parts/Completion/Completion.js'
+import * as Diagnostics from '../src/parts/Diagnostics/Diagnostics.ts'
+import { test, expect } from '@jest/globals'
 
-test.skip('getCompletionFromTsResult - empty entries', () => {
-  expect(
-    Completion.getCompletionFromTsResult({
-      entries: [],
-      isGlobalCompletion: true,
-      isMemberCompletion: false,
-      isNewIdentifierLocation: false,
-    })
-  ).toEqual([])
-})
-
-test.skip('getCompletionFromTsResult - normal entries', () => {
-  expect(
-    Completion.getCompletionFromTsResult({
-      entries: [
-        {
-          // @ts-ignore
-          kind: 'keyword',
-          kindModifiers: '',
-          name: 'const',
-          sortText: '15',
-        },
-      ],
-      isGlobalCompletion: true,
-      isMemberCompletion: false,
-      isNewIdentifierLocation: false,
-    })
-  ).toEqual([
+test('diagnostics', () => {
+  const textDocument = {
+    uri: '',
+  }
+  expect(Diagnostics.getDiagnostics(textDocument)).toEqual([
     {
-      label: 'const',
-      snippet: 'const',
-      kind: 5,
+      columnIndex: 0,
+      message: 'test error 1',
+      rowIndex: 0,
+      uri: '',
     },
   ])
-})
-
-// TODO
-test.skip('getCompletionDetailsFromTsResult', () => {
-  expect(Completion.getCompletionDetailsFromTsResult({})).toBeUndefined()
 })
