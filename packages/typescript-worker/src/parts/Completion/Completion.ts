@@ -10,7 +10,7 @@ export const getCompletion = async (textDocument, offset) => {
   const uri = textDocument.uri
   Assert.string(uri)
   await TextDocumentSync.openTextDocuments([textDocument])
-  const tsPosition = Position.getTsPosition(textDocument, offset)
+  const tsPosition = await Position.getTsPosition(textDocument, offset)
   const tsResult = await TypeScriptRpc.invoke('Completion.getCompletion', {
     file: textDocument.uri,
     line: tsPosition.line,

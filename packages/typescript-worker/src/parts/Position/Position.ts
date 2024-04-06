@@ -1,8 +1,9 @@
-// @ts-nocheck
+import * as Rpc from '../Rpc/Rpc.ts'
+
 // TODO this should not be in core
 
-export const getTsPosition = (textDocument, offset) => {
-  const position = vscode.getPosition(textDocument, offset)
+export const getTsPosition = async (textDocument, offset) => {
+  const position = await Rpc.invoke('Position.getTsPosition', textDocument, offset)
   return {
     line: position.rowIndex + 1,
     offset: position.columnIndex + 1,
@@ -14,8 +15,7 @@ export const getOffset = (textDocument, tsPosition) => {
     rowIndex: tsPosition.line - 1,
     columnIndex: tsPosition.offset - 1,
   }
-  const offset = vscode.getOffset(textDocument, position)
-  return offset
+  return Rpc.invoke('Position.getOffset', textDocument, position)
 }
 
 /**
