@@ -64,19 +64,8 @@ await cp(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
   recursive: true,
 })
 
-const assetDirPath = path.join(root, 'dist', 'src', 'parts', 'AssetDir', 'AssetDir.js')
-
-replace({
-  path: assetDirPath,
-  occurrence: '../../../../',
-  replacement: '../',
-})
-
-const workerUrlFilePath = path.join(root, 'dist', 'src', 'parts', 'TypeScriptWorkerUrl', 'TypeScriptWorkerUrl.js')
-replace({
-  path: workerUrlFilePath,
-  occurrence: 'src/typescriptWorkerMain.ts',
-  replacement: 'dist/typescriptWorkerMain.js',
+await cp(join(root, 'packages', 'typescript-worker', 'src'), join(dist, 'typescript-worker', 'src'), {
+  recursive: true,
 })
 
 await replace({
@@ -92,6 +81,11 @@ await replace({
 })
 
 await bundleJs(join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'), join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'))
+
+await bundleJs(
+  join(root, 'dist', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
+  join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+)
 
 await packageExtension({
   highestCompression: true,
