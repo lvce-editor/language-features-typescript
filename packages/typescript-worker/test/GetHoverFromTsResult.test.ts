@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
 import * as GetHoverFromTsResult from '../src/parts/GetHoverFromTsResult/GetHoverFromTsResult.ts'
-import type * as Protocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.d.ts'
+import type * as Protocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.cts'
 
 test('getHoverFromTsResult', () => {
   const tsResult: Protocol.QuickInfoResponseBody = {
