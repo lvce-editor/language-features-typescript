@@ -5,7 +5,7 @@ import * as TypeScriptWorkerUrl from '../TypeScriptWorkerUrl/TypeScriptWorkerUrl
 export const launchTypeScriptWorker = async () => {
   const worker = await LaunchWorker.launchWorker({
     url: TypeScriptWorkerUrl.typeScriptWorkerUrl,
-    name: 'Prettier Worker',
+    name: 'TypeScript Worker',
     contentSecurityPolicy: "default-src 'none'; script-src 'self'",
   })
   const typeScriptPath = await GetTsServerPath.getTsServerPath()
