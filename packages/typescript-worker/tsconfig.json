@@ -16,7 +16,8 @@
     "strict": true,
     "strictNullChecks": false,
     "composite": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "allowImportingTsExtensions": true
   },
   "include": ["src", "test"]
 }
