@@ -1,22 +1,7 @@
-import * as TypeScriptErrorCodes from '../TypeScriptErrorCodes/TypeScriptErrorCodes.ts'
-
-// Style check diagnostics that can be reported as warnings
-const styleCheckDiagnostics = new Set([
-  ...TypeScriptErrorCodes.variableDeclaredButNeverUsed,
-  ...TypeScriptErrorCodes.propertyDeclaretedButNeverUsed,
-  ...TypeScriptErrorCodes.allImportsAreUnused,
-  ...TypeScriptErrorCodes.unreachableCode,
-  ...TypeScriptErrorCodes.unusedLabel,
-  ...TypeScriptErrorCodes.fallThroughCaseInSwitch,
-  ...TypeScriptErrorCodes.notAllCodePathsReturnAValue,
-])
-
-const isStyleCheckDiagnostic = (code) => {
-  return styleCheckDiagnostics.has(code)
-}
+import * as IsStyleDiagnostic from '../IsStyleDiagnostic/IsStyleDiagnostic.ts'
 
 const getSeverity = (diagnostic) => {
-  if (isStyleCheckDiagnostic(diagnostic.code) && diagnostic.category === 'error') {
+  if (IsStyleDiagnostic.isStyleCheckDiagnostic(diagnostic.code) && diagnostic.category === 'error') {
     return 'warning'
   }
   return 'error'
