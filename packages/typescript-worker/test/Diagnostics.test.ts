@@ -1,21 +1,10 @@
-import { beforeEach, expect, jest, test } from '@jest/globals'
-
-beforeEach(() => {
-  jest.resetAllMocks()
-})
-
-jest.unstable_mockModule('../src/parts/TypeScriptRpc/TypeScriptRpc.ts', () => {
-  return {
-    invoke: jest.fn(),
-  }
-})
-
-const Diagnostics = await import('../src/parts/Diagnostics/Diagnostics.ts')
-const TypeScriptRpc = await import('../src/parts/TypeScriptRpc/TypeScriptRpc.ts')
+import { expect, test } from '@jest/globals'
+import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
+import * as Diagnostics from '../src/parts/Diagnostics/Diagnostics.ts'
 
 test('diagnostics', async () => {
-  jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
-    if (method === 'Diagnostic.getDiagnostics') {
+  const typescriptRpc: CommonRpc = {
+    invoke() {
       return [
         {
           category: 'error',
@@ -29,13 +18,15 @@ test('diagnostics', async () => {
           },
           text: 'test text',
         },
-      ]
-    }
-  })
+      ] as any
+    },
+  }
+
   const textDocument = {
     uri: '',
   }
-  expect(await Diagnostics.getDiagnostics(textDocument)).toEqual([
+  const Position = {}
+  expect(await Diagnostics.getDiagnostics(typescriptRpc, Position, textDocument)).toEqual([
     {
       code: undefined,
       columnIndex: 0,
