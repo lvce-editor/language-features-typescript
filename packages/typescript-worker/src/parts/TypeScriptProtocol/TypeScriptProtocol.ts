@@ -7,3 +7,4 @@ export type QuickInfoResponseBody = ts.server.protocol.QuickInfoResponseBody
 export type SemanticDiagnosticsSyncResponse = ts.server.protocol.SemanticDiagnosticsSyncResponse
 export type ReferencesResponseBody = ts.server.protocol.ReferencesResponseBody
 export type ReferencesResponseItem = ts.server.protocol.ReferencesResponseItem
+export type OrganizeImportsResponse = ts.server.protocol.OrganizeImportsResponse
