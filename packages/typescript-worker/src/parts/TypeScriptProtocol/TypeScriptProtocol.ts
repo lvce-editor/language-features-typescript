@@ -10,3 +10,5 @@ export type QuickInfoResponseBody = ts.server.protocol.QuickInfoResponseBody
 export type ReferencesResponseBody = ts.server.protocol.ReferencesResponseBody
 export type ReferencesResponseItem = ts.server.protocol.ReferencesResponseItem
 export type ScriptElementKind = ts.ScriptElementKind
+export type SemanticDiagnosticsSyncResponse = ts.server.protocol.SemanticDiagnosticsSyncResponse
+export type SymbolDisplayPart = ts.SymbolDisplayPart

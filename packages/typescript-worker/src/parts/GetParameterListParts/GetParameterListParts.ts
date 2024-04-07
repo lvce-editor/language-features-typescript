@@ -1,14 +1,10 @@
 // based on github.com/microsoft/vscode/tree/main/extensions/typescript-language-features/src/languageFeatures/util/snippetForFunctionCall.ts (License MIT)
 
-import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.js'
-import * as Character from '../Character/Character.js'
+import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
+import * as Character from '../Character/Character.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
-/**
- *
- * @param {import('typescript').SymbolDisplayPart[]} displayParts
- * @returns
- */
-export const getParameterListParts = (displayParts) => {
+export const getParameterListParts = (displayParts: readonly TypeScriptProtocol.SymbolDisplayPart[]) => {
   const parts = []
   let isInMethod = false
   let hasOptionalParameters = false
