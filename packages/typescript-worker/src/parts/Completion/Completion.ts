@@ -1,18 +1,14 @@
 import * as Assert from '../Assert/Assert.ts'
-import * as Position from '../Position/Position.ts'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
+import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
 import * as GetCompletionFromTsResult from '../GetCompletionFromTsResult/GetCompletionFromTsResult.ts'
-import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 
-/**
- * @type {vscode.CompletionProvider['provideCompletions']}
- */
-export const getCompletion = async (textDocument, offset) => {
+export const getCompletion = async (typeScriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {
   const uri = textDocument.uri
   Assert.string(uri)
-  await TextDocumentSync.openTextDocuments([textDocument])
+  await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
   const tsPosition = await Position.getTsPosition(textDocument, offset)
-  const tsResult = await TypeScriptRpc.invoke('Completion.getCompletion', {
+  const tsResult = await typeScriptRpc.invoke('Completion.getCompletion', {
     file: textDocument.uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
