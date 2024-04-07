@@ -1,12 +1,13 @@
 import * as Assert from '../Assert/Assert.ts'
-import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
+import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
+import * as GetOrganizeImportEditsFromTsResult from '../GetOrganizeImportEditsFromTsResult/GetOrgnizeImportEditsFromTsResult.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 
-export const organizeImports = async (textDocument) => {
+export const organizeImports = async (typescriptRpc: CommonRpc, Position: any, textDocument: any) => {
   const uri = textDocument.uri
   Assert.string(uri)
   await TextDocumentSync.openTextDocuments([textDocument])
-  const tsResult = await TypeScriptRpc.invoke('OrganizeImports.organizeImports', {
+  const tsResult = await typescriptRpc.invoke('OrganizeImports.organizeImports', {
     scope: {
       type: 'file',
       args: {
@@ -15,5 +16,5 @@ export const organizeImports = async (textDocument) => {
     },
     mode: 'All',
   })
-  return tsResult
+  return GetOrganizeImportEditsFromTsResult.getEditsFromTsResult(Position, textDocument, tsResult)
 }
