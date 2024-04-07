@@ -5,3 +5,4 @@ export type Diagnostic = ts.server.protocol.Diagnostic
 export type QuickInfoResponseBody = ts.server.protocol.QuickInfoResponseBody
 export type SemanticDiagnosticsSyncResponse = ts.server.protocol.SemanticDiagnosticsSyncResponse
 export type ReferencesResponseBody = ts.server.protocol.ReferencesResponseBody
+export type ReferencesResponseItem = ts.server.protocol.ReferencesResponseItem

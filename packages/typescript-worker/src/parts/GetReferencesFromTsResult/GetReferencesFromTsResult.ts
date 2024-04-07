@@ -1,4 +1,6 @@
-const getReferenceFromTsResult = (reference: any) => {
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
+
+const getReferenceFromTsResult = (reference: TypeScriptProtocol.ReferencesResponseItem) => {
   const { start, end, file } = reference
   return {
     uri: file,
@@ -9,7 +11,7 @@ const getReferenceFromTsResult = (reference: any) => {
   }
 }
 
-export const getReferencesFromTsResult = (textDocument: any, tsResult: any) => {
+export const getReferencesFromTsResult = (textDocument: any, tsResult: TypeScriptProtocol.ReferencesResponseBody) => {
   const references = tsResult.refs.map(getReferenceFromTsResult)
   return references
 }
