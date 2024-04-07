@@ -1,4 +1,4 @@
-const getReferenceFromTsResult = (reference) => {
+const getReferenceFromTsResult = (reference: any) => {
   const { start, end, file } = reference
   return {
     uri: file,
@@ -9,7 +9,7 @@ const getReferenceFromTsResult = (reference) => {
   }
 }
 
-export const getReferencesFromTsResult = (textDocument, tsResult) => {
+export const getReferencesFromTsResult = (textDocument: any, tsResult: any) => {
   const references = tsResult.refs.map(getReferenceFromTsResult)
   return references
 }
