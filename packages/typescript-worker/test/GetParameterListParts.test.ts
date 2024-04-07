@@ -11,3 +11,175 @@ test('getParameterListParts', () => {
   ]
   expect(GetParameterListParts.getParameterListParts(displayParts)).toEqual([])
 })
+
+test('getParameterListParts - object', () => {
+  const displayParts: TypeScriptProtocol.SymbolDisplayPart[] = [
+    {
+      text: 'function',
+      kind: 'keyword',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: 'complex',
+      kind: 'functionName',
+    },
+    {
+      text: '(',
+      kind: 'punctuation',
+    },
+    {
+      text: '{',
+      kind: 'punctuation',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: 'a',
+      kind: 'parameterName',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: '}',
+      kind: 'punctuation',
+    },
+    {
+      text: ':',
+      kind: 'punctuation',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: '{',
+      kind: 'punctuation',
+    },
+    {
+      text: '\n',
+      kind: 'lineBreak',
+    },
+    {
+      text: '    ',
+      kind: 'space',
+    },
+    {
+      text: 'a',
+      kind: 'propertyName',
+    },
+    {
+      text: ':',
+      kind: 'punctuation',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: 'number',
+      kind: 'keyword',
+    },
+    {
+      text: ';',
+      kind: 'punctuation',
+    },
+    {
+      text: '\n',
+      kind: 'lineBreak',
+    },
+    {
+      text: '}',
+      kind: 'punctuation',
+    },
+    {
+      text: ')',
+      kind: 'punctuation',
+    },
+    {
+      text: ':',
+      kind: 'punctuation',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: 'void',
+      kind: 'keyword',
+    },
+  ]
+  expect(GetParameterListParts.getParameterListParts(displayParts)).toEqual([])
+})
+
+test('getParameterListParts - rest parameters', () => {
+  const displayParts: TypeScriptProtocol.SymbolDisplayPart[] = [
+    {
+      text: 'function',
+      kind: 'keyword',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: 'complex',
+      kind: 'functionName',
+    },
+    {
+      text: '(',
+      kind: 'punctuation',
+    },
+    {
+      text: '...',
+      kind: 'punctuation',
+    },
+    {
+      text: 'items',
+      kind: 'parameterName',
+    },
+    {
+      text: ':',
+      kind: 'punctuation',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: 'any',
+      kind: 'keyword',
+    },
+    {
+      text: '[',
+      kind: 'punctuation',
+    },
+    {
+      text: ']',
+      kind: 'punctuation',
+    },
+    {
+      text: ')',
+      kind: 'punctuation',
+    },
+    {
+      text: ':',
+      kind: 'punctuation',
+    },
+    {
+      text: ' ',
+      kind: 'space',
+    },
+    {
+      text: 'void',
+      kind: 'keyword',
+    },
+  ]
+  expect(GetParameterListParts.getParameterListParts(displayParts)).toEqual([])
+})
