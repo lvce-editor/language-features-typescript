@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
 import * as GetDiagnosticFromTsResult from '../src/parts/GetDiagnosticFromTsResult/GetDiagnosticFromTsResult.ts'
-import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.cts'
+import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
 
 test('empty string', () => {
   const textDocument = {
