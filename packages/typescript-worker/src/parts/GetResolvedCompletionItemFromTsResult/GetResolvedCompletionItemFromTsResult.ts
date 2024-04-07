@@ -1,5 +1,5 @@
-import * as CompleteFunctionCall from '../CompleteFunctionCall/CompleteFunctionCall.js'
-import * as IsTsFunction from '../IsTsFunction/IsTsFunction.js'
+import * as CompleteFunctionCall from '../CompleteFunctionCall/CompleteFunctionCall.ts'
+import * as IsTsFunction from '../IsTsFunction/IsTsFunction.ts'
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 export const getResolveCompletionItemFromTsResult = (

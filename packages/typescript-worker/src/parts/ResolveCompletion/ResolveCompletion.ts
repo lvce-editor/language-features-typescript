@@ -1,7 +1,8 @@
 import * as Assert from '../Assert/Assert.ts'
+import * as GetResolvedCompletionItemFromTsResult from '../GetResolvedCompletionItemFromTsResult/GetResolvedCompletionItemFromTsResult.ts'
 import * as Position from '../Position/Position.ts'
-import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
+import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
 
 const getEntryNames = (name, completionItem) => {
   if (completionItem) {
@@ -30,5 +31,6 @@ export const resolveCompletion = async (textDocument, offset, name, completionIt
     offset: tsPosition.offset,
     entryNames,
   })
-  return tsResult
+  const completion = GetResolvedCompletionItemFromTsResult.getResolveCompletionItemFromTsResult(tsResult)
+  return completion
 }
