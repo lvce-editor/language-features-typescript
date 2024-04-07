@@ -11,3 +11,8 @@ test('getCompletionFromTsResult', () => {
   }
   expect(GetCompletionFromTsResult.getCompletionFromTsResult(tsResult)).toEqual([])
 })
+
+test('getCompletionFromTsResult - empty', () => {
+  const tsResult = undefined
+  expect(GetCompletionFromTsResult.getCompletionFromTsResult(tsResult)).toEqual([])
+})

@@ -5,6 +5,7 @@
     { "path": "./packages/build" },
     { "path": "./packages/e2e" },
     { "path": "./packages/extension" },
+    { "path": "./packages/integration" },
     { "path": "./packages/node" },
     { "path": "./packages/typescript-worker" },
     { "path": "./packages/web" }
