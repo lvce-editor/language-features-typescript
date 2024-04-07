@@ -1,11 +1,27 @@
 import { test, expect } from '@jest/globals'
 import * as Assert from '../src/parts/Assert/Assert.ts'
 
-test('object - error', () => {
+test('object', () => {
   expect(Assert.object({})).toBeUndefined()
 })
 
-test('object - error', () => {
+test('object - error - function', () => {
+  expect(() => Assert.object(() => {})).toThrow(new Error('expected value to be of type object'))
+})
+
+test('object - error - null', () => {
+  expect(() => Assert.object(null)).toThrow(new Error('expected value to be of type object'))
+})
+
+test('object - error - symbol', () => {
+  expect(() => Assert.object(Symbol())).toThrow(new Error('expected value to be of type object'))
+})
+
+test('object - error - undefined', () => {
+  expect(() => Assert.object(undefined)).toThrow(new Error('expected value to be of type object'))
+})
+
+test('object - error - string', () => {
   expect(() => {
     Assert.object('')
   }).toThrow(new Error('expected value to be of type object'))
