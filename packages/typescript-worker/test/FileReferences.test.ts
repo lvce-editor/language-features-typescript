@@ -16,11 +16,9 @@ const TypeScriptRpc = await import('../src/parts/TypeScriptRpc/TypeScriptRpc.ts'
 test('getFileReferences', async () => {
   jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
     if (method === 'References.getFileReferences') {
-      return [
-        {
-          refs: [],
-        },
-      ]
+      return {
+        refs: [],
+      }
     }
   })
   const textDocument = {
