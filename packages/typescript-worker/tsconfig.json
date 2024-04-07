@@ -18,7 +18,8 @@
     "composite": true,
     "noImplicitAny": false,
     "allowImportingTsExtensions": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["src", "test"]
 }
