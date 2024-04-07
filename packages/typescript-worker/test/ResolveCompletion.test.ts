@@ -26,7 +26,11 @@ test('resolveCompletion', async () => {
   })
   jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
     if (method === 'ResolveCompletion.resolveCompletion') {
-      return {}
+      return [
+        {
+          kind: 'abc',
+        },
+      ]
     }
   })
   const textDocument = {
@@ -44,9 +48,7 @@ test('resolveCompletion - no item', async () => {
     columnIndex: 0,
   })
   jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
-    if (method === 'ResolveCompletion.resolveCompletion') {
-      return {}
-    }
+    return []
   })
   const textDocument = {
     uri: '',
@@ -54,5 +56,5 @@ test('resolveCompletion - no item', async () => {
   const offset = 0
   const name = ''
   const completionItem = undefined
-  expect(await ResolveCompletion.resolveCompletion(textDocument, offset, name, completionItem)).toEqual({})
+  expect(await ResolveCompletion.resolveCompletion(textDocument, offset, name, completionItem)).toEqual(undefined)
 })
