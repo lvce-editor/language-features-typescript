@@ -9,7 +9,7 @@ import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
 export const commandMap = {
   'Completion.getCompletions': WrapCommand.wrapCommand(Completion.getCompletion),
-  'Completion.resolveCompletion': ResolveCompletion.resolveCompletion,
+  'Completion.resolveCompletion': WrapCommand.wrapCommand(ResolveCompletion.resolveCompletion),
   'Diagnostic.getDiagnostics': WrapCommand.wrapCommand(Diagnostics.getDiagnostics),
   'Hover.getHover': WrapCommand.wrapCommand(Hover.getHover),
   'Initialize.initialize': Initialize.initialize,

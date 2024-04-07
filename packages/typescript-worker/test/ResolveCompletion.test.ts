@@ -1,60 +1,57 @@
-import { beforeEach, expect, jest, test } from '@jest/globals'
-
-beforeEach(() => {
-  jest.resetAllMocks()
-})
-
-jest.unstable_mockModule('../src/parts/TypeScriptRpc/TypeScriptRpc.ts', () => {
-  return {
-    invoke: jest.fn(),
-  }
-})
-jest.unstable_mockModule('../src/parts/Rpc/Rpc.ts', () => {
-  return {
-    invoke: jest.fn(),
-  }
-})
-
-const ResolveCompletion = await import('../src/parts/ResolveCompletion/ResolveCompletion.ts')
-const TypeScriptRpc = await import('../src/parts/TypeScriptRpc/TypeScriptRpc.ts')
-const Rpc = await import('../src/parts/Rpc/Rpc.ts')
+import { expect, jest, test } from '@jest/globals'
+import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
+import * as ResolveCompletion from '../src/parts/ResolveCompletion/ResolveCompletion.ts'
 
 test('resolveCompletion', async () => {
-  jest.spyOn(Rpc, 'invoke').mockResolvedValue({
-    rowIndex: 0,
-    columnIndex: 0,
-  })
-  jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
-    if (method === 'ResolveCompletion.resolveCompletion') {
+  const typeScriptRpc: CommonRpc = {
+    invoke: jest.fn(async () => {
       return [
         {
           kind: 'abc',
         },
-      ]
-    }
-  })
+      ] as any
+    }),
+  }
+  const Position = {
+    getTsPosition() {
+      return {
+        line: 0,
+        column: 0,
+      }
+    },
+  }
   const textDocument = {
     uri: '',
   }
   const offset = 0
   const name = ''
   const completionItem = {}
-  expect(await ResolveCompletion.resolveCompletion(textDocument, offset, name, completionItem)).toEqual({})
+  expect(
+    await ResolveCompletion.resolveCompletion(typeScriptRpc, Position, textDocument, offset, name, completionItem),
+  ).toEqual({})
 })
 
 test('resolveCompletion - no item', async () => {
-  jest.spyOn(Rpc, 'invoke').mockResolvedValue({
-    rowIndex: 0,
-    columnIndex: 0,
-  })
-  jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
-    return []
-  })
+  const typeScriptRpc: CommonRpc = {
+    invoke: jest.fn(async () => {
+      return [] as any
+    }),
+  }
+  const Position = {
+    getTsPosition() {
+      return {
+        line: 0,
+        column: 0,
+      }
+    },
+  }
   const textDocument = {
     uri: '',
   }
   const offset = 0
   const name = ''
   const completionItem = undefined
-  expect(await ResolveCompletion.resolveCompletion(textDocument, offset, name, completionItem)).toEqual(undefined)
+  expect(
+    await ResolveCompletion.resolveCompletion(typeScriptRpc, Position, textDocument, offset, name, completionItem),
+  ).toEqual(undefined)
 })
