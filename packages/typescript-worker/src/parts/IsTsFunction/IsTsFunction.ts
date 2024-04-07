@@ -1,5 +1,5 @@
-import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.js'
-import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.js'
+import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 export const isFunction = (tsResult: TypeScriptProtocol.CompletionEntryDetails) => {
   switch (tsResult.kind) {
