@@ -10,11 +10,7 @@ export const getTsPosition = async (textDocument, offset) => {
   }
 }
 
-export const getOffset = (textDocument, tsPosition) => {
-  const position = {
-    rowIndex: tsPosition.line - 1,
-    columnIndex: tsPosition.offset - 1,
-  }
+export const getOffset = (textDocument, position) => {
   return Rpc.invoke('Position.getOffset', textDocument, position)
 }
 
