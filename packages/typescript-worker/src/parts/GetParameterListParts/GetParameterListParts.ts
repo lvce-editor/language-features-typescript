@@ -1,7 +1,7 @@
 // based on github.com/microsoft/vscode/tree/main/extensions/typescript-language-features/src/languageFeatures/util/snippetForFunctionCall.ts (License MIT)
 
-import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
 import * as Character from '../Character/Character.ts'
+import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 export const getParameterListParts = (displayParts: readonly TypeScriptProtocol.SymbolDisplayPart[]) => {
@@ -47,7 +47,7 @@ export const getParameterListParts = (displayParts: readonly TypeScriptProtocol.
             break outer
           }
         } else if (part.text === Character.Ellipsis && parenCount === 1) {
-          // Found rest parmeter. Do not fill in any further arguments
+          // Found rest parameter. Do not fill in any further arguments
           hasOptionalParameters = true
           break outer
         } else if (part.text === Character.CurlyOpen) {
