@@ -1,7 +1,7 @@
 import * as FileReferences from '../FileReferences/FileReferences.ts'
 import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.ts'
 import * as Position from '../Position/Position.ts'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
 
 const getReferences = async (textDocument: any, offset: number) => {
