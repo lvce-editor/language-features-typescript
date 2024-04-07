@@ -1,6 +1,7 @@
 import type * as ts from 'typescript/lib/tsserverlibrary.js'
 
 export type CompletionEntry = ts.server.protocol.CompletionEntry
+export type CompletionInfoResponse = ts.server.protocol.CompletionInfoResponse
 export type CompletionEntryDetails = ts.server.protocol.CompletionEntryDetails
 export type DefinitionInfo = ts.server.protocol.DefinitionInfo
 export type Diagnostic = ts.server.protocol.Diagnostic
