@@ -1,26 +1,23 @@
-import { beforeEach, expect, jest, test } from '@jest/globals'
-
-beforeEach(() => {
-  jest.resetAllMocks()
-})
-
-jest.unstable_mockModule('../src/parts/TypeScriptRpc/TypeScriptRpc.ts', () => {
-  return {
-    invoke: jest.fn(),
-  }
-})
-
-const OrganizeImports = await import('../src/parts/OrganizeImports/OrganizeImports.ts')
-const TypeScriptRpc = await import('../src/parts/TypeScriptRpc/TypeScriptRpc.ts')
+import { expect, jest, test } from '@jest/globals'
+import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
+import * as OrganizeImports from '../src/parts/OrganizeImports/OrganizeImports.ts'
 
 test('organizeImports', async () => {
-  jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
-    if (method === 'OrganizeImports.organizeImports') {
-      return []
-    }
-  })
+  const typeScriptRpc: CommonRpc = {
+    invoke: jest.fn(async () => {
+      return [] as any
+    }),
+  }
+  const Position = {
+    getTsPosition() {
+      return {
+        line: 0,
+        column: 0,
+      }
+    },
+  }
   const textDocument = {
     uri: '',
   }
-  expect(await OrganizeImports.organizeImports(textDocument)).toEqual([])
+  expect(await OrganizeImports.organizeImports(typeScriptRpc, Position, textDocument)).toEqual([])
 })

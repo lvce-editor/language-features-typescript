@@ -1,41 +1,17 @@
-// @ts-nocheck
-import * as OrganizeImports from '../OrganizeImports/OrganizeImports.js'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
 
 export const languageId = 'typescript'
-
-const getEditsFromTsResult = (textDocument, tsResult) => {
-  // TODO handle case when edits are for a different file
-  const edits = []
-  for (const item of tsResult) {
-    for (const textChange of item.textChanges) {
-      const { start, end, newText } = textChange
-      const startOffset = vscode.getOffset(textDocument, { rowIndex: start.line - 1, columnIndex: start.offset - 1 })
-      const endOffset = vscode.getOffset(textDocument, {
-        rowIndex: end.line - 1,
-        columnIndex: end.offset - 1,
-      })
-      edits.push({
-        startOffset,
-        endOffset,
-        inserted: newText,
-      })
-    }
-  }
-  return edits
-}
 
 const organizeImports = {
   kind: 'source.organizeImports', // TODO use numeric code action type
   name: 'Organize Imports',
   async execute(textDocument) {
-    const tsResult = await OrganizeImports.organizeImports(textDocument)
-    const edits = getEditsFromTsResult(textDocument, tsResult)
-    return edits
+    const worker = await TypeScriptWorker.getInstance()
+    return worker.invoke('OrganizeImports.organizeImports', textDocument)
   },
 }
 
 /**
- * @type {vscode.ClosingTagProvider['provideClosingTag']}
  */
 export const provideCodeActions = async () => {
   return [organizeImports]
