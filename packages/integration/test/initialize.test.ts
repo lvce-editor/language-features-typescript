@@ -6,11 +6,6 @@ test('completion', async () => {
   const worker = await testWorker({
     execMap,
   })
-  const uri = '/test/file.html'
-  const content = ' <h1>hello world</h1>'
-  expect(await worker.execute('Prettier.format', uri, content)).toEqual({
-    startOffset: 0,
-    endOffset: 21,
-    inserted: '<h1>hello world</h1>\n',
-  })
+  const path = ''
+  expect(await worker.execute('Initialize.initialize', path)).toEqual(undefined)
 })
