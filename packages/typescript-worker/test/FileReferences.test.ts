@@ -17,12 +17,24 @@ test('getFileReferences', async () => {
   jest.spyOn(TypeScriptRpc, 'invoke').mockImplementation(async (method) => {
     if (method === 'References.getFileReferences') {
       return {
-        refs: [],
+        refs: [
+          {
+            file: '/test/index.ts',
+            lineText: 'abc',
+          },
+        ],
       }
     }
   })
   const textDocument = {
     uri: '',
   }
-  expect(await FileReferences.getFileReferences(textDocument)).toEqual([])
+  expect(await FileReferences.getFileReferences(textDocument)).toEqual([
+    {
+      endOffset: 0,
+      lineText: 'abc',
+      startOffset: 0,
+      uri: '/test/index.ts',
+    },
+  ])
 })
