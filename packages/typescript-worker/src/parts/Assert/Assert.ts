@@ -57,10 +57,3 @@ export const boolean = (value) => {
     throw new Error('expected value to be of type boolean')
   }
 }
-
-export const _undefined = (value) => {
-  const type = getType(value)
-  if (type !== 'undefined') {
-    throw new Error('expected value to be undefined')
-  }
-}
