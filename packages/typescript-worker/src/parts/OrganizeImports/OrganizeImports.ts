@@ -6,7 +6,7 @@ import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 export const organizeImports = async (typescriptRpc: CommonRpc, Position: any, textDocument: any) => {
   const uri = textDocument.uri
   Assert.string(uri)
-  await TextDocumentSync.openTextDocuments([textDocument])
+  await TextDocumentSync.openTextDocuments2(typescriptRpc, [textDocument])
   const tsResult = await typescriptRpc.invoke('OrganizeImports.organizeImports', {
     scope: {
       type: 'file',
