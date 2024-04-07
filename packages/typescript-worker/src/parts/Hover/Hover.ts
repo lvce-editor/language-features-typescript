@@ -1,16 +1,16 @@
 import * as Assert from '../Assert/Assert.ts'
-import * as Position from '../Position/Position.ts'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
-import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
+import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
 import * as GetHoverFromTsResult from '../GetHoverFromTsResult/GetHoverFromTsResult.ts'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
-export const getHover = async (textDocument: any, offset: number) => {
+export const getHover = async (typescriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {
   const uri = textDocument.uri
   Assert.string(uri)
   Assert.number(offset)
-  await TextDocumentSync.openTextDocuments([textDocument])
+  await TextDocumentSync.openTextDocuments2(typescriptRpc, [textDocument])
   const tsPosition = await Position.getTsPosition(textDocument, offset)
-  const tsResult = await TypeScriptRpc.invoke('Hover.getHover', {
+  const tsResult = await typescriptRpc.invoke<TypeScriptProtocol.QuickInfoResponseBody>('Hover.getHover', {
     file: textDocument.uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
