@@ -1,5 +1,5 @@
 import * as GetDiagnosticSeverity from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
-import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.cts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 /**
  *

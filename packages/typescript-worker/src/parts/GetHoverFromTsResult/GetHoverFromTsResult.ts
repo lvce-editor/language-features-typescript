@@ -1,4 +1,4 @@
-import type * as Protocol from '../TypeScriptProtocol/TypeScriptProtocol.cts'
+import type * as Protocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 export const getHoverFromTsResult = (tsResult: Protocol.QuickInfoResponseBody) => {
   if (!tsResult) {
