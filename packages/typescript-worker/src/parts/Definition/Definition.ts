@@ -12,6 +12,5 @@ export const getDefinition = async (typescriptRpc: CommonRpc, Position: any, tex
     offset: tsPosition.offset,
   })
   const definition = await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, Position, tsResult)
-  console.log({ definition })
   return definition
 }
