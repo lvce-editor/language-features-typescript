@@ -1,4 +1,5 @@
 import * as Completion from '../Completion/Completion.ts'
+import * as Definition from '../Definition/Definition.ts'
 import * as Diagnostics from '../Diagnostics/Diagnostics.ts'
 import * as Hover from '../Hover/Hover.ts'
 import * as Initialize from '../Initialize/Initialize.ts'
@@ -16,4 +17,5 @@ export const commandMap = {
   'References.provideReferences': References.provideReferences,
   'References.provideFileReferences': References.provideFileReferences,
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
+  'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
 }

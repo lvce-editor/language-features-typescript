@@ -1,15 +1,24 @@
-import * as Position from '../Position/Position.ts'
 import * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
-export const getDefinitionFromTsResult = async (textDocument: any, tsResult: TypeScriptProtocol.DefinitionInfo[]) => {
+export const getDefinitionFromTsResult = async (
+  textDocument: any,
+  Position: any,
+  tsResult: readonly TypeScriptProtocol.DefinitionInfo[],
+) => {
   if (tsResult.length === 0) {
     return undefined
   }
   const firstDefinition = tsResult[0]
   const { start, end, file } = firstDefinition
   if (file === textDocument.uri) {
-    const startOffset = await Position.getOffset(textDocument, start)
-    const endOffset = await Position.getOffset(textDocument, end)
+    const startOffset = await Position.getOffset(textDocument, {
+      rowIndex: start.line - 1,
+      columnIndex: start.offset - 1,
+    })
+    const endOffset = await Position.getOffset(textDocument, {
+      rowIndex: end.line - 1,
+      columnIndex: end.offset - 1,
+    })
     return {
       uri: file,
       startOffset,
