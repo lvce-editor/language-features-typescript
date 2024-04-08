@@ -3,7 +3,7 @@ import * as GetDefinitionFromTsResult from '../GetDefinitionFromTsResult/GetDefi
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
-export const getDefinition = async (typescriptRpc: CommonRpc, Position, textDocument, offset) => {
+export const getDefinition = async (typescriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {
   await TextDocumentSync.openTextDocuments2(typescriptRpc, [textDocument])
   const tsPosition = await Position.getTsPosition(textDocument, offset)
   const tsResult = await typescriptRpc.invoke<TypeScriptProtocol.DefinitionInfo[]>('Definition.getDefinition', {
@@ -11,6 +11,7 @@ export const getDefinition = async (typescriptRpc: CommonRpc, Position, textDocu
     line: tsPosition.line,
     offset: tsPosition.offset,
   })
-  const definition = GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, tsResult)
+  const definition = await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, Position, tsResult)
+  console.log({ definition })
   return definition
 }
