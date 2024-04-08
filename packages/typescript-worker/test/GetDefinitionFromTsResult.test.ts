@@ -1,26 +1,13 @@
-import { beforeEach, expect, jest, test } from '@jest/globals'
+import { expect, test } from '@jest/globals'
+import * as GetDefinitionFromTsResult from '../src/parts/GetDefinitionFromTsResult/GetDefinitionFromTsResult.ts'
 import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
 
-beforeEach(() => {
-  jest.resetAllMocks()
-})
-
-jest.unstable_mockModule('../src/parts/TypeScriptRpc/TypeScriptRpc.ts', () => {
-  return {
-    invoke: jest.fn(),
-  }
-})
-jest.unstable_mockModule('../src/parts/Rpc/Rpc.ts', () => {
-  return {
-    invoke: jest.fn(),
-  }
-})
-
-const GetDefinitionFromTsResult = await import('../src/parts/GetDefinitionFromTsResult/GetDefinitionFromTsResult.ts')
-const Rpc = await import('../src/parts/Rpc/Rpc.ts')
-
 test('getDefintionFromTsResult', async () => {
-  jest.spyOn(Rpc, 'invoke').mockResolvedValue(0)
+  const Position = {
+    getOffset() {
+      return 0
+    },
+  }
   const textDocument = {
     uri: '/test/index.ts',
   }
@@ -37,7 +24,7 @@ test('getDefintionFromTsResult', async () => {
       },
     },
   ]
-  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, tsResult)).toEqual({
+  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, Position, tsResult)).toEqual({
     endOffset: 0,
     startOffset: 0,
     uri: '/test/index.ts',
@@ -45,16 +32,24 @@ test('getDefintionFromTsResult', async () => {
 })
 
 test('getDefintionFromTsResult - empty', async () => {
-  jest.spyOn(Rpc, 'invoke').mockResolvedValue(0)
+  const Position = {
+    getOffset() {
+      return 0
+    },
+  }
   const textDocument = {
     uri: '/test/index.ts',
   }
   const tsResult: TypeScriptProtocol.DefinitionInfo[] = []
-  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, tsResult)).toBe(undefined)
+  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, Position, tsResult)).toBe(undefined)
 })
 
 test('getDefintionFromTsResult - different file', async () => {
-  jest.spyOn(Rpc, 'invoke').mockResolvedValue(0)
+  const Position = {
+    getOffset() {
+      return 0
+    },
+  }
   const textDocument = {
     uri: '/test/index.ts',
   }
@@ -71,7 +66,7 @@ test('getDefintionFromTsResult - different file', async () => {
       },
     },
   ]
-  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, tsResult)).toEqual({
+  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, Position, tsResult)).toEqual({
     endColumnIndex: 0,
     endOffset: 0,
     endRowIndex: 0,
