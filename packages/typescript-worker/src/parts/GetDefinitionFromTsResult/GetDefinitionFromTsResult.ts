@@ -1,7 +1,10 @@
 import * as Position from '../Position/Position.ts'
 import * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
-export const getDefinitionFromTsResult = async (textDocument: any, tsResult: TypeScriptProtocol.DefinitionInfo[]) => {
+export const getDefinitionFromTsResult = async (
+  textDocument: any,
+  tsResult: readonly TypeScriptProtocol.DefinitionInfo[],
+) => {
   if (tsResult.length === 0) {
     return undefined
   }
