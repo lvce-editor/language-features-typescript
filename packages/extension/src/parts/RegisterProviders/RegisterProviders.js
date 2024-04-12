@@ -42,6 +42,10 @@ const registerProvider = (provider) => {
     vscode.registerSelectionProvider(provider)
     return
   }
+  if ('provideRename' in provider && vscode.registerRenameProvider) {
+    vscode.registerRenameProvider(provider)
+    return
+  }
 }
 
 export const registerProviders = (providers) => {
