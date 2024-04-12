@@ -1,6 +1,6 @@
 import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
-import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.js'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 const getPositionsFromTsResult = (positions: any[], tsResult: TypeScriptProtocol.SelectionRangeResponse['body']) => {
   if (!tsResult || tsResult.length === 0) {
