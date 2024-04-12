@@ -6,6 +6,7 @@ import * as Initialize from '../Initialize/Initialize.ts'
 import * as OrganizeImports from '../OrganizeImports/OrganizeImports.ts'
 import * as References from '../References/References.ts'
 import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.ts'
+import * as Selection from '../Selection/Selection.ts'
 import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
 export const commandMap = {
@@ -18,4 +19,5 @@ export const commandMap = {
   'References.provideFileReferences': References.provideFileReferences,
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
   'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
+  'Selection.expandSelection': WrapCommand.wrapCommand(Selection.expandSelection),
 }
