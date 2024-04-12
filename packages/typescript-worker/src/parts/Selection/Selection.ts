@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.js'
