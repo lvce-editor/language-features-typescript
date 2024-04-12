@@ -23,10 +23,15 @@ const getLocations = (positions: any) => {
   return locations
 }
 
-export const expandSelection = async (typeScriptRpc: CommonRpc, Position: any, textDocument: any, positions: any[]) => {
+export const expandSelection = async (
+  typeScriptRpc: CommonRpc,
+  Position: any,
+  textDocument: any,
+  positions: Uint32Array,
+) => {
   await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
   const locations = getLocations(positions)
-  const tsResult = await typeScriptRpc.invoke<TypeScriptProtocol.SelectionRangeResponse['body']>(
+  const tsResult = await typeScriptRpc.invoke<readonly TypeScriptProtocol.SelectionRange[]>(
     'Selection.expandSelection',
     {
       file: textDocument.uri,

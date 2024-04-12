@@ -2,9 +2,8 @@ import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtoc
 
 export const getPositionsFromTsResult = (
   positions: Uint32Array,
-  tsResult: TypeScriptProtocol.SelectionRangeResponse['body'],
+  tsResult: readonly TypeScriptProtocol.SelectionRange[],
 ) => {
-  console.log({ positions, tsResult })
   if (!tsResult || tsResult.length === 0) {
     return []
   }
