@@ -12,6 +12,6 @@ test('expandSelection', async () => {
   const textDocument = {
     uri: '',
   }
-  const positions = []
+  const positions = new Uint32Array([0, 0, 1, 1])
   expect(await Selection.expandSelection(typeScriptRpc, Position, textDocument, positions)).toEqual([])
 })
