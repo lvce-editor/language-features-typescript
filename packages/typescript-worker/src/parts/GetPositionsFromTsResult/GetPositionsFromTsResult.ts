@@ -30,7 +30,7 @@ export const getPositionsFromTsResult = (
       break
     }
     if (!current.parent) {
-      return
+      return []
     }
     current = current.parent
   }
