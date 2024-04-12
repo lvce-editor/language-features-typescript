@@ -14,3 +14,5 @@ export type ScriptElementKind = ts.ScriptElementKind
 export type SemanticDiagnosticsSyncResponse = ts.server.protocol.SemanticDiagnosticsSyncResponse
 export type SymbolDisplayPart = ts.SymbolDisplayPart
 export type SelectionRangeResponse = ts.server.protocol.SelectionRangeResponse
+export type SelectionRange = ts.server.protocol.SelectionRange
+export type TextSpan = ts.server.protocol.TextSpan

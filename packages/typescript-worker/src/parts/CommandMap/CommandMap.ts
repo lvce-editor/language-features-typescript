@@ -19,5 +19,5 @@ export const commandMap = {
   'References.provideFileReferences': References.provideFileReferences,
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
   'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
-  'Selection.expandSelection': WrapCommand.wrapCommand(Selection.expandSelection),
+  'Selection.expandSelections': WrapCommand.wrapCommand(Selection.expandSelection),
 }
