@@ -15,3 +15,17 @@ test('expandSelection', async () => {
   const positions = new Uint32Array([0, 0, 1, 1])
   expect(await Selection.expandSelection(typeScriptRpc, Position, textDocument, positions)).toEqual([])
 })
+
+test('same position', async () => {
+  const typeScriptRpc: CommonRpc = {
+    invoke: jest.fn(async () => {
+      return [] as any
+    }),
+  }
+  const Position = {}
+  const textDocument = {
+    uri: '',
+  }
+  const positions = new Uint32Array([0, 0, 0, 0])
+  expect(await Selection.expandSelection(typeScriptRpc, Position, textDocument, positions)).toEqual([])
+})
