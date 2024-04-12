@@ -1,7 +1,8 @@
 import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.js'
 
-const getPositionsFromTsResult = (positions: any[], tsResult: any) => {
+const getPositionsFromTsResult = (positions: any[], tsResult: TypeScriptProtocol.SelectionRangeResponse['body']) => {
   if (!tsResult || tsResult.length === 0) {
     return []
   }
@@ -61,10 +62,13 @@ const getLocations = (positions: any) => {
 export const expandSelection = async (typeScriptRpc: CommonRpc, Position: any, textDocument: any, positions: any[]) => {
   await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
   const locations = getLocations(positions)
-  const tsResult = await typeScriptRpc.invoke('Selection.expandSelection', {
-    file: textDocument.uri,
-    locations,
-  })
+  const tsResult = await typeScriptRpc.invoke<TypeScriptProtocol.SelectionRangeResponse['body']>(
+    'Selection.expandSelection',
+    {
+      file: textDocument.uri,
+      locations,
+    },
+  )
   const newPositions = getPositionsFromTsResult(positions, tsResult)
   return newPositions
 }
