@@ -28,7 +28,17 @@ const replace = async (path, occurrence, replacement) => {
   await writeFile(path, newContent)
 }
 
-const isWebPath = path.join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'src', 'parts', 'IsWeb', 'IsWeb.js')
+const isWebPath = path.join(
+  root,
+  'dist',
+  commitHash,
+  'extensions',
+  'builtin.language-features-typescript',
+  'src',
+  'parts',
+  'IsWeb',
+  'IsWeb.js',
+)
 
 await replace(isWebPath, 'false', 'true')
 
@@ -80,23 +90,39 @@ const getLibFileUrl = path.join(
 
 await replace(getLibFileUrl, '../../../../extension/node_modules/typescript', '../../../../typescript')
 
-const typeScriptLibPath = join(root, 'packages', 'extension', 'node_modules', 'typescript', 'lib')
-const typeScriptPath = join(root, 'packages', 'extension', 'node_modules', 'typescript')
+const typeScriptLibPath = join(root, 'node_modules', 'typescript', 'lib')
+const typeScriptPath = join(root, 'node_modules', 'typescript')
 
 await mkdir(join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript'))
 
 const typescriptDirents = await readdir(typeScriptLibPath)
 for (const typeScriptDirent of typescriptDirents) {
-  if (typeScriptDirent.startsWith('lib.') || typeScriptDirent === 'typescript-esm.js' || typeScriptDirent === 'tsserverlibrary.js') {
+  if (
+    typeScriptDirent.startsWith('lib.') ||
+    typeScriptDirent === 'typescript-esm.js' ||
+    typeScriptDirent === 'tsserverlibrary.js'
+  ) {
     await cp(
       join(typeScriptLibPath, typeScriptDirent),
-      join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', 'lib', typeScriptDirent),
+      join(
+        root,
+        'dist',
+        commitHash,
+        'extensions',
+        'builtin.language-features-typescript',
+        'typescript',
+        'lib',
+        typeScriptDirent,
+      ),
     )
   }
 }
 
 for (const dirent of ['README.md', 'LICENSE.txt', 'package.json']) {
-  await cp(join(typeScriptPath, dirent), join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', dirent))
+  await cp(
+    join(typeScriptPath, dirent),
+    join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', dirent),
+  )
 }
 
 const updateJson = (path, update) => {
