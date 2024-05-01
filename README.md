@@ -5,7 +5,7 @@
 ```sh
 git clone git@github.com:lvce-editor/language-features-typescript.git &&
 cd language-features-typescript &&
-npm ci &&
+npm ci --force &&
 npm test
 ```
 
