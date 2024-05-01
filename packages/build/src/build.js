@@ -53,6 +53,9 @@ await copyDependencies(extension, '')
 
 await copyDependencies(node, 'node')
 
+await cp(join(root, 'node_modules', 'typescript'), join(dist, 'node', 'node_modules', 'typescript'), {
+  recursive: true,
+})
 await removeUnusedTypeScriptFiles(join(dist, 'node'))
 
 await cp(join(root, 'packages', 'node', 'src'), join(dist, 'node', 'src'), {
