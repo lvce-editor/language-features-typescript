@@ -14,6 +14,9 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "typescript": "^5.5.0-beta"
+  },
   "devDependencies": {
     "@lerna/legacy-package-management": "^8.1.2",
     "@lvce-editor/server": "^0.27.2",
@@ -64,8 +67,5 @@
     "semi": false,
     "singleQuote": true,
     "printWidth": 120
-  },
-  "dependencies": {
-    "typescript": "^5.4.5"
   }
 }
