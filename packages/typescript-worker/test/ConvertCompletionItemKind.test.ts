@@ -57,5 +57,5 @@ test('field', () => {
 })
 
 test('unknown', () => {
-  expect(ConvertCompletionItemKind.convertCompletionItemKind(-1)).toBe(CompletionKind.Unknown)
+  expect(ConvertCompletionItemKind.convertCompletionItemKind('-1')).toBe(CompletionKind.Unknown)
 })
