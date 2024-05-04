@@ -1,9 +1,6 @@
 import * as CompletionItemFlags from '../CompletionItemFlags/CompletionItemFlags.ts'
 
-/**
- * @param {string} modifier
- */
-export const convertTsCompletionKindModifiers = (modifier) => {
+export const convertTsCompletionKindModifiers = (modifier: string): number => {
   const parts = modifier.split(',')
   let flag = CompletionItemFlags.None
   for (const part of parts) {
