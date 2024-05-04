@@ -1,12 +1,8 @@
 import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemKind.ts'
 import * as CompletionItemKind from '../CompletionKind/CompletionKind.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
-/**
- *
- * @param {import('typescript/lib/protocol').ScriptElementKind} tsKind
- * @returns
- */
-export const convertCompletionItemKind = (tsKind) => {
+export const convertCompletionItemKind = (tsKind: TypeScriptProtocol.ScriptElementKind): number => {
   switch (tsKind) {
     case TsCompletionItemKind.Function:
     case TsCompletionItemKind.Method:
