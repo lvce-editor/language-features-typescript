@@ -171,6 +171,7 @@ test(
         prefix: 'add',
       }),
     ).toEqual({
+      defaultCommitCharacters: ['.', ',', ';'],
       entries: expect.arrayContaining([
         {
           kind: 'method',
