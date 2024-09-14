@@ -122,6 +122,7 @@ test(
         offset: 2,
       }),
     ).toEqual({
+      defaultCommitCharacters: ['.', ',', ';'],
       entries: expect.arrayContaining([
         {
           kind: 'keyword',
