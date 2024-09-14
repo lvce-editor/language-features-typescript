@@ -71,10 +71,10 @@ test(
         line: 1,
         offset: 2,
         openingBrace: '{',
-      })
+      }),
     ).toBe(true)
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -96,10 +96,10 @@ test(
         line: 1,
         offset: 2,
         openingBrace: '{',
-      })
+      }),
     ).toBe(true)
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -120,8 +120,9 @@ test(
         file: join(tmpDir, 'index.ts'),
         line: 1,
         offset: 2,
-      })
+      }),
     ).toEqual({
+      defaultCommitCharacters: ['.', ',', ';'],
       entries: expect.arrayContaining([
         {
           kind: 'keyword',
@@ -136,7 +137,7 @@ test(
       isNewIdentifierLocation: false,
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test.skip(
@@ -144,11 +145,9 @@ test.skip(
   async () => {
     const tmpDir = await getTmpDir()
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
-    await expect(
-      await TsServerRequests.completionInfo({})
-    ).rejects.toThrowError(new Error('abc'))
+    await expect(await TsServerRequests.completionInfo({})).rejects.toThrowError(new Error('abc'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -170,8 +169,9 @@ test(
         line: 1,
         offset: 11,
         prefix: 'add',
-      })
+      }),
     ).toEqual({
+      defaultCommitCharacters: ['.', ',', ';'],
       entries: expect.arrayContaining([
         {
           kind: 'method',
@@ -196,7 +196,7 @@ test(
       },
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test.skip(
@@ -222,7 +222,7 @@ test.skip(
         ],
         line: 1,
         offset: 11,
-      })
+      }),
     ).toEqual([
       {
         displayParts: [
@@ -317,7 +317,7 @@ The event listener is appended to target's event listener list and is not append
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -331,12 +331,10 @@ test(
         file: join(tmpDir, 'index.ts'),
         line: 0,
         offset: 0,
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.completionInfo failed to execute: No Project.')
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.completionInfo failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -346,7 +344,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-const y = x`
+const y = x`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -361,7 +359,7 @@ const y = x`
         file: join(tmpDir, 'index.ts'),
         line: 2,
         offset: 7,
-      })
+      }),
     ).toEqual([
       {
         contextEnd: { line: 2, offset: 12 },
@@ -372,7 +370,7 @@ const y = x`
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 // TODO what to test?
@@ -381,7 +379,7 @@ test.skip('exit', async () => {
   await writeFile(
     join(tmpDir, 'index.ts'),
     `let x = 1
-const y = x`
+const y = x`,
   )
   await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
   await TsServerRequests.updateOpen({
@@ -401,7 +399,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-const y = x`
+const y = x`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -417,7 +415,7 @@ const y = x`
         line: 1,
         offset: 5,
         filesToSearch: [join(tmpDir, 'index.ts')],
-      })
+      }),
     ).toEqual([
       {
         file: normalize(join(tmpDir, 'index.ts')),
@@ -456,7 +454,7 @@ const y = x`
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -466,7 +464,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-const y = x`
+const y = x`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -482,12 +480,10 @@ const y = x`
         line: 1,
         offset: 5,
         filesToSearch: ['**'],
-      })
-    ).rejects.toThrowError(
-      'TsServer.documentHighlights failed to execute: Debug Failure. False expression.'
-    )
+      }),
+    ).rejects.toThrowError('TsServer.documentHighlights failed to execute: Debug Failure. False expression.')
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -497,7 +493,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-const y = x`
+const y = x`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -513,7 +509,7 @@ const y = x`
         format: '2020',
         start: 0,
         length: 21,
-      })
+      }),
     ).toEqual({
       endOfLineState: 0,
       // prettier-ignore
@@ -532,7 +528,7 @@ const y = x`
       ],
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -542,12 +538,12 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `import {add, subtract} from './calculate.ts'
-add(1, 2)`
+add(1, 2)`,
     )
     await writeFile(
       join(tmpDir, 'calculate.ts'),
       `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
+export const subtract = (a,b) => a - b`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -560,7 +556,7 @@ export const subtract = (a,b) => a - b`
     expect(
       await TsServerRequests.fileReferences({
         file: join(tmpDir, 'calculate.ts'),
-      })
+      }),
     ).toEqual({
       refs: [
         {
@@ -588,7 +584,7 @@ export const subtract = (a,b) => a - b`
       symbolName: `"${join(tmpDir, 'calculate.ts')}"`,
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -598,12 +594,12 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `import {add, subtract} from './calculate.ts'
-add(1, 2)`
+add(1, 2)`,
     )
     await writeFile(
       join(tmpDir, 'calculate.ts'),
       `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
+export const subtract = (a,b) => a - b`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -616,12 +612,10 @@ export const subtract = (a,b) => a - b`
     await expect(
       TsServerRequests.fileReferences({
         file: join(tmpDir, 'cat.ts'),
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.fileReferences failed to execute: No Project.')
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.fileReferences failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -631,7 +625,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `const add = (a, b) => a + b
-const sum = add(1, 2)`
+const sum = add(1, 2)`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -646,7 +640,7 @@ const sum = add(1, 2)`
         file: join(tmpDir, 'index.ts'),
         line: 2,
         offset: 14,
-      })
+      }),
     ).toEqual([
       {
         contextEnd: { line: 1, offset: 28 },
@@ -657,7 +651,7 @@ const sum = add(1, 2)`
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -667,7 +661,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `const add = (a, b) => a + b
-const sum = add(1, 2)`
+const sum = add(1, 2)`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -682,12 +676,10 @@ const sum = add(1, 2)`
         file: join(tmpDir, 'cat.ts'),
         line: 2,
         offset: 14,
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.implementation failed to execute: No Project.')
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.implementation failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -708,10 +700,10 @@ test(
         file: join(tmpDir, 'index.ts'),
         line: 1,
         offset: 10,
-      })
+      }),
     ).toEqual({ indentation: 2, position: 9 })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -757,13 +749,13 @@ test(
         file: join(tmpDir, 'index.tsx'),
         line: 2,
         offset: 15,
-      })
+      }),
     ).toEqual({
       caretOffset: 0,
       newText: '</div>',
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test.skip(
@@ -809,10 +801,10 @@ test.skip(
         file: join(tmpDir, 'index.tsx'),
         line: 2,
         offset: 17,
-      })
+      }),
     ).toBeUndefined()
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -822,12 +814,12 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `import {add, subtract} from './calculate.ts'
-add(1, 2)`
+add(1, 2)`,
     )
     await writeFile(
       join(tmpDir, 'calculate.ts'),
       `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
+export const subtract = (a,b) => a - b`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -845,7 +837,7 @@ export const subtract = (a,b) => a - b`
             file: join(tmpDir, 'index.ts'),
           },
         },
-      })
+      }),
     ).toEqual([
       {
         fileName: normalize(join(tmpDir, 'index.ts')),
@@ -862,7 +854,7 @@ export const subtract = (a,b) => a - b`
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -872,12 +864,12 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `import {add, subtract} from './calculate.ts'
-add(1, 2)`
+add(1, 2)`,
     )
     await writeFile(
       join(tmpDir, 'calculate.ts'),
       `export const add = (a,b) => a + b'
-export const subtract = (a,b) => a - b`
+export const subtract = (a,b) => a - b`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -895,12 +887,10 @@ export const subtract = (a,b) => a - b`
             file: join(tmpDir, 'cat.ts'),
           },
         },
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.organizeImports failed to execute: No Project.')
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.organizeImports failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -915,7 +905,7 @@ test(
 
 add(1,2)
 add(3,4)
-`
+`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -930,7 +920,7 @@ add(3,4)
         file: join(tmpDir, 'index.ts'),
         line: 1,
         offset: 7,
-      })
+      }),
     ).toEqual({
       refs: [
         {
@@ -965,7 +955,7 @@ add(3,4)
       symbolStartOffset: 7,
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -975,7 +965,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `const add = (a,b) => a + b'
-add(1,2)`
+add(1,2)`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -990,7 +980,7 @@ add(1,2)`
         file: join(tmpDir, 'index.ts'),
         line: 2,
         offset: 2,
-      })
+      }),
     ).toEqual({
       info: {
         canRename: true,
@@ -1046,17 +1036,14 @@ add(1,2)`
       ],
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
   'rename - cannot rename',
   async () => {
     const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      "export const add = (a,b) => a + b'"
-    )
+    await writeFile(join(tmpDir, 'index.ts'), "export const add = (a,b) => a + b'")
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
       openFiles: [
@@ -1070,7 +1057,7 @@ test(
         file: join(tmpDir, 'index.ts'),
         line: 1,
         offset: 2,
-      })
+      }),
     ).toEqual({
       info: {
         canRename: false,
@@ -1079,17 +1066,14 @@ test(
       locs: [],
     })
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
   'rename - error - cannot read properties of undefined',
   async () => {
     const tmpDir = await getTmpDir()
-    await writeFile(
-      join(tmpDir, 'index.ts'),
-      "export const add = (a,b) => a + b'"
-    )
+    await writeFile(join(tmpDir, 'index.ts'), "export const add = (a,b) => a + b'")
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
       openFiles: [
@@ -1103,14 +1087,14 @@ test(
         file: join(tmpDir, 'cat.ts'),
         line: 1,
         offset: 2,
-      })
+      }),
     ).rejects.toThrowError(
       new Error(
-        `TsServer.rename failed to execute: TypeError: Cannot read properties of undefined (reading 'lineOffsetToPosition')`
-      )
+        `TsServer.rename failed to execute: TypeError: Cannot read properties of undefined (reading 'lineOffsetToPosition')`,
+      ),
     )
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1120,7 +1104,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `import {add, subtract} from './calculate.ts'
-add(1, 2)`
+add(1, 2)`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1133,7 +1117,7 @@ add(1, 2)`
     expect(
       await TsServerRequests.semanticDiagnosticsSync({
         file: join(tmpDir, 'index.ts'),
-      })
+      }),
     ).toEqual([
       {
         category: 'error',
@@ -1150,7 +1134,7 @@ add(1, 2)`
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1160,7 +1144,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `import {add, subtract} from './calculate.ts'
-add(1, 2)`
+add(1, 2)`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1173,14 +1157,10 @@ add(1, 2)`
     await expect(
       TsServerRequests.semanticDiagnosticsSync({
         file: join(tmpDir, 'cat.ts'),
-      })
-    ).rejects.toThrowError(
-      new Error(
-        'TsServer.semanticDiagnosticsSync failed to execute: No Project.'
-      )
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.semanticDiagnosticsSync failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1190,7 +1170,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-`
+`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1207,7 +1187,7 @@ test(
         startOffset: 1,
         endOffset: 1,
         endLine: 1,
-      })
+      }),
     ).toEqual([
       {
         end: {
@@ -1222,7 +1202,7 @@ test(
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1232,7 +1212,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-`
+`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1249,12 +1229,10 @@ test(
         startOffset: 1,
         endOffset: 1,
         endLine: 1,
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.toggleLineComment failed to execute: No Project.')
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.toggleLineComment failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1264,7 +1242,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-`
+`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1281,7 +1259,7 @@ test(
         startOffset: 1,
         endOffset: 1,
         endLine: 1,
-      })
+      }),
     ).toEqual([
       {
         end: {
@@ -1307,7 +1285,7 @@ test(
       },
     ])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1317,7 +1295,7 @@ test(
     await writeFile(
       join(tmpDir, 'index.ts'),
       `let x = 1
-`
+`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1334,14 +1312,10 @@ test(
         startOffset: 1,
         endOffset: 1,
         endLine: 1,
-      })
-    ).rejects.toThrowError(
-      new Error(
-        'TsServer.toggleMultilineComment failed to execute: No Project.'
-      )
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.toggleMultilineComment failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 // TODO should find test case that returns actual result
@@ -1353,7 +1327,7 @@ test(
       join(tmpDir, 'index.ts'),
       `type X = number
 let x : X = 11
-const y = x`
+const y = x`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1368,10 +1342,10 @@ const y = x`
         file: join(tmpDir, 'index.ts'),
         line: 3,
         offset: 6,
-      })
+      }),
     ).toEqual([])
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1382,7 +1356,7 @@ test(
       join(tmpDir, 'index.ts'),
       `type X = number
 let x : X = 11
-const y = x`
+const y = x`,
     )
     await writeFile(join(tmpDir, 'tsconfig.json'), DEFAULT_TSCONFIG)
     await TsServerRequests.updateOpen({
@@ -1397,12 +1371,10 @@ const y = x`
         file: join(tmpDir, 'cat.ts'),
         line: 3,
         offset: 6,
-      })
-    ).rejects.toThrowError(
-      new Error('TsServer.typeDefinition failed to execute: No Project.')
-    )
+      }),
+    ).rejects.toThrowError(new Error('TsServer.typeDefinition failed to execute: No Project.'))
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )
 
 test(
@@ -1433,8 +1405,8 @@ test(
             ],
           },
         ],
-      })
+      }),
     ).toBe(true)
   },
-  /* this can take some time */ TS_SERVER_TEST_TIMEOUT
+  /* this can take some time */ TS_SERVER_TEST_TIMEOUT,
 )

@@ -69,6 +69,7 @@ export const start = async ({ ipc = 'node-ipc', tsServerPath = '', argv = [], ex
   Assert.string(tsServerPath)
   const server = await TsServer.create({
     tsServerPath,
+    // @ts-ignore
     argv,
     execArgv,
     handleError: handlePrimaryServerError,
