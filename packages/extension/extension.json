@@ -50,13 +50,13 @@
   "codeActions": [
     {
       "kind": "source.organizeImports",
-      "title": "Organize Imports",
-      "description": "Organize Imports"
+      "name": "Organize Imports",
+      "command": "Editor.organizeImports"
     },
     {
       "kind": "source.sortImports",
-      "title": "Sort Imports",
-      "description": "Sort Imports"
+      "name": "Sort Imports",
+      "command": "Editor.sortImports"
     }
   ]
 }
