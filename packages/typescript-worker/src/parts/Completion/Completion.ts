@@ -5,11 +5,16 @@ import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 import * as TypeScriptUrl from '../TypeScriptUrl/TypeScriptUrl.ts'
 import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.ts'
+import * as TypeScriptLanguageService from '../TypeScriptLanguageService/TypeScriptLanguageService.ts'
+import * as FileSystem from '../FileSystem/FileSystem.ts'
 
 export const getCompletion = async (typeScriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {
   const uri = textDocument.uri
   Assert.string(uri)
 
+  FileSystem.writeFile(uri, textDocument.text)
+  const languageService = TypeScriptLanguageService.languageService
+  console.log({ languageService })
   const typescript = await LoadTypeScript.loadTypeScript(TypeScriptUrl.typeScriptUrl)
 
   console.log({ typescript })
