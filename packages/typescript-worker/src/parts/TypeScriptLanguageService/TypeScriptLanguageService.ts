@@ -15,6 +15,14 @@ const fixPath = (path: string) => {
 const realpath = (path: string) => {}
 
 const languageServiceHost: LanguageServiceHost = {
+  directoryExists(directoryName) {
+    console.log({ directoryExists: directoryName })
+    return false
+  },
+  readDirectory(path) {
+    console.log({ readDirectory: path })
+    return []
+  },
   realpath(path) {
     console.log({ realPath: path })
     return path
@@ -59,7 +67,9 @@ const languageServiceHost: LanguageServiceHost = {
     return '/'
   },
   getDefaultLibFileName(options) {
-    return '/' + ts.getDefaultLibFileName(options)
+    const name = ts.getDefaultLibFileName(options)
+    console.log({ options, name })
+    return '/' + name
   },
   getScriptSnapshot(fileName) {
     const content = FileSystem.readFile(fileName)
