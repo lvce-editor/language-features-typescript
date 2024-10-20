@@ -2,6 +2,7 @@ import type { LanguageServiceHost, LanguageService } from 'typescript'
 import * as FileSystem from '../FileSystem/FileSystem.ts'
 import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.ts'
 import * as TypeScriptUrl from '../TypeScriptUrl/TypeScriptUrl.ts'
+import * as GetRealPath from '../GetRealPath/GetRealPath.ts'
 
 const ts = await LoadTypeScript.loadTypeScript(TypeScriptUrl.typeScriptUrl)
 
@@ -12,7 +13,11 @@ const fixPath = (path: string) => {
   return path
 }
 
-const realpath = (path: string) => {}
+const realpath = (path: string) => {
+  console.log({ realPath: path })
+
+  return path
+}
 
 const languageServiceHost: LanguageServiceHost = {
   directoryExists(directoryName) {
@@ -23,10 +28,7 @@ const languageServiceHost: LanguageServiceHost = {
     console.log({ readDirectory: path })
     return []
   },
-  realpath(path) {
-    console.log({ realPath: path })
-    return path
-  },
+  realpath: GetRealPath.getRealPath,
   readFile(path) {
     console.log({ readFile: path })
     return ''
