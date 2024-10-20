@@ -16,22 +16,22 @@ export const getCompletion = async (typeScriptRpc: CommonRpc, Position: any, tex
   const languageService = TypeScriptLanguageService.languageService
 
   const completions1 = languageService.getCompletionsAtPosition(uri, offset, {})
-  console.log({ completions1 })
-  console.log({ languageService })
-  const typescript = await LoadTypeScript.loadTypeScript(TypeScriptUrl.typeScriptUrl)
+  // console.log({ completions1 })
+  // console.log({ languageService })
+  // const typescript = await LoadTypeScript.loadTypeScript(TypeScriptUrl.typeScriptUrl)
 
-  console.log({ typescript })
-  console.log('before completion', uri)
-  await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
-  const tsPosition = await Position.getTsPosition(textDocument, offset)
-  const tsResult = await typeScriptRpc.invoke<TypeScriptProtocol.CompletionInfoResponse['body']>(
-    'Completion.getCompletion',
-    {
-      file: textDocument.uri,
-      line: tsPosition.line,
-      offset: tsPosition.offset,
-    },
-  )
-  const completions = GetCompletionFromTsResult.getCompletionFromTsResult(tsResult)
+  // console.log({ typescript })
+  // console.log('before completion', uri)
+  // await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
+  // const tsPosition = await Position.getTsPosition(textDocument, offset)
+  // const tsResult = await typeScriptRpc.invoke<TypeScriptProtocol.CompletionInfoResponse['body']>(
+  //   'Completion.getCompletion',
+  //   {
+  //     file: textDocument.uri,
+  //     line: tsPosition.line,
+  //     offset: tsPosition.offset,
+  //   },
+  // )
+  const completions = GetCompletionFromTsResult.getCompletionFromTsResult(completions1)
   return completions
 }

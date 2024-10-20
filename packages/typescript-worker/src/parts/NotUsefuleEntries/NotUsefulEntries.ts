@@ -25,7 +25,7 @@ export const notUsefulEntries = new Set([
   'Array',
   'ArrayBuffer',
   'as',
-  'asserts',
+  // 'asserts',
   'async',
   'await',
   'bigint',
