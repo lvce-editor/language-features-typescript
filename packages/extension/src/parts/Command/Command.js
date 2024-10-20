@@ -18,6 +18,34 @@ const getPosition = (textDocument, offset) => {
   return vscode.getPosition(textDocument, offset)
 }
 
+const RE_PROTOCOL = /^[a-z]+\:\/\//
+const parseUri = (uri) => {
+  const match = uri.match(RE_PROTOCOL)
+  const protocol = match[0]
+  const rest = uri.slice(protocol.length)
+  return {
+    protocol,
+    rest,
+  }
+}
+const readAllFiles = async (uri) => {
+  const { protocol, rest } = parseUri(uri)
+  console.log({ protocol, rest })
+  const lastSlashIndex = rest.lastIndexOf('/')
+  if (lastSlashIndex === -1) {
+    return []
+  }
+  const parent = rest.slice(0, lastSlashIndex)
+  const parentPath = protocol + parent
+
+  console.log({ vscode })
+  // @ts-ignore
+  const dirents = await vscode.readDirWithFileTypes(parentPath)
+  console.log('READ')
+  console.log({ uri })
+  return []
+}
+
 const getFn = (method) => {
   switch (method) {
     case 'TypeScriptRpc.invoke':
@@ -30,8 +58,10 @@ const getFn = (method) => {
       return getOffset
     case 'Position.getPosition':
       return getPosition
+    case 'FileSystem.readAllFiles':
+      return readAllFiles
     default:
-      throw new Error('method not found')
+      throw new Error(`method ${method} not found`)
   }
 }
 
