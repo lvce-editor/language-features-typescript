@@ -12,12 +12,12 @@ import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 export const commandMap = {
   'Completion.getCompletions': WrapCommand.wrapCommand(Completion.getCompletion),
   'Completion.resolveCompletion': WrapCommand.wrapCommand(ResolveCompletion.resolveCompletion),
+  'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
   'Diagnostic.getDiagnostics': WrapCommand.wrapCommand(Diagnostics.getDiagnostics),
   'Hover.getHover': WrapCommand.wrapCommand(Hover.getHover),
   'Initialize.initialize': Initialize.initialize,
-  'References.provideReferences': References.provideReferences,
-  'References.provideFileReferences': References.provideFileReferences,
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
-  'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
+  'References.provideFileReferences': References.provideFileReferences,
+  'References.provideReferences': References.provideReferences,
   'Selection.expandSelections': WrapCommand.wrapCommand(Selection.expandSelection),
 }
