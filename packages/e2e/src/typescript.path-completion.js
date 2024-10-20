@@ -6,7 +6,7 @@ export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   await FileSystem.writeFile(`${tmpDir}/test.ts`, "import './")
   await FileSystem.writeFile(`${tmpDir}/add.ts`, 'export const add = (a, b) => a + b')
   await Main.openUri(`${tmpDir}/test.ts`)
-  await Editor.setCursor(0, 19)
+  await Editor.setCursor(0, 10)
 
   // act
   await Editor.openCompletion()

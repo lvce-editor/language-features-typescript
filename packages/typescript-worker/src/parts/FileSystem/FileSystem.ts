@@ -51,3 +51,22 @@ export const readVersion = (path: string) => {
 export const exists = (path: string) => {
   return path in files
 }
+
+export const readDirectory = (path: string) => {
+  const keys = Object.keys(files)
+  const dirents = []
+  for (const key of keys) {
+    const startMatch = key.startsWith(path)
+    if (!startMatch) {
+      continue
+    }
+    const rest = key.slice(path.length)
+    const slashIndex = rest.indexOf('/')
+    if (slashIndex !== -1) {
+      continue
+    }
+    dirents.push(key)
+  }
+  console.log({ dirents, path })
+  return dirents
+}

@@ -28,8 +28,8 @@ const languageServiceHost: LanguageServiceHost = {
     return false
   },
   readDirectory(path) {
-    console.log({ readDirectory: path })
-    return []
+    const dirents = FileSystem.readDirectory(path)
+    return dirents
   },
   realpath: GetRealPath.getRealPath,
   readFile(path) {
