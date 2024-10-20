@@ -19,7 +19,8 @@ export const c = a + 1`,
   await Editor.organizeImports()
 
   // assert
-  await Editor.openContextMenu()
+  const text = await Editor.getText()
+  console.log({ text })
   // console.log({ ContextMenu })
   // await ContextMenu.show()
 
