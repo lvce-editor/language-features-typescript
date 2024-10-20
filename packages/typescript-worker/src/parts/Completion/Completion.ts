@@ -3,11 +3,16 @@ import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
 import * as GetCompletionFromTsResult from '../GetCompletionFromTsResult/GetCompletionFromTsResult.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
+import * as TypeScriptUrl from '../TypeScriptUrl/TypeScriptUrl.ts'
+import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.ts'
 
 export const getCompletion = async (typeScriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {
   const uri = textDocument.uri
   Assert.string(uri)
 
+  const typescript = await LoadTypeScript.loadTypeScript(TypeScriptUrl.typeScriptUrl)
+
+  console.log({ typescript })
   console.log('before completion', uri)
   await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
   const tsPosition = await Position.getTsPosition(textDocument, offset)
