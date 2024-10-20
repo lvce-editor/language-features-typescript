@@ -1,3 +1,4 @@
+import type { LanguageServiceHost } from 'typescript'
 import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.ts'
 import * as TypeScriptUrl from '../TypeScriptUrl/TypeScriptUrl.ts'
 
@@ -52,8 +53,10 @@ const fileSystem = {
   },
 }
 
-/**  @type {import('typescript').LanguageServiceHost} */
-const languageServiceHost = {
+const languageServiceHost: LanguageServiceHost = {
+  readFile(path) {
+    return ''
+  },
   fileExists(path) {
     return true
   },
