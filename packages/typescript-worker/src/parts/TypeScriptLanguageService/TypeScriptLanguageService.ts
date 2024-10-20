@@ -24,7 +24,7 @@ const languageServiceHost: LanguageServiceHost = {
     if (directoryName === 'memfs:///workspace/') {
       return true
     }
-    // console.log({ directoryExists: directoryName })
+    console.log({ directoryExists: directoryName })
     return false
   },
   readDirectory(path) {
@@ -55,7 +55,8 @@ const languageServiceHost: LanguageServiceHost = {
     return `${FileSystem.getVersion()}`
   },
   getScriptFileNames() {
-    return FileSystem.getAllFiles()
+    const names = FileSystem.getAllFiles()
+    return names
   },
   getScriptVersion(fileName) {
     return FileSystem.readVersion(fileName)
