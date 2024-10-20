@@ -42,7 +42,7 @@ const readAllFiles = async (uri) => {
   // @ts-ignore
   const dirents = await vscode.readDirWithFileTypes(parentPath)
   console.log('READ')
-  console.log({ uri })
+  console.log({ uri, dirents })
   return []
 }
 
