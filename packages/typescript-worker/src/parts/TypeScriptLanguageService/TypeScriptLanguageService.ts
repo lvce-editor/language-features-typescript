@@ -21,7 +21,10 @@ const realpath = (path: string) => {
 
 const languageServiceHost: LanguageServiceHost = {
   directoryExists(directoryName) {
-    console.log({ directoryExists: directoryName })
+    if (directoryName === 'memfs:///workspace/') {
+      return true
+    }
+    // console.log({ directoryExists: directoryName })
     return false
   },
   readDirectory(path) {
@@ -34,8 +37,9 @@ const languageServiceHost: LanguageServiceHost = {
     return ''
   },
   fileExists(path) {
-    console.log({ exists: path })
-    return true
+    const exists = FileSystem.exists(path)
+    console.log({ exists, path })
+    return exists
   },
   getNewLine() {
     return '\n'

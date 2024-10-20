@@ -1,15 +1,10 @@
 export const name = 'typescript.path-completion'
 
-export const skip = true
-
 export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir({ scheme: '' })
+  const tmpDir = await FileSystem.getTmpDir({})
   await FileSystem.writeFile(`${tmpDir}/test.ts`, "import './")
-  await FileSystem.writeFile(
-    `${tmpDir}/add.ts`,
-    'export const add = (a, b) => a + b'
-  )
+  await FileSystem.writeFile(`${tmpDir}/add.ts`, 'export const add = (a, b) => a + b')
   await Main.openUri(`${tmpDir}/test.ts`)
   await Editor.setCursor(0, 19)
 

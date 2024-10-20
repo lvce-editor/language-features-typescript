@@ -53,3 +53,7 @@ export const readVersion = (path: string) => {
   }
   return file.version
 }
+
+export const exists = (path: string) => {
+  return path in files
+}
