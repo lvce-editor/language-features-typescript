@@ -22,5 +22,4 @@ export const c = a + 1`,
 
   // assert
   const text = await Editor.getText()
-  console.log({ text })
 }
