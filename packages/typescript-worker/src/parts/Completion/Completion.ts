@@ -7,6 +7,8 @@ import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtoc
 export const getCompletion = async (typeScriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {
   const uri = textDocument.uri
   Assert.string(uri)
+
+  console.log('before completion', uri)
   await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
   const tsPosition = await Position.getTsPosition(textDocument, offset)
   const tsResult = await typeScriptRpc.invoke<TypeScriptProtocol.CompletionInfoResponse['body']>(
