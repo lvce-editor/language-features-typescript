@@ -1,4 +1,4 @@
-import type { LanguageServiceHost } from 'typescript'
+import type { LanguageServiceHost, LanguageService } from 'typescript'
 import * as FileSystem from '../FileSystem/FileSystem.ts'
 import * as LoadTypeScript from '../LoadTypeScript/LoadTypeScript.ts'
 import * as TypeScriptUrl from '../TypeScriptUrl/TypeScriptUrl.ts'
@@ -52,4 +52,4 @@ const languageServiceHost: LanguageServiceHost = {
   },
 }
 
-export const languageService = ts.createLanguageService(languageServiceHost, undefined, false)
+export const languageService: LanguageService = ts.createLanguageService(languageServiceHost, undefined, false)
