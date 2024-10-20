@@ -5,17 +5,33 @@ import * as TypeScriptUrl from '../TypeScriptUrl/TypeScriptUrl.ts'
 
 const ts = await LoadTypeScript.loadTypeScript(TypeScriptUrl.typeScriptUrl)
 
+const fixPath = (path: string) => {
+  if (path.startsWith('/node_modules/@typescript')) {
+    return path
+  }
+  return path
+}
+
+const realpath = (path: string) => {}
+
 const languageServiceHost: LanguageServiceHost = {
+  realpath(path) {
+    console.log({ realPath: path })
+    return path
+  },
   readFile(path) {
+    console.log({ readFile: path })
     return ''
   },
   fileExists(path) {
+    console.log({ exists: path })
     return true
   },
   getNewLine() {
     return '\n'
   },
-  getDirectories() {
+  getDirectories(args) {
+    console.log({ getDirectories: args })
     return []
   },
   useCaseSensitiveFileNames() {
@@ -48,6 +64,10 @@ const languageServiceHost: LanguageServiceHost = {
   getScriptSnapshot(fileName) {
     const content = FileSystem.readFile(fileName)
     const snapshot = ts.ScriptSnapshot.fromString(content)
+    console.log({
+      getSnapshot: fileName,
+      content,
+    })
     return snapshot
   },
 }

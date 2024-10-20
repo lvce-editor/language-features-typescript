@@ -1,4 +1,4 @@
-export const loadTypeScript = async (typescriptUrl: string) => {
+export const loadTypeScript = async (typescriptUrl: string): Promise<typeof import('typescript')> => {
   try {
     // @ts-ignore
     globalThis.module = {
