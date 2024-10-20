@@ -14,6 +14,9 @@ export const getCompletion = async (typeScriptRpc: CommonRpc, Position: any, tex
 
   FileSystem.writeFile(uri, textDocument.text)
   const languageService = TypeScriptLanguageService.languageService
+
+  const completions1 = languageService.getCompletionsAtPosition(uri, offset, {})
+  console.log({ completions1 })
   console.log({ languageService })
   const typescript = await LoadTypeScript.loadTypeScript(TypeScriptUrl.typeScriptUrl)
 
