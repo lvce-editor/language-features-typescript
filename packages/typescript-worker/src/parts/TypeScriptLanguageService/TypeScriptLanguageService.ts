@@ -52,6 +52,4 @@ const languageServiceHost: LanguageServiceHost = {
   },
 }
 
-const languageService = ts.createLanguageService(languageServiceHost, undefined, false)
-
-export { languageService }
+export const languageService = ts.createLanguageService(languageServiceHost, undefined, false)
