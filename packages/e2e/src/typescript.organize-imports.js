@@ -1,6 +1,6 @@
 export const name = 'typescript.organize-imports'
 
-export const test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect, QuickPick }) => {
+export const test = async ({ FileSystem, ContextMenu, Workspace, Main, Editor, Locator, expect, QuickPick }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/a.ts`, 'export const a = 1')
@@ -14,18 +14,25 @@ export const c = a + 1`,
   )
 
   await Main.openUri(`${tmpDir}/c.ts`)
-  // await Editor.setCursor(0, 3)
 
   // act
-  await QuickPick.open()
-  const quickPick = Locator('#QuickPick')
-  await expect(quickPick).toBeVisible()
-  const quickPickInput = quickPick.locator('input')
-  await expect(quickPickInput).toHaveValue('>')
-  await new Promise((r) => {
-    setTimeout(r, 1000)
-  })
-  await QuickPick.setValue('> Organize Imports')
+  await Editor.organizeImports()
+
+  // assert
+  await Editor.openContextMenu()
+  // console.log({ ContextMenu })
+  // await ContextMenu.show()
+
+  // act
+  // await QuickPick.open()
+  // const quickPick = Locator('#QuickPick')
+  // await expect(quickPick).toBeVisible()
+  // const quickPickInput = quickPick.locator('input')
+  // await expect(quickPickInput).toHaveValue('>')
+  // await new Promise((r) => {
+  //   setTimeout(r, 1000)
+  // })
+  // await QuickPick.setValue('> Organize Imports')
   // await Editor.openCompletion()
 
   // assert
