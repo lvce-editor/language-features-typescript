@@ -1,11 +1,5 @@
+import * as GetTextSync from '../GetTextSync/GetTextSync.ts'
 import * as TypeScriptUrl from '../TypeScriptUrl/TypeScriptUrl.ts'
-
-const getTextSync = (url) => {
-  const xhr = new XMLHttpRequest()
-  xhr.open('GET', /* url */ url, /* async */ false)
-  xhr.send(null)
-  return xhr.responseText
-}
 
 const files = Object.create(null)
 
@@ -37,7 +31,7 @@ export const readFile = (path: string) => {
   if (!file) {
     if (path.startsWith('/lib')) {
       path = `${TypeScriptUrl.typescriptBaseUrl}/lib${path}`
-      const text = getTextSync(path) // typescript only supports synchronous file system
+      const text = GetTextSync.getTextSync(path) // typescript only supports synchronous file system
       return text
     }
     console.info(`[info] file ${path} not found`)
