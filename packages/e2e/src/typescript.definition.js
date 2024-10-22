@@ -15,9 +15,4 @@ export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   await expect(mainTabs).toHaveCount(2)
   const mainTabTwo = mainTabs.nth(1)
   await expect(mainTabTwo).toHaveText('lib.dom.d.ts')
-  const editor = Locator('.Editor')
-  // TODO
-  // await expect(editor).toHaveText(
-  //   `interface AddEventListenerOptions extends EventListenerOptions {`
-  // )
 }
