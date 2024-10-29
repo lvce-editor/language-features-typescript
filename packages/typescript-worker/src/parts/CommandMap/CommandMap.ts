@@ -5,6 +5,7 @@ import * as Hover from '../Hover/Hover.ts'
 import * as Initialize from '../Initialize/Initialize.ts'
 import * as OrganizeImports from '../OrganizeImports/OrganizeImports.ts'
 import * as References from '../References/References.ts'
+import * as Rename from '../Rename/Rename.ts'
 import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.ts'
 import * as Selection from '../Selection/Selection.ts'
 import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
@@ -19,5 +20,6 @@ export const commandMap = {
   'References.provideFileReferences': References.provideFileReferences,
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
   'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
+  'Rename.rename': WrapCommand.wrapCommand(Rename.rename),
   'Selection.expandSelections': WrapCommand.wrapCommand(Selection.expandSelection),
 }
