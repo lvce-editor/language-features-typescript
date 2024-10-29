@@ -10,6 +10,7 @@ import * as Implementation from '../Implementation/Implementation.js'
 import * as Initialize from '../Initialize/Initialize.js'
 import * as OrganizeImports from '../OrganizeImports/OrganizeImports.js'
 import * as References from '../Refererences/References.js'
+import * as Rename from '../Rename/Rename.js'
 import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.js'
 import * as Selection from '../Selection/Selection.js'
 import * as TypeDefinition from '../TypeDefinition/TypeDefinition.js'
@@ -32,4 +33,5 @@ export const commandMap = {
   [CommandType.OrganizeImports]: OrganizeImports.organizeImports,
   [CommandType.ResolveCompletionItem]: ResolveCompletion.resolveCompletion,
   [CommandType.UpdateOpen]: UpdateOpen.updateOpen,
+  [CommandType.Rename]: Rename.rename,
 }
