@@ -1,6 +1,4 @@
-import * as Position from '../Position/Position.ts'
-
-export const getRenameResultFromTsResult = async (textDocument, tsResult, newName) => {
+export const getRenameResultFromTsResult = async (textDocument, Position, tsResult, newName) => {
   if (!tsResult.info.canRename) {
     // TODO how to handle this kind of error vs programmer error?
     throw new Error('rename was not successful')
@@ -25,5 +23,7 @@ export const getRenameResultFromTsResult = async (textDocument, tsResult, newNam
       edits,
     })
   }
-  return workspaceEdits
+  return {
+    edits: workspaceEdits,
+  }
 }

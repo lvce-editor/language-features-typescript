@@ -19,8 +19,7 @@ export const rename = async (
     file: textDocument.uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
-    newName,
   })
-  const rename = await GetRenameFromTsResult.getRenameResultFromTsResult(textDocument, tsResult, newName)
+  const rename = await GetRenameFromTsResult.getRenameResultFromTsResult(textDocument, Position, tsResult, newName)
   return rename
 }
