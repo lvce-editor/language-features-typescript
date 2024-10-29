@@ -1,38 +1,15 @@
-// @ts-nocheck
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
 import * as Position from '../Position/Position.js'
 import * as LanguageId from '../LanguageId/LanguageId.js'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
 
 export const languageId = LanguageId.TypeScript
 
-/**
- * @param {import('typescript/lib/protocol').RenameResponseBody} tsResult
- * @returns {vscode.PrepareRenameInfo} // TODO rename this to PrepareRenameResult
- */
-export const getPrepareRenameFromTsResult = (tsResult) => {
-  return {
-    canRename: tsResult.info.canRename,
-  }
-}
+export const getPrepareRenameFromTsResult = (tsResult) => {}
 
-/**
- * @type{vscode.RenameProvider['prepareRename']}
- */
 export const prepareRename = async (textDocument, offset) => {
-  const tsPosition = Position.getTsPosition(textDocument, offset)
-  const tsResult = await TsServerRequests.rename({
-    file: textDocument.uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
-  })
-  return getPrepareRenameFromTsResult(tsResult)
+  //  TODO
 }
 
-/**
- * @param {import('typescript/lib/protocol').RenameResponseBody} tsResult
- * @param {string} newName
- * @returns {readonly vscode.WorkspaceEdit[]}
- */
 export const getRenameResultFromTsResult = (textDocument, tsResult, newName) => {
   if (!tsResult.info.canRename) {
     // TODO how to handle this kind of error vs programmer error?
@@ -61,15 +38,7 @@ export const getRenameResultFromTsResult = (textDocument, tsResult, newName) => 
   return workspaceEdits
 }
 
-/**
- * @type{vscode.RenameProvider['rename']}
- */
 export const rename = async (textDocument, offset, newName) => {
-  const tsPosition = Position.getTsPosition(textDocument, offset)
-  const tsResult = await TsServerRequests.rename({
-    file: textDocument.uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
-  })
-  return getRenameResultFromTsResult(textDocument, tsResult, newName)
+  const worker = await TypeScriptWorker.getInstance()
+  return worker.invoke('Rename.rename', textDocument, offset, newName)
 }
