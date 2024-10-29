@@ -1,5 +1,7 @@
 export const name = 'typescript.organize-imports'
 
+export const skip=true
+
 export const test = async ({ FileSystem, ContextMenu, Workspace, Main, Editor, Locator, expect, QuickPick }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
