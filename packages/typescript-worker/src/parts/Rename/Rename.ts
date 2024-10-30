@@ -15,11 +15,11 @@ export const rename = async (
   Assert.string(uri)
   await TextDocumentSync.openTextDocuments2(typeScriptRpc, [textDocument])
   const tsPosition = await Position.getTsPosition(textDocument, offset)
-  const tsResult = await typeScriptRpc.invoke<TypeScriptProtocol.RenameInfo>('Completion.getCompletion', {
+  const tsResult = await typeScriptRpc.invoke<TypeScriptProtocol.RenameInfo>('Rename.rename', {
     file: textDocument.uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
   })
-  const rename = await GetRenameFromTsResult.getRenameResultFromTsResult(textDocument, tsResult, newName)
+  const rename = await GetRenameFromTsResult.getRenameResultFromTsResult(textDocument, Position, tsResult, newName)
   return rename
 }
