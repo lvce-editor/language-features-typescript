@@ -2,7 +2,7 @@ image:
   file: .gitpod.Dockerfile
 
 tasks:
-  - init: npm ci --force && cd packages/e2e && npx playwright install chromium && cd ../../ && npm test
+  - init: npm ci && cd packages/e2e && npx playwright install chromium && cd ../../ && npm test
 
 github:
   prebuilds:
