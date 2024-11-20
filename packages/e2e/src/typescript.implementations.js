@@ -8,14 +8,14 @@ export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   await FileSystem.writeFile(
     `${tmpDir}/add.js`,
     `export const add = () => {}
-`
+`,
   )
   await FileSystem.writeFile(
     `${tmpDir}/test.js`,
     `import {add} from './add.js'
 
 add(1,2)
-`
+`,
   )
   await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
   await Main.openUri(`${tmpDir}/test.js`)
