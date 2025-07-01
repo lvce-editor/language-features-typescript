@@ -8,10 +8,7 @@ import * as Rpc from '../Rpc/Rpc.js'
  * @param {import('typescript/lib/protocol').ImplementationResponse['body']} tsResult
  * @returns {Promise<readonly vscode.Location[]>}
  */
-export const getImplementationsFromTsResult = async (
-  textDocument,
-  tsResult
-) => {
+export const getImplementationsFromTsResult = async (textDocument, tsResult) => {
   if (!tsResult) {
     return []
   }

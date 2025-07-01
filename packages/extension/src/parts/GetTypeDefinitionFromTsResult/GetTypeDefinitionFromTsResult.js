@@ -16,10 +16,7 @@ export const getDefinitionFromTsResult = (textDocument, tsResult) => {
   console.log({ tsResult })
   const firstTypeDefinition = tsResult[0]
   if (firstTypeDefinition.file === textDocument.uri) {
-    const startOffset = Position.getOffset(
-      textDocument,
-      firstTypeDefinition.start
-    )
+    const startOffset = Position.getOffset(textDocument, firstTypeDefinition.start)
     const endOffset = Position.getOffset(textDocument, firstTypeDefinition.end)
     return {
       uri: firstTypeDefinition.file,

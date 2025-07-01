@@ -8,7 +8,7 @@ test.skip('getCompletionFromTsResult - empty entries', () => {
       isGlobalCompletion: true,
       isMemberCompletion: false,
       isNewIdentifierLocation: false,
-    })
+    }),
   ).toEqual([])
 })
 
@@ -27,7 +27,7 @@ test.skip('getCompletionFromTsResult - normal entries', () => {
       isGlobalCompletion: true,
       isMemberCompletion: false,
       isNewIdentifierLocation: false,
-    })
+    }),
   ).toEqual([
     {
       label: 'const',

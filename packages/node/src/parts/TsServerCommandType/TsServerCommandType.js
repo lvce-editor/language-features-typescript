@@ -22,8 +22,7 @@ export const DefinitionAndBoundSpan = 'definitionAndBoundSpan'
 
 export const DocumentHighlights = 'documentHighlights'
 
-export const EncodedSemanticClassificationsFull =
-  'encodedSemanticClassifications-full'
+export const EncodedSemanticClassificationsFull = 'encodedSemanticClassifications-full'
 
 export const Exit = 'exit'
 
@@ -51,11 +50,9 @@ export const OrganizeImports = 'organizeImports'
 
 export const PrepareCallHierarchy = 'prepareCallHierarchy'
 
-export const ProvideCallHierarchyIncomingCalls =
-  'provideCallHierarchyIncomingCalls'
+export const ProvideCallHierarchyIncomingCalls = 'provideCallHierarchyIncomingCalls'
 
-export const ProvideCallHierarchyOutgoingCalls =
-  'provideCallHierarchyOutgoingCalls'
+export const ProvideCallHierarchyOutgoingCalls = 'provideCallHierarchyOutgoingCalls'
 
 export const ProvideInlayHints = 'provideInlayHints'
 
@@ -77,4 +74,4 @@ export const TypeDefinition = 'typeDefinition'
 
 export const UpdateOpen = 'updateOpen'
 
-export const SelectionRange='selectionRange'
+export const SelectionRange = 'selectionRange'
