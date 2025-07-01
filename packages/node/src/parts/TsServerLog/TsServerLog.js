@@ -28,7 +28,7 @@ export const receive = (message) => {
   write(
     JSON.stringify({
       received: message,
-    }) + '\n'
+    }) + '\n',
   )
 }
 
@@ -36,6 +36,6 @@ export const send = (message) => {
   write(
     JSON.stringify({
       sent: message,
-    }) + '\n'
+    }) + '\n',
   )
 }

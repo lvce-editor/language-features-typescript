@@ -56,33 +56,21 @@ export const createParser = ({ onMessage }) => {
     }
     while (true) {
       let endIndex = startIndex
-      while (
-        endIndex < data.length &&
-        data[endIndex] !== backslashR &&
-        data[endIndex] !== backslashN
-      ) {
+      while (endIndex < data.length && data[endIndex] !== backslashR && data[endIndex] !== backslashN) {
         endIndex++
       }
       const contentLengthString = data.slice(startIndex, endIndex).toString()
       const contentLength = Number.parseInt(contentLengthString, 10)
       let contentStartIndex = endIndex + 1
-      while (
-        data[contentStartIndex] === backslashR ||
-        data[contentStartIndex] === backslashN
-      ) {
+      while (data[contentStartIndex] === backslashR || data[contentStartIndex] === backslashN) {
         contentStartIndex++
       }
       if (contentStartIndex + contentLength < data.length + 2) {
-        const content = data
-          .subarray(contentStartIndex, contentStartIndex + contentLength)
-          .toString()
+        const content = data.subarray(contentStartIndex, contentStartIndex + contentLength).toString()
         const parsed = JSON.parse(content)
         onMessage(parsed)
         let newEndIndex = contentStartIndex + contentLength
-        while (
-          data[newEndIndex] === backslashR ||
-          data[newEndIndex] === backslashN
-        ) {
+        while (data[newEndIndex] === backslashR || data[newEndIndex] === backslashN) {
           newEndIndex++
         }
         if (newEndIndex === data.length + 1) {

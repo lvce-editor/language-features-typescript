@@ -3,11 +3,7 @@
 
 import { startWorker } from './startWorker.js'
 
-export const testWorker = async ({
-  execMap,
-  config = {},
-  quickPick = () => {},
-}) => {
+export const testWorker = async ({ execMap, config = {}, quickPick = () => {} }) => {
   const invocations: any[] = []
   const rpc = {
     invoke(...args) {
