@@ -38,7 +38,8 @@ export const provideReferences2 = async ({ uri, position }) => {
     line: tsPosition.line,
     offset: tsPosition.offset,
   })
-  return tsResult
+  const references = GetReferencesFromTsResult.getReferencesFromTsResult(textDocument, tsResult)
+  return references
 }
 
 export const provideFileReferences = async (textDocument: any) => {
