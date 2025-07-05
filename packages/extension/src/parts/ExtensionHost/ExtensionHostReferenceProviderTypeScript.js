@@ -8,6 +8,11 @@ export const provideReferences = async (textDocument, offset) => {
   return worker.invoke('References.provideReferences', textDocument, offset)
 }
 
+export const provideReferences2 = async ({ uri, position }) => {
+  const worker = await TypeScriptWorker.getInstance()
+  return worker.invoke('References.provideReferences2', { uri, position })
+}
+
 export const provideFileReferences = async (textDocument) => {
   const worker = await TypeScriptWorker.getInstance()
   return worker.invoke('References.provideFileReferences', textDocument)
