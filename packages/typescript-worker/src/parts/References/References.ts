@@ -21,13 +21,13 @@ export const provideReferences = async (textDocument: any, offset: number) => {
   return references
 }
 
-export const provideReferences2 = async (textDocument: any, position: any) => {
+export const provideReferences2 = async ({ uri, position }) => {
   const tsPosition = {
     line: position.rowIndex + 1,
     offset: position.columnIndex + 1,
   }
   const tsResult = await TypeScriptRpc.invoke('References.getReferences', {
-    file: textDocument.uri,
+    file: uri,
     line: tsPosition.line,
     offset: tsPosition.offset,
   })
