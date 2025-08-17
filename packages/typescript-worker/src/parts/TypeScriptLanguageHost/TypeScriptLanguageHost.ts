@@ -1,8 +1,10 @@
 import type { LanguageServiceHost } from 'typescript'
-import * as FileSystem from '../FileSystem/FileSystem.ts'
+import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
 
-export const create = (ts: typeof import('typescript')): LanguageServiceHost => {
-  const languageServiceHost: LanguageServiceHost = {
+export interface ILanguageServiceHost extends LanguageServiceHost {}
+
+export const create = (ts: typeof import('typescript'), fileSystem: IFileSystem): ILanguageServiceHost => {
+  const languageServiceHost: ILanguageServiceHost = {
     fileExists(path) {
       console.log({ path })
       return true
@@ -21,14 +23,14 @@ export const create = (ts: typeof import('typescript')): LanguageServiceHost => 
       return false
     },
     getProjectVersion() {
-      return `${FileSystem.getVersion()}`
+      return `${fileSystem.getVersion()}`
     },
     getScriptFileNames() {
-      const files = FileSystem.getAllFiles()
+      const files = fileSystem.getScriptFileNames() as string[]
       return files
     },
     getScriptVersion(fileName) {
-      return FileSystem.readVersion(fileName)
+      return fileSystem.getScriptVersion(fileName)
     },
     writeFile(fileName, content) {
       throw new Error('not implemented')
@@ -47,7 +49,7 @@ export const create = (ts: typeof import('typescript')): LanguageServiceHost => 
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
-      const content = FileSystem.readFile(fileName)
+      const content = fileSystem.readFile(fileName)
       if (!content) {
         return undefined
       }
