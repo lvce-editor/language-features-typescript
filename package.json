@@ -7,6 +7,7 @@
     "postinstall": "lerna bootstrap --ci && node scripts/postinstall.js",
     "test": "lerna run test",
     "build": "node scripts/build.js",
+    "build:static": "node scripts/build-static.js",
     "dev": "node packages/build/src/dev.js",
     "type-check": "tsc -b",
     "format": "prettier --write .",

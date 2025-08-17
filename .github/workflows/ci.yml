@@ -50,9 +50,9 @@ jobs:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Build
         if: matrix.os != 'windows-2025'
-        run: node scripts/build.js
+        run: npm run build
       - name: Build static site
-        run: node scripts/build-static.js
+        run: npm run build:static
         env:
           PATH_PREFIX: auto
       - name: Upload artifact
