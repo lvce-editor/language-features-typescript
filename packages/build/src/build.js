@@ -79,13 +79,6 @@ await replace({
   replacement: '../',
 })
 
-const workerUrlFilePath = path.join(root, 'dist', 'src', 'parts', 'TypeScriptWorkerUrl', 'TypeScriptWorkerUrl.js')
-await replace({
-  path: workerUrlFilePath,
-  occurrence: 'src/typescriptWorkerMain.ts',
-  replacement: 'dist/typescriptWorkerMain.js',
-})
-
 await replace({
   path: join(root, 'dist', 'extension.json'),
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
@@ -102,10 +95,19 @@ await bundleJs(
   join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'),
   join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
+await bundleJs(
+  join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.js'),
+  join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
+)
 
 await bundleJs(
   join(root, 'dist', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
   join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+)
+
+await bundleJs(
+  join(root, 'packages', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
+  join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
 )
 
 await packageExtension({
