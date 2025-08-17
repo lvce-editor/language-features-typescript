@@ -3,6 +3,7 @@ import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetRefe
 import * as Position from '../Position/Position.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
 
 const getReferences = async (textDocument: any, offset: number) => {
   await TextDocumentSync.openTextDocuments([textDocument])
@@ -17,6 +18,26 @@ const getReferences = async (textDocument: any, offset: number) => {
 
 export const provideReferences = async (textDocument: any, offset: number) => {
   const tsResult = await getReferences(textDocument, offset)
+  const references = GetReferencesFromTsResult.getReferencesFromTsResult(textDocument, tsResult)
+  return references
+}
+
+export const provideReferences2 = async ({ uri, position }) => {
+  const text = await Rpc.invoke('FileSystem.readFile', uri)
+  const textDocument = {
+    uri,
+    text,
+  }
+  await TextDocumentSync.openTextDocuments([textDocument])
+  const tsPosition = {
+    line: position.rowIndex + 1,
+    offset: position.columnIndex + 1,
+  }
+  const tsResult = await TypeScriptRpc.invoke('References.getReferences', {
+    file: uri,
+    line: tsPosition.line,
+    offset: tsPosition.offset,
+  })
   const references = GetReferencesFromTsResult.getReferencesFromTsResult(textDocument, tsResult)
   return references
 }

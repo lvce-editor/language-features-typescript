@@ -20,6 +20,7 @@ export const commandMap = {
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
   'References.provideFileReferences': References.provideFileReferences,
   'References.provideReferences': References.provideReferences,
+  'References.provideReferences2': References.provideReferences2,
   'Rename.rename': WrapCommand.wrapCommand(Rename.rename),
   'Selection.expandSelections': WrapCommand.wrapCommand(Selection.expandSelection),
 }

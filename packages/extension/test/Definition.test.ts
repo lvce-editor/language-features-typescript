@@ -17,7 +17,7 @@ test.skip('getDefinitionFromTsResult', () => {
           file: '/tmp/index.ts',
           start: { line: 2, offset: 7 },
         },
-      ]
-    )
+      ],
+    ),
   ).toEqual(undefined)
 })

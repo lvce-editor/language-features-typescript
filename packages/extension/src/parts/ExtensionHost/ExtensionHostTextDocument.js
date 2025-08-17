@@ -9,10 +9,7 @@ import { performance } from 'node:perf_hooks'
  * @returns
  */
 const isJavaScriptOrTypeScriptDocument = (textDocument) => {
-  return (
-    textDocument.languageId === 'javascript' ||
-    textDocument.languageId === 'typescript'
-  )
+  return textDocument.languageId === 'javascript' || textDocument.languageId === 'typescript'
 }
 
 const getTsTextChanges = (textDocument, edits) => {
@@ -41,7 +38,7 @@ export const handleWillChangeTextDocument = async (textDocument, edits) => {
           textChanges,
         },
       ],
-    })
+    }),
   )
   await TsServerRequests.updateOpen({
     changedFiles: [

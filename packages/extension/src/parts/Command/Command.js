@@ -18,6 +18,11 @@ const getPosition = (textDocument, offset) => {
   return vscode.getPosition(textDocument, offset)
 }
 
+const readFile = (uri) => {
+  // @ts-ignore
+  return vscode.readFile(uri)
+}
+
 const getFn = (method) => {
   switch (method) {
     case 'TypeScriptRpc.invoke':
@@ -30,6 +35,8 @@ const getFn = (method) => {
       return getOffset
     case 'Position.getPosition':
       return getPosition
+    case 'FileSystem.readFile':
+      return readFile
     default:
       throw new Error('method not found')
   }

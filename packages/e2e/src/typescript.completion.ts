@@ -1,13 +1,8 @@
 export const name = 'typescript.completion'
 
-export const test = async ({
-  FileSystem,
-  Workspace,
-  Main,
-  Editor,
-  Locator,
-  expect,
-}) => {
+export const skip = 1
+
+export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')

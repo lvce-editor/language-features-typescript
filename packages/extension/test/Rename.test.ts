@@ -57,7 +57,7 @@ test.skip('getPrepareRenameFromTsResult - can rename', () => {
           ],
         },
       ],
-    })
+    }),
   ).toEqual({
     canRename: true,
   })
@@ -124,8 +124,8 @@ test.skip('getRenameResultFromTsResult - can rename', () => {
           },
         ],
       },
-      'abc'
-    )
+      'abc',
+    ),
   ).toEqual([
     {
       edits: [

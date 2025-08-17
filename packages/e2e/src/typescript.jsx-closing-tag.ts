@@ -2,14 +2,7 @@ export const name = 'typescript.jsx-closing-tag'
 
 export const skip = true
 
-export const test = async ({
-  FileSystem,
-  Workspace,
-  Main,
-  Editor,
-  Locator,
-  expect,
-}) => {
+export const test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
@@ -17,7 +10,7 @@ export const test = async ({
     `const button = () => {
   return <div
 }
-`
+`,
   )
   await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
   await Editor.setCursor(1, 13)
