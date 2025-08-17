@@ -79,13 +79,6 @@ await replace({
   replacement: '../',
 })
 
-const workerUrlFilePath = path.join(root, 'dist', 'src', 'parts', 'TypeScriptWorkerUrl', 'TypeScriptWorkerUrl.js')
-await replace({
-  path: workerUrlFilePath,
-  occurrence: 'src/typescriptWorkerMain.ts',
-  replacement: 'dist/typescriptWorkerMain.js',
-})
-
 await replace({
   path: join(root, 'dist', 'extension.json'),
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
