@@ -33,18 +33,10 @@ const main = async () => {
       stdio: 'inherit',
     },
   )
-  execa(
-    'node',
-    [
-      'packages/server/node_modules/@lvce-editor/server/bin/server.js',
-      '--test-path=packages/e2e',
-      '--only-extension=packages/extension',
-    ],
-    {
-      cwd: root,
-      stdio: 'inherit',
-    },
-  )
+  execa('node', ['packages/server/node_modules/@lvce-editor/server/bin/server.js', '--test-path=packages/e2e'], {
+    cwd: root,
+    stdio: 'inherit',
+  })
 }
 
 main()
