@@ -31,6 +31,13 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
       - run: npm run type-check
       - run: npm test
+      - name: Build
+        if: matrix.os != 'windows-2025'
+        run: npm run build
+      - name: Build static site
+        run: npm run build:static
+        env:
+          PATH_PREFIX: auto
       - name: install playwright dependencies
         working-directory: ./packages/e2e
         run: npx playwright install chromium
@@ -41,10 +48,3 @@ jobs:
         run: npm run e2e:headless
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Build
-        if: matrix.os != 'windows-2025'
-        run: node scripts/build.js
-      - name: Build static site
-        run: node scripts/build-static.js
-        env:
-          PATH_PREFIX: auto
