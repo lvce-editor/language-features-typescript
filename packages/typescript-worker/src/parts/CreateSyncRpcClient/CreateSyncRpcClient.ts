@@ -3,27 +3,41 @@ import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
 
 export const createSyncRpcClient = async (): Promise<SyncRpc> => {
+  const syncId = 1
+  await Rpc.invoke('SyncApi.setup', syncId)
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle('draft.txt', { create: true })
-  const resultHandle = await root.getFileHandle('result.txt', { create: true })
+  // const resultHandle = await root.getFileHandle('result.txt', { create: true })
   // Get sync access handle
-  const accessHandle = await draftHandle.createSyncAccessHandle()
-  const resultAccessHandle = await resultHandle.createSyncAccessHandle()
+
+  // const f =await draftHandle.getFile()
+  // f.lastModified
+  const accessHandle = await draftHandle.createSyncAccessHandle({
+    mode: 'readwrite-unsafe',
+  })
+  accessHandle.write(new Uint8Array([0]), { at: 0 })
+  accessHandle.flush()
+  // accessHandle.close()
+
+  // const accessHandle2 = await draftHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })
+  // const resultAccessHandle = await resultHandle.createSyncAccessHandle()
 
   // Get size of the file.
-  const fileSize = accessHandle.getSize()
+  // const fileSize = accessHandle.getSize()
   // Read file content to a buffer.
-  const buffer = new DataView(new ArrayBuffer(fileSize))
+  // const buffer = new DataView(new ArrayBuffer(fileSize))
   console.time('read')
-  const readBuffer = accessHandle.read(buffer, { at: 0 })
+  // const readBuffer = accessHandle.read(buffer, { at: 0 })
   console.timeEnd('read')
   return {
     invokeSync(method, ...params) {
-      accessHandle.write(new Uint8Array([0]), { at: 0 })
-      accessHandle.flush()
-      Rpc.invoke(method, ...params)
+      // accessHandle.write(new Uint8Array([0]), { at: 0 })
+      // accessHandle.flush()
+      // accessHandle.close()
+      Rpc.invoke(method, syncId, ...params)
       console.time('wait')
-      waitForSyncRpcResult(accessHandle)
+      const maxDelay = 1_000
+      waitForSyncRpcResult(accessHandle, maxDelay)
       console.timeEnd('wait')
       console.log('done')
       // TODO write to request file '0'

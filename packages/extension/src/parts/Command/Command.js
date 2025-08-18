@@ -28,12 +28,32 @@ const readDir = (uri) => {
   return vscode.readDirWithFileTypes(uri)
 }
 
-const readFileSync = async (uri, resultPath) => {
-  console.log('read file sync')
-  const result = await vscode.readFile(uri)
+const syncSetups = Object.create(null)
+
+const syncSetup = async (id) => {
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle('draft.txt', { create: true })
   const resultHandle = await root.getFileHandle('result.txt', { create: true })
+  // TODO can use async handles here
+  const accessHandle = await draftHandle.createSyncAccessHandle({
+    mode: 'readwrite-unsafe',
+  })
+  const resultAccessHandle = await resultHandle.createSyncAccessHandle({
+    mode: 'readwrite-unsafe',
+  })
+  syncSetups[id] = {
+    accessHandle,
+    resultAccessHandle,
+  }
+}
+
+const readFileSync = async (id, uri, resultPath) => {
+  const { accessHandle, resultAccessHandle } = syncSetups[id]
+  const result = await vscode.readFile(uri)
+  resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)))
+  accessHandle.write(new Uint8Array([1]), { at: 0 })
+  accessHandle.flush()
+  accessHandle.close()
 }
 
 const getFn = (method) => {
@@ -54,6 +74,8 @@ const getFn = (method) => {
       return readDir
     case 'SyncApi.readFileSync':
       return readFileSync
+    case 'SyncApi.setup':
+      return syncSetup
     default:
       throw new Error('method not found')
   }
