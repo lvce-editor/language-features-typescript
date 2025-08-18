@@ -10,7 +10,7 @@ export const initialize = async (path: string) => {
   const ts = await loadTypeScript(tsPath)
   console.timeEnd('load')
   const fs = createFileSystem()
-  const languageService = createTypeScriptLanguageService(ts, fs)
+  const languageService = await createTypeScriptLanguageService(ts, fs)
   const id = 1
   LanguageServices.set(id, languageService, fs)
 }

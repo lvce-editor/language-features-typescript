@@ -23,6 +23,19 @@ const readFile = (uri) => {
   return vscode.readFile(uri)
 }
 
+const readDir = (uri) => {
+  // @ts-ignore
+  return vscode.readDirWithFileTypes(uri)
+}
+
+const readFileSync = async (uri, resultPath) => {
+  console.log('read file sync')
+  const result = await vscode.readFile(uri)
+  const root = await navigator.storage.getDirectory()
+  const draftHandle = await root.getFileHandle('draft.txt', { create: true })
+  const resultHandle = await root.getFileHandle('result.txt', { create: true })
+}
+
 const getFn = (method) => {
   switch (method) {
     case 'TypeScriptRpc.invoke':
@@ -37,6 +50,10 @@ const getFn = (method) => {
       return getPosition
     case 'FileSystem.readFile':
       return readFile
+    case 'FileSystem.readDir':
+      return readDir
+    case 'SyncApi.readFileSync':
+      return readFileSync
     default:
       throw new Error('method not found')
   }

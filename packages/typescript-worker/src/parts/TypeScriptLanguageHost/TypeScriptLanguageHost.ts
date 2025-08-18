@@ -1,21 +1,33 @@
 import type { LanguageServiceHost } from 'typescript'
 import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
+import type { SyncRpc } from '../CreateSyncRpcClient/CreateSyncRpcClient.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
-export const create = (ts: typeof import('typescript'), fileSystem: IFileSystem): ILanguageServiceHost => {
+export const create = (
+  ts: typeof import('typescript'),
+  fileSystem: IFileSystem,
+  syncRpc: SyncRpc,
+): ILanguageServiceHost => {
   const languageServiceHost: ILanguageServiceHost = {
     fileExists(path) {
       return true
     },
     readFile(path) {
+      console.log('read', path)
       return ''
     },
     getNewLine() {
       return '\n'
     },
-    getDirectories(x) {
+    getDirectories(relativePath) {
+      if (relativePath === '/node_modules/@types') {
+        return []
+      }
+      console.log('dir', relativePath)
+      const result = syncRpc.invokeSync('FileSystem.readDir', relativePath)
+      console.log({ result })
       return []
     },
     useCaseSensitiveFileNames() {
