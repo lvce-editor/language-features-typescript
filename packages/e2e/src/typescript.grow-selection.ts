@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.grow-selection'
 
-// export const skip = 1
+export const skip = 1
 
 export const test: Test = async ({ FileSystem, Main, Editor, Command, expect }) => {
   // arrange
@@ -15,7 +15,7 @@ export const test: Test = async ({ FileSystem, Main, Editor, Command, expect }) 
   await Command.execute('Editor.selectionGrow')
 
   // assert
-  const selections = await Command.execute('Editor.getSelections2')
-  console.log({ selections })
-  // TODO
+
+  // @ts-ignore
+  await Editor.shouldHaveSelections(new Uint32Array([0, 0, 0, 9]))
 }

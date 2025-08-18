@@ -8,6 +8,7 @@ export const getCompletion2 = async (textDocument: any, offset: number) => {
   const id = 1
   const { languageService, fs } = LanguageServices.get(id)
   fs.writeFile(textDocument.uri, textDocument.text)
+  console.log({ text: textDocument.text, offset })
   const tsResult = languageService.getCompletionsAtPosition(textDocument.uri, offset, {})
   const completions = getCompletionFromTsResult2(tsResult)
   return completions
