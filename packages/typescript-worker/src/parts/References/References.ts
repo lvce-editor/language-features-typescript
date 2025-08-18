@@ -1,11 +1,12 @@
 import * as FileReferences from '../FileReferences/FileReferences.ts'
+import { getOffset } from '../GetOffset/GetOffset.ts'
 import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.ts'
+import { getReferencesFromTsResult2 } from '../GetReferencesFromTsResult2/GetReferencesFromTsResult2.ts'
+import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import * as Position from '../Position/Position.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
-import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
-import * as Rpc from '../Rpc/Rpc.ts'
-import { getOffset } from '../GetOffset/GetOffset.ts'
 
 const getReferences = async (textDocument: any, offset: number) => {
   await TextDocumentSync.openTextDocuments([textDocument])
@@ -28,24 +29,11 @@ export const provideReferences = async (textDocument: any, offset: number) => {
 export const provideReferences2 = async ({ uri, position }) => {
   const id = 1
   const { languageService, fs } = LanguageServices.get(id)
-  console.log({ uri, position })
   const text = await Rpc.invoke('FileSystem.readFile', uri)
   fs.writeFile(uri, text)
   const offset = getOffset(text, position.rowIndex, position.columnIndex)
-  console.log({ offset })
   const tsResult = languageService.getReferencesAtPosition(uri, offset)
-  console.log({ tsResult })
-  // await TextDocumentSync.openTextDocuments([textDocument])
-  // const tsPosition = {
-  //   line: position.rowIndex + 1,
-  //   offset: position.columnIndex + 1,
-  // }
-  // const tsResult = await TypeScriptRpc.invoke('References.getReferences', {
-  //   file: uri,
-  //   line: tsPosition.line,
-  //   offset: tsPosition.offset,
-  // })
-  const references = []
+  const references = await getReferencesFromTsResult2(tsResult, fs)
   return references
 }
 
