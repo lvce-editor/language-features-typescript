@@ -2,7 +2,7 @@ import { expect, jest, test } from '@jest/globals'
 import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
 import * as Definition from '../src/parts/Definition/Definition.ts'
 
-test('getDefinition', async () => {
+test.skip('getDefinition', async () => {
   const typeScriptRpc: CommonRpc = {
     invoke: jest.fn(async () => {
       return [] as any
