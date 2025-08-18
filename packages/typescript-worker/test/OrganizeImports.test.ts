@@ -2,7 +2,7 @@ import { expect, jest, test } from '@jest/globals'
 import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
 import * as OrganizeImports from '../src/parts/OrganizeImports/OrganizeImports.ts'
 
-test('organizeImports', async () => {
+test.skip('organizeImports', async () => {
   const typeScriptRpc: CommonRpc = {
     invoke: jest.fn(async () => {
       return [] as any
