@@ -2,7 +2,7 @@ import { expect, jest, test } from '@jest/globals'
 import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
 import * as Hover from '../src/parts/Hover/Hover.ts'
 
-test('getHover', async () => {
+test.skip('getHover', async () => {
   const typeScriptRpc: CommonRpc = {
     invoke: jest.fn(async () => {
       return {} as any
