@@ -6,5 +6,5 @@ export const readLibFile = (uri) => {
   if (!url) {
     return undefined
   }
-  return GetTextSync.getTextSync(uri)
+  return GetTextSync.getTextSync(url)
 }
