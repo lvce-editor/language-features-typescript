@@ -1,31 +1,24 @@
-import { join, resolve } from "path";
-import * as Root from "../Root/Root.js";
+import { join, resolve } from 'path'
+import * as Root from '../Root/Root.js'
 
 export const state = {
   getDefaultTsServerPath() {
-    return (
-      process.env.TS_SERVER_PATH ||
-      resolve(
-        join(Root.root, "node_modules", "typescript", "lib", "tsserver.js")
-      )
-    );
+    return process.env.TS_SERVER_PATH || resolve(join(Root.root, 'node_modules', 'typescript', 'lib', 'tsserver.js'))
   },
   getTsServerPath() {
     // @ts-ignore
-    const configuredTsServerPath = vscode.getConfiguration(
-      "typescript.tsserverPath"
-    );
+    const configuredTsServerPath = vscode.getConfiguration('typescript.tsserverPath')
     if (configuredTsServerPath) {
-      return configuredTsServerPath;
+      return configuredTsServerPath
     }
-    return this.getDefaultTsServerPath();
+    return this.getDefaultTsServerPath()
   },
-};
+}
 
 export const getTsServerPath = () => {
-  return state.getTsServerPath();
-};
+  return state.getTsServerPath()
+}
 
 export const getDefaultTsServerPath = () => {
-  return state.getDefaultTsServerPath();
-};
+  return state.getDefaultTsServerPath()
+}
