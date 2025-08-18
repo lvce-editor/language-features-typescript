@@ -9,6 +9,7 @@
     "build": "node scripts/build.js",
     "build:static": "node scripts/build-static.js",
     "dev": "node packages/build/src/dev.js",
+    "build:watch": "node packages/build/src/build-watch.js",
     "type-check": "tsc -b",
     "format": "prettier --write .",
     "e2e": "cd packages/e2e && npm run e2e",
