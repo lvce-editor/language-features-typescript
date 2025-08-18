@@ -16,8 +16,13 @@ const getReferenceFromTsResult = async (reference: ts.ReferenceEntry, fs: IFileS
   }
 }
 
-export const getReferencesFromTsResult2 = async (tsResult: readonly ts.ReferenceEntry[], fs: IFileSystem) => {
-  // tsResult.map(getReferenceFromTsResult)
+export const getReferencesFromTsResult2 = async (
+  tsResult: readonly ts.ReferenceEntry[] | undefined,
+  fs: IFileSystem,
+) => {
+  if (!tsResult) {
+    return []
+  }
   const references = await Promise.all(tsResult.map((item) => getReferenceFromTsResult(item, fs)))
   return references
 }
