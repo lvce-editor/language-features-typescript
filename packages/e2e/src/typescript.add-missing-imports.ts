@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.add-missing-imports'
 
-export const skip = true
+// export const skip = true
 
 export const test: Test = async ({ FileSystem, Main, Editor }) => {
   // arrange
@@ -20,7 +20,7 @@ export const c = a + 1`,
   await Main.openUri(`${tmpDir}/c.ts`)
 
   // act
-  await Editor.addAllMissingImports()
+  await Editor.organizeImports()
 
   // assert
   const text = await Editor.getText()
