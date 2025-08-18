@@ -7,7 +7,7 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   await Rpc.invoke('SyncApi.setup', syncId)
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle('draft.txt', { create: true })
-  // const resultHandle = await root.getFileHandle('result.txt', { create: true })
+  const resultHandle = await root.getFileHandle('result.txt', { create: true })
   // Get sync access handle
 
   // const f =await draftHandle.getFile()
@@ -17,6 +17,10 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   })
   accessHandle.write(new Uint8Array([0]), { at: 0 })
   accessHandle.flush()
+
+  const resultAccessHandle = await resultHandle.createSyncAccessHandle({
+    mode: 'readwrite-unsafe',
+  })
   // accessHandle.close()
 
   // const accessHandle2 = await draftHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })
@@ -40,6 +44,11 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
       waitForSyncRpcResult(accessHandle, maxDelay)
       console.timeEnd('wait')
       console.log('done')
+      const size = resultAccessHandle.getSize()
+      const buf = new Uint8Array(size)
+      resultAccessHandle.read(buf)
+      const text = new TextDecoder().decode(buf)
+      console.log({ text })
       // TODO write to request file '0'
       // TODO send message to extension host worker, requesting sync access to given method
       // TODO read request file, until it is '1'
