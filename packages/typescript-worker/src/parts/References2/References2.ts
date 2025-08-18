@@ -3,7 +3,6 @@ import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetRefe
 import * as Position from '../Position/Position.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
-import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 
 const getReferences = async (textDocument: any, offset: number) => {
@@ -23,24 +22,23 @@ export const provideReferences = async (textDocument: any, offset: number) => {
   return references
 }
 
-// TODO ensure offset based api, makes things easier
 export const provideReferences2 = async ({ uri, position }) => {
-  const id = 1
-  const { languageService, fs } = LanguageServices.get(id)
-  console.log({ uri, position })
   const text = await Rpc.invoke('FileSystem.readFile', uri)
-  fs.writeFile(uri, text)
-  // await TextDocumentSync.openTextDocuments([textDocument])
-  // const tsPosition = {
-  //   line: position.rowIndex + 1,
-  //   offset: position.columnIndex + 1,
-  // }
-  // const tsResult = await TypeScriptRpc.invoke('References.getReferences', {
-  //   file: uri,
-  //   line: tsPosition.line,
-  //   offset: tsPosition.offset,
-  // })
-  const references = []
+  const textDocument = {
+    uri,
+    text,
+  }
+  await TextDocumentSync.openTextDocuments([textDocument])
+  const tsPosition = {
+    line: position.rowIndex + 1,
+    offset: position.columnIndex + 1,
+  }
+  const tsResult = await TypeScriptRpc.invoke('References.getReferences', {
+    file: uri,
+    line: tsPosition.line,
+    offset: tsPosition.offset,
+  })
+  const references = GetReferencesFromTsResult.getReferencesFromTsResult(textDocument, tsResult)
   return references
 }
 

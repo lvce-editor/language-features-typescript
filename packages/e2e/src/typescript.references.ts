@@ -1,6 +1,6 @@
 export const name = 'typescript.references'
 
-export const skip = 1
+// export const skip = 1
 
 export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
@@ -19,6 +19,7 @@ add(1,2)
   )
   await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
   await Main.openUri(`${tmpDir}/test.ts`)
+  await Editor.setCursor(2, 2)
 
   // act
   await Editor.findAllReferences()
