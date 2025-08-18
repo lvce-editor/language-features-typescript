@@ -7,11 +7,9 @@ export interface ILanguageServiceHost extends LanguageServiceHost {}
 export const create = (ts: typeof import('typescript'), fileSystem: IFileSystem): ILanguageServiceHost => {
   const languageServiceHost: ILanguageServiceHost = {
     fileExists(path) {
-      console.log({ path })
       return true
     },
     readFile(path) {
-      console.log({ path })
       return ''
     },
     getNewLine() {
