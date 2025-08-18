@@ -8,6 +8,9 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle('draft.txt', { create: true })
   const resultHandle = await root.getFileHandle('result.txt', { create: true })
+
+  // f.size
+  // draftHandle.createSyncAccessHandle()
   // Get sync access handle
 
   // const f =await draftHandle.getFile()
@@ -15,8 +18,9 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   const accessHandle = await draftHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
-  accessHandle.write(new Uint8Array([0]), { at: 0 })
-  accessHandle.flush()
+
+  const f = await draftHandle.getFile()
+  console.log({ initial: f.size })
 
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
@@ -35,24 +39,31 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   console.timeEnd('read')
   return {
     invokeSync(method, ...params) {
-      // accessHandle.write(new Uint8Array([0]), { at: 0 })
-      // accessHandle.flush()
-      // accessHandle.close()
+      accessHandle.write(new Uint8Array([0]), { at: 0 })
+      accessHandle.truncate(1)
+      accessHandle.flush()
+
+      resultAccessHandle.truncate(0)
+      resultAccessHandle.flush()
       Rpc.invoke(method, syncId, ...params)
       console.time('wait')
       const maxDelay = 1_000
-      waitForSyncRpcResult(accessHandle, maxDelay)
+      const hasResult = waitForSyncRpcResult(accessHandle, maxDelay, f)
+      if (!hasResult) {
+        throw new Error(`Rpc error: timeout of ${maxDelay}ms exceeded`)
+      }
       console.timeEnd('wait')
       console.log('done')
       const size = resultAccessHandle.getSize()
       const buf = new Uint8Array(size)
       resultAccessHandle.read(buf)
       const text = new TextDecoder().decode(buf)
-      console.log({ text })
-      // TODO write to request file '0'
-      // TODO send message to extension host worker, requesting sync access to given method
-      // TODO read request file, until it is '1'
-      // TODO read result file
+      const parsed = JSON.parse(text)
+      draftHandle
+        .getFile()
+        .then((x) => x.size)
+        .then((x) => console.log({ x }))
+      return parsed
     },
   }
 }

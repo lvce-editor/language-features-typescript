@@ -50,10 +50,12 @@ const syncSetup = async (id) => {
 const readFileSync = async (id, uri, resultPath) => {
   const { accessHandle, resultAccessHandle } = syncSetups[id]
   const result = await vscode.readFile(uri)
-  resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)))
-  accessHandle.write(new Uint8Array([1]), { at: 0 })
+  // resultAccessHandle.truncate(0)
+  resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
+    at: 0,
+  })
+  accessHandle.write(new Uint8Array([1, 2, 3]), { at: 0 })
   accessHandle.flush()
-  accessHandle.close()
 }
 
 const getFn = (method) => {
