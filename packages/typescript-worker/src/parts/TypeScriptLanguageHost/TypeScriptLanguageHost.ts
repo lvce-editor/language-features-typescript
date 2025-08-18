@@ -1,5 +1,6 @@
 import type { LanguageServiceHost } from 'typescript'
 import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
+import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
@@ -49,6 +50,10 @@ export const create = (ts: typeof import('typescript'), fileSystem: IFileSystem)
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
+      if (fileName === '/lib.d.ts' || fileName.startsWith('/node_modules/@typescript/lib')) {
+        const content = readLibFile(fileName)
+        return ts.ScriptSnapshot.fromString(content)
+      }
       const content = fileSystem.readFile(fileName)
       if (!content) {
         return undefined

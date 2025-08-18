@@ -1,6 +1,6 @@
 export const name = 'typescript.definition'
 
-export const skip = 1
+// export const skip = 1
 
 export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
