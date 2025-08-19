@@ -28,6 +28,9 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   })
   return {
     invokeSync(method, ...params) {
+      if (buffer) {
+        buffer[0] = 0
+      }
       accessHandle.write(new Uint8Array([0]), { at: 0 })
       accessHandle.truncate(1)
       accessHandle.flush()
