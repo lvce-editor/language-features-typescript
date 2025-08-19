@@ -16,7 +16,7 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   // assert
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
-  await expect(completions).toHaveCount(1)
   const completionItems = completions.locator('.EditorCompletionItem')
+  await expect(completionItems).toHaveCount(1)
   await expect(completionItems.nth(0)).toHaveText('add')
 }
