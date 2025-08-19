@@ -8,10 +8,6 @@ export const createTypeScriptLanguageService = async (
   fs: IFileSystem,
 ): Promise<LanguageService> => {
   const client = await createSyncRpcClient()
-  const uri = `file:///tmp/file.txt`
-
-  const content = client.invokeSync('SyncApi.readFileSync', uri)
-  console.log({ content })
   const languageServiceHost: LanguageServiceHost = TypeScriptLanguageHost.create(ts, fs, client)
   const languageService = ts.createLanguageService(languageServiceHost)
   return languageService
