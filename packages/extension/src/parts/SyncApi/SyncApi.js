@@ -30,7 +30,6 @@ export const readFileSync = async (id, uri, resultPath) => {
   if (buffer) {
     Atomics.store(buffer, 0, 123)
     Atomics.notify(buffer, 0)
-    console.log('did write', buffer[0])
   } else {
     accessHandle.write(new Uint8Array([1, 2, 3]), { at: 0 })
     accessHandle.flush()
