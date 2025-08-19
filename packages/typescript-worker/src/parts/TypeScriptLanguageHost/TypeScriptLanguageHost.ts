@@ -15,7 +15,6 @@ export const create = (
       return true
     },
     readFile(path) {
-      console.log('read', path)
       return ''
     },
     getNewLine() {
