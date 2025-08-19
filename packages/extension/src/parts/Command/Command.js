@@ -1,4 +1,5 @@
 import * as Rpc from '../Rpc/Rpc.js'
+import * as SyncApi from '../SyncApi/SyncApi.js'
 
 const rpcInvoke = (...params) => {
   return Rpc.invoke(...params)
@@ -23,6 +24,11 @@ const readFile = (uri) => {
   return vscode.readFile(uri)
 }
 
+const readDir = (uri) => {
+  // @ts-ignore
+  return vscode.readDirWithFileTypes(uri)
+}
+
 const getFn = (method) => {
   switch (method) {
     case 'TypeScriptRpc.invoke':
@@ -37,6 +43,12 @@ const getFn = (method) => {
       return getPosition
     case 'FileSystem.readFile':
       return readFile
+    case 'FileSystem.readDir':
+      return readDir
+    case 'SyncApi.readFileSync':
+      return SyncApi.readFileSync
+    case 'SyncApi.setup':
+      return SyncApi.syncSetup
     default:
       throw new Error('method not found')
   }
