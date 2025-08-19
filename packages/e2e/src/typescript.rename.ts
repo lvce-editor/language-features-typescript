@@ -13,7 +13,7 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, Command, K
 
   // act
   await Editor.openRename()
-  await Command.execute('EditorRename.handleInput', 'y')
+  await Command.execute('EditorRename.handleInput', 'y', /* Script */ 2)
   await Command.execute('EditorRename.accept')
 
   // assert
