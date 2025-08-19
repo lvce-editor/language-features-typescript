@@ -47,6 +47,8 @@ const getFn = (method) => {
       return readDir
     case 'SyncApi.readFileSync':
       return SyncApi.readFileSync
+    case 'SyncApi.readDirSync':
+      return SyncApi.readDirSync
     case 'SyncApi.setup':
       return SyncApi.syncSetup
     default:
