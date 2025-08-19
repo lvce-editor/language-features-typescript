@@ -67,6 +67,7 @@ export const create = (
         return ts.ScriptSnapshot.fromString(content)
       }
       const content = fileSystem.readFile(fileName)
+      console.log('snapshot', { fileName, content })
       if (!content) {
         return undefined
       }
