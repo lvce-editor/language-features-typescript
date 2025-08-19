@@ -1,7 +1,7 @@
 import type { LanguageServiceHost } from 'typescript'
 import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
-import type { SyncRpc } from '../CreateSyncRpcClient/CreateSyncRpcClient.ts'
+import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
