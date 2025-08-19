@@ -13,11 +13,10 @@ export const syncSetup = async (id, buffer) => {
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
-  const int32 = new Int32Array(buffer)
   syncSetups[id] = {
     accessHandle,
     resultAccessHandle,
-    buffer: int32,
+    buffer,
   }
 }
 
@@ -25,12 +24,13 @@ export const readFileSync = async (id, uri, resultPath) => {
   const { accessHandle, resultAccessHandle, buffer } = syncSetups[id]
   // @ts-ignore
   const result = await vscode.readFile(uri)
+  // TODO write text to file
   resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
     at: 0,
   })
   if (buffer) {
     Atomics.store(buffer, 0, 123)
-    Atomics.notify(buffer, 0, 1)
+    Atomics.notify(buffer, 0)
   } else {
     accessHandle.write(new Uint8Array([1, 2, 3]), { at: 0 })
     accessHandle.flush()
