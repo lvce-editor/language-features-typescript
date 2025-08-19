@@ -1,8 +1,8 @@
 import * as FileReferences from '../FileReferences/FileReferences.ts'
 import { getOffset } from '../GetOffset/GetOffset.ts'
+import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.ts'
 import { getReferencesFromTsResult2 } from '../GetReferencesFromTsResult2/GetReferencesFromTsResult2.ts'
-import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import * as Position from '../Position/Position.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
@@ -27,8 +27,7 @@ export const provideReferences = async (textDocument: any, offset: number) => {
 
 // TODO ensure offset based api, makes things easier
 export const provideReferences2 = async ({ uri, position }) => {
-  const id = 1
-  const { languageService, fs } = LanguageServices.get(id)
+  const { languageService, fs } = getOrCreateLanguageService(uri)
   const text = await Rpc.invoke('FileSystem.readFile', uri)
   fs.writeFile(uri, text)
   const offset = getOffset(text, position.rowIndex, position.columnIndex)
