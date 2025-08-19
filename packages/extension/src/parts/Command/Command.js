@@ -1,4 +1,5 @@
 import * as Rpc from '../Rpc/Rpc.js'
+import * as SyncApi from '../SyncApi/SyncApi.js'
 
 const rpcInvoke = (...params) => {
   return Rpc.invoke(...params)
@@ -28,38 +29,6 @@ const readDir = (uri) => {
   return vscode.readDirWithFileTypes(uri)
 }
 
-const syncSetups = Object.create(null)
-
-const syncSetup = async (id, buffer) => {
-  const root = await navigator.storage.getDirectory()
-  const draftHandle = await root.getFileHandle('draft.txt', { create: true })
-  const resultHandle = await root.getFileHandle('result.txt', { create: true })
-  // TODO can use async handles here
-  const accessHandle = await draftHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
-  const resultAccessHandle = await resultHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
-  console.log({ buffer })
-  syncSetups[id] = {
-    accessHandle,
-    resultAccessHandle,
-    buffer,
-  }
-}
-
-const readFileSync = async (id, uri, resultPath) => {
-  const { accessHandle, resultAccessHandle } = syncSetups[id]
-  const result = await vscode.readFile(uri)
-  // resultAccessHandle.truncate(0)
-  resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
-    at: 0,
-  })
-  accessHandle.write(new Uint8Array([1, 2, 3]), { at: 0 })
-  accessHandle.flush()
-}
-
 const getFn = (method) => {
   switch (method) {
     case 'TypeScriptRpc.invoke':
@@ -77,9 +46,9 @@ const getFn = (method) => {
     case 'FileSystem.readDir':
       return readDir
     case 'SyncApi.readFileSync':
-      return readFileSync
+      return SyncApi.readFileSync
     case 'SyncApi.setup':
-      return syncSetup
+      return SyncApi.syncSetup
     default:
       throw new Error('method not found')
   }
