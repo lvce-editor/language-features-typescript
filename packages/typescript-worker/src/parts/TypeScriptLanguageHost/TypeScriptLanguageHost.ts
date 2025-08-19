@@ -15,7 +15,6 @@ export const create = (
       return true
     },
     readFile(path) {
-      console.log('read', path)
       return ''
     },
     getNewLine() {
@@ -25,9 +24,10 @@ export const create = (
       if (relativePath === '/node_modules/@types') {
         return []
       }
-      console.log('dir', relativePath)
       const result = syncRpc.invokeSync('FileSystem.readDir', relativePath)
-      console.log({ result })
+      if (result) {
+        return []
+      }
       return []
     },
     useCaseSensitiveFileNames() {
