@@ -1,6 +1,6 @@
 import type ts from 'typescript'
-import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 
 const getReferenceFromTsResult = async (reference: ts.ReferenceEntry, fs: IFileSystem) => {
   const { fileName, textSpan } = reference
