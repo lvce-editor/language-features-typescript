@@ -31,6 +31,12 @@ export const create = (
     getNewLine() {
       return '\n'
     },
+    readDirectory(path, extensions, exclude, include, depth) {
+      console.log('read dir', { path, extensions, exclude, include, depth })
+      const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
+      console.log({ dirents })
+      return dirents
+    },
     getDirectories(relativePath) {
       if (relativePath === '/node_modules/@types' || relativePath === 'node_modules/@types') {
         return []
