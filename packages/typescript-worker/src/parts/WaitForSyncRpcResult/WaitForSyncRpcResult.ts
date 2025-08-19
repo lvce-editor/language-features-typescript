@@ -3,7 +3,6 @@ export const waitForSyncRpcResult = (handle: FileSystemSyncAccessHandle, maxWait
   const end = start + maxWaitTime
   let errcount = 0
   const buffer = new Uint8Array([2])
-  let lastRead = 0
   while (true) {
     const now = Date.now()
     if (now >= end) {
