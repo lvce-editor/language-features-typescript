@@ -20,7 +20,7 @@ export const getRenameResultFromTsResult2 = async (
       deleted: 0, // TODO should be count of deleted characters
     })
     workspaceEdits.push({
-      file: spanGroup.fileName,
+      uri: spanGroup.fileName,
       edits,
     })
   }
