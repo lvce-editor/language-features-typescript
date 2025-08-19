@@ -1,5 +1,5 @@
 import type { LanguageServiceHost } from 'typescript'
-import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
@@ -11,6 +11,13 @@ export const create = (
   syncRpc: SyncRpc,
 ): ILanguageServiceHost => {
   const languageServiceHost: ILanguageServiceHost = {
+    getParsedCommandLine(fileName) {
+      return {}
+    },
+    directoryExists(directoryName) {
+      console.log('exists', directoryName)
+      return true
+    },
     fileExists(path) {
       return true
     },
@@ -55,7 +62,7 @@ export const create = (
       throw new Error('not implemented')
     },
     getCurrentDirectory() {
-      return '/'
+      return ''
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = '/' + ts.getDefaultLibFileName(options)
