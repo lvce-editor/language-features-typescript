@@ -24,7 +24,7 @@ export const create = (
       if (relativePath === '/node_modules/@types') {
         return []
       }
-      const result = syncRpc.invokeSync('FileSystem.readDir', relativePath)
+      const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
       if (result) {
         return []
       }
