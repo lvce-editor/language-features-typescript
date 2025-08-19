@@ -4,7 +4,9 @@ import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResu
 
 export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   const syncId = 1
-  await Rpc.invoke('SyncApi.setup', syncId)
+  const isolated = globalThis.crossOriginIsolated
+  const buffer = isolated ? new SharedArrayBuffer(1) : undefined
+  await Rpc.invoke('SyncApi.setup', syncId, buffer)
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle('draft.txt', { create: true })
   const resultHandle = await root.getFileHandle('result.txt', { create: true })

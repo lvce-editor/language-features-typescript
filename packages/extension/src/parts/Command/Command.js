@@ -30,7 +30,7 @@ const readDir = (uri) => {
 
 const syncSetups = Object.create(null)
 
-const syncSetup = async (id) => {
+const syncSetup = async (id, buffer) => {
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle('draft.txt', { create: true })
   const resultHandle = await root.getFileHandle('result.txt', { create: true })
@@ -41,9 +41,11 @@ const syncSetup = async (id) => {
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
+  console.log({ buffer })
   syncSetups[id] = {
     accessHandle,
     resultAccessHandle,
+    buffer,
   }
 }
 
