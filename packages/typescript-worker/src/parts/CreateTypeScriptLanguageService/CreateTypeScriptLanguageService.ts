@@ -1,6 +1,6 @@
 import type { LanguageService, LanguageServiceHost } from 'typescript'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { createSyncRpcClient } from '../CreateSyncRpcClient/CreateSyncRpcClient.ts'
-import { type IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import * as TypeScriptLanguageHost from '../TypeScriptLanguageHost/TypeScriptLanguageHost.ts'
 
 export const createTypeScriptLanguageService = async (
