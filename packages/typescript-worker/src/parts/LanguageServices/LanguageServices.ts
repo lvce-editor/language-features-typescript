@@ -1,5 +1,5 @@
 import type { LanguageService } from 'typescript'
-import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 
 interface LanguageServiceItem {
   readonly languageService: LanguageService
