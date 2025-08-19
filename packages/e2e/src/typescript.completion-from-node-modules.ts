@@ -7,6 +7,7 @@ export const name = 'typescript.completion-from-node-modules'
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect, Workspace }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
+  await FileSystem.writeFile(`${tmpDir}/package.json`, `{ "type": "module", "dependencies": { "lodash": "^1.0.0" } }`)
   await FileSystem.writeFile(`${tmpDir}/node_modules/lodash/package.json`, `{ "main": "index.js", "type": "module" }`)
   await FileSystem.writeFile(`${tmpDir}/node_modules/lodash/index.js`, `export const add = (a,b) => a + b`)
   await FileSystem.writeFile(`${tmpDir}/test.ts`, `import * as _ from ''`)

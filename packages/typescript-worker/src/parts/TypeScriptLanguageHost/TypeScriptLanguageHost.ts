@@ -15,6 +15,7 @@ export const create = (
       return true
     },
     readFile(path) {
+      console.log('read', path)
       return ''
     },
     getNewLine() {
@@ -25,7 +26,7 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      console.log({ result })
+      console.log({ relativePath, result })
       if (result) {
         return []
       }
