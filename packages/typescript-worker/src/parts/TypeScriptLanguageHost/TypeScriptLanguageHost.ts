@@ -69,11 +69,11 @@ export const create = (
       return ''
     },
     getDefaultLibFileName(options) {
-      const defaultLibFileName = '/' + ts.getDefaultLibFileName(options)
+      const defaultLibFileName = ts.getDefaultLibFileName(options)
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
-      if (fileName === '/lib.d.ts' || fileName.startsWith('/node_modules/@typescript/lib')) {
+      if (fileName === 'lib.d.ts' || fileName.startsWith('node_modules/@typescript/lib')) {
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
