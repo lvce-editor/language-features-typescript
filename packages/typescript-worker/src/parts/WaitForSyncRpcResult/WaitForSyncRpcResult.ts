@@ -1,4 +1,12 @@
-export const waitForSyncRpcResult = (handle: FileSystemSyncAccessHandle, maxWaitTime: number): boolean => {
+export const waitForSyncRpcResult = (
+  handle: FileSystemSyncAccessHandle,
+  maxWaitTime: number,
+  sharedBuffer: SharedArrayBuffer | undefined,
+): boolean => {
+  if (sharedBuffer) {
+    const intArray = new Int32Array(sharedBuffer)
+    Atomics.wait(intArray, 0, 1, maxWaitTime)
+  }
   const start = Date.now()
   const end = start + maxWaitTime
   let errcount = 0
