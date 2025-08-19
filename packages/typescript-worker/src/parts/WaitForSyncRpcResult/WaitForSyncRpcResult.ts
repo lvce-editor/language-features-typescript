@@ -1,4 +1,4 @@
-export const waitForSyncRpcResult = (handle: FileSystemSyncAccessHandle, maxWaitTime: number, file: File): boolean => {
+export const waitForSyncRpcResult = (handle: FileSystemSyncAccessHandle, maxWaitTime: number): boolean => {
   const start = Date.now()
   const end = start + maxWaitTime
   let errcount = 0
