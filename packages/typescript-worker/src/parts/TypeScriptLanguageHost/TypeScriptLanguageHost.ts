@@ -11,9 +11,12 @@ export const create = (
   syncRpc: SyncRpc,
 ): ILanguageServiceHost => {
   const languageServiceHost: ILanguageServiceHost = {
-    getParsedCommandLine(fileName) {
-      return {}
+    getScriptKind(fileName) {
+      return ts.ScriptKind.TS
     },
+    // getParsedCommandLine(fileName) {
+    //   return {}
+    // },
     directoryExists(directoryName) {
       console.log('exists', directoryName)
       return true
@@ -22,18 +25,17 @@ export const create = (
       return true
     },
     readFile(path) {
-      console.log('read', path)
+      console.log('read', path, 'EMPTY')
       return ''
     },
     getNewLine() {
       return '\n'
     },
     getDirectories(relativePath) {
-      if (relativePath === '/node_modules/@types') {
+      if (relativePath === '/node_modules/@types' || relativePath === 'node_modules/@types') {
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      console.log({ relativePath, result })
       if (result) {
         return []
       }
@@ -47,6 +49,7 @@ export const create = (
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
+      console.log({ files })
       return files
     },
     getScriptVersion(fileName) {
