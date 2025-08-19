@@ -8,7 +8,7 @@ export const waitForSyncRpcResult = (handle: FileSystemSyncAccessHandle, maxWait
     if (now >= end) {
       return false
     }
-    lastRead = handle.read(buffer, { at: 0 })
+    handle.read(buffer, { at: 0 })
     if (buffer[0] === 1) {
       return true
     }
