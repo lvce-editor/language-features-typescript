@@ -4,7 +4,7 @@ export const name = 'typescript.rename'
 
 export const skip = 1
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect, KeyBoard }) => {
+export const test: Test = async ({ FileSystem, Main, Editor, Locator, Command, KeyBoard }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'let x = 1')
@@ -13,10 +13,10 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect, Ke
 
   // act
   await Editor.openRename()
+  await Command.execute('EditorRename.handleInput', 'y')
+  await Command.execute('EditorRename.accept')
 
   // assert
-  // TODO use page object
-  const renameInput = Locator('.RenameInputBox')
-  await renameInput.type('y')
-  await KeyBoard.press('Enter')
+
+  // TODO verify variable has been renamed
 }
