@@ -17,7 +17,7 @@ export const getRenameResultFromTsResult2 = async (
     edits.push({
       offset: spanGroup.textSpan.start,
       inserted: newName,
-      deleted: 0, // TODO should be count of deleted characters
+      deleted: spanGroup.textSpan.length,
     })
     workspaceEdits.push({
       uri: spanGroup.fileName,
