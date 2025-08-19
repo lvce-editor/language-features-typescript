@@ -24,6 +24,7 @@ export const readFileSync = async (id, uri, resultPath) => {
   const { accessHandle, resultAccessHandle, buffer } = syncSetups[id]
   // @ts-ignore
   const result = await vscode.readFile(uri)
+  // TODO write text to file
   resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
     at: 0,
   })
