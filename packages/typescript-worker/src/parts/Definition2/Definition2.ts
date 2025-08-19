@@ -6,7 +6,6 @@ export const getDefinition2 = async (textDocument: any, offset: number) => {
   const { fs, languageService } = LanguageServices.get(id)
   fs.writeFile(textDocument.uri, textDocument.text)
   const tsResult = languageService.getDefinitionAtPosition(textDocument.uri, offset)
-  console.log({ tsResult })
   const definition = await getDefinitionFromTsResult2(textDocument, tsResult)
   return definition
 }

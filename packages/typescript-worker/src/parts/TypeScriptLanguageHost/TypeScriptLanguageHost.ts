@@ -18,23 +18,19 @@ export const create = (
     //   return {}
     // },
     directoryExists(directoryName) {
-      console.log('exists', directoryName)
       return true
     },
     fileExists(path) {
       return true
     },
     readFile(path) {
-      console.log('read', path, 'EMPTY')
       return ''
     },
     getNewLine() {
       return '\n'
     },
     readDirectory(path, extensions, exclude, include, depth) {
-      console.log('read dir', { path, extensions, exclude, include, depth })
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
-      console.log({ dirents })
       return dirents
     },
     getDirectories(relativePath) {
@@ -55,7 +51,6 @@ export const create = (
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
-      console.log({ files })
       return files
     },
     getScriptVersion(fileName) {
@@ -83,7 +78,6 @@ export const create = (
         return ts.ScriptSnapshot.fromString(content)
       }
       const content = fileSystem.readFile(fileName)
-      console.log('snapshot', { fileName, content })
       if (!content) {
         return undefined
       }
