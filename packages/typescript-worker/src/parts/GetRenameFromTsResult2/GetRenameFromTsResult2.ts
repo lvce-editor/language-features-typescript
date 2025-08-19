@@ -1,5 +1,4 @@
 import type ts from 'typescript'
-import { getOffset } from '../GetOffset/GetOffset.ts'
 
 export const getRenameResultFromTsResult2 = async (
   text: string,
@@ -12,25 +11,16 @@ export const getRenameResultFromTsResult2 = async (
     throw new Error('rename was not successful')
   }
   const workspaceEdits = []
-  tsResult.triggerSpan
   // TODO
   for (const spanGroup of tsLocations) {
     const edits = []
-    // @ts-ignore
-    for (const textSpan of spanGroup.locs) {
-      const prefixText = textSpan.prefixText || ''
-      const suffixText = textSpan.suffixText || ''
-      const inserted = prefixText + newName + suffixText
-      const offset = getOffset(text, textSpan.start.line - 1, textSpan.start.offset - 1)
-      edits.push({
-        offset,
-        inserted,
-        deleted: 0,
-      })
-    }
+    edits.push({
+      offset: spanGroup.textSpan.start,
+      inserted: newName,
+      deleted: 0, // TODO should be count of deleted characters
+    })
     workspaceEdits.push({
-      // @ts-ignore
-      file: spanGroup.file,
+      file: spanGroup.fileName,
       edits,
     })
   }
