@@ -11,7 +11,6 @@ export const create = (
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
-  console.log({ options })
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
@@ -24,7 +23,6 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
-      console.log('type refrence')
       return []
     },
     resolveModuleNameLiterals(
@@ -63,15 +61,12 @@ export const create = (
     //   return options
     // },
     directoryExists(directoryName) {
-      console.log('dir ex', directoryName)
       return true
     },
     fileExists(path) {
-      console.log('exists', path)
       return true
     },
     readFile(path) {
-      console.log('read', path)
       return ''
     },
     getNewLine() {
