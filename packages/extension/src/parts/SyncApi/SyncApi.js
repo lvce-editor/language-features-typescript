@@ -48,7 +48,11 @@ export const readDirSync = async (id, uri, resultPath) => {
 }
 
 export const exists = async (id, uri, resultPath) => {
-  // @ts-ignore
-  const result = await vscode.exists(uri)
-  await writeResult(id, result)
+  try {
+    // @ts-ignore
+    const result = await vscode.exists(uri)
+    await writeResult(id, result)
+  } catch {
+    await writeResult(id, true)
+  }
 }
