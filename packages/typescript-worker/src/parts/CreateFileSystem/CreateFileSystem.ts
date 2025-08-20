@@ -18,9 +18,6 @@ export const createFileSystem = (): IFileSystem => {
     getScriptVersion(uri) {
       return '0'
     },
-    exists(uri) {
-      return true
-    },
   }
   return fileSystem
 }
