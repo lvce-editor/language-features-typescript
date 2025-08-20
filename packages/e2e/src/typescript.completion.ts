@@ -10,7 +10,7 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
     JSON.stringify(
       {
         compilerOptions: {
-          lib: ['ESNext', 'DOM'],
+          lib: ['esnext', 'dom'],
           types: [],
         },
         include: ['src'],

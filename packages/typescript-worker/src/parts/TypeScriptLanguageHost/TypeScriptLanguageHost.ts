@@ -102,6 +102,10 @@ export const create = (
       throw new Error('not implemented')
     },
     getCompilationSettings() {
+      console.log({
+        default: ts.getDefaultCompilerOptions(),
+        options: options.options,
+      })
       return options.options
     },
     getCustomTransformers() {
@@ -112,6 +116,7 @@ export const create = (
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = ts.getDefaultLibFileName(options)
+      console.log({ defaultLibFileName })
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
