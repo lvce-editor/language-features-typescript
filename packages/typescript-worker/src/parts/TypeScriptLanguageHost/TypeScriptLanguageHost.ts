@@ -1,4 +1,4 @@
-import type { LanguageServiceHost } from 'typescript'
+import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
@@ -9,6 +9,7 @@ export const create = (
   ts: typeof import('typescript'),
   fileSystem: IFileSystem,
   syncRpc: SyncRpc,
+  options: ParsedCommandLine,
 ): ILanguageServiceHost => {
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
