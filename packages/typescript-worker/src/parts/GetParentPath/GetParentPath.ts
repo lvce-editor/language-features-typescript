@@ -3,5 +3,5 @@ export const getParentPath = (uri: string): string => {
   if (slashIndex === -1) {
     return ''
   }
-  return uri.slice(slashIndex)
+  return uri.slice(0, slashIndex)
 }
