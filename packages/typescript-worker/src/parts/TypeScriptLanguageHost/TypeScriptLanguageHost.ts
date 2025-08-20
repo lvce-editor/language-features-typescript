@@ -11,14 +11,14 @@ export const create = (
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
+  console.log({ options })
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
-
-    getParsedCommandLine(fileName) {
-      return options
-    },
+    // getParsedCommandLine(fileName) {
+    //   return options
+    // },
     directoryExists(directoryName) {
       return true
     },
