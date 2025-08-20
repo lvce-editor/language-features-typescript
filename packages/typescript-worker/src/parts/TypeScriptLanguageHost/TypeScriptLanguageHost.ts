@@ -7,6 +7,7 @@ import type {
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
@@ -118,6 +119,8 @@ export const create = (
       throw new Error('not implemented')
     },
     getCurrentDirectory() {
+      const currentDirectory = options.options.rootDir || ''
+      console.log({ currentDirectory })
       return ''
     },
     getDefaultLibFileName(options) {
@@ -125,11 +128,12 @@ export const create = (
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
-      if (fileName === 'lib.d.ts' || fileName.startsWith('node_modules/@typescript/lib')) {
+      if (isLibFile(fileName)) {
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
       const content = fileSystem.readFile(fileName)
+      console.log({ content, fileName })
       if (!content) {
         return undefined
       }

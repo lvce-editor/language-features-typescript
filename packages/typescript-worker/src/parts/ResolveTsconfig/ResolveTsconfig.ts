@@ -36,7 +36,7 @@ export const resolveTsconfig = (
     options = {
       ...options,
       rootDir,
-      configFilePath: undefined,
+      // configFilePath: undefined,
       // target: 99,
       // lib: ['lib.dom.d.ts'],
       // checkJs: true,
