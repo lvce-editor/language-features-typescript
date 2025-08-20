@@ -35,9 +35,29 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
-      console.log({ moduleLiterals, containingFile, redirectedReference, options, containingSourceFile, reusedNames })
-      // ts.resolveModuleName(moduleName, containingFile, compilerOptions, host)
-      return []
+      return moduleLiterals.map((literal) => {
+        const text = literal.getText(containingSourceFile)
+        const module = ts.resolveModuleName(text, containingFile, options, {
+          fileExists: (uri) => {
+            return syncRpc.invokeSync('SyncApi.exists', uri)
+          },
+          readFile: (uri) => {
+            return syncRpc.invokeSync('SyncApi.readFileSync', uri)
+          },
+          directoryExists: (uri) => {
+            return syncRpc.invokeSync('SyncApi.exists', uri)
+          },
+          getCurrentDirectory: () => '',
+          getDirectories: (uri) => {
+            const dirents = syncRpc.invokeSync('SyncApi.readDirSync', uri)
+            return dirents
+          },
+        }).resolvedModule
+
+        return {
+          resolvedModule: module,
+        }
+      })
     },
     // getParsedCommandLine(fileName) {
     //   return options
