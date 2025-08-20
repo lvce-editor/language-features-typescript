@@ -4,9 +4,6 @@ import { getTsConfigPath } from '../GetTsconfigPath/GetTsconfigPath.ts'
 import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import { parseTsconfig } from '../ParseTsconfig/ParseTsconfig.ts'
 
-// TODO cache it in a hashmap, one uri is connected to one project id
-// one project id is connected to one project
-
 let nextProjectId = 1
 const projectCache: Record<number, LanguageService> = Object.create(null)
 const projectIdCache: Record<string, number> = Object.create(null)
