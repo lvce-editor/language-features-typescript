@@ -16,6 +16,17 @@ export const create = (
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
+    resolveTypeReferenceDirectiveReferences(
+      typeDirectiveReferences,
+      containingFile,
+      redirectedReference,
+      options,
+      containingSourceFile,
+      reusedNames,
+    ) {
+      console.log('type refrence')
+      return []
+    },
     resolveModuleNameLiterals(
       moduleLiterals,
       containingFile,
