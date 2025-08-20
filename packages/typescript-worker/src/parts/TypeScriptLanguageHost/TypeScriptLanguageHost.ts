@@ -93,7 +93,6 @@ export const create = (
       return `${fileSystem.getVersion()}`
     },
     getScriptFileNames() {
-      console.log('get filenames', options.fileNames)
       return options.fileNames
     },
     getScriptVersion(fileName) {
