@@ -1,6 +1,4 @@
-const isTypeScriptFile = (path) => {
-  return path.endsWith('.ts') || path.endsWith('.js')
-}
+import { isTypeScriptFile } from '../IsTypeScriptFile/IsTypeScriptFile.ts'
 
 export const getFiles = (
   basePath: string,
