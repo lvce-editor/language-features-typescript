@@ -1,26 +1,12 @@
-import type { ParsedCommandLine } from 'typescript'
-
-export const emptyTsconfig: ParsedCommandLine = {
-  options: {},
-  errors: [],
-  fileNames: [],
-}
-
-export const parseTsconfig = (tsconfigPath: string, readFile: (uri: string) => string): ParsedCommandLine => {
+export const parseTsconfig = (tsconfigPath: string, readFile: (uri: string) => string): any => {
   if (!tsconfigPath) {
-    return emptyTsconfig
+    return {}
   }
   try {
     const content = readFile(tsconfigPath)
     const parsed = JSON.parse(content)
-    const options = parsed.compilerOptions || {}
-    const result: ParsedCommandLine = {
-      options,
-      errors: [],
-      fileNames: [],
-    }
-    return result
-  } catch {
-    return emptyTsconfig
+    return parsed
+  } catch (error) {
+    return {}
   }
 }
