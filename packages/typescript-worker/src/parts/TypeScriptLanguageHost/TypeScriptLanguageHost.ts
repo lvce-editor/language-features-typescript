@@ -16,6 +16,18 @@ export const create = (
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
+    resolveModuleNameLiterals(
+      moduleLiterals,
+      containingFile,
+      redirectedReference,
+      options,
+      containingSourceFile,
+      reusedNames,
+    ) {
+      console.log({ moduleLiterals, containingFile, redirectedReference, options, containingSourceFile, reusedNames })
+      // ts.resolveModuleName(moduleName, containingFile, compilerOptions, host)
+      return []
+    },
     // getParsedCommandLine(fileName) {
     //   return options
     // },
