@@ -61,6 +61,7 @@ export const create = (
           resolvedModule: module,
         }
       })
+      console.log({ resolvedModules })
       return resolvedModules
     },
     // getParsedCommandLine(fileName) {
