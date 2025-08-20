@@ -1,6 +1,6 @@
 import type { ParsedCommandLine } from 'typescript'
 
-const emptyTsconfig: ParsedCommandLine = {
+export const emptyTsconfig: ParsedCommandLine = {
   options: {},
   errors: [],
   fileNames: [],
