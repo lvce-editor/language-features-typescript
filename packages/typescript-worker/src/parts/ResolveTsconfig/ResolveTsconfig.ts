@@ -39,6 +39,7 @@ export const resolveTsconfig = (
     const dirname = getParentPath(tsconfigPath)
     const include = options.include || []
     const files = getFiles(dirname, include, readDir)
+    console.log({ files })
     const result: ParsedCommandLine = {
       options,
       errors: [],
