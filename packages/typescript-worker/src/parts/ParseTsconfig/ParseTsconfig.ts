@@ -1,5 +1,4 @@
 import type { ParsedCommandLine } from 'typescript'
-import { getTsConfigPath } from '../GetTsconfigPath/GetTsconfigPath.ts'
 
 const emptyTsconfig: ParsedCommandLine = {
   options: {},
@@ -8,7 +7,7 @@ const emptyTsconfig: ParsedCommandLine = {
 }
 
 export const parseTsconfig = (tsconfigPath: string, readFile: (uri: string) => string): ParsedCommandLine => {
-  if (!getTsConfigPath) {
+  if (!tsconfigPath) {
     return emptyTsconfig
   }
   const content = readFile(tsconfigPath)
