@@ -2,13 +2,12 @@ import { getParentPath } from '../GetParentPath/GetParentPath.ts'
 
 export const getConfigPath = (uri: string, configFileName: string, exists: (uri: string) => boolean): string => {
   const parentPath = getParentPath(uri)
+  if (!parentPath) {
+    return ''
+  }
   const possibleTsConfigPath = `${parentPath}/${configFileName}`
   if (exists(possibleTsConfigPath)) {
     return possibleTsConfigPath
   }
-  console.log('not exists', possibleTsConfigPath, parentPath)
-  // TODO walk up until a tsconfig file is found
-  // if none is found, return empty string
-
-  return ''
+  return getConfigPath(parentPath, configFileName, exists)
 }
