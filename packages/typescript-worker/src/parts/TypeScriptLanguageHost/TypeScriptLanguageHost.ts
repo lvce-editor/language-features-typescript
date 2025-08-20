@@ -15,50 +15,8 @@ export const create = (
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
-    resolveTypeReferenceDirectiveReferences(
-      typeDirectiveReferences,
-      containingFile,
-      redirectedReference,
-      options,
-      containingSourceFile,
-      reusedNames,
-    ) {
-      return []
-    },
-    resolveModuleNameLiterals(
-      moduleLiterals,
-      containingFile,
-      redirectedReference,
-      options,
-      containingSourceFile,
-      reusedNames,
-    ) {
-      return moduleLiterals.map((literal) => {
-        const text = literal.getText(containingSourceFile)
-        const module = ts.resolveModuleName(text, containingFile, options, {
-          fileExists: (uri) => {
-            return syncRpc.invokeSync('SyncApi.exists', uri)
-          },
-          readFile: (uri) => {
-            return syncRpc.invokeSync('SyncApi.readFileSync', uri)
-          },
-          directoryExists: (uri) => {
-            return syncRpc.invokeSync('SyncApi.exists', uri)
-          },
-          getCurrentDirectory: () => '',
-          getDirectories: (uri) => {
-            const dirents = syncRpc.invokeSync('SyncApi.readDirSync', uri)
-            return dirents
-          },
-        }).resolvedModule
-
-        return {
-          resolvedModule: module,
-        }
-      })
-    },
     // getParsedCommandLine(fileName) {
-    //   return options
+    //   return {}
     // },
     directoryExists(directoryName) {
       return true
@@ -93,7 +51,8 @@ export const create = (
       return `${fileSystem.getVersion()}`
     },
     getScriptFileNames() {
-      return options.fileNames
+      const files = fileSystem.getScriptFileNames() as string[]
+      return files
     },
     getScriptVersion(fileName) {
       return fileSystem.getScriptVersion(fileName)
@@ -102,7 +61,7 @@ export const create = (
       throw new Error('not implemented')
     },
     getCompilationSettings() {
-      return options.options
+      return ts.getDefaultCompilerOptions()
     },
     getCustomTransformers() {
       throw new Error('not implemented')
