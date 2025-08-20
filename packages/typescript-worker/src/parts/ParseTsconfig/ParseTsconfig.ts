@@ -2,7 +2,7 @@ import type { ParsedCommandLine } from 'typescript'
 import { getFiles } from '../GetFiles/GetFiles.ts'
 import { getParentPath } from '../GetParentPath/GetParentPath.ts'
 
-const emptyTsconfig: ParsedCommandLine = {
+export const emptyTsconfig: ParsedCommandLine = {
   options: {},
   errors: [],
   fileNames: [],
