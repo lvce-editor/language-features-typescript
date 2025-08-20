@@ -7,9 +7,23 @@ export const skip = 1
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(`${tmpDir}/add.ts`, `export const add = (a, b) => a + b`)
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, `import { add } from './'`)
-  await Main.openUri(`${tmpDir}/test.ts`)
+  await FileSystem.writeFile(
+    `${tmpDir}/tsconfig.json`,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          lib: ['ESNext'],
+          types: [],
+        },
+        include: ['src'],
+      },
+      null,
+      2,
+    ),
+  )
+  await FileSystem.writeFile(`${tmpDir}/src/add.ts`, `export const add = (a, b) => a + b`)
+  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, `import { add } from './'`)
+  await Main.openUri(`${tmpDir}/src/test.ts`)
   await Editor.setCursor(0, 23)
 
   // act

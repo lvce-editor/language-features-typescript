@@ -9,14 +9,21 @@ export const test: Test = async ({ FileSystem, Main, Editor }) => {
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
     `${tmpDir}/tsconfig.json`,
-    `{
-  "types": [],
-  "lib": ["ESNext"]
-}`,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          lib: ['ESNext'],
+          types: [],
+        },
+        include: ['src'],
+      },
+      null,
+      2,
+    ),
   )
-  await FileSystem.writeFile(`${tmpDir}/add.ts`, 'export const add = (a, b) => a + b')
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'let x = add')
-  await Main.openUri(`${tmpDir}/test.ts`)
+  await FileSystem.writeFile(`${tmpDir}/src/add.ts`, 'export const add = (a, b) => a + b')
+  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, 'let x = add')
+  await Main.openUri(`${tmpDir}/src/test.ts`)
   await Editor.setCursor(0, 11)
 
   // act
