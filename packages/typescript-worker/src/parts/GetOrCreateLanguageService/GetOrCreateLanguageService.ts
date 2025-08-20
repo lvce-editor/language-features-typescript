@@ -3,6 +3,7 @@ import { createTypeScriptLanguageService } from '../CreateTypeScriptLanguageServ
 import { getTsConfigPath } from '../GetTsconfigPath/GetTsconfigPath.ts'
 import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import { parseTsconfig } from '../ParseTsconfig/ParseTsconfig.ts'
+import { emptyTsconfig } from '../ParseTsconfig/ParseTsconfig.ts'
 
 // TODO cache it in a hashmap, one uri is connected to one project id
 // one project id is connected to one project
