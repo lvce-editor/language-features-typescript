@@ -30,7 +30,7 @@ export const parseTsconfig = (
       module: 99,
       types: [],
       moduleResolution: 2,
-      rootDir: '/test/completion-worker/packages/e2e',
+      rootDir,
       allowJs: true,
       skipLibCheck: true,
       noEmit: true,
@@ -39,8 +39,8 @@ export const parseTsconfig = (
       assumeChangesOnlyAffectDirectDependencies: true,
       strict: true,
       noImplicitAny: false,
-      composite: true,
-      configFilePath: '/test/completion-worker/packages/e2e/tsconfig.json',
+      // composite: true,
+      configFilePath: tsconfigPath,
     }
 
     const dirname = getParentPath(tsconfigPath)
