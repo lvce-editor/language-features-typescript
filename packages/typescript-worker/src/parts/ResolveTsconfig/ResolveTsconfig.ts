@@ -38,7 +38,8 @@ export const resolveTsconfig = (
     let options: CompilerOptions = config2.options
     options = {
       ...options,
-      configFilePath: undefined,
+      rootDir,
+      // configFilePath: undefined,
       // target: 99,
       // lib: ['lib.dom.d.ts'],
       // checkJs: true,

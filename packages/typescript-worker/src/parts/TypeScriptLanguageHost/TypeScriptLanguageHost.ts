@@ -73,6 +73,8 @@ export const create = (
       return '\n'
     },
     readDirectory(path, extensions, exclude, include, depth) {
+      console.log('read dir', path)
+
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
       return dirents
     },
@@ -81,6 +83,7 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
+      console.log('read dir', relativePath)
       if (result) {
         return []
       }
@@ -102,10 +105,6 @@ export const create = (
       throw new Error('not implemented')
     },
     getCompilationSettings() {
-      console.log({
-        default: ts.getDefaultCompilerOptions(),
-        options: options.options,
-      })
       return options.options
     },
     getCustomTransformers() {
@@ -116,7 +115,6 @@ export const create = (
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = ts.getDefaultLibFileName(options)
-      console.log({ defaultLibFileName })
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
