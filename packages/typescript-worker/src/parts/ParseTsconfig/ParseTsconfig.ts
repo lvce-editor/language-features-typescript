@@ -10,13 +10,17 @@ export const parseTsconfig = (tsconfigPath: string, readFile: (uri: string) => s
   if (!tsconfigPath) {
     return emptyTsconfig
   }
-  const content = readFile(tsconfigPath)
-  const parsed = JSON.parse(content)
-  const options = parsed.compilerOptions || {}
-  const result: ParsedCommandLine = {
-    options,
-    errors: [],
-    fileNames: [],
+  try {
+    const content = readFile(tsconfigPath)
+    const parsed = JSON.parse(content)
+    const options = parsed.compilerOptions || {}
+    const result: ParsedCommandLine = {
+      options,
+      errors: [],
+      fileNames: [],
+    }
+    return result
+  } catch {
+    return emptyTsconfig
   }
-  return result
 }
