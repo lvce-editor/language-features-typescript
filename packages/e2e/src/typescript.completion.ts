@@ -5,22 +5,8 @@ export const name = 'typescript.completion'
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(
-    `${tmpDir}/tsconfig.json`,
-    JSON.stringify(
-      {
-        compilerOptions: {
-          lib: ['ESNext', 'DOM'],
-          types: [],
-        },
-        include: ['src'],
-      },
-      null,
-      2,
-    ),
-  )
-  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, 'win')
-  await Main.openUri(`${tmpDir}/src/test.ts`)
+  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')
+  await Main.openUri(`${tmpDir}/test.ts`)
   await Editor.setCursor(0, 3)
 
   // act
