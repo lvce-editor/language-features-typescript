@@ -24,8 +24,9 @@ export const getOrCreateLanguageService = (uri: string) => {
   }
   const exists = (uri: string) => client.invokeSync('SyncApi.exists', uri)
   const readFile = (uri: string) => client.invokeSync('SyncApi.readFileSync', uri)
+  const readDir = (uri: string) => client.invokeSync('SyncApi.readDirSync', uri)
   const tsConfigPath = getTsConfigPath(uri, exists)
-  const parsed = parseTsconfig(tsConfigPath, readFile)
+  const parsed = parseTsconfig(tsConfigPath, readFile, readDir)
   const languageService = createTypeScriptLanguageService(ts, fs, client, parsed)
   const projectId = nextProjectId++
   projectCache[projectId] = languageService

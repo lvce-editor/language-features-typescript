@@ -62,7 +62,7 @@ export const create = (
       throw new Error('not implemented')
     },
     getCompilationSettings() {
-      return ts.getDefaultCompilerOptions()
+      return options.options
     },
     getCustomTransformers() {
       throw new Error('not implemented')

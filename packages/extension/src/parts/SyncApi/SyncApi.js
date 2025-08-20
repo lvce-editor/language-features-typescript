@@ -44,6 +44,7 @@ export const readDirSync = async (id, uri, resultPath) => {
   // @ts-ignore
   const result = await vscode.readDirWithFileTypes(uri)
   const baseNames = result.map((item) => item.name)
+  console.log({ uri, baseNames })
   await writeResult(id, baseNames)
 }
 
