@@ -1,4 +1,9 @@
-import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
+import type {
+  LanguageServiceHost,
+  ParsedCommandLine,
+  ResolvedModuleFull,
+  ResolvedModuleWithFailedLookupLocations,
+} from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
@@ -33,7 +38,7 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
-      return moduleLiterals.map((literal) => {
+      const resolvedModules: readonly ResolvedModuleWithFailedLookupLocations[] = moduleLiterals.map((literal) => {
         const text = literal.getText(containingSourceFile)
         const module = ts.resolveModuleName(text, containingFile, options, {
           fileExists: (uri) => {
@@ -56,6 +61,7 @@ export const create = (
           resolvedModule: module,
         }
       })
+      return resolvedModules
     },
     // getParsedCommandLine(fileName) {
     //   return options
