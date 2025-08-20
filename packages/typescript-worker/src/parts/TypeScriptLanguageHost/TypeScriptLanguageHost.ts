@@ -43,12 +43,15 @@ export const create = (
     //   return options
     // },
     directoryExists(directoryName) {
+      console.log('dir ex', directoryName)
       return true
     },
     fileExists(path) {
+      console.log('exists', path)
       return true
     },
     readFile(path) {
+      console.log('read', path)
       return ''
     },
     getNewLine() {
@@ -75,6 +78,7 @@ export const create = (
       return `${fileSystem.getVersion()}`
     },
     getScriptFileNames() {
+      console.log('script file names')
       const files = fileSystem.getScriptFileNames() as string[]
       return files
     },
