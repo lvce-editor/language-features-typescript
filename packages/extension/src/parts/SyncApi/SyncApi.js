@@ -20,7 +20,7 @@ export const syncSetup = async (id, buffer) => {
   }
 }
 
-const writeResult = (id, result) => {
+const writeResult = async (id, result) => {
   const { accessHandle, resultAccessHandle, buffer } = syncSetups[id]
   resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
     at: 0,
@@ -37,12 +37,18 @@ const writeResult = (id, result) => {
 export const readFileSync = async (id, uri, resultPath) => {
   // @ts-ignore
   const result = await vscode.readFile(uri)
-  writeResult(id, result)
+  await writeResult(id, result)
 }
 
 export const readDirSync = async (id, uri, resultPath) => {
   // @ts-ignore
   const result = await vscode.readDirWithFileTypes(uri)
   const baseNames = result.map((item) => item.name)
-  writeResult(id, baseNames)
+  await writeResult(id, baseNames)
+}
+
+export const exists = async (id, uri, resultPath) => {
+  // @ts-ignore
+  const result = await vscode.exists(uri)
+  await writeResult(id, result)
 }
