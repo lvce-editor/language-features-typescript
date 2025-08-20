@@ -18,7 +18,7 @@ export const resolveTsconfig = (
     options = {
       ...options,
       target: 99,
-      lib: ['lib.esnext.d.ts', 'lib.webworker.d.ts'],
+      lib: ['lib.esnext.d.ts', 'lib.webworker.d.ts', 'lib.dom.d.ts'],
       checkJs: true,
       module: 99,
       types: [],
@@ -37,10 +37,8 @@ export const resolveTsconfig = (
     }
 
     const dirname = getParentPath(tsconfigPath)
-    console.log({ tsconfigPath, dirname })
     const include = options.include || []
     const files = getFiles(dirname, include, readDir)
-    console.log({ files })
     const result: ParsedCommandLine = {
       options,
       errors: [],
