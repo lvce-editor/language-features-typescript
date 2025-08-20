@@ -17,22 +17,7 @@ export const resolveTsconfig = (
     let options = parsed.compilerOptions || {}
     options = {
       ...options,
-      target: 99,
-      lib: ['lib.esnext.d.ts', 'lib.webworker.d.ts', 'lib.dom.d.ts'],
-      checkJs: true,
-      module: 99,
-      types: [],
-      moduleResolution: 2,
       rootDir,
-      allowJs: true,
-      skipLibCheck: true,
-      noEmit: true,
-      allowSyntheticDefaultImports: true,
-      isolatedModules: true,
-      assumeChangesOnlyAffectDirectDependencies: true,
-      strict: true,
-      noImplicitAny: false,
-      // composite: true,
       configFilePath: tsconfigPath,
     }
 
