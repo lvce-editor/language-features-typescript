@@ -1,6 +1,5 @@
 import { writeResult } from '../WriteResult/WriteResult.js'
-
-const syncSetups = Object.create(null)
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
 
 export const syncSetup = async (id, buffer, statusFileName, resultFileName, errorFileName) => {
   const root = await navigator.storage.getDirectory()
@@ -20,12 +19,12 @@ export const syncSetup = async (id, buffer, statusFileName, resultFileName, erro
   const errorAccessHandle = await errorHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
-  syncSetups[id] = {
+  SyncSetupState.set(id, {
     accessHandle,
     resultAccessHandle,
     errorAccessHandle,
     buffer,
-  }
+  })
 }
 
 export const readFileSync = async (id, uri) => {

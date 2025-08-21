@@ -1,3 +1,5 @@
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
+
 const getResponse = async (resultGenerator) => {
   let _error
   let result
@@ -53,7 +55,7 @@ const writeResultContent = (resultAccessHandle, result, error) => {
 }
 
 export const writeResult = async (id, resultGenerator) => {
-  const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = syncSetups[id]
+  const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = SyncSetupState.get(id)
   const { result, error } = await getResponse(resultGenerator)
   writeResultError(errorAccessHandle, error)
   writeResultContent(resultAccessHandle, result, error)
