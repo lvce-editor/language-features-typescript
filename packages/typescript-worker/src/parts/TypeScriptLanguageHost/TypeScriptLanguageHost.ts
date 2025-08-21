@@ -1,5 +1,5 @@
-import type { LanguageServiceHost, ParsedCommandLine, ResolvedModuleWithFailedLookupLocations } from 'typescript'
-import { isLibFile } from '../IsLibFile/IsLibFile.ts'
+import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
@@ -7,6 +7,7 @@ export interface ILanguageServiceHost extends LanguageServiceHost {}
 
 export const create = (
   ts: typeof import('typescript'),
+  fileSystem: IFileSystem,
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
@@ -14,51 +15,8 @@ export const create = (
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
-    resolveTypeReferenceDirectiveReferences(
-      typeDirectiveReferences,
-      containingFile,
-      redirectedReference,
-      options,
-      containingSourceFile,
-      reusedNames,
-    ) {
-      return []
-    },
-    resolveModuleNameLiterals(
-      moduleLiterals,
-      containingFile,
-      redirectedReference,
-      options,
-      containingSourceFile,
-      reusedNames,
-    ) {
-      const resolvedModules: readonly ResolvedModuleWithFailedLookupLocations[] = moduleLiterals.map((literal) => {
-        const text = literal.getText(containingSourceFile)
-        const module = ts.resolveModuleName(text, containingFile, options, {
-          fileExists: (uri) => {
-            return syncRpc.invokeSync('SyncApi.exists', uri)
-          },
-          readFile: (uri) => {
-            return syncRpc.invokeSync('SyncApi.readFileSync', uri)
-          },
-          directoryExists: (uri) => {
-            return syncRpc.invokeSync('SyncApi.exists', uri)
-          },
-          getCurrentDirectory: () => '',
-          getDirectories: (uri) => {
-            const dirents = syncRpc.invokeSync('SyncApi.readDirSync', uri)
-            return dirents
-          },
-        }).resolvedModule
-
-        return {
-          resolvedModule: module,
-        }
-      })
-      return resolvedModules
-    },
     // getParsedCommandLine(fileName) {
-    //   return options
+    //   return {}
     // },
     directoryExists(directoryName) {
       return true
@@ -90,37 +48,37 @@ export const create = (
       return false
     },
     getProjectVersion() {
-      return `${0}`
+      return `${fileSystem.getVersion()}`
     },
     getScriptFileNames() {
-      return options.fileNames
+      const files = fileSystem.getScriptFileNames() as string[]
+      return files
     },
     getScriptVersion(fileName) {
-      return `0`
+      return fileSystem.getScriptVersion(fileName)
     },
     writeFile(fileName, content) {
       throw new Error('not implemented')
     },
     getCompilationSettings() {
-      return options.options
+      return ts.getDefaultCompilerOptions()
     },
     getCustomTransformers() {
       throw new Error('not implemented')
     },
     getCurrentDirectory() {
-      const currentDirectory = options.options.rootDir || ''
-      return currentDirectory
+      return ''
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = ts.getDefaultLibFileName(options)
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
-      if (isLibFile(fileName)) {
+      if (fileName === 'lib.d.ts' || fileName.startsWith('node_modules/@typescript/lib')) {
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
-      const content = syncRpc.invokeSync('SyncApi.readFileSync', fileName)
+      const content = fileSystem.readFile(fileName)
       if (!content) {
         return undefined
       }
