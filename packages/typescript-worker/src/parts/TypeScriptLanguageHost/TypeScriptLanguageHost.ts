@@ -79,7 +79,7 @@ export const create = (
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
-      const content = syncRpc.invokeSync('SyncApi.readFileSync', fileName)
+      const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
       if (!content) {
         return undefined
       }
