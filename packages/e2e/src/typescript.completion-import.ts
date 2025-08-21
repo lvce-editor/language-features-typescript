@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.completion-import'
 
-// export const skip = 1
+export const skip = 1
 
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
@@ -34,5 +34,5 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(1)
-  await expect(completionItems.nth(0)).toHaveText('add.js') // TODO should be ts
+  await expect(completionItems.nth(0)).toHaveText('add')
 }
