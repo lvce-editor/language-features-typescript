@@ -19,7 +19,6 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
       2,
     ),
   )
-  await FileSystem.writeFile(`${tmpDir}/src/add.ts`, 'export const add = (a, b) => a + b')
   await FileSystem.writeFile(`${tmpDir}/src/test.ts`, 'let x = add')
   await Main.openUri(`${tmpDir}/src/test.ts`)
   await Editor.setCursor(0, 11)
