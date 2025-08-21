@@ -125,7 +125,7 @@ export const create = (
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
-      const content = syncRpc.invokeSync('SyncApi.readFilSync', fileName)
+      const content = syncRpc.invokeSync('SyncApi.readFileSync', fileName)
       console.log({ content, fileName })
       if (!content) {
         return undefined
