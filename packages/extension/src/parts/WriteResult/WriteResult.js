@@ -30,8 +30,33 @@ const writeResultStatus = (buffer, accessHandle, statusCode) => {
   }
 }
 
+/**
+ *
+ * @param {FileSystemSyncAccessHandle} handle
+ * @param {Uint8Array<ArrayBuffer>} encoded
+ */
+const writeBuffer = (handle, encoded) => {
+  handle.write(encoded, { at: 0 })
+}
+
+/**
+ *
+ * @param {FileSystemSyncAccessHandle} handle
+ * @param {string} content
+ */
+const writeText = (handle, content) => {
+  const encoded = new TextEncoder().encode(content)
+  writeBuffer(handle, encoded)
+}
+
+/**
+ *
+ * @param {FileSystemSyncAccessHandle} handle
+ * @param {*} json
+ */
 const writeJson = (handle, json) => {
-  handle.write(new TextEncoder().encode(JSON.stringify(json)))
+  const content = JSON.stringify(json)
+  writeText(handle, content)
 }
 
 const writeResultError = (errorAccessHandle, error) => {
