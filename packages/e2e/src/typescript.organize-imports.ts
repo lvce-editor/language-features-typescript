@@ -4,7 +4,7 @@ export const name = 'typescript.organize-imports'
 
 // export const skip = true
 
-export const test: Test = async ({ FileSystem, ContextMenu, Workspace, Main, Editor, Locator, expect, QuickPick }) => {
+export const test: Test = async ({ FileSystem, Main, Editor }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/a.ts`, 'export const a = 1')

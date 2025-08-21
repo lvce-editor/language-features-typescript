@@ -1,6 +1,6 @@
 export const name = 'typescript.diagnostics'
 
-export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test = async ({ FileSystem, Main }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(

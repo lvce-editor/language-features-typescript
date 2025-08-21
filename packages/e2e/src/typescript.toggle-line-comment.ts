@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.toggle-line-comment'
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ FileSystem, Main, Editor }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'let x = 1')
