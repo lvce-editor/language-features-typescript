@@ -12,7 +12,8 @@ export const test: Test = async ({ FileSystem, Main, Editor }) => {
     JSON.stringify(
       {
         compilerOptions: {
-          lib: ['ESNext'],
+          lib: ['esnext'],
+          module: 'NodeNext',
           types: [],
         },
         include: ['add.ts', 'test.ts'],
