@@ -1,14 +1,7 @@
 import type { CompilerOptions, ParseConfigHost, ParsedCommandLine } from 'typescript'
+import { emptyTsconfig } from '../EmptyTsConfig/EmptyTsConfig.ts'
 import { getFiles } from '../GetFiles/GetFiles.ts'
 import { getParentPath } from '../GetParentPath/GetParentPath.ts'
-import { emptyTsconfig } from '../EmptyTsConfig/EmptyTsConfig.ts'
-import ts from 'typescript'
-
-const parseLib = (config: any): readonly string[] => {
-  if (!config.lib) {
-    return []
-  }
-}
 
 export const resolveTsconfig = (
   tsconfigPath: string,
@@ -36,37 +29,11 @@ export const resolveTsconfig = (
     options = {
       ...options,
       rootDir,
-      // configFilePath: undefined,
-      // target: 99,
-      // lib: ['lib.dom.d.ts'],
-      // checkJs: true,
-      // module: 99,
-      // types: [],
-      // moduleResolution: 2,
-      // rootDir,
-      // allowJs: true,
-      // skipLibCheck: true,
-      // noEmit: true,
-      // allowSyntheticDefaultImports: true,
-      // isolatedModules: true,
-      // assumeChangesOnlyAffectDirectDependencies: true,
-      // strict: true,
-      // noImplicitAny: false,
-      // composite: true,
-      // configFilePath: tsconfigPath,
-      // lib: undefined,
-      // types: undefined,
-      // target: ts.ScriptTarget.ESNext,
-      // jsx: ts.JsxEmit.Preserve,
-      // moduleResolution: ts.ModuleResolutionKind.NodeNext,
-      // allowImportingTsExtensions: true,
     }
-    // console.log({default:ts.def})
 
     const dirname = getParentPath(tsconfigPath)
     const include = options.include || []
     const files = getFiles(dirname, include as string[], readDir)
-    console.log({ files })
     const result: ParsedCommandLine = {
       options,
       errors: [],
