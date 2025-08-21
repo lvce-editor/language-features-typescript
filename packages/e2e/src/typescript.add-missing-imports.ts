@@ -23,5 +23,5 @@ export const c = a + 1`,
   await Editor.addAllMissingImports()
 
   // assert
-  const text = await Editor.getText()
+  // const text = await Editor.getText()
 }
