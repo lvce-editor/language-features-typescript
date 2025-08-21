@@ -18,8 +18,11 @@ export const getCompletion2 = async (textDocument: any, offset: number) => {
     includePackageJsonAutoImports: 'on',
     includeCompletionsWithInsertText: true,
     includeCompletionsWithSnippetText: true,
-    importModuleSpecifierPreference: 'relative',
-    lazyConfiguredProjectsFromExternalProject: true,
+    includeCompletionsForModuleExports: true,
+    includeAutomaticOptionalChainCompletions: true,
+    includeCompletionsWithObjectLiteralMethodSnippets: true,
+    // importModuleSpecifierPreference: 'relative',
+    // lazyConfiguredProjectsFromExternalProject: true,
   })
   const completions = getCompletionFromTsResult2(tsResult)
   return completions

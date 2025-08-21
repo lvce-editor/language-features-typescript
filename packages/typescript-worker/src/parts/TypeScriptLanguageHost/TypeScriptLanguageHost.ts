@@ -14,6 +14,16 @@ export const create = (
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
+    getParsedCommandLine() {
+      console.log('parsed cmd')
+    },
+    trace(s) {
+      console.log({ s })
+    },
+    realpath(path) {
+      console.log('realpath', path)
+      return path
+    },
     resolveTypeReferenceDirectiveReferences(
       typeDirectiveReferences,
       containingFile,
@@ -22,6 +32,7 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
+      console.log('rsolve type')
       return []
     },
     resolveModuleNameLiterals(
@@ -114,10 +125,11 @@ export const create = (
     getCurrentDirectory() {
       const currentDirectory = options.options.rootDir || ''
       console.log({ currentDirectory })
-      return ''
+      return currentDirectory
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = ts.getDefaultLibFileName(options)
+      console.log({ defaultLibFileName })
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
