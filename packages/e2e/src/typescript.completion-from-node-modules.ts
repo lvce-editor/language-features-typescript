@@ -4,7 +4,7 @@ export const name = 'typescript.completion-from-node-modules'
 
 // export const skip = 1
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect, Workspace }) => {
+export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/package.json`, `{ "type": "module", "dependencies": { "lodash": "^1.0.0" } }`)
