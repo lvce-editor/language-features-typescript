@@ -20,13 +20,17 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle(statusFileName, { create: true })
   const resultHandle = await root.getFileHandle(resultFileName, { create: true })
+  const errorHandle = await root.getFileHandle(errorFileName, { create: true })
   // @ts-ignore
   const accessHandle = await draftHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
-
   // @ts-ignore
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
+    mode: 'readwrite-unsafe',
+  })
+  // @ts-ignore
+  const errorAccessHandle = await errorHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
   return {
