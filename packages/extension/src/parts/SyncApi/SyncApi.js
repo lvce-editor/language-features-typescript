@@ -19,6 +19,7 @@ export const syncSetup = async (id, buffer, statusFileName, resultFileName, erro
   const errorAccessHandle = await errorHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
+  console.log({ buffer })
   SyncSetupState.set(id, {
     accessHandle,
     resultAccessHandle,

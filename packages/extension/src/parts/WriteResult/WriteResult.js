@@ -21,11 +21,12 @@ const getResponse = async (resultGenerator) => {
 }
 
 const writeResultStatus = (buffer, accessHandle, statusCode) => {
+  console.log({ buffer, statusCode })
   if (buffer) {
     Atomics.store(buffer, 0, statusCode)
     Atomics.notify(buffer, 0)
   } else {
-    accessHandle.write(new Uint8Array([statusCode]), { at: 0 })
+    accessHandle.write(new Uint8Array([1, statusCode]), { at: 0 })
     accessHandle.flush()
   }
 }
