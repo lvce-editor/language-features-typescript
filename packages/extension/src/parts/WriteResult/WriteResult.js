@@ -30,31 +30,29 @@ const writeResultStatus = (buffer, accessHandle, statusCode) => {
   }
 }
 
+const writeJson = (handle, json) => {
+  handle.write(new TextEncoder().encode(JSON.stringify(json)))
+}
+
 const writeResultError = (errorAccessHandle, error) => {
   if (!error) {
     return
   }
-  errorAccessHandle.write(
-    new TextEncoder().encode(
-      JSON.stringify({
-        // @ts-ignore
-        name: error.name,
-        // @ts-ignore
-        message: error.message,
-        // @ts-ignore
-        stack: error.stack,
-      }),
-    ),
-  )
+  writeJson(errorAccessHandle, {
+    // @ts-ignore
+    name: error.name,
+    // @ts-ignore
+    message: error.message,
+    // @ts-ignore
+    stack: error.stack,
+  })
 }
 
 const writeResultContent = (resultAccessHandle, result, error) => {
   if (error) {
     return
   }
-  resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
-    at: 0,
-  })
+  writeJson(resultAccessHandle, result)
 }
 
 export const writeResult = async (id, resultGenerator) => {
