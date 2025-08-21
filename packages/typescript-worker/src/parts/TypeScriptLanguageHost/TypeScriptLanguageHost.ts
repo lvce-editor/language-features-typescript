@@ -14,16 +14,6 @@ export const create = (
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
-    getParsedCommandLine() {
-      console.log('parsed cmd')
-    },
-    trace(s) {
-      console.log({ s })
-    },
-    realpath(path) {
-      console.log('realpath', path)
-      return path
-    },
     resolveTypeReferenceDirectiveReferences(
       typeDirectiveReferences,
       containingFile,
@@ -32,7 +22,6 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
-      console.log('rsolve type')
       return []
     },
     resolveModuleNameLiterals(
@@ -66,7 +55,6 @@ export const create = (
           resolvedModule: module,
         }
       })
-      console.log({ resolvedModules })
       return resolvedModules
     },
     // getParsedCommandLine(fileName) {
@@ -85,8 +73,6 @@ export const create = (
       return '\n'
     },
     readDirectory(path, extensions, exclude, include, depth) {
-      console.log('read dir', path)
-
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
       return dirents
     },
@@ -95,7 +81,6 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      console.log('read dir', relativePath)
       if (result) {
         return []
       }
@@ -124,12 +109,10 @@ export const create = (
     },
     getCurrentDirectory() {
       const currentDirectory = options.options.rootDir || ''
-      console.log({ currentDirectory })
       return currentDirectory
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = ts.getDefaultLibFileName(options)
-      console.log({ defaultLibFileName })
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
@@ -138,7 +121,6 @@ export const create = (
         return ts.ScriptSnapshot.fromString(content)
       }
       const content = syncRpc.invokeSync('SyncApi.readFileSync', fileName)
-      console.log({ content, fileName })
       if (!content) {
         return undefined
       }
