@@ -1,6 +1,7 @@
 import { getOffset } from '../GetOffset/GetOffset.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
+import * as GetOrCreateLanguageService from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 
 const getLocations = (positions: any) => {
   const locations = []
@@ -23,8 +24,7 @@ const getLocations = (positions: any) => {
 }
 
 export const expandSelection2 = async (textDocument: any, positions: Uint32Array) => {
-  const id = 1
-  const { fs, languageService } = LanguageServices.get(id)
+  const { fs, languageService } = GetOrCreateLanguageService.getOrCreateLanguageService(textDocument.uri)
   fs.writeFile(textDocument.uri, textDocument.text)
   const locations = getLocations(positions)
   const offsets = locations.map((location) => getOffset(textDocument.text, location.line, location.offset))
