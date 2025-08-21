@@ -4,7 +4,7 @@ export const name = 'typescript.grow-selection'
 
 export const skip = 1
 
-export const test: Test = async ({ FileSystem, Main, Editor, Command, expect }) => {
+export const test: Test = async ({ FileSystem, Main, Editor, Command }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'let x = 1')
