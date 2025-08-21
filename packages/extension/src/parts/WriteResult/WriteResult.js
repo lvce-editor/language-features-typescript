@@ -20,7 +20,7 @@ const getResponse = async (resultGenerator) => {
   }
 }
 
-const notifyStatus = (buffer, accessHandle, statusCode) => {
+const writeResultStatus = (buffer, accessHandle, statusCode) => {
   if (buffer) {
     Atomics.store(buffer, 0, statusCode)
     Atomics.notify(buffer, 0)
@@ -62,5 +62,5 @@ export const writeResult = async (id, resultGenerator) => {
   const { result, error, code } = await getResponse(resultGenerator)
   writeResultError(errorAccessHandle, error)
   writeResultContent(resultAccessHandle, result, error)
-  notifyStatus(buffer, accessHandle, code)
+  writeResultStatus(buffer, accessHandle, code)
 }
