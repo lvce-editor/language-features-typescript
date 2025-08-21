@@ -9,7 +9,7 @@ export const createTypeScriptLanguageService = (
   client: SyncRpc,
   config: ParsedCommandLine,
 ): LanguageService => {
-  const languageServiceHost: LanguageServiceHost = TypeScriptLanguageHost.create(ts, fs, client, config)
+  const languageServiceHost: LanguageServiceHost = TypeScriptLanguageHost.create(ts, client, config)
   const languageService = ts.createLanguageService(languageServiceHost)
   return languageService
 }

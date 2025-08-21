@@ -1,19 +1,12 @@
-import type {
-  LanguageServiceHost,
-  ParsedCommandLine,
-  ResolvedModuleFull,
-  ResolvedModuleWithFailedLookupLocations,
-} from 'typescript'
-import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import type { LanguageServiceHost, ParsedCommandLine, ResolvedModuleWithFailedLookupLocations } from 'typescript'
+import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
-import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
 export const create = (
   ts: typeof import('typescript'),
-  fileSystem: IFileSystem,
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
@@ -101,13 +94,13 @@ export const create = (
       return false
     },
     getProjectVersion() {
-      return `${fileSystem.getVersion()}`
+      return `${0}`
     },
     getScriptFileNames() {
       return options.fileNames
     },
     getScriptVersion(fileName) {
-      return fileSystem.getScriptVersion(fileName)
+      return `0`
     },
     writeFile(fileName, content) {
       throw new Error('not implemented')
@@ -132,7 +125,7 @@ export const create = (
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
-      const content = fileSystem.readFile(fileName)
+      const content = syncRpc.invokeSync('SyncApi.readFilSync', fileName)
       console.log({ content, fileName })
       if (!content) {
         return undefined
