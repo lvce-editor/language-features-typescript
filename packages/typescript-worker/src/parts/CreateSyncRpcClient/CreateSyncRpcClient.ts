@@ -1,13 +1,7 @@
+import { createBuffer } from '../CreateBuffer/CreateBuffer.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
-
-const createBuffer = (isolated: boolean): Int32Array | undefined => {
-  if (!isolated) {
-    return undefined
-  }
-  return new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT))
-}
 
 export const createSyncRpcClient = async (): Promise<SyncRpc> => {
   const syncId = 1
