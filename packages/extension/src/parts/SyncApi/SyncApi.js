@@ -1,3 +1,4 @@
+import { writeResult } from '../WriteResult/WriteResult.js'
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
 
 export const syncSetup = async (id, buffer, statusFileName, resultFileName, errorFileName) => {
@@ -26,39 +27,33 @@ export const syncSetup = async (id, buffer, statusFileName, resultFileName, erro
   })
 }
 
-const writeResult = async (id, result) => {
-  const { accessHandle, resultAccessHandle, buffer } = SyncSetupState.get(id)
-  resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
-    at: 0,
-  })
-  if (buffer) {
-    Atomics.store(buffer, 0, 123)
-    Atomics.notify(buffer, 0)
-  } else {
-    accessHandle.write(new Uint8Array([1, 2, 3]), { at: 0 })
-    accessHandle.flush()
-  }
-}
-
-export const readFileSync = async (id, uri, resultPath) => {
-  // @ts-ignore
-  const result = await vscode.readFile(uri)
-  await writeResult(id, result)
-}
-
-export const readDirSync = async (id, uri, resultPath) => {
-  // @ts-ignore
-  const result = await vscode.readDirWithFileTypes(uri)
-  const baseNames = result.map((item) => item.name)
-  await writeResult(id, baseNames)
-}
-
-export const exists = async (id, uri, resultPath) => {
-  try {
+export const readFileSync = async (id, uri) => {
+  const resultGenerator = () => {
     // @ts-ignore
-    const result = await vscode.exists(uri)
-    await writeResult(id, result)
-  } catch {
-    await writeResult(id, true)
+    return vscode.readFile(uri)
   }
+  await writeResult(id, resultGenerator)
+}
+
+export const readDirSync = async (id, uri) => {
+  const resultGenerator = async () => {
+    // @ts-ignore
+    const result = await vscode.readDirWithFileTypes(uri)
+    const baseNames = result.map((item) => item.name)
+    return baseNames
+  }
+  await writeResult(id, resultGenerator)
+}
+
+export const exists = async (id, uri) => {
+  const resultGenerator = async () => {
+    try {
+      // @ts-ignore
+      const result = await vscode.exists(uri)
+      return result
+    } catch {
+      return true
+    }
+  }
+  await writeResult(id, resultGenerator)
 }
