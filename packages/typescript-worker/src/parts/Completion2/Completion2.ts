@@ -7,7 +7,6 @@ export const getCompletion2 = async (textDocument: any, offset: number) => {
   Assert.string(uri)
   const { languageService, fs } = getOrCreateLanguageService(uri)
   fs.writeFile(textDocument.uri, textDocument.text)
-  console.log({ text: textDocument.text, offset })
   const tsResult = languageService.getCompletionsAtPosition(textDocument.uri, offset, {})
   const completions = getCompletionFromTsResult2(tsResult)
   return completions
