@@ -2,7 +2,7 @@ export const name = 'typescript.semantic-highlighting'
 
 export const skip = true
 
-export const test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
+export const test = async ({ FileSystem, Main, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(

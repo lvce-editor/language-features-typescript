@@ -1,9 +1,11 @@
-const syncSetups = Object.create(null)
+import { writeResult } from '../WriteResult/WriteResult.js'
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
 
-export const syncSetup = async (id, buffer) => {
+export const syncSetup = async (id, buffer, statusFileName, resultFileName, errorFileName) => {
   const root = await navigator.storage.getDirectory()
-  const draftHandle = await root.getFileHandle('draft.txt', { create: true })
-  const resultHandle = await root.getFileHandle('result.txt', { create: true })
+  const draftHandle = await root.getFileHandle(statusFileName, { create: true })
+  const resultHandle = await root.getFileHandle(resultFileName, { create: true })
+  const errorHandle = await root.getFileHandle(errorFileName, { create: true })
   // TODO can use async handles here
   // @ts-ignore
   const accessHandle = await draftHandle.createSyncAccessHandle({
@@ -13,26 +15,45 @@ export const syncSetup = async (id, buffer) => {
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
-  syncSetups[id] = {
+  // @ts-ignore
+  const errorAccessHandle = await errorHandle.createSyncAccessHandle({
+    mode: 'readwrite-unsafe',
+  })
+  SyncSetupState.set(id, {
     accessHandle,
     resultAccessHandle,
+    errorAccessHandle,
     buffer,
-  }
+  })
 }
 
-export const readFileSync = async (id, uri, resultPath) => {
-  const { accessHandle, resultAccessHandle, buffer } = syncSetups[id]
-  // @ts-ignore
-  const result = await vscode.readFile(uri)
-  // TODO write text to file
-  resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
-    at: 0,
-  })
-  if (buffer) {
-    Atomics.store(buffer, 0, 123)
-    Atomics.notify(buffer, 0)
-  } else {
-    accessHandle.write(new Uint8Array([1, 2, 3]), { at: 0 })
-    accessHandle.flush()
+export const readFileSync = async (id, uri) => {
+  const resultGenerator = () => {
+    // @ts-ignore
+    return vscode.readFile(uri)
   }
+  await writeResult(id, resultGenerator)
+}
+
+export const readDirSync = async (id, uri) => {
+  const resultGenerator = async () => {
+    // @ts-ignore
+    const result = await vscode.readDirWithFileTypes(uri)
+    const baseNames = result.map((item) => item.name)
+    return baseNames
+  }
+  await writeResult(id, resultGenerator)
+}
+
+export const exists = async (id, uri) => {
+  const resultGenerator = async () => {
+    try {
+      // @ts-ignore
+      const result = await vscode.exists(uri)
+      return result
+    } catch {
+      return true
+    }
+  }
+  await writeResult(id, resultGenerator)
 }

@@ -1,5 +1,5 @@
-import type { LanguageServiceHost } from 'typescript'
-import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
+import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
@@ -9,8 +9,18 @@ export const create = (
   ts: typeof import('typescript'),
   fileSystem: IFileSystem,
   syncRpc: SyncRpc,
+  options: ParsedCommandLine,
 ): ILanguageServiceHost => {
   const languageServiceHost: ILanguageServiceHost = {
+    getScriptKind(fileName) {
+      return ts.ScriptKind.TS
+    },
+    // getParsedCommandLine(fileName) {
+    //   return {}
+    // },
+    directoryExists(directoryName) {
+      return true
+    },
     fileExists(path) {
       return true
     },
@@ -20,11 +30,15 @@ export const create = (
     getNewLine() {
       return '\n'
     },
+    readDirectory(path, extensions, exclude, include, depth) {
+      const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
+      return dirents
+    },
     getDirectories(relativePath) {
-      if (relativePath === '/node_modules/@types') {
+      if (relativePath === '/node_modules/@types' || relativePath === 'node_modules/@types') {
         return []
       }
-      const result = syncRpc.invokeSync('FileSystem.readDir', relativePath)
+      const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
       if (result) {
         return []
       }
@@ -53,14 +67,14 @@ export const create = (
       throw new Error('not implemented')
     },
     getCurrentDirectory() {
-      return '/'
+      return ''
     },
     getDefaultLibFileName(options) {
-      const defaultLibFileName = '/' + ts.getDefaultLibFileName(options)
+      const defaultLibFileName = ts.getDefaultLibFileName(options)
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
-      if (fileName === '/lib.d.ts' || fileName.startsWith('/node_modules/@typescript/lib')) {
+      if (fileName === 'lib.d.ts' || fileName.startsWith('node_modules/@typescript/lib')) {
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }

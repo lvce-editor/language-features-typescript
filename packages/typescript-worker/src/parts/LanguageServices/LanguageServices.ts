@@ -1,9 +1,10 @@
-import type { LanguageService } from 'typescript'
-import type { IFileSystem } from '../CreateFileSystem/CreateFileSystem.ts'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
 interface LanguageServiceItem {
-  readonly languageService: LanguageService
   readonly fs: IFileSystem
+  readonly client: SyncRpc
+  readonly ts: typeof import('typescript')
 }
 
 const languageServices: Record<number, LanguageServiceItem> = Object.create(null)
@@ -12,9 +13,10 @@ export const get = (id: number): LanguageServiceItem => {
   return languageServices[id]
 }
 
-export const set = (id: number, languageService: LanguageService, fs: IFileSystem) => {
+export const set = (id: number, fs: IFileSystem, client: SyncRpc, ts: typeof import('typescript')) => {
   languageServices[id] = {
-    languageService,
     fs,
+    client,
+    ts,
   }
 }

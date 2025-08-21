@@ -20,8 +20,8 @@ export const c = a + 1`,
   await Main.openUri(`${tmpDir}/c.ts`)
 
   // act
-  await Editor.addAllMissingImports()
+  await Editor.organizeImports()
 
   // assert
-  const text = await Editor.getText()
+  // const text = await Editor.getText()
 }
