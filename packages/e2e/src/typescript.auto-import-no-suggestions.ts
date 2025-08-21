@@ -1,10 +1,8 @@
 import type { Test } from '@lvce-editor/test-with-playwright'
 
-export const name = 'typescript.auto-import'
+export const name = 'typescript.auto-import-no-suggestions'
 
-// export const skip = 1
-
-export const test: Test = async ({ FileSystem, Main, Editor }) => {
+export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
@@ -30,6 +28,7 @@ export const test: Test = async ({ FileSystem, Main, Editor }) => {
   await Editor.openCompletion()
 
   // assert
-
-  // TODO verify variable has been renamed
+  const suggest = Locator('[aria-label="Suggest"]')
+  await expect(suggest).toBeVisible()
+  await expect(suggest).toHaveText('No Suggestions')
 }
