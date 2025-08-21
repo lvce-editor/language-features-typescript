@@ -2,9 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.auto-import'
 
-// export const skip = 1
-
-export const test: Test = async ({ FileSystem, Main, Editor }) => {
+export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
@@ -31,6 +29,8 @@ export const test: Test = async ({ FileSystem, Main, Editor }) => {
   await Editor.openCompletion()
 
   // assert
-
-  // TODO verify variable has been renamed
+  const completions = Locator('#Completions')
+  await expect(completions).toBeVisible()
+  const completionItems = completions.locator('.EditorCompletionItem')
+  await expect(completionItems.nth(0)).toHaveText('add')
 }
