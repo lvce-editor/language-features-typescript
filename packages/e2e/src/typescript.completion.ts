@@ -10,17 +10,16 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
     JSON.stringify(
       {
         compilerOptions: {
-          lib: ['ESNext', 'DOM'],
+          lib: ['esnext', 'dom'],
           types: [],
         },
-        include: ['src'],
       },
       null,
       2,
     ),
   )
-  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, 'win')
-  await Main.openUri(`${tmpDir}/src/test.ts`)
+  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')
+  await Main.openUri(`${tmpDir}/test.ts`)
   await Editor.setCursor(0, 3)
 
   // act

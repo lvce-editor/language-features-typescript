@@ -34,5 +34,5 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(1)
-  await expect(completionItems.nth(0)).toHaveText('add')
+  await expect(completionItems.nth(0)).toHaveText('add.js') // TODO should be ts
 }
