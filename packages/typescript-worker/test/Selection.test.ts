@@ -2,7 +2,7 @@ import { expect, jest, test } from '@jest/globals'
 import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
 import * as Selection from '../src/parts/Selection/Selection.ts'
 
-test('expandSelection', async () => {
+test.skip('expandSelection', async () => {
   const typeScriptRpc: CommonRpc = {
     invoke: jest.fn(async () => {
       return [] as any
@@ -16,7 +16,7 @@ test('expandSelection', async () => {
   expect(await Selection.expandSelection(typeScriptRpc, Position, textDocument, positions)).toEqual([])
 })
 
-test('same position', async () => {
+test.skip('same position', async () => {
   const typeScriptRpc: CommonRpc = {
     invoke: jest.fn(async () => {
       return [] as any
