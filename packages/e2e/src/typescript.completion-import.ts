@@ -1,6 +1,8 @@
 import type { Test } from '@lvce-editor/test-with-playwright'
 
-export const name = 'typescript.completion'
+export const name = 'typescript.completion-import'
+
+export const skip = 1
 
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
@@ -10,7 +12,7 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
     JSON.stringify(
       {
         compilerOptions: {
-          lib: ['ESNext', 'DOM'],
+          lib: ['ESNext'],
           types: [],
         },
         include: ['src'],
@@ -19,9 +21,10 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
       2,
     ),
   )
-  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, 'win')
+  await FileSystem.writeFile(`${tmpDir}/src/add.ts`, `export const add = (a, b) => a + b`)
+  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, `import { add } from './'`)
   await Main.openUri(`${tmpDir}/src/test.ts`)
-  await Editor.setCursor(0, 3)
+  await Editor.setCursor(0, 23)
 
   // act
   await Editor.openCompletion()
@@ -30,5 +33,6 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems.nth(0)).toHaveText('PictureInPictureWindow')
+  await expect(completionItems).toHaveCount(1)
+  await expect(completionItems.nth(0)).toHaveText('add')
 }

@@ -4,7 +4,6 @@ export const getTextSync = (url) => {
   if (!url.startsWith('http')) {
     throw new Error('invalid url')
   }
-  // console.log({ url })
   const xhr = new XMLHttpRequest()
   xhr.open('GET', /* url */ url, /* async */ false)
   xhr.setRequestHeader('Accept', 'text/plain')
