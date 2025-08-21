@@ -1,4 +1,10 @@
-import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+export interface IFileSystem {
+  readonly writeFile: (uri: string, content: string) => void
+  readonly readFile: (uri: string) => string
+  readonly getVersion: () => string
+  readonly getScriptFileNames: () => readonly string[]
+  readonly getScriptVersion: (uri: string) => string
+}
 
 export const createFileSystem = (): IFileSystem => {
   const files: Record<string, string> = Object.create(null)
