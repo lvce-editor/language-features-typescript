@@ -35,7 +35,6 @@ const writeResult = async (id, result) => {
 }
 
 export const readFileSync = async (id, uri, resultPath) => {
-  console.log({ uri })
   // @ts-ignore
   const result = await vscode.readFile(uri)
   await writeResult(id, result)
