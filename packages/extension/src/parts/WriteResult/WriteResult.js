@@ -1,5 +1,8 @@
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
 
+const successCode = 123
+const errorCode = 124
+
 const getResponse = async (resultGenerator) => {
   let _error
   let result
@@ -8,21 +11,21 @@ const getResponse = async (resultGenerator) => {
   } catch (error) {
     _error = error
   }
+
+  const code = _error ? errorCode : successCode
   return {
     result,
     error: _error,
+    code,
   }
 }
 
-const notifyStatus = (buffer, accessHandle, error) => {
-  const successCode = 123
-  const errorCode = 124
-  const code = error ? errorCode : successCode
+const notifyStatus = (buffer, accessHandle, statusCode) => {
   if (buffer) {
-    Atomics.store(buffer, 0, code)
+    Atomics.store(buffer, 0, statusCode)
     Atomics.notify(buffer, 0)
   } else {
-    accessHandle.write(new Uint8Array([code]), { at: 0 })
+    accessHandle.write(new Uint8Array([statusCode]), { at: 0 })
     accessHandle.flush()
   }
 }
@@ -56,8 +59,8 @@ const writeResultContent = (resultAccessHandle, result, error) => {
 
 export const writeResult = async (id, resultGenerator) => {
   const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = SyncSetupState.get(id)
-  const { result, error } = await getResponse(resultGenerator)
+  const { result, error, code } = await getResponse(resultGenerator)
   writeResultError(errorAccessHandle, error)
   writeResultContent(resultAccessHandle, result, error)
-  notifyStatus(buffer, accessHandle, error)
+  notifyStatus(buffer, accessHandle, code)
 }
