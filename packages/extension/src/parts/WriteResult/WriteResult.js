@@ -21,7 +21,6 @@ const getResponse = async (resultGenerator) => {
 }
 
 const writeResultStatus = (buffer, accessHandle, statusCode) => {
-  console.log({ buffer, statusCode })
   if (buffer) {
     Atomics.store(buffer, 0, statusCode)
     Atomics.notify(buffer, 0)
