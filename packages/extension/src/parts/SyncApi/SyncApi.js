@@ -1,9 +1,10 @@
-const syncSetups = Object.create(null)
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
 
-export const syncSetup = async (id, buffer) => {
+export const syncSetup = async (id, buffer, statusFileName, resultFileName, errorFileName) => {
   const root = await navigator.storage.getDirectory()
-  const draftHandle = await root.getFileHandle('draft.txt', { create: true })
-  const resultHandle = await root.getFileHandle('result.txt', { create: true })
+  const draftHandle = await root.getFileHandle(statusFileName, { create: true })
+  const resultHandle = await root.getFileHandle(resultFileName, { create: true })
+  const errorHandle = await root.getFileHandle(errorFileName, { create: true })
   // TODO can use async handles here
   // @ts-ignore
   const accessHandle = await draftHandle.createSyncAccessHandle({
@@ -13,15 +14,20 @@ export const syncSetup = async (id, buffer) => {
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
-  syncSetups[id] = {
+  // @ts-ignore
+  const errorAccessHandle = await errorHandle.createSyncAccessHandle({
+    mode: 'readwrite-unsafe',
+  })
+  SyncSetupState.set(id, {
     accessHandle,
     resultAccessHandle,
+    errorAccessHandle,
     buffer,
-  }
+  })
 }
 
 const writeResult = async (id, result) => {
-  const { accessHandle, resultAccessHandle, buffer } = syncSetups[id]
+  const { accessHandle, resultAccessHandle, buffer } = SyncSetupState.get(id)
   resultAccessHandle.write(new TextEncoder().encode(JSON.stringify(result)), {
     at: 0,
   })
