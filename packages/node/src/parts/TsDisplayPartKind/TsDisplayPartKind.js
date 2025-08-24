@@ -1,6 +1,0 @@
-export const FunctionName = 'functionName'
-export const MethodName = 'methodName'
-export const ParameterName = 'parameterName'
-export const PropertyName = 'propertyName'
-export const Punctuation = 'punctuation'
-export const Text = 'text'
