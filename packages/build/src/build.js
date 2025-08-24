@@ -25,13 +25,6 @@ await cp(join(extension, 'src'), join(dist, 'src'), {
   recursive: true,
 })
 
-const getAllDependencies = (obj) => {
-  if (!obj || !obj.dependencies) {
-    return []
-  }
-  return [obj, ...Object.values(obj.dependencies).flatMap(getAllDependencies)]
-}
-
 await cp(join(root, 'node_modules', 'typescript'), join(dist, 'node_modules', 'typescript'), {
   recursive: true,
 })
