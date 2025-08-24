@@ -81,7 +81,6 @@ jobs:
           asset_name: ${{ env.ASSET }}
           asset_content_type: application/octet-stream
       - name: Publish GitHub release
-        if: matrix.os == 'ubuntu-24.04'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
