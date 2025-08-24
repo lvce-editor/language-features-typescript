@@ -6,6 +6,19 @@ export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
+    `${tmpDir}/tsconfig.json`,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          lib: ['esnext'],
+          types: [],
+        },
+      },
+      null,
+      2,
+    ),
+  )
+  await FileSystem.writeFile(
     `${tmpDir}/add.ts`,
     `export const add = () => {}
 `,

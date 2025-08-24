@@ -1,4 +1,7 @@
 export const getPositionAt = (text: string, offset: number): { rowIndex: number; columnIndex: number } => {
+  if (!text) {
+    return { rowIndex: 0, columnIndex: 0 }
+  }
   const lines = text.split('\n')
   let currentOffset = 0
 

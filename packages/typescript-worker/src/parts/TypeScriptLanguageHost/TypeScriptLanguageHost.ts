@@ -2,6 +2,7 @@ import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
@@ -48,14 +49,14 @@ export const create = (
       return false
     },
     getProjectVersion() {
-      return `${fileSystem.getVersion()}`
+      return `${0}`
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
       return files
     },
     getScriptVersion(fileName) {
-      return fileSystem.getScriptVersion(fileName)
+      return `${0}`
     },
     writeFile(fileName, content) {
       throw new Error('not implemented')
@@ -74,11 +75,11 @@ export const create = (
       return defaultLibFileName
     },
     getScriptSnapshot(fileName) {
-      if (fileName === 'lib.d.ts' || fileName.startsWith('node_modules/@typescript/lib')) {
+      if (isLibFile(fileName)) {
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
-      const content = fileSystem.readFile(fileName)
+      const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
       if (!content) {
         return undefined
       }
