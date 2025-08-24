@@ -72,9 +72,36 @@ await copyFile(
 
 await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
 await rm(join(root, 'dist', 'src'), { recursive: true, force: true })
-await rm(join(root, 'dist', 'typescript', 'bin'), { recursive: true, force: true })
-await rm(join(root, 'dist', 'typescript', 'README.md'), { force: true })
-await rm(join(root, 'dist', 'typescript', 'SECURITY.md'), { force: true })
+
+const toRemove = [
+  'bin',
+  'README.md',
+  'SECURITY.md',
+  'lib/cs',
+  'lib/de',
+  'lib/es',
+  'lib/fr',
+  'lib/it',
+  'lib/ja',
+  'lib/ko',
+  'lib/pl',
+  'lib/pt-br',
+  'lib/ru',
+  'lib/tr',
+  'lib/zh-cn',
+  'lib/zh-tw',
+  'lib/_tsc.js',
+  'lib/_tsserver.js',
+  'lib/_typingsInstaller.js',
+  'lib/typingsInstaller.js',
+  'lib/tsc.js',
+  'lib/tsserver.js',
+  'lib/tsserverlibrary.js',
+  'lib/tsserverlibrary.d.ts',
+]
+for (const item of toRemove) {
+  await rm(join(root, 'dist', 'typescript', item), { recursive: true, force: true })
+}
 
 await replace({
   path: join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
