@@ -5,6 +5,19 @@ export const name = 'typescript.definition'
 export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
+  await FileSystem.writeFile(
+    `${tmpDir}/tsconfig.json`,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          lib: ['esnext', 'dom'],
+          types: [],
+        },
+      },
+      null,
+      2,
+    ),
+  )
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'window')
   await Main.openUri(`${tmpDir}/test.ts`)
   await Editor.setCursor(0, 3)
