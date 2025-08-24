@@ -29,5 +29,5 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems.nth(0)).toHaveText('ServiceWorkerRegistration') // TODO should have DedicatedWorkerGlobalScope
+  await expect(completionItems.nth(0)).toHaveText('DedicatedWorkerGlobalScope')
 }
