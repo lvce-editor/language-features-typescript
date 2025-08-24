@@ -1,7 +1,7 @@
 import type ts from 'typescript'
 
 const getUri = (fileName: string) => {
-  if (fileName.startsWith('/node_modules/@typescript/lib') || fileName.startsWith('node_modules/@typescript/lib')) {
+  if (fileName.includes('/node_modules/@typescript/lib') || fileName.includes('node_modules/@typescript/lib')) {
     const base = fileName
       .slice(fileName.lastIndexOf('/') + 1)
       .replaceAll('-', '.')
