@@ -1,12 +1,10 @@
 import { bundleJs, packageExtension, replace } from '@lvce-editor/package-extension'
-import { execSync } from 'child_process'
-import { copyFile, cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises'
+import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path, { join } from 'path'
-import { root } from './root.js'
 import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.js'
+import { root } from './root.js'
 
 const extension = path.join(root, 'packages', 'extension')
-const node = path.join(root, 'packages', 'node')
 const dist = join(root, 'dist')
 
 await rm(dist, { recursive: true, force: true })
@@ -25,47 +23,10 @@ await cp(join(extension, 'src'), join(dist, 'src'), {
   recursive: true,
 })
 
-const getAllDependencies = (obj) => {
-  if (!obj || !obj.dependencies) {
-    return []
-  }
-  return [obj, ...Object.values(obj.dependencies).flatMap(getAllDependencies)]
-}
-
-const getDependencies = (cwd) => {
-  const stdout = execSync('npm list --omit=dev --parseable --all', {
-    cwd,
-  }).toString()
-  const lines = stdout.split('\n')
-  return lines.slice(1, -1)
-}
-
-const copyDependencies = async (from, to) => {
-  const dependencies = getDependencies(from)
-  for (const dependency of dependencies) {
-    await cp(dependency, join(dist, to, dependency.slice(from.length)), {
-      recursive: true,
-    })
-  }
-}
-
-await copyDependencies(extension, '')
-
-await copyDependencies(node, 'node')
-
-await cp(join(root, 'node_modules', 'typescript'), join(dist, 'node', 'node_modules', 'typescript'), {
+await cp(join(root, 'node_modules', 'typescript'), join(dist, 'typescript'), {
   recursive: true,
 })
 await removeUnusedTypeScriptFiles(join(dist, 'node'))
-
-await cp(join(root, 'packages', 'node', 'src'), join(dist, 'node', 'src'), {
-  recursive: true,
-})
-await cp(join(root, 'packages', 'node', 'package.json'), join(dist, 'node', 'package.json'))
-
-await cp(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
-  recursive: true,
-})
 
 await cp(join(root, 'packages', 'typescript-worker', 'src'), join(dist, 'typescript-worker', 'src'), {
   recursive: true,
@@ -85,30 +46,68 @@ await replace({
   replacement: 'dist/languageFeaturesTypeScriptMain.js',
 })
 
-await replace({
-  path: join(root, 'dist', 'src', 'parts', 'GetTsClientPathNode', 'GetTsClientPathNode.js'),
-  occurrence: '../node/',
-  replacement: 'node/',
-})
-
 await bundleJs(
   join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'),
   join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
+
 await bundleJs(
   join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.js'),
   join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
 
 await bundleJs(
-  join(root, 'dist', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
+  join(root, 'packages', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
+  join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  false,
+)
+
+await mkdir(join(root, 'dist', 'typescript-worker', 'dist'), {
+  recursive: true,
+})
+await copyFile(
+  join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
   join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
 )
 
-await bundleJs(
-  join(root, 'packages', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
-  join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-)
+await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
+await rm(join(root, 'dist', 'src'), { recursive: true, force: true })
+
+const toRemove = [
+  'bin',
+  'README.md',
+  'SECURITY.md',
+  'lib/cs',
+  'lib/de',
+  'lib/es',
+  'lib/fr',
+  'lib/it',
+  'lib/ja',
+  'lib/ko',
+  'lib/pl',
+  'lib/pt-br',
+  'lib/ru',
+  'lib/tr',
+  'lib/zh-cn',
+  'lib/zh-tw',
+  'lib/_tsc.js',
+  'lib/_tsserver.js',
+  'lib/_typingsInstaller.js',
+  'lib/typingsInstaller.js',
+  'lib/tsc.js',
+  'lib/tsserver.js',
+  'lib/tsserverlibrary.js',
+  'lib/tsserverlibrary.d.ts',
+]
+for (const item of toRemove) {
+  await rm(join(root, 'dist', 'typescript', item), { recursive: true, force: true })
+}
+
+await replace({
+  path: join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  ocurrence: '../../../node_modules/typescript/lib/typescript-esm.js',
+  replacement: '../../typescript/lib/typescript-esm.js',
+})
 
 await packageExtension({
   highestCompression: true,

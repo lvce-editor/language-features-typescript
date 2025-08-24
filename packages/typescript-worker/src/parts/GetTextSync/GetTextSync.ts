@@ -1,7 +1,10 @@
 // TODO maybe use separate worker and atomics to sync
 
-export const getTextSync = (url) => {
-  if (!url.startsWith('http')) {
+const RE_URL = /^[a-z\-]+\:\/\//
+
+// TODO could also use origin private file system for this
+export const getTextSync = (url: string): string => {
+  if (!RE_URL.test(url)) {
     throw new Error('invalid url')
   }
   const xhr = new XMLHttpRequest()
