@@ -57,15 +57,17 @@ await bundleJs(
 )
 
 await bundleJs(
-  join(root, 'dist', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
-  join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-  false,
-)
-
-await bundleJs(
   join(root, 'packages', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
   join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
   false,
+)
+
+await mkdir(join(root, 'dist', 'typescript-worker', 'dist'), {
+  recursive: true,
+})
+await copyFile(
+  join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
 )
 
 await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
