@@ -32,40 +32,10 @@ const getAllDependencies = (obj) => {
   return [obj, ...Object.values(obj.dependencies).flatMap(getAllDependencies)]
 }
 
-const getDependencies = (cwd) => {
-  const stdout = execSync('npm list --omit=dev --parseable --all', {
-    cwd,
-  }).toString()
-  const lines = stdout.split('\n')
-  return lines.slice(1, -1)
-}
-
-const copyDependencies = async (from, to) => {
-  const dependencies = getDependencies(from)
-  for (const dependency of dependencies) {
-    await cp(dependency, join(dist, to, dependency.slice(from.length)), {
-      recursive: true,
-    })
-  }
-}
-
-await copyDependencies(extension, '')
-
-await copyDependencies(node, 'node')
-
 await cp(join(root, 'node_modules', 'typescript'), join(dist, 'node', 'node_modules', 'typescript'), {
   recursive: true,
 })
 await removeUnusedTypeScriptFiles(join(dist, 'node'))
-
-await cp(join(root, 'packages', 'node', 'src'), join(dist, 'node', 'src'), {
-  recursive: true,
-})
-await cp(join(root, 'packages', 'node', 'package.json'), join(dist, 'node', 'package.json'))
-
-await cp(join(root, 'packages', 'web', 'src'), join(dist, 'web', 'src'), {
-  recursive: true,
-})
 
 await cp(join(root, 'packages', 'typescript-worker', 'src'), join(dist, 'typescript-worker', 'src'), {
   recursive: true,
