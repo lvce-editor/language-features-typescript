@@ -32,7 +32,7 @@ const getAllDependencies = (obj) => {
   return [obj, ...Object.values(obj.dependencies).flatMap(getAllDependencies)]
 }
 
-await cp(join(root, 'node_modules', 'typescript'), join(dist, 'node', 'node_modules', 'typescript'), {
+await cp(join(root, 'node_modules', 'typescript'), join(dist, 'node_modules', 'typescript'), {
   recursive: true,
 })
 await removeUnusedTypeScriptFiles(join(dist, 'node'))
@@ -53,12 +53,6 @@ await replace({
   path: join(root, 'dist', 'extension.json'),
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
   replacement: 'dist/languageFeaturesTypeScriptMain.js',
-})
-
-await replace({
-  path: join(root, 'dist', 'src', 'parts', 'GetTsClientPathNode', 'GetTsClientPathNode.js'),
-  occurrence: '../node/',
-  replacement: 'node/',
 })
 
 await bundleJs(
