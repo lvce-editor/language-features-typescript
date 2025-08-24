@@ -1,12 +1,10 @@
 import { bundleJs, packageExtension, replace } from '@lvce-editor/package-extension'
-import { execSync } from 'child_process'
-import { copyFile, cp, mkdir, rm, writeFile, readFile } from 'node:fs/promises'
+import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path, { join } from 'path'
-import { root } from './root.js'
 import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.js'
+import { root } from './root.js'
 
 const extension = path.join(root, 'packages', 'extension')
-const node = path.join(root, 'packages', 'node')
 const dist = join(root, 'dist')
 
 await rm(dist, { recursive: true, force: true })
@@ -52,6 +50,7 @@ await bundleJs(
   join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'),
   join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
+
 await bundleJs(
   join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.js'),
   join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
@@ -66,6 +65,9 @@ await bundleJs(
   join(root, 'packages', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
   join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
 )
+
+await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
+await rm(join(root, 'dist', 'src'), { recursive: true, force: true })
 
 await packageExtension({
   highestCompression: true,
