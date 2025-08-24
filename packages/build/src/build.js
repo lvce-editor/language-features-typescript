@@ -59,11 +59,13 @@ await bundleJs(
 await bundleJs(
   join(root, 'dist', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
   join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  false,
 )
 
 await bundleJs(
   join(root, 'packages', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
   join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  false,
 )
 
 await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
