@@ -68,6 +68,7 @@ await bundleJs(
 
 await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
 await rm(join(root, 'dist', 'src'), { recursive: true, force: true })
+await rm(join(root, 'dist', 'node_modules', 'typescript', 'bin'), { recursive: true, force: true })
 
 await replace({
   path: join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
