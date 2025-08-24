@@ -69,6 +69,12 @@ await bundleJs(
 await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
 await rm(join(root, 'dist', 'src'), { recursive: true, force: true })
 
+await replace(
+  join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  '../../../node_modules/typescript/lib/typescript-esm.js',
+  '../../node_modules/typescript/lib/typescript-esm.js',
+)
+
 await packageExtension({
   highestCompression: true,
   inDir: join(dist),
