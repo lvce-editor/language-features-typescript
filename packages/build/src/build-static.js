@@ -10,14 +10,6 @@ const { commitHash } = await exportStatic({
   root,
 })
 
-for (const dirent of ['src']) {
-  await cp(
-    path.join(root, 'packages', 'web', dirent),
-    path.join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'web', dirent),
-    { recursive: true, force: true },
-  )
-}
-
 const replace = async (path, occurrence, replacement) => {
   const oldContent = await readFile(path, 'utf8')
   if (!oldContent.includes(occurrence)) {
@@ -27,68 +19,6 @@ const replace = async (path, occurrence, replacement) => {
   const newContent = oldContent.replaceAll(occurrence, replacement)
   await writeFile(path, newContent)
 }
-
-const isWebPath = path.join(
-  root,
-  'dist',
-  commitHash,
-  'extensions',
-  'builtin.language-features-typescript',
-  'src',
-  'parts',
-  'IsWeb',
-  'IsWeb.js',
-)
-
-await replace(isWebPath, 'false', 'true')
-
-const tsClientPathWeb = path.join(
-  root,
-  'dist',
-  commitHash,
-  'extensions',
-  'builtin.language-features-typescript',
-  'src',
-  'parts',
-  'GetTsClientPathWeb',
-  'GetTsClientPathWeb.js',
-)
-
-await replace(tsClientPathWeb, '../../../../web/src/webMain.js', '../../../web/src/webMain.js')
-
-const getTypescriptPath = path.join(
-  root,
-  'dist',
-  commitHash,
-  'extensions',
-  'builtin.language-features-typescript',
-  'web',
-  'src',
-  'parts',
-  'GetTypeScriptPath',
-  'GetTypeScriptPath.js',
-)
-
-await replace(
-  getTypescriptPath,
-  '../../../../extension/node_modules/typescript/lib/typescript-esm.js',
-  '../../../../typescript/lib/typescript-esm.js',
-)
-
-const getLibFileUrl = path.join(
-  root,
-  'dist',
-  commitHash,
-  'extensions',
-  'builtin.language-features-typescript',
-  'web',
-  'src',
-  'parts',
-  'GetLibFileUrl',
-  'GetLibFileUrl.js',
-)
-
-await replace(getLibFileUrl, '../../../../extension/node_modules/typescript', '../../../../typescript')
 
 const typeScriptLibPath = join(root, 'node_modules', 'typescript', 'lib')
 const typeScriptPath = join(root, 'node_modules', 'typescript')
