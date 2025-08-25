@@ -2,8 +2,6 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.auto-fix-import'
 
-export const skip = 1
-
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
@@ -30,8 +28,11 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   await Editor.openSourceActions()
 
   // assert
-  const completions = Locator('#Completions')
-  await expect(completions).toBeVisible()
-  const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems.nth(0)).toHaveText('add')
+  const organizeImportsAction = Locator('.SourceActionItem', { hasText: 'Organize Imports' })
+  await expect(organizeImportsAction).toBeVisible()
+  await organizeImportsAction.click()
+
+  // assert
+
+  // TODO verify that unused imports  have been removed
 }
