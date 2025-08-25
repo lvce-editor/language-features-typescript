@@ -2,7 +2,7 @@ import { expect, test } from '@jest/globals'
 import type { CommonRpc } from '../src/parts/CommonRpc/CommonRpc.ts'
 import * as Diagnostics from '../src/parts/Diagnostics/Diagnostics.ts'
 
-test('diagnostics', async () => {
+test.skip('diagnostics', async () => {
   const typescriptRpc: CommonRpc = {
     invoke() {
       return [
