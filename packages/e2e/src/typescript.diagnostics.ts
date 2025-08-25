@@ -1,6 +1,8 @@
+import type { Test } from '@lvce-editor/test-with-playwright'
+
 export const name = 'typescript.diagnostics'
 
-export const test = async ({ FileSystem, Main }) => {
+export const test: Test = async ({ FileSystem, Main, Panel, Problems, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
@@ -10,6 +12,14 @@ export const test = async ({ FileSystem, Main }) => {
 x = 'a'`,
   )
   await Main.openUri(`${tmpDir}/test.ts`)
+
+  await Panel.open('Problems')
+  await Problems.show()
+
+  const problemsView = Locator('.Viewlet.Problems')
+  await expect(problemsView).toHaveText(
+    `Error: Failed to execute diagnostic provider: command not found UpdateOpen.updateOpen`,
+  )
 
   // act
   // TODO
