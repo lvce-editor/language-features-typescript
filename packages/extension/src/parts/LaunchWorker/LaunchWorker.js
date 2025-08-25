@@ -7,7 +7,7 @@ export const launchWorker = async ({ url, name, contentSecurityPolicy }) => {
     url: url,
     name,
     contentSecurityPolicy,
-    execute: Command.commandMap,
+    commandMap: Command.commandMap,
   })
   return rpc
 }
