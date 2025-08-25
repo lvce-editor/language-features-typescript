@@ -19,25 +19,9 @@ await writeFile(join(dist, 'package.json'), JSON.stringify(packageJson, null, 2)
 await copyFile(join(root, 'README.md'), join(dist, 'README.md'))
 await copyFile(join(extension, 'icon.png'), join(dist, 'icon.png'))
 await copyFile(join(extension, 'extension.json'), join(dist, 'extension.json'))
-await cp(join(extension, 'src'), join(dist, 'src'), {
-  recursive: true,
-})
 
 await cp(join(root, 'node_modules', 'typescript'), join(dist, 'typescript'), {
   recursive: true,
-})
-await removeUnusedTypeScriptFiles(join(dist, 'node'))
-
-await cp(join(root, 'packages', 'typescript-worker', 'src'), join(dist, 'typescript-worker', 'src'), {
-  recursive: true,
-})
-
-const assetDirPath = path.join(root, 'dist', 'src', 'parts', 'AssetDir', 'AssetDir.js')
-
-await replace({
-  path: assetDirPath,
-  occurrence: '../../../../',
-  replacement: '../',
 })
 
 await replace({
@@ -45,11 +29,6 @@ await replace({
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
   replacement: 'dist/languageFeaturesTypeScriptMain.js',
 })
-
-await bundleJs(
-  join(root, 'dist', 'src', 'languageFeaturesTypeScriptMain.js'),
-  join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
-)
 
 await bundleJs(
   join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.js'),
@@ -69,39 +48,15 @@ await copyFile(
   join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
   join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
 )
+await mkdir(join(root, 'dist', 'dist'), {
+  recursive: true,
+})
+await copyFile(
+  join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
+  join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+)
 
-await rm(join(root, 'dist', 'typescript-worker', 'src'), { recursive: true, force: true })
-await rm(join(root, 'dist', 'src'), { recursive: true, force: true })
-
-const toRemove = [
-  'bin',
-  'README.md',
-  'SECURITY.md',
-  'lib/cs',
-  'lib/de',
-  'lib/es',
-  'lib/fr',
-  'lib/it',
-  'lib/ja',
-  'lib/ko',
-  'lib/pl',
-  'lib/pt-br',
-  'lib/ru',
-  'lib/tr',
-  'lib/zh-cn',
-  'lib/zh-tw',
-  'lib/_tsc.js',
-  'lib/_tsserver.js',
-  'lib/_typingsInstaller.js',
-  'lib/typingsInstaller.js',
-  'lib/tsc.js',
-  'lib/tsserver.js',
-  'lib/tsserverlibrary.js',
-  'lib/tsserverlibrary.d.ts',
-]
-for (const item of toRemove) {
-  await rm(join(root, 'dist', 'typescript', item), { recursive: true, force: true })
-}
+await removeUnusedTypeScriptFiles(join(root, 'dist', 'typescript'))
 
 await replace({
   path: join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
