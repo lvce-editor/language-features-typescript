@@ -51,12 +51,14 @@
     {
       "kind": "source.organizeImports",
       "name": "Organize Imports",
-      "command": "Editor.organizeImports"
+      "command": "Editor.organizeImports",
+      "languageId": "typescript"
     },
     {
       "kind": "source.sortImports",
       "name": "Sort Imports",
-      "command": "Editor.sortImports"
+      "command": "Editor.sortImports",
+      "languageId": "typescript"
     }
   ]
 }
