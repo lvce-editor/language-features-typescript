@@ -5,9 +5,7 @@ const rpcInvoke = (...params) => {
   return Rpc.invoke(...params)
 }
 
-const rpcListen = (path) => {
-  return Rpc.listen({ path })
-}
+const rpcListen = (path) => {}
 
 const getOffset = (textDocument, position) => {
   // @ts-ignore
