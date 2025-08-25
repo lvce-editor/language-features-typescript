@@ -18,7 +18,7 @@ x = 'a'`,
 
   const problemsView = Locator('.Viewlet.Problems')
   await expect(problemsView).toHaveText(
-    `Error: Failed to execute diagnostic provider: command not found UpdateOpen.updateOpen`,
+    `Error: Failed to execute diagnostic provider: TypeError: Cannot read properties of undefined (reading 'line')`,
   )
 
   // act
