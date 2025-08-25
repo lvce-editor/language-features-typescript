@@ -30,8 +30,17 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   await Editor.openSourceActions()
 
   // assert
-  const completions = Locator('#Completions')
-  await expect(completions).toBeVisible()
-  const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems.nth(0)).toHaveText('add')
+  const sourceActions = Locator('.EditorSourceActions')
+  await expect(sourceActions).toHaveVisible()
+
+  const changeSpellingItem = Locator('.SourceActionItem', {
+    hasText: `Change Spelling to 'abort'`,
+  })
+  await expect(changeSpellingItem).toBeVisible()
+
+  // act
+  await changeSpellingItem.click()
+
+  // assert
+  await Editor.shouldHaveText(`globalThis.AbortSignal.abort()`)
 }
