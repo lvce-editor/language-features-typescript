@@ -27,36 +27,17 @@ const readDir = (uri) => {
   return vscode.readDirWithFileTypes(uri)
 }
 
-const getFn = (method) => {
-  switch (method) {
-    case 'TypeScriptRpc.invoke':
-    case 'Completion.getCompletion':
-    case 'ResolveCompletion.resolveCompletion':
-      return rpcInvoke
-    case 'TypeScriptRpc.listen':
-      return rpcListen
-    case 'Position.getOffset':
-      return getOffset
-    case 'Position.getPosition':
-      return getPosition
-    case 'FileSystem.readFile':
-      return readFile
-    case 'FileSystem.readDir':
-      return readDir
-    case 'SyncApi.readFileSync':
-      return SyncApi.readFileSync
-    case 'SyncApi.readDirSync':
-      return SyncApi.readDirSync
-    case 'SyncApi.setup':
-      return SyncApi.syncSetup
-    case 'SyncApi.exists':
-      return SyncApi.exists
-    default:
-      throw new Error('method not found')
-  }
-}
-
-export const execute = (method, ...params) => {
-  const fn = getFn(method)
-  return fn(...params)
+export const commandMap = {
+  'TypeScriptRpc.invoke': rpcInvoke,
+  'Completion.getCompletion': rpcInvoke,
+  'ResolveCompletion.resolveCompletion': rpcInvoke,
+  'TypeScriptRpc.listen': rpcListen,
+  'Position.getOffset': getOffset,
+  'Position.getPosition': getPosition,
+  'FileSystem.readFile': readFile,
+  'FileSystem.readDir': readDir,
+  'SyncApi.readFileSync': SyncApi.readFileSync,
+  'SyncApi.readDirSync': SyncApi.readDirSync,
+  'SyncApi.setup': SyncApi.syncSetup,
+  'SyncApi.exists': SyncApi.exists,
 }
