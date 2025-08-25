@@ -58,7 +58,7 @@ await copyFile(
 )
 
 await replace({
-  path: join(root, 'packages', 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+  path: join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
   occurrence: `'../../'`,
   replacement: `'../'`,
 })
