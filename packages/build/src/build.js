@@ -48,6 +48,7 @@ await copyFile(
   join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
   join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
 )
+
 await mkdir(join(root, 'dist', 'dist'), {
   recursive: true,
 })
@@ -55,6 +56,12 @@ await copyFile(
   join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
   join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
+
+await replace({
+  path: join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+  occurrence: `'../../'`,
+  replacement: `'../'`,
+})
 
 await removeUnusedTypeScriptFiles(join(root, 'dist', 'typescript'))
 
