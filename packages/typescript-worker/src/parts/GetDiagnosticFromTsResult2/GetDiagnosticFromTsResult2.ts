@@ -1,30 +1,32 @@
 import type ts from 'typescript'
 import * as GetDiagnosticSeverity from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
-import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
+import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 
 /**
  *
  */
-const convertTsDiagnostic = (textDocument: any, diagnostic: TypeScriptProtocol.Diagnostic) => {
+const convertTsDiagnostic = (text: string, diagnostic: ts.DiagnosticWithLocation) => {
+  // TODO in api, use only startoffset and endoffset. problems view can convert locations if needed
+  const start = getPositionAt(text, diagnostic.start)
+  const end = getPositionAt(text, diagnostic.start + diagnostic.length)
   return {
-    rowIndex: diagnostic.start.line - 1,
-    columnIndex: diagnostic.start.offset - 1, // TODO should be offset based here
-    endRowIndex: diagnostic.end.line - 1,
-    endColumnIndex: diagnostic.end.offset - 1,
-    // endOffset,
-    message: diagnostic.text,
+    rowIndex: start.rowIndex - 1,
+    columnIndex: start.columnIndex - 1, // TODO should be offset based here
+    endRowIndex: end.rowIndex - 1,
+    endColumnIndex: end.columnIndex - 1,
+
+    message: diagnostic.messageText,
     type: GetDiagnosticSeverity.getDiagnosticSeverity(diagnostic),
-    uri: textDocument.uri,
+    uri: diagnostic.file.fileName,
     source: 'ts',
     code: diagnostic.code,
   }
 }
 
-export const getDiagnosticsFromTsResult2 = (textDocument: any, tsResult: readonly ts.DiagnosticWithLocation[]) => {
+export const getDiagnosticsFromTsResult2 = (text: string, tsResult: readonly ts.DiagnosticWithLocation[]) => {
   const diagnostics = []
   for (const tsDiagnostic of tsResult) {
-    // @ts-ignore
-    diagnostics.push(convertTsDiagnostic(textDocument, tsDiagnostic))
+    diagnostics.push(convertTsDiagnostic(text, tsDiagnostic))
   }
   return diagnostics
 }

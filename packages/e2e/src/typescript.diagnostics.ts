@@ -16,10 +16,12 @@ x = 'a'`,
   await Panel.open('Problems')
   await Problems.show()
 
-  const problemsView = Locator('.Viewlet.Problems')
-  await expect(problemsView).toHaveText(
-    `Error: Failed to execute diagnostic provider: TypeError: Cannot read properties of undefined (reading 'line')`,
-  )
+  const problems = Locator('.Problem')
+  await expect(problems).toHaveCount(2)
+
+  const problemInfo = problems.nth(1)
+  const label = problemInfo.locator('.Label')
+  await expect(label).toHaveText(`Type 'string' is not assignable to type 'number'.`)
 
   // act
   // TODO
