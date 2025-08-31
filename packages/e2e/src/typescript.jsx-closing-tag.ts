@@ -1,8 +1,10 @@
+import type { Test } from '@lvce-editor/test-with-playwright'
+
 export const name = 'typescript.jsx-closing-tag'
 
 export const skip = true
 
-export const test = async ({ FileSystem, Editor }) => {
+export const test: Test = async ({ FileSystem, Editor }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
@@ -16,6 +18,7 @@ export const test = async ({ FileSystem, Editor }) => {
   await Editor.setCursor(1, 13)
 
   // act
+  // @ts-ignore
   await Editor.typeWithAutoClosingTag('>')
 
   // assert
