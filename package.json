@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@lerna/legacy-package-management": "^8.2.4",
-    "@lvce-editor/server": "^0.58.1",
+    "@lvce-editor/server": "^0.58.2",
     "@types/jest": "^30.0.0",
     "jest": "^29.7.0",
     "lerna": "^8.2.3",
