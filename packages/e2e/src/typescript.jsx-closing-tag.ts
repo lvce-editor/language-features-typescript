@@ -18,6 +18,7 @@ export const test: Test = async ({ FileSystem, Editor }) => {
   await Editor.setCursor(1, 13)
 
   // act
+  // @ts-ignore
   await Editor.typeWithAutoClosingTag('>')
 
   // assert
