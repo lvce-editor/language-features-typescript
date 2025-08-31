@@ -1,8 +1,10 @@
+import type { Test } from '@lvce-editor/test-with-playwright'
+
 export const name = 'typescript.implementations'
 
 export const skip = true
 
-export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(

@@ -1,8 +1,10 @@
+import type { Test } from '@lvce-editor/test-with-playwright'
+
 export const name = 'typescript.semantic-highlighting'
 
 export const skip = true
 
-export const test = async ({ FileSystem, Main, Locator, expect }) => {
+export const test: Test = async ({ FileSystem, Main, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
