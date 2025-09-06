@@ -67,7 +67,7 @@ await removeUnusedTypeScriptFiles(join(root, 'dist', 'typescript'))
 
 await replace({
   path: join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-  ocurrence: '../../../node_modules/typescript/lib/typescript-esm.js',
+  occurrence: '../../../node_modules/typescript/lib/typescript-esm.js',
   replacement: '../../typescript/lib/typescript-esm.js',
 })
 
