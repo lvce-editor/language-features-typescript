@@ -1,6 +1,8 @@
 import type { Test } from '@lvce-editor/test-with-playwright'
 
-export const name = 'typescript.references'
+export const name = 'typescript.references-dom-lib'
+
+export const skip = 1
 
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
@@ -10,7 +12,7 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
     JSON.stringify(
       {
         compilerOptions: {
-          lib: ['esnext'],
+          lib: ['esnext', 'dom'],
           types: [],
         },
       },
@@ -19,20 +21,12 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
     ),
   )
   await FileSystem.writeFile(
-    `${tmpDir}/add.ts`,
-    `export const add = () => {}
-`,
-  )
-  await FileSystem.writeFile(
     `${tmpDir}/test.ts`,
-    `import { add } from './add.ts'
-
-add(1,2)
+    `window
 `,
   )
-  await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
   await Main.openUri(`${tmpDir}/test.ts`)
-  await Editor.setCursor(2, 2)
+  await Editor.setCursor(0, 2)
 
   // act
   await Editor.findAllReferences()

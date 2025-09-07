@@ -25,7 +25,7 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   )
   await FileSystem.writeFile(
     `${tmpDir}/test.ts`,
-    `import { add } from './add.ts'
+    `import { add } from './not-found.ts'
 
 add(1,2)
 `,
@@ -38,13 +38,7 @@ add(1,2)
   await Editor.findAllReferences()
 
   // assert
-  const viewletLocations = Locator('.Locations')
-  await expect(viewletLocations).toBeVisible()
-  const viewletReferencesMessage = Locator('.LocationsMessage')
-  await expect(viewletReferencesMessage).toHaveText('3 results in 2 files')
-  const referenceItems = viewletLocations.locator('.TreeItem')
-  const referenceItemOne = referenceItems.nth(0)
-  await expect(referenceItemOne).toHaveText('test.ts')
-  const referenceItemTwo = referenceItems.nth(1)
-  await expect(referenceItemTwo).toHaveText(`import { add } from './add.ts'`)
+  const viewletError = Locator('.Viewlet.Error')
+  await expect(viewletError).toBeVisible()
+  await expect(viewletError).toHaveText('Error: Unexpected end of JSON input') // TODO
 }

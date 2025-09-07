@@ -1,31 +1,33 @@
+import type { Test } from '@lvce-editor/test-with-playwright'
+
 export const name = 'typescript.implementations'
 
 export const skip = true
 
-export const test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
-    `${tmpDir}/add.js`,
+    `${tmpDir}/add.ts`,
     `export const add = () => {}
 `,
   )
   await FileSystem.writeFile(
-    `${tmpDir}/test.js`,
-    `import {add} from './add.js'
+    `${tmpDir}/test.ts`,
+    `import { add } from './add.ts'
 
 add(1,2)
 `,
   )
   await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
-  await Main.openUri(`${tmpDir}/test.js`)
+  await Main.openUri(`${tmpDir}/test.ts`)
   await Editor.setCursor(0, 3)
 
   // act
   await Editor.findAllImplementations()
 
   // assert
-  const viewletLocations = Locator('.Viewlet[data-viewlet-id="Locations"]')
+  const viewletLocations = Locator('.Viewlet.Locations')
   await expect(viewletLocations).toBeVisible()
   const viewletImplementationsMessage = Locator('.LocationsMessage')
   await expect(viewletImplementationsMessage).toHaveText('1 result in 1 file')

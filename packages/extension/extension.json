@@ -51,12 +51,36 @@
     {
       "kind": "source.organizeImports",
       "name": "Organize Imports",
-      "command": "Editor.organizeImports"
+      "command": "Editor.organizeImports",
+      "languageId": "typescript"
     },
     {
       "kind": "source.sortImports",
       "name": "Sort Imports",
-      "command": "Editor.sortImports"
+      "command": "Editor.sortImports",
+      "languageId": "typescript"
+    }
+  ],
+  "jsonValidation": [
+    {
+      "fileMatch": "tsconfig.json",
+      "url": "./schemas/tsconfig.schema.json"
+    },
+    {
+      "fileMatch": "tsconfig-*.json",
+      "url": "./schemas/tsconfig.schema.json"
+    },
+    {
+      "fileMatch": "tsconfig.*.json",
+      "url": "./schemas/tsconfig.schema.json"
+    },
+    {
+      "fileMatch": "jsconfig.json",
+      "url": "./schemas/jsconfig.schema.json"
+    },
+    {
+      "fileMatch": "jsconfig.*.json",
+      "url": "./schemas/jsconfig.schema.json"
     }
   ]
 }

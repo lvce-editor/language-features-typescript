@@ -1,8 +1,10 @@
+import type { Test } from '@lvce-editor/test-with-playwright'
+
 export const name = 'typescript.brace-completion'
 
 export const skip = true
 
-export const test = async ({ FileSystem, Workspace, Main, Editor }) => {
+export const test: Test = async ({ FileSystem, Workspace, Main, Editor }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')
