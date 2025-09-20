@@ -2,25 +2,13 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.completion-service-worker'
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(
-    `${tmpDir}/tsconfig.json`,
-    JSON.stringify(
-      {
-        compilerOptions: {
-          lib: ['esnext', 'webworker'],
-          types: [],
-        },
-      },
-      null,
-      2,
-    ),
-  )
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'WorkerG')
-  await Main.openUri(`${tmpDir}/test.ts`)
-  await Editor.setCursor(0, 7)
+  const fixtureUrl = import.meta.resolve('../fixtures/completion-service-worker').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
+  await Editor.setCursor(0, 14)
 
   // act
   await Editor.openCompletion()
@@ -29,5 +17,5 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems.nth(0)).toHaveText('DedicatedWorkerGlobalScope')
+  await expect(completionItems.nth(0)).toHaveText('ServiceWorkerGlobalScope')
 }
