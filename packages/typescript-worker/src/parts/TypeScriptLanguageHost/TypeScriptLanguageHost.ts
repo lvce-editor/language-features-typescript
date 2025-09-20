@@ -20,17 +20,20 @@ export const create = (
     //   return {}
     // },
     directoryExists(directoryName) {
+      console.log({ trying2: directoryName })
       const result = syncRpc.invokeSync('SyncApi.exists', directoryName)
       console.log({ directoryName, result })
       return true
     },
     fileExists(path) {
+      console.log({ trying3: path })
       const result = syncRpc.invokeSync('SyncApi.exists', path)
       console.log({ exists: path, result })
 
       return result
     },
     readFile(path) {
+      console.log({ trying4: path })
       const content = syncRpc.invokeSync('SyncApi.readFileSync', path)
       if (!content) {
         return ''
@@ -41,6 +44,7 @@ export const create = (
       return '\n'
     },
     readDirectory(path, extensions, exclude, include, depth) {
+      console.log({ trying1: path })
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
       console.log({ path, dirents })
       return dirents
@@ -89,9 +93,15 @@ export const create = (
     getScriptSnapshot(fileName) {
       if (isLibFile(fileName)) {
         const content = readLibFile(fileName)
+        if (!content) {
+          console.warn(`could not read lib file ${fileName}`)
+          return undefined
+        }
         return ts.ScriptSnapshot.fromString(content)
       }
+      console.log({ trying6: fileName })
       const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
+      console.log({ content, fileName })
       if (!content) {
         return undefined
       }
