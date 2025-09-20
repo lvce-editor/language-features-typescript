@@ -6,7 +6,7 @@ export const skip = 1
 
 export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/auto-fix-spelling').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/auto-import').toString()
   const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
