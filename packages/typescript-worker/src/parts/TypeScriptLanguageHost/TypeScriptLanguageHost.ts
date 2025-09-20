@@ -20,12 +20,21 @@ export const create = (
     //   return {}
     // },
     directoryExists(directoryName) {
+      const result = syncRpc.invokeSync('SyncApi.exists', directoryName)
+      console.log({ directoryName, result })
       return true
     },
     fileExists(path) {
-      return true
+      const result = syncRpc.invokeSync('SyncApi.exists', path)
+      console.log({ exists: path, result })
+
+      return result
     },
     readFile(path) {
+      const content = syncRpc.invokeSync('SyncApi.readFileSync', path)
+      if (!content) {
+        return ''
+      }
       return ''
     },
     getNewLine() {
@@ -33,6 +42,7 @@ export const create = (
     },
     readDirectory(path, extensions, exclude, include, depth) {
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
+      console.log({ path, dirents })
       return dirents
     },
     getDirectories(relativePath) {
@@ -40,6 +50,7 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
+      console.log({ relativePath, result })
       if (result) {
         return []
       }
@@ -53,6 +64,7 @@ export const create = (
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
+      console.log({ files })
       return files
     },
     getScriptVersion(fileName) {
