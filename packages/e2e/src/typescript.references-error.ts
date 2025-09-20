@@ -2,8 +2,6 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.references-error'
 
-export const skip = 1
-
 export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/references-error').toString()
@@ -18,5 +16,5 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   // assert
   const viewletError = Locator('.Viewlet.Error')
   await expect(viewletError).toBeVisible()
-  await expect(viewletError).toHaveText('Error: File not found /workspace/not-found.ts')
+  await expect(viewletError).toHaveText(`Error: File not found: '${workspaceUrl}/src/not-found.ts'`)
 }
