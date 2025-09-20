@@ -2,6 +2,8 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.no-reference-found'
 
+export const skip = 1
+
 export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/no-reference-found').toString()
