@@ -2,18 +2,12 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.no-reference-found'
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(
-    `${tmpDir}/test.ts`,
-    `
-
-add(1,2)
-`,
-  )
-  await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
-  await Main.openUri(`${tmpDir}/test.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/no-reference-found').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(2, 2)
 
   // act
