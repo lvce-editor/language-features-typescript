@@ -5,11 +5,11 @@ import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.js'
 import { root } from './root.js'
 
 const extension = path.join(root, 'packages', 'extension')
-const dist = join(root, 'dist')
+const dist = join(root, '.tmp', 'dist')
 
 await rm(dist, { recursive: true, force: true })
 
-await mkdir(dist)
+await mkdir(dist, { recursive: true })
 
 const packageJson = JSON.parse(await readFile(join(extension, 'package.json'), 'utf8'))
 delete packageJson.jest
@@ -25,7 +25,7 @@ await cp(join(root, 'node_modules', 'typescript'), join(dist, 'typescript'), {
 })
 
 await replace({
-  path: join(root, 'dist', 'extension.json'),
+  path: join(dist, 'extension.json'),
   occurrence: 'src/languageFeaturesTypeScriptMain.js',
   replacement: 'dist/languageFeaturesTypeScriptMain.js',
 })
@@ -42,25 +42,25 @@ await bundleJs(
   false,
 )
 
-await mkdir(join(root, 'dist', 'typescript-worker', 'dist'), {
+await mkdir(join(dist, 'typescript-worker', 'dist'), {
   recursive: true,
 })
 await copyFile(
   join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-  join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
 )
 
-await mkdir(join(root, 'dist', 'dist'), {
+await mkdir(join(dist, 'dist'), {
   recursive: true,
 })
 await copyFile(
   join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
-  join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+  join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
 await copyFile(join(root, 'LICENSE'), join(root, 'dist', 'LICENSE'))
 
 await replace({
-  path: join(root, 'dist', 'dist', 'languageFeaturesTypeScriptMain.js'),
+  path: join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'),
   occurrence: `'../../'`,
   replacement: `'../'`,
 })
@@ -68,7 +68,7 @@ await replace({
 await removeUnusedTypeScriptFiles(join(root, 'dist', 'typescript'))
 
 await replace({
-  path: join(root, 'dist', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
+  path: join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
   occurrence: '../../../node_modules/typescript/lib/typescript-esm.js',
   replacement: '../../typescript/lib/typescript-esm.js',
 })
