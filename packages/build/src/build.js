@@ -57,7 +57,7 @@ await copyFile(
   join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
   join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
-await copyFile(join(root, 'LICENSE'), join(root, 'dist', 'LICENSE'))
+await copyFile(join(root, 'LICENSE'), join(dist, 'LICENSE'))
 
 await replace({
   path: join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'),
