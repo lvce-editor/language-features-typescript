@@ -1,4 +1,5 @@
 import { createBuffer } from '../CreateBuffer/CreateBuffer.ts'
+import { readJsonFromHandle } from '../ReadJsonFromHandle/ReadJsonFromHandle.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
@@ -37,17 +38,21 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
       accessHandle.flush()
       resultAccessHandle.truncate(0)
       resultAccessHandle.flush()
+      errorAccessHandle.truncate(0)
+      errorAccessHandle.flush()
       Rpc.invoke(method, syncId, ...params)
       const maxDelay = 5_000
       const hasResult = waitForSyncRpcResult(accessHandle, maxDelay, buffer)
       if (!hasResult) {
         throw new Error(`Rpc error: timeout of ${maxDelay}ms exceeded`)
       }
+      const errorSize = errorAccessHandle.getSize()
+      if (errorSize > 0) {
+        const parsedError = readJsonFromHandle(errorAccessHandle, errorSize)
+        throw new Error(parsedError.message)
+      }
       const size = resultAccessHandle.getSize()
-      const buf = new Uint8Array(size)
-      resultAccessHandle.read(buf)
-      const text = new TextDecoder().decode(buf)
-      const parsed = JSON.parse(text)
+      const parsed = readJsonFromHandle(resultAccessHandle, size)
       return parsed
     },
   }

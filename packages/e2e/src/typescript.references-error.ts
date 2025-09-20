@@ -16,5 +16,5 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   // assert
   const viewletError = Locator('.Viewlet.Error')
   await expect(viewletError).toBeVisible()
-  await expect(viewletError).toHaveText('Error: Unexpected end of JSON input') // TODO
+  await expect(viewletError).toHaveText(`Error: File not found: '${workspaceUrl}/src/not-found.ts'`)
 }
