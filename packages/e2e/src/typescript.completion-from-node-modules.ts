@@ -4,7 +4,9 @@ export const name = 'typescript.completion-from-node-modules'
 
 export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
+  const tmpDir = await FileSystem.getTmpDir({
+    scheme: 'memfs',
+  })
   await FileSystem.writeFile(
     `${tmpDir}/tsconfig.json`,
     JSON.stringify(
