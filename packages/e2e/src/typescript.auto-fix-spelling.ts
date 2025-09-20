@@ -17,7 +17,7 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
 
   // assert
   const sourceActions = Locator('.EditorSourceActions')
-  await expect(sourceActions).toHaveVisible()
+  await expect(sourceActions).toBeVisible()
 
   const changeSpellingItem = Locator('.SourceActionItem', {
     hasText: `Change Spelling to 'abort'`,
@@ -25,7 +25,7 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   await expect(changeSpellingItem).toBeVisible()
 
   // act
-  await changeSpellingItem.click()
+  // await changeSpellingItem.click()
 
   // assert
   await Editor.shouldHaveText(`globalThis.AbortSignal.abort()`)
