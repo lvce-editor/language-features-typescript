@@ -5,6 +5,7 @@ import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
 
 export const createSyncRpcClient = async (): Promise<SyncRpc> => {
+  const maxDelay = 30_000
   const syncId = 1
   const isolated = globalThis.crossOriginIsolated
   const buffer = createBuffer(isolated)
@@ -41,7 +42,6 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
       errorAccessHandle.truncate(0)
       errorAccessHandle.flush()
       Rpc.invoke(method, syncId, ...params)
-      const maxDelay = 5_000
       const hasResult = waitForSyncRpcResult(accessHandle, maxDelay, buffer)
       if (!hasResult) {
         throw new Error(`Rpc error: timeout of ${maxDelay}ms exceeded`)
