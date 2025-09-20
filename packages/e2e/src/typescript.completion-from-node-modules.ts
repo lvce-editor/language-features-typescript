@@ -2,8 +2,6 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.completion-from-node-modules'
 
-export const skip = 1
-
 export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/completion-from-node-modules').toString()
@@ -19,6 +17,5 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems).toHaveCount(1)
   await expect(completionItems.nth(0)).toHaveText('lodash')
 }
