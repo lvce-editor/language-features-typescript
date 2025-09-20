@@ -2,11 +2,12 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.toggle-line-comment'
 
-export const test: Test = async ({ FileSystem, Main, Editor }) => {
+export const test: Test = async ({ Workspace, Main, Editor }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'let x = 1')
-  await Main.openUri(`${tmpDir}/test.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/toggle-line-comment').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 3)
 
   // act
