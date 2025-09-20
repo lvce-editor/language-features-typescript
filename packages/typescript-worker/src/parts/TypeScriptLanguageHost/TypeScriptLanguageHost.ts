@@ -32,7 +32,7 @@ export const create = (
     directoryExists(directoryName) {
       // console.log({ trying2: directoryName })
       const result = syncRpc.invokeSync('SyncApi.exists', directoryName)
-      console.log({ directoryName, result })
+      // console.log({ directoryName, result })
       return result
     },
     fileExists(path) {
@@ -56,9 +56,9 @@ export const create = (
       return '\n'
     },
     readDirectory(path, extensions, exclude, include, depth) {
-      // console.log({ trying1: path })
+      console.log({ trying1: path, exclude, extensions, include, depth })
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
-      // console.log({ path, dirents })
+      console.log({ path, dirents, exclude, include, depth })
       return dirents
     },
     getDirectories(relativePath) {
@@ -66,7 +66,7 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      console.log({ relativePath, result })
+      // console.log({ relativePath, result })
       if (result) {
         return result
       }
