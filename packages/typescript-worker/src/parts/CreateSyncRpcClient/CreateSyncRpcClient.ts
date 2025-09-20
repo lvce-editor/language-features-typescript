@@ -1,4 +1,5 @@
 import { createBuffer } from '../CreateBuffer/CreateBuffer.ts'
+import { readJsonFromHandle } from '../ReadJsonFromHandle/ReadJsonFromHandle.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
@@ -46,7 +47,7 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
       resultAccessHandle.truncate(0)
       resultAccessHandle.flush()
       errorAccessHandle.truncate(0)
-      errorAccessHandle.flush(0)
+      errorAccessHandle.flush()
       Rpc.invoke(method, syncId, ...params)
       const maxDelay = 5_000
       const hasResult = waitForSyncRpcResult(accessHandle, maxDelay, buffer)

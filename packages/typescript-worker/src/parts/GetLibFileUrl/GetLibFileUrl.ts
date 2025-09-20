@@ -21,6 +21,5 @@ export const getLibFileUrl = (uri: string): string => {
       .replaceAll('.ts', '') +
     '.d.ts'
 
-  console.log({ relativePath })
   return new URL(`../../../node_modules/typescript/lib/${relativePath}`, import.meta.url).toString()
 }
