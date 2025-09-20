@@ -23,7 +23,7 @@ export const create = (
       console.log({ trying2: directoryName })
       const result = syncRpc.invokeSync('SyncApi.exists', directoryName)
       console.log({ directoryName, result })
-      return true
+      return result
     },
     fileExists(path) {
       console.log({ trying3: path })

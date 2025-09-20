@@ -6,7 +6,6 @@ export const waitForSyncRpcResult = (
   maxWaitTime: number,
   sharedBuffer: Int32Array | undefined,
 ): boolean => {
-  console.log({ sharedBuffer })
   if (sharedBuffer) {
     return waitForSyncRpcResultBuffer(maxWaitTime, sharedBuffer)
   }
