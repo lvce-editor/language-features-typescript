@@ -23,7 +23,8 @@ export const create = (
       return true
     },
     fileExists(path) {
-      return true
+      const result = syncRpc.invokeSync('SyncApi.exists', path)
+      return result
     },
     readFile(path) {
       return ''
