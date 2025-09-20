@@ -1,21 +1,11 @@
-import type { LanguageServiceHost, ParsedCommandLine, ResolvedModuleWithFailedLookupLocations } from 'typescript'
+import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
+import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
-import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
-
-const isFullySpecified = (moduleText: string): boolean => {
-  switch (moduleText) {
-    case '':
-    case '.':
-    case './':
-      return false
-    default:
-      return true
-  }
-}
 
 export const create = (
   ts: typeof import('typescript'),
@@ -23,38 +13,11 @@ export const create = (
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
-  const resolveModuleName = (
-    text: string,
-    containingFile: any,
-    compilerOptions: any,
-  ): ResolvedModuleWithFailedLookupLocations => {
-    if (!isFullySpecified(text)) {
-      return {
-        resolvedModule: undefined,
-      }
-    }
-    console.log({ text, containingFile })
-    // ts.resolveModuleName(text, containingFile, compilerOptions, {})
-    return {
-      resolvedModule: {
-        extension: '',
-        resolvedFileName: '',
-        // isExternalLibraryImport: false, // TODO
-        // packageId: {
-        //   name: '',
-        //   subModuleName: '',
-        //   version: '',
-        // },
-      },
-    }
-  }
+  const resolveModuleName = createModuleResolver()
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
-    // getParsedCommandLine(fileName) {
-    //   return {}
-    // },
     directoryExists(directoryName) {
       return true
     },
