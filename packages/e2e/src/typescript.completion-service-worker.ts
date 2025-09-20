@@ -8,7 +8,7 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
-  await Editor.setCursor(0, 7)
+  await Editor.setCursor(0, 14)
 
   // act
   await Editor.openCompletion()
@@ -17,5 +17,5 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems.nth(0)).toHaveText('DedicatedWorkerGlobalScope')
+  await expect(completionItems.nth(0)).toHaveText('ServiceWorkerGlobalScope')
 }

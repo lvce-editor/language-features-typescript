@@ -1,1 +1,1 @@
-WorkerG
+ServiceWorkerG
