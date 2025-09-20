@@ -2,24 +2,12 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.completion'
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(
-    `${tmpDir}/tsconfig.json`,
-    JSON.stringify(
-      {
-        compilerOptions: {
-          lib: ['esnext', 'dom'],
-          types: [],
-        },
-      },
-      null,
-      2,
-    ),
-  )
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'win')
-  await Main.openUri(`${tmpDir}/test.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/completion').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 3)
 
   // act

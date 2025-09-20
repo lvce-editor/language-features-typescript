@@ -4,20 +4,13 @@ export const name = 'typescript.add-missing-imports'
 
 export const skip = true
 
-export const test: Test = async ({ FileSystem, Main, Editor }) => {
+export const test: Test = async ({ Workspace, Main, Editor }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(`${tmpDir}/a.ts`, 'export const a = 1')
-  await FileSystem.writeFile(`${tmpDir}/b.ts`, 'export const b = 2')
-  await FileSystem.writeFile(
-    `${tmpDir}/c.ts`,
-    `import { a } from './a'
-import { b } from './b'
+  const fixtureUrl = import.meta.resolve('../fixtures/add-missing-imports').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
 
-export const c = a + 1`,
-  )
-
-  await Main.openUri(`${tmpDir}/c.ts`)
+  await Main.openUri(`${workspaceUrl}/src/c.ts`)
 
   // act
   await Editor.organizeImports()

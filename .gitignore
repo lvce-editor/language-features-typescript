@@ -44,6 +44,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+!packages/e2e/fixtures/**/node_modules
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
