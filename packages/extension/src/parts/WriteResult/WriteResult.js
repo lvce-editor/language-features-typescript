@@ -1,7 +1,7 @@
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
 
 const successCode = 123
-const errorCode = 124
+const errorCode = 123
 
 const getResponse = async (resultGenerator) => {
   let _error
