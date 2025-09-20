@@ -28,18 +28,22 @@ export const syncSetup = async (id, buffer, statusFileName, resultFileName, erro
 }
 
 export const readFileSync = async (id, uri) => {
-  const resultGenerator = () => {
+  const resultGenerator = async () => {
     // @ts-ignore
-    return vscode.readFile(uri)
+    const content = await vscode.readFile(uri)
+    console.log({ uri, content })
+    return content
   }
   await writeResult(id, resultGenerator)
 }
 
 export const readDirSync = async (id, uri) => {
+  console.log('read dir', uri)
   const resultGenerator = async () => {
     // @ts-ignore
     const result = await vscode.readDirWithFileTypes(uri)
     const baseNames = result.map((item) => item.name)
+    console.log({ baseNames })
     return baseNames
   }
   await writeResult(id, resultGenerator)
