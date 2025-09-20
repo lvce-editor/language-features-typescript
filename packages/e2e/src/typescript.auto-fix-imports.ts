@@ -16,6 +16,7 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   // assert
   const organizeImportsAction = Locator('.SourceActionItem', { hasText: 'Organize Imports' })
   await expect(organizeImportsAction).toBeVisible()
+  // @ts-ignore
   await organizeImportsAction.click()
 
   // assert
