@@ -65,7 +65,7 @@ await replace({
   replacement: `'../'`,
 })
 
-await removeUnusedTypeScriptFiles(join(root, 'dist', 'typescript'))
+await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
 
 await replace({
   path: join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
