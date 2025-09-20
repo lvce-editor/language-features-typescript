@@ -66,7 +66,7 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      // console.log({ relativePath, result })
+      console.log({ result })
       if (result) {
         return result
       }
