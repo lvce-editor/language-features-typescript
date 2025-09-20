@@ -2,8 +2,6 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.rename'
 
-export const skip = 1
-
 export const test: Test = async ({ Workspace, Main, Editor, Command }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/rename').toString()
@@ -18,6 +16,5 @@ export const test: Test = async ({ Workspace, Main, Editor, Command }) => {
   await Command.execute('EditorRename.accept')
 
   // assert
-
-  // TODO verify variable has been renamed
+  await Editor.shouldHaveText('let y = 1\n')
 }
