@@ -1,4 +1,4 @@
-import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
+import type { LanguageServiceHost, ParsedCommandLine, ResolvedModuleWithFailedLookupLocations } from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
@@ -6,12 +6,48 @@ import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
+const isFullySpecified = (moduleText: string): boolean => {
+  switch (moduleText) {
+    case '':
+    case '.':
+    case './':
+      return false
+    default:
+      return true
+  }
+}
+
 export const create = (
   ts: typeof import('typescript'),
   fileSystem: IFileSystem,
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
+  const resolveModuleName = (
+    text: string,
+    containingFile: any,
+    compilerOptions: any,
+  ): ResolvedModuleWithFailedLookupLocations => {
+    if (!isFullySpecified(text)) {
+      return {
+        resolvedModule: undefined,
+      }
+    }
+    console.log({ text, containingFile })
+    // ts.resolveModuleName(text, containingFile, compilerOptions, {})
+    return {
+      resolvedModule: {
+        extension: '',
+        resolvedFileName: '',
+        // isExternalLibraryImport: false, // TODO
+        // packageId: {
+        //   name: '',
+        //   subModuleName: '',
+        //   version: '',
+        // },
+      },
+    }
+  }
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
@@ -23,6 +59,12 @@ export const create = (
       return true
     },
     fileExists(path) {
+      if (path.includes('node_modules/@typescript/lib')) {
+        return false
+      }
+      if (path.includes('node_modules/@types/typescript__lib')) {
+        return false
+      }
       const result = syncRpc.invokeSync('SyncApi.exists', path)
       return result
     },
@@ -47,7 +89,7 @@ export const create = (
       return []
     },
     useCaseSensitiveFileNames() {
-      return false
+      return true
     },
     getProjectVersion() {
       return `${0}`
@@ -86,6 +128,21 @@ export const create = (
       }
       const snapshot = ts.ScriptSnapshot.fromString(content)
       return snapshot
+    },
+    resolveModuleNameLiterals(
+      moduleLiterals,
+      containingFile,
+      redirectedReference,
+      options,
+      containingSourceFile,
+      reusedNames,
+    ) {
+      return moduleLiterals.map((moduleLiteral) => {
+        return resolveModuleName(moduleLiteral.text, containingFile, options)
+      })
+    },
+    getProjectReferences() {
+      return []
     },
   }
   return languageServiceHost
