@@ -4,13 +4,13 @@ export const name = 'typescript.auto-import-no-suggestions'
 
 export const skip = 1
 
-export const test: Test = async ({Workspace FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Workspace, FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/auto-fix-spelling').toString()
   const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
-  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, 'let x = add')
-  await Main.openUri(`${tmpDir}/src/test.ts`)
+  await FileSystem.writeFile(`${workspaceUrl}/src/test.ts`, 'let x = add')
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 11)
 
   // act
