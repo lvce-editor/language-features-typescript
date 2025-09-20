@@ -14,15 +14,25 @@ export const create = (
 ): ILanguageServiceHost => {
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
+      // console.log({ fileName })
       return ts.ScriptKind.TS
     },
+    realpath(path) {
+      console.log({ path })
+      return path
+    },
+    resolveModuleNameLiterals(containingFile) {
+      console.log('resolve module names', containingFile)
+      return []
+    },
+
     // getParsedCommandLine(fileName) {
     //   return {}
     // },
     directoryExists(directoryName) {
       // console.log({ trying2: directoryName })
       const result = syncRpc.invokeSync('SyncApi.exists', directoryName)
-      // console.log({ directoryName, result })
+      console.log({ directoryName, result })
       return result
     },
     fileExists(path) {
@@ -56,9 +66,9 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      // console.log({ relativePath, result })
+      console.log({ relativePath, result })
       if (result) {
-        return []
+        return result
       }
       return []
     },
@@ -70,6 +80,7 @@ export const create = (
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
+      console.log('script file names', files)
       // console.log({ files })
       return files
     },
