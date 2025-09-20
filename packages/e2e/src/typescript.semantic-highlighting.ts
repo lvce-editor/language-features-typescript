@@ -15,6 +15,7 @@ export const test: Test = async ({ Workspace, Main, Locator, expect }) => {
 
   // assert
   const rowTwo = Locator('.EditorRow').nth(2)
+  // @ts-ignore
   const tokenAdd = rowTwo.locator('.Token', { hasText: 'add' })
   await expect(tokenAdd).toHaveClass('Token Function')
 }
