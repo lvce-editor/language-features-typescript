@@ -5,7 +5,7 @@ export const waitForSyncRpcResult = (
   handle: FileSystemSyncAccessHandle,
   maxWaitTime: number,
   sharedBuffer: Int32Array | undefined,
-): boolean => {
+): number => {
   if (sharedBuffer) {
     return waitForSyncRpcResultBuffer(maxWaitTime, sharedBuffer)
   }

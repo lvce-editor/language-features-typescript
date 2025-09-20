@@ -3,8 +3,10 @@ import { readJsonFromHandle } from '../ReadJsonFromHandle/ReadJsonFromHandle.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
+import * as WaitForSyncBufferResultType from '../WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
 
 export const createSyncRpcClient = async (): Promise<SyncRpc> => {
+  const maxDelay = 30_000
   const syncId = 1
   const isolated = globalThis.crossOriginIsolated
   const buffer = createBuffer(isolated)
@@ -41,10 +43,15 @@ export const createSyncRpcClient = async (): Promise<SyncRpc> => {
       errorAccessHandle.truncate(0)
       errorAccessHandle.flush()
       Rpc.invoke(method, syncId, ...params)
-      const maxDelay = 5_000
-      const hasResult = waitForSyncRpcResult(accessHandle, maxDelay, buffer)
-      if (!hasResult) {
+      const resultType = waitForSyncRpcResult(accessHandle, maxDelay, buffer)
+      if (resultType === WaitForSyncBufferResultType.Timeout) {
         throw new Error(`Rpc error: timeout of ${maxDelay}ms exceeded`)
+      }
+      if (resultType === WaitForSyncBufferResultType.NotEqual) {
+        throw new Error(`Rpc error: Buffer did not change`)
+      }
+      if (resultType === WaitForSyncBufferResultType.Other) {
+        throw new Error(`Rpc error: Unexpected buffer errot`)
       }
       const errorSize = errorAccessHandle.getSize()
       if (errorSize > 0) {
