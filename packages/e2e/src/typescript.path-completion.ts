@@ -2,15 +2,13 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.path-completion'
 
-export const skip = true
-
 export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/path-completion').toString()
   const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
-  await Editor.setCursor(0, 19)
+  await Editor.setCursor(0, 10)
 
   // act
   await Editor.openCompletion()
