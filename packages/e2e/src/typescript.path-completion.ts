@@ -4,12 +4,12 @@ export const name = 'typescript.path-completion'
 
 export const skip = true
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir({ scheme: '' })
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, "import './")
-  await FileSystem.writeFile(`${tmpDir}/add.ts`, 'export const add = (a, b) => a + b')
-  await Main.openUri(`${tmpDir}/test.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/path-completion').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 19)
 
   // act

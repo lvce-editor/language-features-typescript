@@ -4,17 +4,11 @@ export const name = 'typescript.jsx-closing-tag'
 
 export const skip = true
 
-export const test: Test = async ({ FileSystem, Editor }) => {
+export const test: Test = async ({ Workspace, Editor }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(
-    `${tmpDir}/button.tsx`,
-    `const button = () => {
-  return <div
-}
-`,
-  )
-  await FileSystem.writeFile(`${tmpDir}/tsconfig.json`, `{}`)
+  const fixtureUrl = import.meta.resolve('../fixtures/jsx-closing-tag').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
   await Editor.setCursor(1, 13)
 
   // act
