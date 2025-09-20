@@ -40,5 +40,5 @@ add(1,2)
   // assert
   const viewletError = Locator('.Viewlet.Error')
   await expect(viewletError).toBeVisible()
-  await expect(viewletError).toHaveText('Error: file not found /workspace/not-found.ts')
+  await expect(viewletError).toHaveText('Error: File not found /workspace/not-found.ts')
 }
