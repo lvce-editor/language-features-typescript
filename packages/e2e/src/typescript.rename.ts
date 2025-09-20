@@ -4,11 +4,12 @@ export const name = 'typescript.rename'
 
 export const skip = 1
 
-export const test: Test = async ({ FileSystem, Main, Editor, Command }) => {
+export const test: Test = async ({ Workspace, Main, Editor, Command }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, 'let x = 1')
-  await Main.openUri(`${tmpDir}/test.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/rename').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 4)
 
   // act

@@ -4,25 +4,13 @@ export const name = 'typescript.auto-import-no-suggestions'
 
 export const skip = 1
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Workspace, FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(
-    `${tmpDir}/src/tsconfig.json`,
-    JSON.stringify(
-      {
-        compilerOptions: {
-          lib: ['ESNext'],
-          types: [],
-        },
-        include: ['add.ts', 'test.ts'],
-      },
-      null,
-      2,
-    ),
-  )
-  await FileSystem.writeFile(`${tmpDir}/src/test.ts`, 'let x = add')
-  await Main.openUri(`${tmpDir}/src/test.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/auto-fix-spelling').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await FileSystem.writeFile(`${workspaceUrl}/src/test.ts`, 'let x = add')
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 11)
 
   // act
