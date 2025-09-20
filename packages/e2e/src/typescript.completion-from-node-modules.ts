@@ -4,14 +4,12 @@ export const name = 'typescript.completion-from-node-modules'
 
 export const skip = 1
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(`${tmpDir}/package.json`, `{ "type": "module", "dependencies": { "lodash": "^1.0.0" } }`)
-  await FileSystem.writeFile(`${tmpDir}/node_modules/lodash/package.json`, `{ "main": "index.js", "type": "module" }`)
-  await FileSystem.writeFile(`${tmpDir}/node_modules/lodash/index.js`, `export const add = (a,b) => a + b`)
-  await FileSystem.writeFile(`${tmpDir}/test.ts`, `import * as _ from ''`)
-  await Main.openUri(`${tmpDir}/test.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/completion-from-node-modules').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 20)
 
   // act

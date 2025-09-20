@@ -4,20 +4,12 @@ export const name = 'typescript.organize-imports'
 
 // export const skip = true
 
-export const test: Test = async ({ FileSystem, Main, Editor }) => {
+export const test: Test = async ({ Main, Editor, Workspace }) => {
   // arrange
-  const tmpDir = await FileSystem.getTmpDir()
-  await FileSystem.writeFile(`${tmpDir}/a.ts`, 'export const a = 1')
-  await FileSystem.writeFile(`${tmpDir}/b.ts`, 'export const b = 2')
-  await FileSystem.writeFile(
-    `${tmpDir}/c.ts`,
-    `import { b } from './b.ts'
-import { a } from './a.ts'
-
-export const c = a + 1`,
-  )
-
-  await Main.openUri(`${tmpDir}/c.ts`)
+  const fixtureUrl = import.meta.resolve('../fixtures/organize-imports').toString()
+  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  await Workspace.setPath(workspaceUrl)
+  await Main.openUri(`${workspaceUrl}/src/c.ts`)
 
   // act
   await Editor.organizeImports()

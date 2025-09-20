@@ -1,0 +1,8 @@
+{
+  "name": "references-node-module",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "lodash": "^1.0.0"
+  }
+}
