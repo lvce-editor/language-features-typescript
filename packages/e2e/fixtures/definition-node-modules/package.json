@@ -1,0 +1,8 @@
+{
+  "name": "definition",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "lodash": "^1.0.0"
+  }
+}
