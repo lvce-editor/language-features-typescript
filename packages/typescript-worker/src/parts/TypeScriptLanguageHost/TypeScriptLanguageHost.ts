@@ -20,22 +20,24 @@ export const create = (
     //   return {}
     // },
     directoryExists(directoryName) {
-      console.log({ trying2: directoryName })
+      // console.log({ trying2: directoryName })
       const result = syncRpc.invokeSync('SyncApi.exists', directoryName)
-      console.log({ directoryName, result })
+      // console.log({ directoryName, result })
       return result
     },
     fileExists(path) {
-      console.log({ trying3: path })
+      // console.log({ trying3: path })
       const result = syncRpc.invokeSync('SyncApi.exists', path)
-      console.log({ exists: path, result })
+      // console.log({ exists: path, result })
 
       return result
     },
     readFile(path) {
-      console.log({ trying4: path })
+      // console.log({ trying4: path })
       const content = syncRpc.invokeSync('SyncApi.readFileSync', path)
+
       if (!content) {
+        console.log('no content', path)
         return ''
       }
       return ''
@@ -44,9 +46,9 @@ export const create = (
       return '\n'
     },
     readDirectory(path, extensions, exclude, include, depth) {
-      console.log({ trying1: path })
+      // console.log({ trying1: path })
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
-      console.log({ path, dirents })
+      // console.log({ path, dirents })
       return dirents
     },
     getDirectories(relativePath) {
@@ -54,7 +56,7 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      console.log({ relativePath, result })
+      // console.log({ relativePath, result })
       if (result) {
         return []
       }
@@ -68,7 +70,7 @@ export const create = (
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
-      console.log({ files })
+      // console.log({ files })
       return files
     },
     getScriptVersion(fileName) {
@@ -82,6 +84,9 @@ export const create = (
     },
     getCustomTransformers() {
       throw new Error('not implemented')
+    },
+    error(s) {
+      console.error(s)
     },
     getCurrentDirectory() {
       return ''
@@ -99,10 +104,11 @@ export const create = (
         }
         return ts.ScriptSnapshot.fromString(content)
       }
-      console.log({ trying6: fileName })
+      // console.log({ trying6: fileName })
       const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
-      console.log({ content, fileName })
+      // console.log({ content, fileName })
       if (!content) {
+        console.log('no snapshot', fileName)
         return undefined
       }
       const snapshot = ts.ScriptSnapshot.fromString(content)
