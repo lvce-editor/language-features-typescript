@@ -26,7 +26,6 @@ export const resolveTsconfig = (
     const existingOptions = {}
     const config2 = ts.parseJsonConfigFileContent(parsed, host, rootDir, existingOptions, tsconfigPath)
     let options: CompilerOptions = config2.options
-    console.log({ config2 })
     options = {
       ...options,
       rootDir,

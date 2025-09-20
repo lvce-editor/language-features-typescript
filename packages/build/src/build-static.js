@@ -1,59 +1,14 @@
 import { exportStatic } from '@lvce-editor/shared-process'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
-import path, { join } from 'node:path'
+import { join } from 'node:path'
 import { root } from './root.js'
+import { cp } from 'node:fs/promises'
 
 const { commitHash } = await exportStatic({
   extensionPath: 'packages/extension',
   testPath: 'packages/e2e',
   root,
 })
-
-const replace = async (path, occurrence, replacement) => {
-  const oldContent = await readFile(path, 'utf8')
-  if (!oldContent.includes(occurrence)) {
-    throw new Error(`occurrence not found ${occurrence}`)
-  }
-  // @ts-ignore
-  const newContent = oldContent.replaceAll(occurrence, replacement)
-  await writeFile(path, newContent)
-}
-
-const typeScriptLibPath = join(root, 'node_modules', 'typescript', 'lib')
-const typeScriptPath = join(root, 'node_modules', 'typescript')
-
-await mkdir(join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript'))
-
-const typescriptDirents = await readdir(typeScriptLibPath)
-for (const typeScriptDirent of typescriptDirents) {
-  if (
-    typeScriptDirent.startsWith('lib.') ||
-    typeScriptDirent === 'typescript-esm.js' ||
-    typeScriptDirent === 'tsserverlibrary.js'
-  ) {
-    await cp(
-      join(typeScriptLibPath, typeScriptDirent),
-      join(
-        root,
-        'dist',
-        commitHash,
-        'extensions',
-        'builtin.language-features-typescript',
-        'typescript',
-        'lib',
-        typeScriptDirent,
-      ),
-    )
-  }
-}
-
-for (const dirent of ['README.md', 'LICENSE.txt', 'package.json']) {
-  await cp(
-    join(typeScriptPath, dirent),
-    join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript', 'typescript', dirent),
-  )
-}
 
 const updateJson = (path, update) => {
   const oldJson = JSON.parse(readFileSync(path, 'utf8'))
@@ -84,4 +39,13 @@ writeFileSync(
 }
 
 add(1,2,3,4)`,
+)
+
+await cp(
+  join(root, '.tmp', 'dist'),
+  join(root, 'dist', commitHash, 'extensions', 'builtin.language-features-typescript'),
+  {
+    recursive: true,
+    force: true,
+  },
 )
