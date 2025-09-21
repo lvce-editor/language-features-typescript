@@ -2,10 +2,10 @@ import type { CompilerOptions, ResolvedModuleWithFailedLookupLocations } from 't
 import { isFullySpecified } from '../IsFullySpecified/IsFullySpecified.ts'
 import type { ModuleResolver } from '../ModuleResolver/ModuleResolver.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { joinPath } from '../JoinPath/JoinPath.ts'
 
-const joinPath = (...parts: readonly string[]): string => {
-  // TODO handle relative parts like ../ or ./
-  return parts.join('/')
+const getDirName = (path: string): string => {
+  return path.slice(0, path.lastIndexOf('/'))
 }
 
 export const createModuleResolver = (syncRpc: SyncRpc): ModuleResolver => {
@@ -20,7 +20,16 @@ export const createModuleResolver = (syncRpc: SyncRpc): ModuleResolver => {
       }
     }
     if (text.startsWith('./') || text.startsWith('../')) {
+      const dirname = getDirName(containingFile)
+      // @ts-ignore
+      const resolved = joinPath(dirname, text)
       // TODO resolve relative path
+      return {
+        resolvedModule: {
+          extension: '',
+          resolvedFileName: '',
+        },
+      }
     }
     try {
       const rootDir = compilerOptions.rootDir || ''
