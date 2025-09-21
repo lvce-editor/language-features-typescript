@@ -1,6 +1,6 @@
-import type { CompilerOptions, ParsedCommandLine, ResolvedModuleWithFailedLookupLocations } from 'typescript'
-import type { ModuleResolver } from '../ModuleResolver/ModuleResolver.ts'
+import type { CompilerOptions, ResolvedModuleWithFailedLookupLocations } from 'typescript'
 import { isFullySpecified } from '../IsFullySpecified/IsFullySpecified.ts'
+import type { ModuleResolver } from '../ModuleResolver/ModuleResolver.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
 const joinPath = (...parts: readonly string[]): string => {
