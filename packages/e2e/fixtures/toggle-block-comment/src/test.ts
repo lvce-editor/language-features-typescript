@@ -1,4 +1,4 @@
 function example() {
-  const message = "Hello World"
+  const message = 'Hello World'
   return message
 }

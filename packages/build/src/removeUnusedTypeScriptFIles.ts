@@ -45,4 +45,3 @@ export const removeUnusedTypeScriptFiles = async (cwd: string): Promise<void> =>
     await rm(join(cwd, notNeeded), { force: true, recursive: true })
   }
 }
-
