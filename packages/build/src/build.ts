@@ -78,3 +78,4 @@ await packageExtension({
   inDir: join(dist),
   outFile: join(root, 'extension.tar.br'),
 })
+
