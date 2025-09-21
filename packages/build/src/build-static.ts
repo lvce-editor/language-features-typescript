@@ -1,7 +1,7 @@
 import { exportStatic } from '@lvce-editor/shared-process'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { root } from './root.js'
+import { root } from './root.ts'
 import { cp } from 'node:fs/promises'
 
 const { commitHash } = await exportStatic({
@@ -10,28 +10,28 @@ const { commitHash } = await exportStatic({
   root,
 })
 
-const updateJson = (path, update) => {
+const updateJson = (path: string, update: (oldJson: any) => any): void => {
   const oldJson = JSON.parse(readFileSync(path, 'utf8'))
   const newJson = update(oldJson)
   writeFileSync(path, JSON.stringify(newJson, null, 2) + '\n')
 }
 
-const updateSettings = (oldSettings) => {
+const updateSettings = (oldSettings: any): any => {
   return {
     ...oldSettings,
     'editor.diagnostics': true,
   }
 }
-const defaultSettingsPath = join(root, 'dist', commitHash, 'config', 'defaultSettings.json')
+const defaultSettingsPath: string = join(root, 'dist', commitHash, 'config', 'defaultSettings.json')
 updateJson(defaultSettingsPath, updateSettings)
 
-const fileMapPath = join(root, 'dist', commitHash, 'config', 'fileMap.json')
-const updateFileMap = (oldFileMap) => {
+const fileMapPath: string = join(root, 'dist', commitHash, 'config', 'fileMap.json')
+const updateFileMap = (oldFileMap: any[]): any[] => {
   return [...oldFileMap, '/playground/languages/error.ts']
 }
 updateJson(fileMapPath, updateFileMap)
 
-const errorPath = join(root, 'dist', commitHash, 'playground', 'languages', 'error.ts')
+const errorPath: string = join(root, 'dist', commitHash, 'playground', 'languages', 'error.ts')
 writeFileSync(
   errorPath,
   `const add = (a,b) => {

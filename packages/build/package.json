@@ -3,7 +3,7 @@
   "version": "0.0.0-dev",
   "description": "",
   "type": "module",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {},
   "keywords": [],
   "author": "",
