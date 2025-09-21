@@ -1,5 +1,5 @@
-import * as Debug from '../Debug/Debug.js'
-import * as Rpc from '../Rpc/Rpc.js'
+import * as Debug from '../Debug/Debug.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
 
 export const onWillChangeTextDocument = async (textDocument, edits) => {
   console.log(textDocument, edits)

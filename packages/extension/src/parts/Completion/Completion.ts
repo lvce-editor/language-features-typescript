@@ -1,8 +1,8 @@
 // @ts-nocheck
-import * as Assert from '../Assert/Assert.js'
-import * as Position from '../Position/Position.js'
-import * as Rpc from '../Rpc/Rpc.js'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
+import * as Assert from '../Assert/Assert.ts'
+import * as Position from '../Position/Position.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}

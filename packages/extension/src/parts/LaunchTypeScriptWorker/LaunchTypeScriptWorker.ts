@@ -1,5 +1,5 @@
-import * as LaunchWorker from '../LaunchWorker/LaunchWorker.js'
-import * as TypeScriptWorkerUrl from '../TypeScriptWorkerUrl/TypeScriptWorkerUrl.js'
+import * as LaunchWorker from '../LaunchWorker/LaunchWorker.ts'
+import * as TypeScriptWorkerUrl from '../TypeScriptWorkerUrl/TypeScriptWorkerUrl.ts'
 
 export const launchTypeScriptWorker = async () => {
   const worker = await LaunchWorker.launchWorker({

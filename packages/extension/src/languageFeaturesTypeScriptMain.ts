@@ -1,1 +1,1 @@
-export * from './parts/Activate/Activate.js'
+export * from './parts/Activate/Activate.ts'

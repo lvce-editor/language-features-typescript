@@ -1,5 +1,5 @@
 // @ts-nocheck
-import * as Position from '../Position/Position.js'
+import * as Position from '../Position/Position.ts'
 
 /**
  * @param {vscode.TextDocument} textDocument

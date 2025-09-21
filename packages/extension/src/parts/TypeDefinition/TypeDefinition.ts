@@ -1,6 +1,6 @@
 // @ts-nocheck
-import * as Position from '../Position/Position.js'
-import * as Rpc from '../Rpc/Rpc.js'
+import * as Position from '../Position/Position.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
 
 /**
  * @type{vscode.DefinitionProvider['provideDefinition']}

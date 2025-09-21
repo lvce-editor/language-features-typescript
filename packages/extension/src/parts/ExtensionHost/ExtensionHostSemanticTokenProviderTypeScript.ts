@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { performance } from 'node:perf_hooks'
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
-import * as LanguageId from '../LanguageId/LanguageId.js'
+import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
+import * as LanguageId from '../LanguageId/LanguageId.ts'
 
 export const languageId = LanguageId.TypeScript
 

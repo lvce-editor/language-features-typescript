@@ -1,5 +1,5 @@
 // @ts-nocheck
-// import * as Rename from '../src/parts/Rename/Rename.js'
+// import * as Rename from '../src/parts/Rename/Rename.ts'
 
 test.skip('getPrepareRenameFromTsResult - can rename', () => {
   expect(

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import * as LanguageId from '../LanguageId/LanguageId.js'
+import * as LanguageId from '../LanguageId/LanguageId.ts'
 
 const registerProvider = (provider) => {
   if ('provideCompletions' in provider) {

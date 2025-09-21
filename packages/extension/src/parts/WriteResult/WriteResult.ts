@@ -1,4 +1,4 @@
-import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 
 const successCode = 123
 const errorCode = 123

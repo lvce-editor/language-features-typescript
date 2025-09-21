@@ -1,5 +1,5 @@
-import { writeResult } from '../WriteResult/WriteResult.js'
-import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
+import { writeResult } from '../WriteResult/WriteResult.ts'
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 
 export const syncSetup = async (
   id: number,
