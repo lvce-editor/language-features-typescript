@@ -11,7 +11,7 @@ const main = async (): Promise<void> => {
       '--format=esm',
       '--bundle',
       '--watch',
-      'packages/extension/src/languageFeaturesTypeScriptMain.js',
+      'packages/extension/src/languageFeaturesTypeScriptMain.ts',
       '--outfile=packages/extension/dist/languageFeaturesTypeScriptMain.js',
     ],
     {
