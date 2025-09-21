@@ -1,10 +1,19 @@
-import { exportStatic } from '@lvce-editor/shared-process'
 import { readFileSync, writeFileSync } from 'node:fs'
+import { cp } from 'node:fs/promises'
 import { join } from 'node:path'
 import { root } from './root.ts'
-import { cp } from 'node:fs/promises'
 
-const { commitHash } = await exportStatic({
+import { pathToFileURL } from 'node:url'
+
+const sharedProcessPath = join(root, 'packages', 'server', 'node_modules', '@lvce-editor', 'shared-process', 'index.js')
+
+const sharedProcessUrl = pathToFileURL(sharedProcessPath).toString()
+
+const sharedProcess = await import(sharedProcessUrl)
+
+process.env.PATH_PREFIX = '/langauge-features-typescript'
+
+const { commitHash } = await sharedProcess.exportStatic({
   extensionPath: 'packages/extension',
   testPath: 'packages/e2e',
   root,
