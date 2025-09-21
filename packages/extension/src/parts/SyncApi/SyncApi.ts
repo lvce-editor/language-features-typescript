@@ -11,18 +11,20 @@ export const syncSetup = async (
   resultHandle: FileSystemFileHandle,
   errorHandle: FileSystemFileHandle,
 ): Promise<void> => {
-  // @ts-ignore
-  const accessHandle = await draftHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
-  // @ts-ignore
-  const resultAccessHandle = await resultHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
-  // @ts-ignore
-  const errorAccessHandle = await errorHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
+  const [accessHandle, resultAccessHandle, errorAccessHandle] = await Promise.all([
+    // @ts-ignore
+    draftHandle.createSyncAccessHandle({
+      mode: 'readwrite-unsafe',
+    }),
+    // @ts-ignore
+    resultHandle.createSyncAccessHandle({
+      mode: 'readwrite-unsafe',
+    }),
+    // @ts-ignore
+    errorHandle.createSyncAccessHandle({
+      mode: 'readwrite-unsafe',
+    }),
+  ])
 
   SyncSetupState.set(id, {
     accessHandle,
