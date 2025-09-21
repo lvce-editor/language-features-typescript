@@ -34,7 +34,9 @@ const writeResultStatus = async (
 }
 
 const writeBuffer = async (handle: FileSystemSyncAccessHandle, encoded: Uint8Array<ArrayBuffer>) => {
-  await handle.write(encoded)
+  handle.truncate(encoded.length)
+  handle.write(encoded, { at: 0 })
+  handle.flush()
 }
 
 const writeText = async (handle: FileSystemSyncAccessHandle, content: string): Promise<void> => {
