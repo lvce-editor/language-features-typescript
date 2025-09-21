@@ -1,7 +1,13 @@
 import { writeResult } from '../WriteResult/WriteResult.js'
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
 
-export const syncSetup = async (id, buffer, statusFileName, resultFileName, errorFileName) => {
+export const syncSetup = async (
+  id: number,
+  buffer: Int32Array<ArrayBufferLike>,
+  statusFileName: string,
+  resultFileName: string,
+  errorFileName: string,
+): Promise<void> => {
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle(statusFileName, { create: true })
   const resultHandle = await root.getFileHandle(resultFileName, { create: true })
@@ -9,15 +15,15 @@ export const syncSetup = async (id, buffer, statusFileName, resultFileName, erro
   // TODO can use async handles here
   // @ts-ignore
   const accessHandle = await draftHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
+    keepExistingData: false,
   })
   // @ts-ignore
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
+    keepExistingData: false,
   })
   // @ts-ignore
   const errorAccessHandle = await errorHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
+    keepExistingData: false,
   })
   SyncSetupState.set(id, {
     accessHandle,
