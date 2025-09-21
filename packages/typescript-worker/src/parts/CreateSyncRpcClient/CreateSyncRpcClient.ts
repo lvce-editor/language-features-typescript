@@ -15,11 +15,22 @@ export const createSyncRpcClient = async ({
   const statusFileName = 'draft.txt'
   const resultFileName = 'result.txt'
   const errorFileName = 'error.txt'
-  await Rpc.invoke('SyncApi.setup', syncId, buffer, statusFileName, resultFileName, errorFileName)
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle(statusFileName, { create: true })
   const resultHandle = await root.getFileHandle(resultFileName, { create: true })
   const errorHandle = await root.getFileHandle(errorFileName, { create: true })
+  await Rpc.invoke(
+    'SyncApi.setup',
+    syncId,
+    buffer,
+    statusFileName,
+    resultFileName,
+    errorFileName,
+    draftHandle,
+    resultHandle,
+    errorHandle,
+  )
+
   // @ts-ignore
   const accessHandle = await draftHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
@@ -32,6 +43,7 @@ export const createSyncRpcClient = async ({
   const errorAccessHandle = await errorHandle.createSyncAccessHandle({
     mode: 'readwrite-unsafe',
   })
+
   return {
     invokeSync(method, ...params) {
       if (buffer) {
