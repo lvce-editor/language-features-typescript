@@ -13,7 +13,8 @@ export const create = (
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
-  const resolveModuleName = createModuleResolver()
+  const resolveModuleName = createModuleResolver(syncRpc)
+  console.log('hi')
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
@@ -29,9 +30,11 @@ export const create = (
         return false
       }
       const result = syncRpc.invokeSync('SyncApi.exists', path)
+      console.log({ exits: result, path })
       return result
     },
     readFile(path) {
+      console.log({ readFile: path })
       return ''
     },
     getNewLine() {
@@ -39,6 +42,7 @@ export const create = (
     },
     readDirectory(path, extensions, exclude, include, depth) {
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
+      console.log({ readDir: path, dirents })
       return dirents
     },
     getDirectories(relativePath) {
@@ -46,6 +50,7 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
+      console.log('get dir', { result, relativePath })
       if (result) {
         return []
       }
@@ -85,6 +90,7 @@ export const create = (
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
+      console.log('snapshot', fileName)
       const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
       if (!content) {
         return undefined
@@ -100,6 +106,13 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
+      // if (Map) {
+      //   const real = moduleLiterals.map((item) => {
+      //     return ts.resolveModuleName(item.text, containingFile, options, languageServiceHost)
+      //   })
+      //   console.log({ real })
+      //   return real
+      // }
       return moduleLiterals.map((moduleLiteral) => {
         return resolveModuleName(moduleLiteral.text, containingFile, options)
       })
