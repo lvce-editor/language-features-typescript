@@ -1,3 +1,3 @@
-import {add} from './add.js'
+import { add } from './add.js'
 
-add(1,2)
+add(1, 2)

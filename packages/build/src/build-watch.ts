@@ -1,10 +1,10 @@
 import { execa } from 'execa'
-import { root } from './root.js'
+import { root } from './root.ts'
 import { join } from 'node:path'
 
-const main = async () => {
-  const binaryName = process.platform === 'win32' ? 'esbuild.exe' : 'esbuild'
-  const esbuildPath = join(root, 'packages', 'build', 'node_modules', 'esbuild', 'bin', binaryName)
+const main = async (): Promise<void> => {
+  const binaryName: string = process.platform === 'win32' ? 'esbuild.exe' : 'esbuild'
+  const esbuildPath: string = join(root, 'packages', 'build', 'node_modules', 'esbuild', 'bin', binaryName)
   execa(
     esbuildPath,
     [

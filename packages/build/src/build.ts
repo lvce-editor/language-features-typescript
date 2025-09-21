@@ -1,17 +1,17 @@
 import { bundleJs, packageExtension, replace } from '@lvce-editor/package-extension'
 import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path, { join } from 'path'
-import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.js'
-import { root } from './root.js'
+import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.ts'
+import { root } from './root.ts'
 
-const extension = path.join(root, 'packages', 'extension')
-const dist = join(root, '.tmp', 'dist')
+const extension: string = path.join(root, 'packages', 'extension')
+const dist: string = join(root, '.tmp', 'dist')
 
 await rm(dist, { recursive: true, force: true })
 
 await mkdir(dist, { recursive: true })
 
-const packageJson = JSON.parse(await readFile(join(extension, 'package.json'), 'utf8'))
+const packageJson: any = JSON.parse(await readFile(join(extension, 'package.json'), 'utf8'))
 delete packageJson.jest
 delete packageJson.devDependencies
 
@@ -65,7 +65,7 @@ await replace({
   replacement: `'../'`,
 })
 
-await removeUnusedTypeScriptFiles(join(root, 'dist', 'typescript'))
+await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
 
 await replace({
   path: join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
