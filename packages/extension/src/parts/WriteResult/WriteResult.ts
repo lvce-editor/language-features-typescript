@@ -80,8 +80,8 @@ const writeResultContent = (resultAccessHandle, result, error) => {
   writeJson(resultAccessHandle, result)
 }
 
-export const writeResult = async (id, resultGenerator) => {
-  const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = SyncSetupState.get(id)
+export const writeResult = async (id: any, resultGenerator: () => Promise<any>) => {
+  const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = SyncSetupState.get(id, null)
   const { result, error, code } = await getResponse(resultGenerator)
   writeResultError(errorAccessHandle, error)
   writeResultContent(resultAccessHandle, result, error)
