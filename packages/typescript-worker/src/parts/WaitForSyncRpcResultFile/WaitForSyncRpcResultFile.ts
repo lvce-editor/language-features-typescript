@@ -1,4 +1,6 @@
-export const waitForSyncRpcResultFile = (handle: FileSystemSyncAccessHandle, maxWaitTime: number): boolean => {
+import * as WaitForSyncBufferResultType from '../WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
+
+export const waitForSyncRpcResultFile = (handle: FileSystemSyncAccessHandle, maxWaitTime: number): number => {
   const start = Date.now()
   const end = start + maxWaitTime
   let errcount = 0
@@ -6,11 +8,11 @@ export const waitForSyncRpcResultFile = (handle: FileSystemSyncAccessHandle, max
   while (true) {
     const now = Date.now()
     if (now >= end) {
-      return false
+      return WaitForSyncBufferResultType.Timeout
     }
     handle.read(buffer, { at: 0 })
     if (buffer[0] === 1) {
-      return true
+      return WaitForSyncBufferResultType.Ok
     }
     errcount++
   }

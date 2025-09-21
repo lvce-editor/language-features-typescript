@@ -8,8 +8,8 @@
     "test": "lerna run test",
     "build": "node scripts/build.js",
     "build:static": "node scripts/build-static.js",
-    "dev": "node packages/build/src/dev.js",
-    "build:watch": "node packages/build/src/build-watch.js",
+    "dev": "node packages/build/src/dev.ts",
+    "build:watch": "node packages/build/src/build-watch.ts",
     "type-check": "tsc -b",
     "format": "prettier --write .",
     "e2e": "cd packages/e2e && npm run e2e",
@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@lerna/legacy-package-management": "^8.2.4",
-    "@lvce-editor/server": "^0.61.3",
     "@types/jest": "^30.0.0",
     "jest": "^29.7.0",
     "lerna": "^8.2.4",

@@ -1,14 +1,12 @@
 {
   "compilerOptions": {
     "lib": ["esnext", "WebWorker"],
-    "checkJs": true,
     "module": "NodeNext",
     "target": "esnext",
     "types": ["jest"],
     "moduleResolution": "NodeNext",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "noEmit": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
@@ -16,7 +14,9 @@
     "strict": true,
     "strictNullChecks": false,
     "composite": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src", "test"]
 }

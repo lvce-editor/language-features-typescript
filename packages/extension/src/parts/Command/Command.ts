@@ -1,8 +1,8 @@
 import * as Rpc from '../Rpc/Rpc.js'
 import * as SyncApi from '../SyncApi/SyncApi.js'
 
-const rpcInvoke = (...params) => {
-  return Rpc.invoke(...params)
+const rpcInvoke = (method: string, ...params: any[]) => {
+  return Rpc.invoke(method, ...params)
 }
 
 const rpcListen = (path) => {}

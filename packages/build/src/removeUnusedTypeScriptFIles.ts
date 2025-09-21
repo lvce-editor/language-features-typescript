@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises'
 import { join } from 'node:path'
 
-const NOT_NEEDED = [
+const NOT_NEEDED: string[] = [
   'bin',
   'loc',
   'AUTHORS.md',
@@ -40,7 +40,7 @@ const NOT_NEEDED = [
   'lib/typingsInstaller.js',
 ]
 
-export const removeUnusedTypeScriptFiles = async (cwd) => {
+export const removeUnusedTypeScriptFiles = async (cwd: string): Promise<void> => {
   for (const notNeeded of NOT_NEEDED) {
     await rm(join(cwd, notNeeded), { force: true, recursive: true })
   }

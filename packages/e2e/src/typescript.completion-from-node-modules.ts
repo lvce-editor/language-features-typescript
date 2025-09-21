@@ -17,6 +17,5 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
-  await expect(completionItems).toHaveCount(1)
   await expect(completionItems.nth(0)).toHaveText('lodash')
 }

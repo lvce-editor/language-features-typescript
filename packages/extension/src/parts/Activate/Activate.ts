@@ -2,7 +2,11 @@ import * as Providers from '../Providers/Providers.js'
 import * as RegisterProviders from '../RegisterProviders/RegisterProviders.js'
 import * as Rpc from '../Rpc/Rpc.js'
 
-export const activate = async ({ path }) => {
+interface ActivateOptions {
+  path: string
+}
+
+export const activate = async ({ path }: ActivateOptions): Promise<void> => {
   // await Rpc.listen({ path })
   // const tsServerPath = await GetTsServerPath.getTsServerPath()
   const options = {}

@@ -1,8 +1,9 @@
 import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
+import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
-import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
@@ -12,18 +13,23 @@ export const create = (
   syncRpc: SyncRpc,
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
+  const resolveModuleName = createModuleResolver()
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
     },
-    // getParsedCommandLine(fileName) {
-    //   return {}
-    // },
     directoryExists(directoryName) {
       return true
     },
     fileExists(path) {
-      return true
+      if (path.includes('node_modules/@typescript/lib')) {
+        return false
+      }
+      if (path.includes('node_modules/@types/typescript__lib')) {
+        return false
+      }
+      const result = syncRpc.invokeSync('SyncApi.exists', path)
+      return result
     },
     readFile(path) {
       return ''
@@ -46,7 +52,7 @@ export const create = (
       return []
     },
     useCaseSensitiveFileNames() {
-      return false
+      return true
     },
     getProjectVersion() {
       return `${0}`
@@ -85,6 +91,21 @@ export const create = (
       }
       const snapshot = ts.ScriptSnapshot.fromString(content)
       return snapshot
+    },
+    resolveModuleNameLiterals(
+      moduleLiterals,
+      containingFile,
+      redirectedReference,
+      options,
+      containingSourceFile,
+      reusedNames,
+    ) {
+      return moduleLiterals.map((moduleLiteral) => {
+        return resolveModuleName(moduleLiteral.text, containingFile, options)
+      })
+    },
+    getProjectReferences() {
+      return []
     },
   }
   return languageServiceHost

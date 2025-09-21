@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "WebWorker"],
+    "types": [],
+    "rootDir": "."
+  },
+  "include": ["src"]
+}
