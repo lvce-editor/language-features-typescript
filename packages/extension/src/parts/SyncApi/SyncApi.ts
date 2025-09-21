@@ -15,15 +15,15 @@ export const syncSetup = async (
   // TODO can use async handles here
   // @ts-ignore
   const accessHandle = await draftHandle.createSyncAccessHandle({
-    keepExistingData: false,
+    mode: 'readwrite-unsafe',
   })
   // @ts-ignore
   const resultAccessHandle = await resultHandle.createSyncAccessHandle({
-    keepExistingData: false,
+    mode: 'readwrite-unsafe',
   })
   // @ts-ignore
   const errorAccessHandle = await errorHandle.createSyncAccessHandle({
-    keepExistingData: false,
+    mode: 'readwrite-unsafe',
   })
   SyncSetupState.set(id, {
     accessHandle,
