@@ -1,6 +1,6 @@
-import * as Position from '../Position/Position.js'
-import * as Rpc from '../Rpc/Rpc.js'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
+import * as Position from '../Position/Position.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 
 export const getDefinition = async (textDocument, offset) => {
   await TextDocumentSync.openTextDocuments([textDocument])

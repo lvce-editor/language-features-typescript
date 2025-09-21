@@ -1,5 +1,5 @@
-import * as LanguageId from '../LanguageId/LanguageId.js'
-import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
+import * as LanguageId from '../LanguageId/LanguageId.ts'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.ts'
 
 export const languageId = LanguageId.TypeScript
 

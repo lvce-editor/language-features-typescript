@@ -1,5 +1,5 @@
 // @ts-nocheck
-import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.js'
+import * as NotUsefulEntries from '../NotUsefuleEntries/NotUsefulEntries.ts'
 
 export const languageId = 'typescript'
 

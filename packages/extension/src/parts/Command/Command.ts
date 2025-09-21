@@ -1,5 +1,5 @@
-import * as Rpc from '../Rpc/Rpc.js'
-import * as SyncApi from '../SyncApi/SyncApi.js'
+import * as Rpc from '../Rpc/Rpc.ts'
+import * as SyncApi from '../SyncApi/SyncApi.ts'
 
 const rpcInvoke = (method: string, ...params: any[]) => {
   return Rpc.invoke(method, ...params)

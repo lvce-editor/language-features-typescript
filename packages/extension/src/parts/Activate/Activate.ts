@@ -1,6 +1,6 @@
-import * as Providers from '../Providers/Providers.js'
-import * as RegisterProviders from '../RegisterProviders/RegisterProviders.js'
-import * as Rpc from '../Rpc/Rpc.js'
+import * as Providers from '../Providers/Providers.ts'
+import * as RegisterProviders from '../RegisterProviders/RegisterProviders.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
 
 interface ActivateOptions {
   path: string

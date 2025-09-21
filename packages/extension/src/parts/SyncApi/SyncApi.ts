@@ -1,7 +1,13 @@
-import { writeResult } from '../WriteResult/WriteResult.js'
-import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
+import { writeResult } from '../WriteResult/WriteResult.ts'
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 
-export const syncSetup = async (id, buffer, statusFileName, resultFileName, errorFileName) => {
+export const syncSetup = async (
+  id: number,
+  buffer: Int32Array<ArrayBufferLike>,
+  statusFileName: string,
+  resultFileName: string,
+  errorFileName: string,
+): Promise<void> => {
   const root = await navigator.storage.getDirectory()
   const draftHandle = await root.getFileHandle(statusFileName, { create: true })
   const resultHandle = await root.getFileHandle(resultFileName, { create: true })

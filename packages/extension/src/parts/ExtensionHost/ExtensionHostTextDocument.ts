@@ -1,6 +1,6 @@
 // @ts-nocheck
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.js'
-import * as Position from '../Position/Position.js'
+import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
+import * as Position from '../Position/Position.ts'
 import { performance } from 'node:perf_hooks'
 
 /**
@@ -60,7 +60,7 @@ const getScriptKind = (textDocument) => {
   if (textDocument.uri.endsWith('.jsx')) {
     return 'JSX'
   }
-  if (textDocument.uri.endsWith('.js')) {
+  if (textDocument.uri.endsWith('.ts')) {
     return 'JS'
   }
   return 'JS'

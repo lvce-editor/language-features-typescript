@@ -1,4 +1,4 @@
-import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 
 const successCode = 123
 const errorCode = 123
@@ -20,50 +20,40 @@ const getResponse = async (resultGenerator) => {
   }
 }
 
-const writeResultStatus = (buffer, accessHandle, statusCode) => {
+const writeResultStatus = async (
+  buffer: Int32Array<ArrayBufferLike>,
+  accessHandle: FileSystemSyncAccessHandle,
+  statusCode: number,
+) => {
   if (buffer) {
     Atomics.store(buffer, 0, statusCode)
     Atomics.notify(buffer, 0)
   } else {
-    accessHandle.write(new Uint8Array([1, statusCode]), { at: 0 })
-    accessHandle.flush()
+    await accessHandle.write(new Uint8Array([1, statusCode]))
   }
 }
 
-/**
- *
- * @param {FileSystemSyncAccessHandle} handle
- * @param {Uint8Array<ArrayBuffer>} encoded
- */
-const writeBuffer = (handle, encoded) => {
+const writeBuffer = async (handle: FileSystemSyncAccessHandle, encoded: Uint8Array<ArrayBuffer>) => {
+  handle.truncate(encoded.length)
   handle.write(encoded, { at: 0 })
+  handle.flush()
 }
 
-/**
- *
- * @param {FileSystemSyncAccessHandle} handle
- * @param {string} content
- */
-const writeText = (handle, content) => {
+const writeText = async (handle: FileSystemSyncAccessHandle, content: string): Promise<void> => {
   const encoded = new TextEncoder().encode(content)
-  writeBuffer(handle, encoded)
+  await writeBuffer(handle, encoded)
 }
 
-/**
- *
- * @param {FileSystemSyncAccessHandle} handle
- * @param {*} json
- */
-const writeJson = (handle, json) => {
+const writeJson = async (handle: FileSystemSyncAccessHandle, json: any): Promise<void> => {
   const content = JSON.stringify(json)
-  writeText(handle, content)
+  await writeText(handle, content)
 }
 
-const writeResultError = (errorAccessHandle, error) => {
+const writeResultError = async (errorAccessHandle: FileSystemSyncAccessHandle, error: any) => {
   if (!error) {
     return
   }
-  writeJson(errorAccessHandle, {
+  await writeJson(errorAccessHandle, {
     // @ts-ignore
     name: error.name,
     // @ts-ignore
@@ -73,17 +63,17 @@ const writeResultError = (errorAccessHandle, error) => {
   })
 }
 
-const writeResultContent = (resultAccessHandle, result, error) => {
+const writeResultContent = async (resultAccessHandle: FileSystemSyncAccessHandle, result: any, error: any) => {
   if (error) {
     return
   }
-  writeJson(resultAccessHandle, result)
+  await writeJson(resultAccessHandle, result)
 }
 
 export const writeResult = async (id: any, resultGenerator: () => Promise<any>) => {
-  const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = SyncSetupState.get(id, null)
+  const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = SyncSetupState.get(id)
   const { result, error, code } = await getResponse(resultGenerator)
-  writeResultError(errorAccessHandle, error)
-  writeResultContent(resultAccessHandle, result, error)
-  writeResultStatus(buffer, accessHandle, code)
+  await writeResultError(errorAccessHandle, error)
+  await writeResultContent(resultAccessHandle, result, error)
+  await writeResultStatus(buffer, accessHandle, code)
 }

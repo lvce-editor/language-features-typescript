@@ -1,5 +1,5 @@
 // @ts-nocheck
-import * as IsUsefulEntry from '../IsUsefulEntry/IsUsefulEntry.js'
+import * as IsUsefulEntry from '../IsUsefulEntry/IsUsefulEntry.ts'
 
 const getFirstMatchingEntry = (entries, word) => {
   for (const entry of entries) {

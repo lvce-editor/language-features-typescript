@@ -16,7 +16,8 @@
     "composite": true,
     "noImplicitAny": false,
     "allowImportingTsExtensions": false,
-    "rewriteRelativeImportExtensions": true
+    "rewriteRelativeImportExtensions": true,
+    "noEmit": true
   },
   "include": ["src", "test"]
 }

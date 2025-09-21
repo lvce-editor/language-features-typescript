@@ -1,5 +1,5 @@
 // @ts-nocheck
-// import * as Definition from '../src/parts/Definition/Definition.js'
+// import * as Definition from '../src/parts/Definition/Definition.ts'
 
 test.skip('getDefinitionFromTsResult', () => {
   // TODO

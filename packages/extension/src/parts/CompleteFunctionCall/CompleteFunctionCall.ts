@@ -1,5 +1,5 @@
-import * as GetParameterListParts from '../GetParameterListParts/GetParameterListParts.js'
-import * as Character from '../Character/Character.js'
+import * as GetParameterListParts from '../GetParameterListParts/GetParameterListParts.ts'
+import * as Character from '../Character/Character.ts'
 
 const getParameterSnippet = (parameterParts) => {
   const texts = []

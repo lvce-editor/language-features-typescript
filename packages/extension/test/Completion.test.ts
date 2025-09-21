@@ -1,5 +1,5 @@
 // @ts-nocheck
-// import * as Completion from '../src/parts/Completion/Completion.js'
+// import * as Completion from '../src/parts/Completion/Completion.ts'
 
 test.skip('getCompletionFromTsResult - empty entries', () => {
   expect(

@@ -1,8 +1,8 @@
 // @ts-nocheck
-import * as GetImplementationFromTsResult from '../GetImplementationFromTsResult/GetImplementationFromTsResult.js'
-import * as Position from '../Position/Position.js'
-import * as Rpc from '../Rpc/Rpc.js'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.js'
+import * as GetImplementationFromTsResult from '../GetImplementationFromTsResult/GetImplementationFromTsResult.ts'
+import * as Position from '../Position/Position.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
+import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 
 /**
  * @type{vscode.ImplementationProvider['provideImplementations']}
