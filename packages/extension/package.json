@@ -1,10 +1,9 @@
 {
   "name": "builtin.language-features-typescript",
   "version": "0.0.0-dev",
-  "description": "",
-  "keywords": [],
+  "description": "TypeScript language features extension for LVCE Editor",
   "license": "MIT",
-  "author": "",
+  "author": "LVCE Editor",
   "type": "module",
   "main": "dist/languageFeaturesTypeScriptMain.js",
   "scripts": {
