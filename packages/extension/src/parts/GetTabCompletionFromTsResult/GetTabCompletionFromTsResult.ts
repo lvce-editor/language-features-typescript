@@ -1,7 +1,7 @@
 // @ts-nocheck
 import * as IsUsefulEntry from '../IsUsefulEntry/IsUsefulEntry.ts'
 
-const getFirstMatchingEntry = (entries, word) => {
+const getFirstMatchingEntry = (entries: any[], word: string): any => {
   for (const entry of entries) {
     if (entry.name.startsWith(word)) {
       return entry
@@ -14,7 +14,7 @@ const getFirstMatchingEntry = (entries, word) => {
  * @param {import('typescript/lib/protocol').CompletionInfo} tsResult
  * @returns {vscode.Completion}
  */
-export const getTabCompletionFromTsResult = (tsResult, offset, word) => {
+export const getTabCompletionFromTsResult = (tsResult: any, offset: number, word: string): any => {
   const usefulEntries = tsResult.entries.filter(IsUsefulEntry.isUsefulEntry)
   const firstEntry = getFirstMatchingEntry(usefulEntries, word)
   const text = firstEntry.name

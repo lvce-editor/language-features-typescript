@@ -9,7 +9,7 @@ export const languageId = LanguageId.TypeScript
  * @param {import('typescript/lib/protocol').EncodedSemanticClassificationsResponse['body']} tsResult
  * @returns {readonly number[]}
  */
-export const getSemanticTokensFromTsResult = (tsResult) => {
+export const getSemanticTokensFromTsResult = (tsResult: any): readonly number[] => {
   if (!tsResult) {
     return []
   }
@@ -19,15 +19,15 @@ export const getSemanticTokensFromTsResult = (tsResult) => {
 /**
  * @type{vscode.SemanticTokenProvider['provideSemanticTokens']}
  */
-export const provideSemanticTokens = async (textDocument) => {
+export const provideSemanticTokens = async (textDocument: any): Promise<readonly number[]> => {
   const text = vscode.getTextFromTextDocument(textDocument)
-  console.log('start-semantic-tokens', performance.now())
+  console.warn('start-semantic-tokens', performance.now())
   const tsResult = await TsServerRequests.encodedSemanticClassificationsFull({
     file: textDocument.uri,
     start: 0,
     length: text.length,
     format: '2020',
   })
-  console.log('finished-semantic-tokens', performance.now())
+  console.warn('finished-semantic-tokens', performance.now())
   return getSemanticTokensFromTsResult(tsResult)
 }

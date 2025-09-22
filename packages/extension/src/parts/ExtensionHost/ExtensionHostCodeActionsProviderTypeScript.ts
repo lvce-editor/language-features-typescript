@@ -5,7 +5,7 @@ export const languageId = 'typescript'
 const organizeImports = {
   kind: 'source.organizeImports', // TODO use numeric code action type
   name: 'Organize Imports',
-  async execute(textDocument) {
+  async execute(textDocument: any): Promise<any> {
     const worker = await TypeScriptWorker.getInstance()
     return worker.invoke('OrganizeImports.organizeImports', textDocument)
   },
@@ -13,6 +13,6 @@ const organizeImports = {
 
 /**
  */
-export const provideCodeActions = async () => {
+export const provideCodeActions = async (): Promise<any[]> => {
   return [organizeImports]
 }

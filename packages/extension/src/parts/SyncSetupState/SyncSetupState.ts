@@ -7,7 +7,7 @@ interface SyncSetup {
 
 const syncSetups = Object.create(null)
 
-export const set = (id: number, setup: SyncSetup) => {
+export const set = (id: number, setup: SyncSetup): void => {
   syncSetups[id] = setup
 }
 

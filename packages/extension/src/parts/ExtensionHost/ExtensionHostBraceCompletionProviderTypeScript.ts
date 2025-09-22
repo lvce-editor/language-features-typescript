@@ -7,8 +7,8 @@ export const languageId = 'typescript'
 /**
  * @type {vscode.BraceCompletionProvider['provideBraceCompletion']}
  */
-export const provideBraceCompletion = async (textDocument, offset, openingBrace) => {
-  console.log('typescript brace completion', textDocument)
+export const provideBraceCompletion = async (textDocument: any, offset: number, openingBrace: string): Promise<any> => {
+  console.warn('typescript brace completion', textDocument)
   const tsPosition = Position.getTsPosition(textDocument, offset)
   const shouldDoBraceCompletion = await TsServerRequests.braceCompletion({
     file: textDocument.uri,

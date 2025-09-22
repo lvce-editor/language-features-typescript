@@ -6,7 +6,7 @@ import * as Position from '../Position/Position.ts'
  * @param {readonly import('typescript/lib/protocol').DefinitionInfo[]} tsResult
  * @returns {vscode.DefinitionResult|undefined}
  */
-export const getDefinitionFromTsResult = (textDocument, tsResult) => {
+export const getDefinitionFromTsResult = (textDocument: any, tsResult: any[]): any => {
   if (tsResult.length === 0) {
     return undefined
   }
