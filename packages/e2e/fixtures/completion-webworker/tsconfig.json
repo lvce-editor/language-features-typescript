@@ -1,6 +1,11 @@
 {
   "compilerOptions": {
-    "lib": ["esnext", "webworker"],
-    "types": []
+    "lib": [
+      "esnext",
+      "webworker"
+    ],
+    "types": [],
+    "module": "esnext",
+    "moduleResolution": "nodenext"
   }
 }

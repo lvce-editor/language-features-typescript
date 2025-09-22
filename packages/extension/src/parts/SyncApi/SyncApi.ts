@@ -1,24 +1,31 @@
-import { writeResult } from '../WriteResult/WriteResult.js'
-import * as SyncSetupState from '../SyncSetupState/SyncSetupState.js'
+import { writeResult } from '../WriteResult/WriteResult.ts'
+import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 
-export const syncSetup = async (id, buffer, statusFileName, resultFileName, errorFileName) => {
-  const root = await navigator.storage.getDirectory()
-  const draftHandle = await root.getFileHandle(statusFileName, { create: true })
-  const resultHandle = await root.getFileHandle(resultFileName, { create: true })
-  const errorHandle = await root.getFileHandle(errorFileName, { create: true })
-  // TODO can use async handles here
-  // @ts-ignore
-  const accessHandle = await draftHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
-  // @ts-ignore
-  const resultAccessHandle = await resultHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
-  // @ts-ignore
-  const errorAccessHandle = await errorHandle.createSyncAccessHandle({
-    mode: 'readwrite-unsafe',
-  })
+export const syncSetup = async (
+  id: number,
+  buffer: Int32Array<ArrayBufferLike>,
+  statusFileName: string,
+  resultFileName: string,
+  errorFileName: string,
+  draftHandle: FileSystemFileHandle,
+  resultHandle: FileSystemFileHandle,
+  errorHandle: FileSystemFileHandle,
+): Promise<void> => {
+  const [accessHandle, resultAccessHandle, errorAccessHandle] = await Promise.all([
+    // @ts-ignore
+    draftHandle.createSyncAccessHandle({
+      mode: 'readwrite-unsafe',
+    }),
+    // @ts-ignore
+    resultHandle.createSyncAccessHandle({
+      mode: 'readwrite-unsafe',
+    }),
+    // @ts-ignore
+    errorHandle.createSyncAccessHandle({
+      mode: 'readwrite-unsafe',
+    }),
+  ])
+
   SyncSetupState.set(id, {
     accessHandle,
     resultAccessHandle,

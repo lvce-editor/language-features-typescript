@@ -31,7 +31,7 @@ await replace({
 })
 
 await bundleJs(
-  join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.js'),
+  join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.ts'),
   join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
   false,
 )

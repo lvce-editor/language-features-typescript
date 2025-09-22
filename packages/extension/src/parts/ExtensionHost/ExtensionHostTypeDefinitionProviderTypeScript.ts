@@ -1,7 +1,7 @@
 // @ts-nocheck
-import * as GetTypeDefinitionFromTsResult from '../GetTypeDefinitionFromTsResult/GetTypeDefinitionFromTsResult.js'
-import * as LanguageId from '../LanguageId/LanguageId.js'
-import * as TypeDefinition from '../TypeDefinition/TypeDefinition.js'
+import * as GetTypeDefinitionFromTsResult from '../GetTypeDefinitionFromTsResult/GetTypeDefinitionFromTsResult.ts'
+import * as LanguageId from '../LanguageId/LanguageId.ts'
+import * as TypeDefinition from '../TypeDefinition/TypeDefinition.ts'
 
 export const languageId = LanguageId.TypeScript
 

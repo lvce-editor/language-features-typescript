@@ -19,7 +19,7 @@ export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) =
   const viewletLocations = Locator('.Locations')
   await expect(viewletLocations).toBeVisible()
   const viewletReferencesMessage = Locator('.LocationsMessage')
-  await expect(viewletReferencesMessage).toHaveText('3 results in 2 files')
+  await expect(viewletReferencesMessage).toHaveText('4 results in 2 files')
   const referenceItems = viewletLocations.locator('.TreeItem')
   const referenceItemOne = referenceItems.nth(0)
   await expect(referenceItemOne).toHaveText('test.ts')

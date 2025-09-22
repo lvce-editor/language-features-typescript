@@ -1,4 +1,4 @@
-import * as LaunchTypeScriptWorker from '../LaunchTypeScriptWorker/LaunchTypeScriptWorker.js'
+import * as LaunchTypeScriptWorker from '../LaunchTypeScriptWorker/LaunchTypeScriptWorker.ts'
 
 export const state = {
   ipc: undefined,

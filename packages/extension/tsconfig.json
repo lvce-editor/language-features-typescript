@@ -3,7 +3,7 @@
     "lib": ["esnext", "WebWorker"],
     "module": "NodeNext",
     "target": "esnext",
-    "types": ["jest"],
+    "types": [],
     "moduleResolution": "NodeNext",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
@@ -16,7 +16,8 @@
     "composite": true,
     "noImplicitAny": false,
     "allowImportingTsExtensions": false,
-    "rewriteRelativeImportExtensions": true
+    "rewriteRelativeImportExtensions": true,
+    "noEmit": true
   },
   "include": ["src", "test"]
 }

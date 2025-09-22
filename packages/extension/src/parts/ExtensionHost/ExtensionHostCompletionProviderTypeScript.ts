@@ -1,4 +1,4 @@
-import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.ts'
 
 interface TextDocument {
   uri: string
@@ -28,7 +28,12 @@ export const provideCompletions = async (textDocument: TextDocument, offset: num
   return worker.invoke('Completion.getCompletions', textDocument, offset)
 }
 
-export const resolveCompletionItem = async (textDocument: TextDocument, offset: number, name: string, completionItem: CompletionItem): Promise<any> => {
+export const resolveCompletionItem = async (
+  textDocument: TextDocument,
+  offset: number,
+  name: string,
+  completionItem: CompletionItem,
+): Promise<any> => {
   const worker = await TypeScriptWorker.getInstance()
   return worker.invoke('Completion.resolveCompletion', textDocument, offset, name, completionItem)
 }

@@ -1,4 +1,4 @@
-import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.js'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.ts'
 
 export const languageId = 'typescript'
 

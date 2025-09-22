@@ -1,4 +1,4 @@
-import * as Command from '../Command/Command.js'
+import * as Command from '../Command/Command.ts'
 
 export const launchWorker = async ({ url, name, contentSecurityPolicy }) => {
   // @ts-expect-error
