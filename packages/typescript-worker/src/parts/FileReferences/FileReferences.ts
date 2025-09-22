@@ -1,5 +1,5 @@
-import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
+import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
 
 const getFileReference = (ref: any) => {
   return {

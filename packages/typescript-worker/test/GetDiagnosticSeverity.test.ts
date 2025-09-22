@@ -11,7 +11,7 @@ test('warning', () => {
 
 test('error', () => {
   const diagnostic = {
-    code: 123456,
+    code: 123_456,
     category: 'error',
   }
   expect(GetDiagnosticSeverity.getDiagnosticSeverity(diagnostic)).toBe('error')

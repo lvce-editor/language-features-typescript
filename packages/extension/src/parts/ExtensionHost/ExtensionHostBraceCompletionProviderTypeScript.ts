@@ -1,6 +1,6 @@
+import * as Position from '../Position/Position.ts'
 // @ts-nocheck
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
-import * as Position from '../Position/Position.ts'
 
 export const languageId = 'typescript'
 

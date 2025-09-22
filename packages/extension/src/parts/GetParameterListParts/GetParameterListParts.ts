@@ -1,7 +1,7 @@
 // based on github.com/microsoft/vscode/tree/main/extensions/typescript-language-features/src/languageFeatures/util/snippetForFunctionCall.ts (License MIT)
 
-import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
 import * as Character from '../Character/Character.ts'
+import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
 
 /**
  *

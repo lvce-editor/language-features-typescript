@@ -40,7 +40,7 @@ export const resolveTsconfig = (
       fileNames: files as string[],
     }
     return result
-  } catch (error) {
+  } catch {
     return emptyTsconfig
   }
 }

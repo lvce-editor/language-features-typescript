@@ -1,4 +1,4 @@
-import * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 export const getDefinitionFromTsResult = async (
   textDocument: any,
