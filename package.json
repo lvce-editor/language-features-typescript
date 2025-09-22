@@ -11,6 +11,7 @@
     "dev": "node packages/build/src/dev.ts",
     "build:watch": "node packages/build/src/build-watch.ts",
     "type-check": "tsc -b",
+    "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "e2e": "cd packages/e2e && npm run e2e",
     "e2e:headless": "cd packages/e2e && npm run e2e:headless"
