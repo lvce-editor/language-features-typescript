@@ -1,8 +1,13 @@
 {
   "compilerOptions": {
-    "lib": ["esnext"],
-    "module": "NodeNext",
-    "types": []
+    "lib": [
+      "esnext"
+    ],
+    "module": "esnext",
+    "types": [],
+    "moduleResolution": "nodenext"
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }
