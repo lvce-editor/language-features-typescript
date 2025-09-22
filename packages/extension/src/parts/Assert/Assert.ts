@@ -1,4 +1,4 @@
-const getType = (value) => {
+const getType = (value: any): string => {
   switch (typeof value) {
     case 'number':
       return 'number'
@@ -23,42 +23,42 @@ const getType = (value) => {
   }
 }
 
-export const object = (value) => {
+export const object = (value: any): void => {
   const type = getType(value)
   if (type !== 'object') {
     throw new Error('expected value to be of type object')
   }
 }
 
-export const number = (value) => {
+export const number = (value: any): void => {
   const type = getType(value)
   if (type !== 'number') {
     throw new Error('expected value to be of type number')
   }
 }
 
-export const array = (value) => {
+export const array = (value: any): void => {
   const type = getType(value)
   if (type !== 'array') {
     throw new Error('expected value to be of type array')
   }
 }
 
-export const string = (value) => {
+export const string = (value: any): void => {
   const type = getType(value)
   if (type !== 'string') {
     throw new Error('expected value to be of type string')
   }
 }
 
-export const boolean = (value) => {
+export const boolean = (value: any): void => {
   const type = getType(value)
   if (type !== 'boolean') {
     throw new Error('expected value to be of type boolean')
   }
 }
 
-export const _undefined = (value) => {
+export const _undefined = (value: any): void => {
   const type = getType(value)
   if (type !== 'undefined') {
     throw new Error('expected value to be undefined')
