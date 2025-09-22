@@ -1,8 +1,8 @@
-import * as Assert from '../Assert/Assert.ts'
 import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
+import * as Assert from '../Assert/Assert.ts'
 import * as GetResolvedCompletionItemFromTsResult from '../GetResolvedCompletionItemFromTsResult/GetResolvedCompletionItemFromTsResult.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
-import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 const getEntryNames = (name, completionItem) => {
   if (completionItem) {

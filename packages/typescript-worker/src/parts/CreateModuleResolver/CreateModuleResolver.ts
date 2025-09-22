@@ -1,7 +1,7 @@
 import type { CompilerOptions, ResolvedModuleWithFailedLookupLocations } from 'typescript'
-import { isFullySpecified } from '../IsFullySpecified/IsFullySpecified.ts'
 import type { ModuleResolver } from '../ModuleResolver/ModuleResolver.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { isFullySpecified } from '../IsFullySpecified/IsFullySpecified.ts'
 import { joinPath } from '../JoinPath/JoinPath.ts'
 
 const getDirName = (path: string): string => {

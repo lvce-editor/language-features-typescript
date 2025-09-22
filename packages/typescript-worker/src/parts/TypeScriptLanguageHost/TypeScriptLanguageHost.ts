@@ -1,9 +1,9 @@
 import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
-import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
 import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
-import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
@@ -14,7 +14,6 @@ export const create = (
   options: ParsedCommandLine,
 ): ILanguageServiceHost => {
   const resolveModuleName = createModuleResolver(syncRpc)
-  console.log('hi')
   const languageServiceHost: ILanguageServiceHost = {
     getScriptKind(fileName) {
       return ts.ScriptKind.TS
@@ -30,11 +29,9 @@ export const create = (
         return false
       }
       const result = syncRpc.invokeSync('SyncApi.exists', path)
-      console.log({ exits: result, path })
       return result
     },
     readFile(path) {
-      console.log({ readFile: path })
       return ''
     },
     getNewLine() {
@@ -42,7 +39,6 @@ export const create = (
     },
     readDirectory(path, extensions, exclude, include, depth) {
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
-      console.log({ readDir: path, dirents })
       return dirents
     },
     getDirectories(relativePath) {
@@ -50,7 +46,6 @@ export const create = (
         return []
       }
       const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      console.log('get dir', { result, relativePath })
       if (result) {
         return []
       }
@@ -90,7 +85,6 @@ export const create = (
         const content = readLibFile(fileName)
         return ts.ScriptSnapshot.fromString(content)
       }
-      console.log('snapshot', fileName)
       const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
       if (!content) {
         return undefined

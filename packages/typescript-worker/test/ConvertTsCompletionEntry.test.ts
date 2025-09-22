@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
-import * as ConvertTsCompletionEntry from '../src/parts/ConvertTsCompletionEntry/ConvertTsCompletionEntry.ts'
 import type * as Protocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
+import * as ConvertTsCompletionEntry from '../src/parts/ConvertTsCompletionEntry/ConvertTsCompletionEntry.ts'
 
 test('convertTsCompletionEntry', () => {
   const tsResult: Protocol.CompletionEntry = {

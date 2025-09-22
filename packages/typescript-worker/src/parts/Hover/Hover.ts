@@ -1,5 +1,5 @@
-import * as Assert from '../Assert/Assert.ts'
 import type { CommonRpc } from '../CommonRpc/CommonRpc.ts'
+import * as Assert from '../Assert/Assert.ts'
 import { getHover2 } from '../Hover2/Hover2.ts'
 
 export const getHover = async (typescriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {

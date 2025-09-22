@@ -1,7 +1,7 @@
 import type ts from 'typescript'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { getLibFileUrl } from '../GetLibFileUrl/GetLibFileUrl.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
-import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 
 const formatLibFileMaybe = (uri: string): string => {

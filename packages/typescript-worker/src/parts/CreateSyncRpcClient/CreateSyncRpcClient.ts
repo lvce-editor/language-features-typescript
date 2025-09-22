@@ -1,10 +1,10 @@
+import type { SyncClientOptions } from '../SyncClientOptions/SyncClientOptions.ts'
+import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { createBuffer } from '../CreateBuffer/CreateBuffer.ts'
 import { readJsonFromHandle } from '../ReadJsonFromHandle/ReadJsonFromHandle.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
-import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
-import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
 import * as WaitForSyncBufferResultType from '../WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
-import type { SyncClientOptions } from '../SyncClientOptions/SyncClientOptions.ts'
+import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
 
 export const createSyncRpcClient = async ({
   maxDelay,

@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
-import * as GetResolvedCompletionItemFromTsResult from '../src/parts/GetResolvedCompletionItemFromTsResult/GetResolvedCompletionItemFromTsResult.ts'
 import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
+import * as GetResolvedCompletionItemFromTsResult from '../src/parts/GetResolvedCompletionItemFromTsResult/GetResolvedCompletionItemFromTsResult.ts'
 
 test('getCompletion', async () => {
   const tsResult: TypeScriptProtocol.CompletionEntryDetails[] = [

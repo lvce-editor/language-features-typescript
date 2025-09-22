@@ -1,7 +1,7 @@
 // @ts-nocheck
-import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
-import * as Position from '../Position/Position.ts'
 import { performance } from 'node:perf_hooks'
+import * as Position from '../Position/Position.ts'
+import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
 
 /**
  *

@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
-import * as GetDefinitionFromTsResult from '../src/parts/GetDefinitionFromTsResult/GetDefinitionFromTsResult.ts'
 import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
+import * as GetDefinitionFromTsResult from '../src/parts/GetDefinitionFromTsResult/GetDefinitionFromTsResult.ts'
 
 test('getDefintionFromTsResult', async () => {
   const Position = {

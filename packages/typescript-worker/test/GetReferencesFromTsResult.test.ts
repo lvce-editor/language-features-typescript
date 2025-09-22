@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
-import * as GetReferencesFromTsResult from '../src/parts/GetReferencesFromTsResult/GetReferencesFromTsResult.ts'
 import type * as Protocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
+import * as GetReferencesFromTsResult from '../src/parts/GetReferencesFromTsResult/GetReferencesFromTsResult.ts'
 
 test('getReferencesFromTsResult', () => {
   const textDocument = {}
