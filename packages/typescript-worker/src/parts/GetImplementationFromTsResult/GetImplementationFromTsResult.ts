@@ -1,6 +1,6 @@
+import type { ImplementationResponse } from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 import * as Position from '../Position/Position.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
-import type { ImplementationResponse } from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 export const getImplementationsFromTsResult = async (tsResult: ImplementationResponse['body']) => {
   if (!tsResult) {

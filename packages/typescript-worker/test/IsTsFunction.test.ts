@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals'
+import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
 import * as IsTsFunction from '../src/parts/IsTsFunction/IsTsFunction.ts'
 import * as TsCompletionItemKind from '../src/parts/TsCompletionItemKind/TsCompletionItemKind.ts'
-import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
 
 test('function', () => {
   const tsResult: TypeScriptProtocol.CompletionEntryDetails = {

@@ -1,5 +1,5 @@
-import * as WrapCommand from '../src/parts/WrapCommand/WrapCommand.ts'
 import { expect, test } from '@jest/globals'
+import * as WrapCommand from '../src/parts/WrapCommand/WrapCommand.ts'
 
 test('wrapCommand', () => {
   const fn = () => {

@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
-import * as GetPositionsFromTsResult from '../src/parts/GetPositionsFromTsResult/GetPositionsFromTsResult.ts'
 import type * as Protocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
+import * as GetPositionsFromTsResult from '../src/parts/GetPositionsFromTsResult/GetPositionsFromTsResult.ts'
 
 test('getPositionsFomTsResult', () => {
   const positions = new Uint32Array([1, 7, 1, 7])

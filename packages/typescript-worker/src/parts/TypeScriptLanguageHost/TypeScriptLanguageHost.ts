@@ -1,9 +1,9 @@
 import type { LanguageServiceHost, ParsedCommandLine } from 'typescript'
-import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
 import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
-import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 

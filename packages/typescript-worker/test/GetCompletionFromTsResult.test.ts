@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals'
+import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
 import * as GetCompletionFromTsResult from '../src/parts/GetCompletionFromTsResult/GetCompletionFromTsResult.ts'
-import * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
 
 test('getCompletionFromTsResult', () => {
   const tsResult: TypeScriptProtocol.CompletionInfoResponse['body'] = {

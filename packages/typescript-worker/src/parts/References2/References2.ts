@@ -1,9 +1,9 @@
 import * as FileReferences from '../FileReferences/FileReferences.ts'
 import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.ts'
 import * as Position from '../Position/Position.ts'
+import * as Rpc from '../Rpc/Rpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
-import * as Rpc from '../Rpc/Rpc.ts'
 
 const getReferences = async (textDocument: any, offset: number) => {
   await TextDocumentSync.openTextDocuments([textDocument])

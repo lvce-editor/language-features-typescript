@@ -1,6 +1,6 @@
+import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 import * as CompleteFunctionCall from '../CompleteFunctionCall/CompleteFunctionCall.ts'
 import * as IsTsFunction from '../IsTsFunction/IsTsFunction.ts'
-import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 export const getResolveCompletionItemFromTsResult = (
   tsResult: readonly TypeScriptProtocol.CompletionEntryDetails[],
