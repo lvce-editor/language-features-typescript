@@ -1,3 +1,3 @@
-export const getWatchOptions = () => {
+export const getWatchOptions = (): any => {
   return {}
 }

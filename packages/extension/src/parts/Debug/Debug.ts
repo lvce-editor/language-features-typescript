@@ -1,1 +1,1 @@
-export const debug = () => {}
+export const debug = (): void => {}

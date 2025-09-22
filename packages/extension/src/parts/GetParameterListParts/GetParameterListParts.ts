@@ -8,7 +8,7 @@ import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
  * @param {import('typescript').SymbolDisplayPart[]} displayParts
  * @returns
  */
-export const getParameterListParts = (displayParts) => {
+export const getParameterListParts = (displayParts: any[]): any[] => {
   const parts = []
   let isInMethod = false
   let hasOptionalParameters = false

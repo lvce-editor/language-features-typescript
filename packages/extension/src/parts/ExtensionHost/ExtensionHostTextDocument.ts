@@ -8,11 +8,11 @@ import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
  * @param {vscode.TextDocument} textDocument
  * @returns
  */
-const isJavaScriptOrTypeScriptDocument = (textDocument) => {
+const isJavaScriptOrTypeScriptDocument = (textDocument: any): boolean => {
   return textDocument.languageId === 'javascript' || textDocument.languageId === 'typescript'
 }
 
-const getTsTextChanges = (textDocument, edits) => {
+const getTsTextChanges = (textDocument: any, edits: any[]): any[] => {
   const tsChanges = []
   for (const edit of edits) {
     tsChanges.push({
@@ -24,13 +24,13 @@ const getTsTextChanges = (textDocument, edits) => {
   return tsChanges
 }
 
-export const handleWillChangeTextDocument = async (textDocument, edits) => {
-  console.log('will change text document')
+export const handleWillChangeTextDocument = async (textDocument: any, edits: any[]): Promise<void> => {
+  console.warn('will change text document')
   if (!isJavaScriptOrTypeScriptDocument(textDocument)) {
     return
   }
   const textChanges = getTsTextChanges(textDocument, edits)
-  console.log(
+  console.warn(
     JSON.stringify({
       changedFiles: [
         {
@@ -50,7 +50,7 @@ export const handleWillChangeTextDocument = async (textDocument, edits) => {
   })
 }
 
-const getScriptKind = (textDocument) => {
+const getScriptKind = (textDocument: any): string => {
   if (textDocument.uri.endsWith('.tsx')) {
     return 'TSX'
   }
@@ -70,7 +70,7 @@ const getScriptKind = (textDocument) => {
  * @param {vscode.TextDocument} textDocument
  * @returns {import('typescript/lib/protocol').OpenRequestArgs}
  */
-const getTsFileToOpen = (textDocument) => {
+const getTsFileToOpen = (textDocument: any): any => {
   return {
     file: textDocument.uri,
     fileContent: vscode.getTextFromTextDocument(textDocument),
@@ -82,23 +82,23 @@ const getTsFileToOpen = (textDocument) => {
  * @param {readonly vscode.TextDocument[]} textDocuments
  * @returns
  */
-export const handleOpenTextDocuments = async (textDocuments) => {
+export const handleOpenTextDocuments = async (textDocuments: any[]): Promise<void> => {
   const tsDocuments = textDocuments.filter(isJavaScriptOrTypeScriptDocument)
   if (tsDocuments.length === 0) {
     return
   }
   const openFiles = tsDocuments.map(getTsFileToOpen)
-  console.log('start-update-open', performance.now())
+  console.warn('start-update-open', performance.now())
   await TsServerRequests.updateOpen({
     openFiles,
   })
-  console.log('finish-update-open', performance.now())
+  console.warn('finish-update-open', performance.now())
 }
 
 /**
  * @param {vscode.TextDocument} textDocument
  * @returns
  */
-export const handleOpenTextDocument = (textDocument) => {
+export const handleOpenTextDocument = (textDocument: any): Promise<void> => {
   return handleOpenTextDocuments([textDocument])
 }

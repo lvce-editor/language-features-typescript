@@ -7,7 +7,7 @@ import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 /**
  * @type{vscode.ImplementationProvider['provideImplementations']}
  */
-export const getImplementations = async (textDocument, offset) => {
+export const getImplementations = async (textDocument: any, offset: number): Promise<any> => {
   await TextDocumentSync.openTextDocuments([textDocument])
   const uri = textDocument.uri
   const tsPosition = Position.getTsPosition(textDocument, offset)

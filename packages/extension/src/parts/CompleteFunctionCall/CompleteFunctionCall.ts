@@ -1,7 +1,7 @@
 import * as Character from '../Character/Character.ts'
 import * as GetParameterListParts from '../GetParameterListParts/GetParameterListParts.ts'
 
-const getParameterSnippet = (parameterParts) => {
+const getParameterSnippet = (parameterParts: any[]): string => {
   const texts = []
   for (const parameterPart of parameterParts) {
     texts.push(parameterPart.text)
@@ -9,7 +9,7 @@ const getParameterSnippet = (parameterParts) => {
   return texts.join(Character.CommaSpace)
 }
 
-export const completeFunctionCall = (label, displayParts) => {
+export const completeFunctionCall = (label: string, displayParts: any): string => {
   const parameterParts = GetParameterListParts.getParameterListParts(displayParts)
   const parameterSnippet = getParameterSnippet(parameterParts)
   let snippet = ''

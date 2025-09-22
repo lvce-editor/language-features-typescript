@@ -6,14 +6,14 @@ import * as Position from '../Position/Position.ts'
  * @param {import('typescript/lib/protocol').TypeDefinitionResponse['body']} tsResult
  * @returns {vscode.DefinitionResult|undefined}
  */
-export const getDefinitionFromTsResult = (textDocument, tsResult) => {
+export const getDefinitionFromTsResult = (textDocument: any, tsResult: any): any => {
   if (!tsResult) {
     return undefined
   }
   if (tsResult.length === 0) {
     return undefined
   }
-  console.log({ tsResult })
+  console.warn({ tsResult })
   const firstTypeDefinition = tsResult[0]
   if (firstTypeDefinition.file === textDocument.uri) {
     const startOffset = Position.getOffset(textDocument, firstTypeDefinition.start)

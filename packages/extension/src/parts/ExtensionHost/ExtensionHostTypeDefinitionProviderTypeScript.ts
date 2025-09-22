@@ -8,7 +8,7 @@ export const languageId = LanguageId.TypeScript
 /**
  * @type{vscode.DefinitionProvider['provideDefinition']}
  */
-export const provideTypeDefinition = async (textDocument, offset) => {
+export const provideTypeDefinition = async (textDocument: any, offset: number): Promise<any> => {
   const tsResult = await TypeDefinition.getTypeDefinition(textDocument, offset)
   const definition = GetTypeDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, tsResult)
   return definition

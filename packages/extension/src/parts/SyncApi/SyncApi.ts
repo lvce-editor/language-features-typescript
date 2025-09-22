@@ -34,7 +34,7 @@ export const syncSetup = async (
   })
 }
 
-export const readFileSync = async (id, uri) => {
+export const readFileSync = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = () => {
     // @ts-ignore
     return vscode.readFile(uri)
@@ -42,7 +42,7 @@ export const readFileSync = async (id, uri) => {
   await writeResult(id, resultGenerator)
 }
 
-export const readDirSync = async (id, uri) => {
+export const readDirSync = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = async () => {
     // @ts-ignore
     const result = await vscode.readDirWithFileTypes(uri)
@@ -52,7 +52,7 @@ export const readDirSync = async (id, uri) => {
   await writeResult(id, resultGenerator)
 }
 
-export const exists = async (id, uri) => {
+export const exists = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = async () => {
     try {
       // @ts-ignore

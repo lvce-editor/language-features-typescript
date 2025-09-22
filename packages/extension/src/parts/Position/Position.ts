@@ -1,7 +1,7 @@
 // @ts-nocheck
 // TODO this should not be in core
 
-export const getTsPosition = (textDocument, offset) => {
+export const getTsPosition = (textDocument: any, offset: number): any => {
   const position = vscode.getPosition(textDocument, offset)
   return {
     line: position.rowIndex + 1,
@@ -9,7 +9,7 @@ export const getTsPosition = (textDocument, offset) => {
   }
 }
 
-export const getOffset = (textDocument, tsPosition) => {
+export const getOffset = (textDocument: any, tsPosition: any): any => {
   const position = {
     rowIndex: tsPosition.line - 1,
     columnIndex: tsPosition.offset - 1,
@@ -23,6 +23,6 @@ export const getOffset = (textDocument, tsPosition) => {
  * @param {import('typescript/lib/protocol').Location} tsPosition
  * @returns
  */
-export const getRowIndex = (tsPosition) => {
+export const getRowIndex = (tsPosition: any): number => {
   return tsPosition.line - 1
 }

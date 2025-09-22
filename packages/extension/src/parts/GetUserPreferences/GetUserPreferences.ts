@@ -1,4 +1,4 @@
-export const getUserPreferences = () => {
+export const getUserPreferences = (): any => {
   return {
     includeCompletionsForModuleExports: true,
     includeCompletionsForImportStatements: true,

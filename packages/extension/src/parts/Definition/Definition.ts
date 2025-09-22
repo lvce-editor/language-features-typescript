@@ -2,7 +2,7 @@ import * as Position from '../Position/Position.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 
-export const getDefinition = async (textDocument, offset) => {
+export const getDefinition = async (textDocument: any, offset: number): Promise<any> => {
   await TextDocumentSync.openTextDocuments([textDocument])
   const tsPosition = Position.getTsPosition(textDocument, offset)
   const tsResult = await Rpc.invoke('Definition.getDefinition', {

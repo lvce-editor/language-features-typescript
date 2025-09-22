@@ -7,7 +7,7 @@ import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
-export const getCompletion = async (textDocument, offset) => {
+export const getCompletion = async (textDocument: any, offset: number): Promise<any> => {
   const uri = textDocument.uri
   Assert.string(uri)
   await TextDocumentSync.openTextDocuments([textDocument])

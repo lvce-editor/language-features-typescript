@@ -5,12 +5,12 @@ import * as LanguageId from '../LanguageId/LanguageId.ts'
 
 export const languageId = LanguageId.TypeScript
 
-const RE_WORD = /[a-zA-Z\d\-]+$/
+const RE_WORD = /[a-zA-Z\d-]+$/
 
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
-export const provideTabCompletion = async (textDocument, offset) => {
+export const provideTabCompletion = async (textDocument: any, offset: number): Promise<any> => {
   const text = vscode.getTextFromTextDocument(textDocument)
   const wordMatch = text.slice(0, offset).match(RE_WORD)
   if (!wordMatch) {
