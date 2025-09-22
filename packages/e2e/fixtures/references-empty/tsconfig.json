@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["esnext"],
-    "types": []
+    "lib": [
+      "esnext"
+    ],
+    "types": [],
+    "module": "esnext",
+    "moduleResolution": "nodenext"
   }
 }
