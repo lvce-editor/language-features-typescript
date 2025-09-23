@@ -3,7 +3,14 @@ import * as TypeScript from 'typescript'
 import { resolveTsconfig } from '../src/parts/ResolveTsconfig/ResolveTsconfig.ts'
 
 test('resolveTsconfig should return empty tsconfig for empty path', () => {
-  const result = resolveTsconfig('', {}, () => '', () => [], () => true, TypeScript)
+  const result = resolveTsconfig(
+    '',
+    {},
+    () => '',
+    () => [],
+    () => true,
+    TypeScript,
+  )
 
   expect(result).toBeDefined()
   expect(result.options).toBeDefined()
@@ -48,7 +55,7 @@ test('resolveTsconfig should parse valid tsconfig', () => {
     mockReadFile,
     mockReadDir,
     mockFileExists,
-    TypeScript
+    TypeScript,
   )
 
   expect(result).toBeDefined()
@@ -98,7 +105,7 @@ test('resolveTsconfig should handle include patterns', () => {
     mockReadFile,
     mockReadDir,
     mockFileExists,
-    TypeScript
+    TypeScript,
   )
 
   expect(result).toBeDefined()
@@ -143,7 +150,7 @@ test('resolveTsconfig should set rootDir from tsconfig path', () => {
     mockReadFile,
     mockReadDir,
     mockFileExists,
-    TypeScript
+    TypeScript,
   )
 
   expect(result).toBeDefined()
@@ -184,7 +191,7 @@ test('resolveTsconfig should handle missing include property', () => {
     mockReadFile,
     mockReadDir,
     mockFileExists,
-    TypeScript
+    TypeScript,
   )
 
   expect(result).toBeDefined()
@@ -218,7 +225,7 @@ test('resolveTsconfig should return empty tsconfig on error', () => {
     mockReadFile,
     mockReadDir,
     mockFileExists,
-    TypeScript
+    TypeScript,
   )
 
   expect(result).toBeDefined()
@@ -281,7 +288,7 @@ test('resolveTsconfig should handle complex tsconfig with multiple options', () 
     mockReadFile,
     mockReadDir,
     mockFileExists,
-    TypeScript
+    TypeScript,
   )
 
   expect(result).toBeDefined()
