@@ -11,7 +11,7 @@ const sharedProcessUrl = pathToFileURL(sharedProcessPath).toString()
 
 const sharedProcess = await import(sharedProcessUrl)
 
-process.env.PATH_PREFIX = '/langauge-features-typescript'
+process.env.PATH_PREFIX = '/language-features-typescript'
 
 const { commitHash } = await sharedProcess.exportStatic({
   extensionPath: 'packages/extension',
