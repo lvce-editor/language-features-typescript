@@ -4,10 +4,10 @@ export const name = 'typescript.diagnostics'
 
 export const skip = 1
 
-export const test: Test = async ({ Workspace, Main, Panel, Problems, Locator, expect }) => {
+export const test: Test = async ({ FileSystem, Workspace, Main, Panel, Problems, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics').toString()
-  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
 
