@@ -1,4 +1,12 @@
-export const getTsServerArgv = ({ disableAutomaticTypingAcquisition = true, npmLocation = '', maxMemory = 4096 }: { disableAutomaticTypingAcquisition?: boolean; npmLocation?: string; maxMemory?: number }): any => {
+export const getTsServerArgv = ({
+  disableAutomaticTypingAcquisition = true,
+  npmLocation = '',
+  maxMemory = 4096,
+}: {
+  disableAutomaticTypingAcquisition?: boolean
+  npmLocation?: string
+  maxMemory?: number
+}): any => {
   const argv = []
   argv.push('--useInferredProjectPerProjectRoot')
   if (disableAutomaticTypingAcquisition) {

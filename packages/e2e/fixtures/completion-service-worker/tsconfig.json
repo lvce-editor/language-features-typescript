@@ -1,15 +1,10 @@
 {
   "compilerOptions": {
-    "lib": [
-      "esnext",
-      "WebWorker"
-    ],
+    "lib": ["esnext", "WebWorker"],
     "types": [],
     "rootDir": ".",
     "module": "esnext",
     "moduleResolution": "nodenext"
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
