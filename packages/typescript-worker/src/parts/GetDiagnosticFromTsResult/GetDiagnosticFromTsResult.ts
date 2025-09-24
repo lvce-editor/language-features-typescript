@@ -24,7 +24,7 @@ export const getDiagnosticsFromTsResult = (
   tsResult: TypeScriptProtocol.SemanticDiagnosticsSyncResponse['body'],
 ) => {
   const diagnostics = []
-  for (const tsDiagnostic of tsResult) {
+  for (const tsDiagnostic of tsResult || []) {
     // @ts-ignore
     diagnostics.push(convertTsDiagnostic(textDocument, tsDiagnostic))
   }

@@ -13,6 +13,6 @@ export const convertTsCompletionEntry = (tsEntry: TypeScriptProtocol.CompletionE
     kind: ConvertCompletionItemKind.convertCompletionItemKind(kind),
     source,
     data,
-    flags: ConvertTsCompletionKindModifiers.convertTsCompletionKindModifiers(kindModifiers),
+    flags: ConvertTsCompletionKindModifiers.convertTsCompletionKindModifiers(kindModifiers || ''),
   }
 }

@@ -24,7 +24,7 @@ const convertTsDiagnostic = (text: string, diagnostic: ts.DiagnosticWithLocation
 }
 
 export const getDiagnosticsFromTsResult2 = (text: string, tsResult: readonly ts.DiagnosticWithLocation[]) => {
-  const diagnostics = []
+  const diagnostics: any[] = []
   for (const tsDiagnostic of tsResult) {
     diagnostics.push(convertTsDiagnostic(text, tsDiagnostic))
   }

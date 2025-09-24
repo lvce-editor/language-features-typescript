@@ -19,10 +19,16 @@ export const getDefinitionFromTsResult2 = async (textDocument: any, tsResult: re
   }
   const firstDefinition = tsResult[0]
   const uri = getUri(firstDefinition.fileName)
+  let startOffset = 0
+  let endOffset = 0
+  if (firstDefinition.contextSpan) {
+    startOffset = firstDefinition.contextSpan.start
+    endOffset = firstDefinition.contextSpan.start + firstDefinition.contextSpan.length
+  }
   return {
     uri,
-    startOffset: firstDefinition.contextSpan.start,
-    endOffset: firstDefinition.contextSpan.start + firstDefinition.contextSpan.length,
+    startOffset,
+    endOffset,
   }
   // const { textSpan } = firstDefinition
   // if (file === textDocument.uri) {
