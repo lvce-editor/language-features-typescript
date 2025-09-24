@@ -1,7 +1,7 @@
 // @ts-nocheck
 import * as LanguageId from '../LanguageId/LanguageId.ts'
 
-const registerProvider = (provider) => {
+const registerProvider = (provider: any): void => {
   if ('provideCompletions' in provider) {
     vscode.registerCompletionProvider(provider)
     return
@@ -48,7 +48,7 @@ const registerProvider = (provider) => {
   }
 }
 
-export const registerProviders = (providers) => {
+export const registerProviders = (providers: any[]): void => {
   for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript]) {
     for (const provider of providers) {
       const actualProvider = {

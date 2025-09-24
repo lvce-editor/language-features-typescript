@@ -8,7 +8,7 @@ export const languageId = LanguageId.TypeScript
 /**
  * @type{vscode.ImplementationProvider['provideImplementations']}
  */
-export const provideImplementations = async (textDocument, offset) => {
+export const provideImplementations = async (textDocument: any, offset: number): Promise<any> => {
   const tsResult = await Implementation.getImplementations(textDocument, offset)
   const implementations = await GetImplementationFromTsResult.getImplementationsFromTsResult(textDocument, tsResult)
   return implementations

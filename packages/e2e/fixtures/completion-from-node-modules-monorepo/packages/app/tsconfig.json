@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext"],
+    "types": [],
+    "rootDir": ".",
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
+  },
+  "include": ["ssrc"]
+}

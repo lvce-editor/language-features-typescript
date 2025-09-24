@@ -4,10 +4,10 @@ export const name = 'typescript.implementations'
 
 export const skip = true
 
-export const test: Test = async ({ Workspace, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/implementations').toString()
-  const workspaceUrl = Workspace.resolveFileUrl(fixtureUrl)
+  const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 3)

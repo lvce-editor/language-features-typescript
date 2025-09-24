@@ -2,7 +2,7 @@ import * as Character from '../Character/Character.ts'
 import * as GetParameterListParts from '../GetParameterListParts/GetParameterListParts.ts'
 
 const getParameterSnippet = (parameterParts: any[]) => {
-  const texts = []
+  const texts: string[] = []
   for (const parameterPart of parameterParts) {
     texts.push(parameterPart.text)
   }

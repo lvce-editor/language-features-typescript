@@ -1,28 +1,28 @@
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as SyncApi from '../SyncApi/SyncApi.ts'
 
-const rpcInvoke = (method: string, ...params: any[]) => {
+const rpcInvoke = (method: string, ...params: any[]): any => {
   return Rpc.invoke(method, ...params)
 }
 
-const rpcListen = (path) => {}
+const rpcListen = (path: any): void => {}
 
-const getOffset = (textDocument, position) => {
+const getOffset = (textDocument: any, position: any): any => {
   // @ts-ignore
   return vscode.getOffset(textDocument, position)
 }
 
-const getPosition = (textDocument, offset) => {
+const getPosition = (textDocument: any, offset: any): any => {
   // @ts-ignore
   return vscode.getPosition(textDocument, offset)
 }
 
-const readFile = (uri) => {
+const readFile = (uri: any): any => {
   // @ts-ignore
   return vscode.readFile(uri)
 }
 
-const readDir = (uri) => {
+const readDir = (uri: any): any => {
   // @ts-ignore
   return vscode.readDirWithFileTypes(uri)
 }
