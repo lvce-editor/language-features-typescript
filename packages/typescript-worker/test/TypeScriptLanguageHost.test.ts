@@ -84,9 +84,9 @@ test('getScriptKind should return TS for all files', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptKind('test.ts')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind('test.js')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind('test.tsx')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.ts')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.js')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.tsx')).toBe(TypeScript.ScriptKind.TS)
 })
 
 test('directoryExists should always return true', () => {
