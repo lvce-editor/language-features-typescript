@@ -73,6 +73,6 @@ test('getPositionsFomTsResult - with parent range', () => {
 
 test('getPositionsFomTsResult - no result', () => {
   const positions = new Uint32Array([1, 7, 1, 7])
-  const tsResult = undefined
+  const tsResult = undefined as any
   expect(GetPositionsFromTsResult.getPositionsFromTsResult(positions, tsResult)).toEqual([])
 })

@@ -10,6 +10,6 @@ export const getCompletion2 = async (textDocument: any, offset: number) => {
   fs.writeFile(textDocument.uri, textDocument.text)
   const completionOptions = getCompletionOptions()
   const tsResult = languageService.getCompletionsAtPosition(textDocument.uri, offset, completionOptions)
-  const completions = getCompletionFromTsResult2(tsResult)
+  const completions = getCompletionFromTsResult2(tsResult as any)
   return completions
 }

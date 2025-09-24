@@ -84,9 +84,9 @@ test('getScriptKind should return TS for all files', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptKind('test.ts')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind('test.js')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind('test.tsx')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.ts')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.js')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.tsx')).toBe(TypeScript.ScriptKind.TS)
 })
 
 test('directoryExists should always return true', () => {
@@ -110,8 +110,8 @@ test('directoryExists should always return true', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.directoryExists('/some/path')).toBe(true)
-  expect(host.directoryExists('relative/path')).toBe(true)
+  expect(host.directoryExists?.('/some/path')).toBe(true)
+  expect(host.directoryExists?.('relative/path')).toBe(true)
 })
 
 test('fileExists should handle node_modules paths correctly', () => {
@@ -140,10 +140,10 @@ test('fileExists should handle node_modules paths correctly', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.fileExists('node_modules/@typescript/lib/some-file')).toBe(false)
-  expect(host.fileExists('node_modules/@types/typescript__lib/some-file')).toBe(false)
-  expect(host.fileExists('regular-file.ts')).toBe(true)
-  expect(host.fileExists('non-existent-file')).toBe(false)
+  expect(host.fileExists?.('node_modules/@typescript/lib/some-file')).toBe(false)
+  expect(host.fileExists?.('node_modules/@types/typescript__lib/some-file')).toBe(false)
+  expect(host.fileExists?.('regular-file.ts')).toBe(true)
+  expect(host.fileExists?.('non-existent-file')).toBe(false)
 })
 
 test('readFile should return empty string', () => {
@@ -167,7 +167,7 @@ test('readFile should return empty string', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.readFile('any-file.ts')).toBe('')
+  expect(host.readFile?.('any-file.ts')).toBe('')
 })
 
 test('getNewLine should return newline character', () => {
@@ -191,7 +191,7 @@ test('getNewLine should return newline character', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getNewLine()).toBe('\n')
+  expect(host.getNewLine?.()).toBe('\n')
 })
 
 test('readDirectory should call syncRpc', () => {
@@ -220,7 +220,7 @@ test('readDirectory should call syncRpc', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  const result = host.readDirectory('/some/path')
+  const result = host.readDirectory?.('/some/path')
   expect(result).toEqual(['file1.ts', 'file2.ts'])
 })
 
@@ -245,9 +245,9 @@ test('getDirectories should handle @types paths', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getDirectories('/node_modules/@types')).toEqual([])
-  expect(host.getDirectories('node_modules/@types')).toEqual([])
-  expect(host.getDirectories('/other/path')).toEqual([])
+  expect(host.getDirectories?.('/node_modules/@types')).toEqual([])
+  expect(host.getDirectories?.('node_modules/@types')).toEqual([])
+  expect(host.getDirectories?.('/other/path')).toEqual([])
 })
 
 test('useCaseSensitiveFileNames should return true', () => {
@@ -271,7 +271,7 @@ test('useCaseSensitiveFileNames should return true', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.useCaseSensitiveFileNames()).toBe(true)
+  expect(host.useCaseSensitiveFileNames?.()).toBe(true)
 })
 
 test('getProjectVersion should return string version', () => {
@@ -295,7 +295,7 @@ test('getProjectVersion should return string version', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getProjectVersion()).toBe('0')
+  expect(host.getProjectVersion?.()).toBe('0')
 })
 
 test('getScriptFileNames should return file system script names', () => {
@@ -319,7 +319,7 @@ test('getScriptFileNames should return file system script names', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptFileNames()).toEqual(['file1.ts', 'file2.ts'])
+  expect(host.getScriptFileNames?.()).toEqual(['file1.ts', 'file2.ts'])
 })
 
 test('getScriptVersion should return string version', () => {
@@ -343,7 +343,7 @@ test('getScriptVersion should return string version', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptVersion('any-file.ts')).toBe('0')
+  expect(host.getScriptVersion?.('any-file.ts')).toBe('0')
 })
 
 test('writeFile should throw error', () => {
@@ -368,7 +368,7 @@ test('writeFile should throw error', () => {
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
   expect(() => {
-    host.writeFile('file.ts', 'content')
+    host.writeFile?.('file.ts', 'content')
   }).toThrow('not implemented')
 })
 
@@ -400,7 +400,7 @@ test('getCompilationSettings should return options', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getCompilationSettings()).toEqual(mockOptions.options)
+  expect(host.getCompilationSettings?.()).toEqual(mockOptions.options)
 })
 
 test('getCustomTransformers should throw error', () => {
@@ -425,7 +425,7 @@ test('getCustomTransformers should throw error', () => {
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
   expect(() => {
-    host.getCustomTransformers()
+    host.getCustomTransformers?.()
   }).toThrow('not implemented')
 })
 
@@ -450,7 +450,7 @@ test('getCurrentDirectory should return empty string', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getCurrentDirectory()).toBe('')
+  expect(host.getCurrentDirectory?.()).toBe('')
 })
 
 test('getDefaultLibFileName should return TypeScript default lib', () => {
@@ -474,7 +474,7 @@ test('getDefaultLibFileName should return TypeScript default lib', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  const result = host.getDefaultLibFileName({})
+  const result = host.getDefaultLibFileName?.({})
   expect(typeof result).toBe('string')
   expect(result).toContain('lib.')
 })
@@ -500,5 +500,5 @@ test('getProjectReferences should return empty array', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getProjectReferences()).toEqual([])
+  expect(host.getProjectReferences?.()).toEqual([])
 })

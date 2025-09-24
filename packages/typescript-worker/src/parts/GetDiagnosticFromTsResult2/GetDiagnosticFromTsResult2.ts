@@ -23,10 +23,10 @@ const convertTsDiagnostic = (text: string, diagnostic: ts.DiagnosticWithLocation
   }
 }
 
-export const getDiagnosticsFromTsResult2 = (text: string, tsResult: readonly ts.DiagnosticWithLocation[]) => {
+export const getDiagnosticsFromTsResult2 = (text: string, tsResult: readonly ts.Diagnostic[]) => {
   const diagnostics: any[] = []
   for (const tsDiagnostic of tsResult) {
-    diagnostics.push(convertTsDiagnostic(text, tsDiagnostic))
+    diagnostics.push(convertTsDiagnostic(text, tsDiagnostic as any))
   }
   return diagnostics
 }
