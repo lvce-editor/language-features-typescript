@@ -5,7 +5,7 @@ import * as Character from '../Character/Character.ts'
 import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
 
 export const getParameterListParts = (displayParts: readonly TypeScriptProtocol.SymbolDisplayPart[]) => {
-  const parts = []
+  const parts: TypeScriptProtocol.SymbolDisplayPart[] = []
   let isInMethod = false
   let hasOptionalParameters = false
   let parenCount = 0

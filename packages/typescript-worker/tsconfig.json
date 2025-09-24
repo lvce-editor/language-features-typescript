@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "assumeChangesOnlyAffectDirectDependencies": true,
     "strict": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "composite": true,
     "noImplicitAny": false,
     "allowImportingTsExtensions": true,

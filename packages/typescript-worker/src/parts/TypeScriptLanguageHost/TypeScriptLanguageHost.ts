@@ -83,6 +83,9 @@ export const create = (
     getScriptSnapshot(fileName) {
       if (isLibFile(fileName)) {
         const content = readLibFile(fileName)
+        if (!content) {
+          return undefined
+        }
         return ts.ScriptSnapshot.fromString(content)
       }
       const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)

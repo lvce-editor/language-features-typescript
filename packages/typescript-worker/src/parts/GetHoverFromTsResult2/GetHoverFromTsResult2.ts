@@ -1,6 +1,6 @@
 import type ts from 'typescript'
 
-export const getHoverFromTsResult2 = (tsResult: ts.QuickInfo) => {
+export const getHoverFromTsResult2 = (tsResult: ts.QuickInfo | undefined) => {
   if (!tsResult) {
     return undefined
   }

@@ -26,6 +26,6 @@ test('getHoverFromTsResult', () => {
 })
 
 test('getHoverFromTsResult - null', () => {
-  const tsResult = null
+  const tsResult = null as any
   expect(GetHoverFromTsResult.getHoverFromTsResult(tsResult)).toBe(undefined)
 })
