@@ -1,7 +1,7 @@
 import type ts from 'typescript'
 import * as IsUsefulEntry from '../IsUsefulEntry/IsUsefulEntry.ts'
 
-export const getCompletionFromTsResult2 = (tsResult: ts.CompletionInfo) => {
+export const getCompletionFromTsResult2 = (tsResult: ts.CompletionInfo | undefined) => {
   if (!tsResult) {
     return []
   }

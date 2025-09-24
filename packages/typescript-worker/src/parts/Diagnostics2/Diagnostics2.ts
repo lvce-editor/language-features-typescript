@@ -6,6 +6,6 @@ export const getDiagnostics2 = async (textDocument: any): Promise<readonly Diagn
   const { fs, languageService } = getOrCreateLanguageService(textDocument.uri)
   fs.writeFile(textDocument.uri, textDocument.text)
   const tsResult = languageService.getSemanticDiagnostics(textDocument.uri)
-  const diagnostics = getDiagnosticsFromTsResult2(textDocument.text, tsResult)
+  const diagnostics = getDiagnosticsFromTsResult2(textDocument.text, tsResult || [])
   return diagnostics
 }

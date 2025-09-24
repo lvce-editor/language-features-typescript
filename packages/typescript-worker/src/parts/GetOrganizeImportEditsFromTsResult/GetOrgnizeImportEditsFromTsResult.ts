@@ -1,6 +1,6 @@
 export const getEditsFromTsResult = async (Position: any, textDocument: any, tsResult) => {
   // TODO handle case when edits are for a different file
-  const edits = []
+  const edits: any[] = []
   for (const item of tsResult) {
     for (const textChange of item.textChanges) {
       const { start, end, newText } = textChange
