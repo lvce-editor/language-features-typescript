@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-problems-panel'
 
-export const test: Test = async ({ Editor, FileSystem, Workspace, Main, Panel, Problems, Locator, expect }) => {
+export const test: Test = async ({ FileSystem, Workspace, Main, Panel, Problems, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics').toString()
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
