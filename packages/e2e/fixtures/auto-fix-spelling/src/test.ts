@@ -1,1 +1,1 @@
-globalThis.AbortSignal.abort()
+let x = add
