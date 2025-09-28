@@ -13,7 +13,7 @@ const getExtension = (fileName: string): string => {
   if (dotIndex === -1) {
     return ''
   }
-  return fileName.slice(dotIndex + 1)
+  return fileName.slice(dotIndex)
 }
 
 export const createModuleResolver = (syncRpc: SyncRpc): ModuleResolver => {
@@ -38,6 +38,8 @@ export const createModuleResolver = (syncRpc: SyncRpc): ModuleResolver => {
           extension,
           resolvedFileName: resolveFileName,
           resolvedUsingTsExtension: true,
+          packageId: undefined,
+          isExternalLibraryImport: false,
         },
       }
     }
