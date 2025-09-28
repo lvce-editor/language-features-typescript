@@ -103,16 +103,10 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
-      // if (Map) {
-      //   const real = moduleLiterals.map((item) => {
-      //     return ts.resolveModuleName(item.text, containingFile, options, languageServiceHost)
-      //   })
-      //   console.log({ real })
-      //   return real
-      // }
-      return moduleLiterals.map((moduleLiteral) => {
+      const resolved = moduleLiterals.map((moduleLiteral) => {
         return resolveModuleName(moduleLiteral.text, containingFile, options)
       })
+      return resolved
     },
     getProjectReferences() {
       return []
