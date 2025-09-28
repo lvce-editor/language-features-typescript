@@ -46,7 +46,7 @@ const registerProvider = (provider: any): void => {
     vscode.registerRenameProvider(provider)
     return
   }
-  if ('provideComment' in provider && vscode.registerCommentProvider) {
+  if ('provideComments' in provider && vscode.registerCommentProvider) {
     vscode.registerCommentProvider(provider)
     return
   }
