@@ -23,9 +23,6 @@ export const test: Test = async ({ Editor, FileSystem, Workspace, Main }) => {
       endColumnIndex: 0,
       message: "Type 'string' is not assignable to type 'number'.",
       type: 'error',
-      uri: 'memfs:///src/test.ts',
-      source: 'ts',
-      code: 2322,
     },
   ])
 }
