@@ -4,7 +4,7 @@ export const name = 'typescript.auto-fix-import'
 
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/auto-fix-imports').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/auto-fix-imports')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
