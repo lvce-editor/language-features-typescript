@@ -68,7 +68,7 @@ test('createModuleResolver should handle relative imports starting with ./', () 
 
   expect(result.resolvedModule).toBeDefined()
   expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/path/to/relative-module')
 })
 
 test('createModuleResolver should handle relative imports starting with ../', () => {
@@ -87,8 +87,8 @@ test('createModuleResolver should handle relative imports starting with ../', ()
   })
 
   expect(result.resolvedModule).toBeDefined()
-  expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('')
+  expect(result.resolvedModule?.extension).toBe('./parent-module')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/path/to/../parent-module')
 })
 
 test('createModuleResolver should resolve node modules with package.json', () => {
