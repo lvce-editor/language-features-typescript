@@ -2,10 +2,9 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics'
 
-export const skip = 1
-
-export const test: Test = async ({ Editor, FileSystem, Workspace, Main }) => {
+export const test: Test = async ({ Editor, FileSystem, Workspace, Main, Settings }) => {
   // arrange
+  await Settings.enableDiagnostics()
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics').toString()
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
@@ -14,7 +13,6 @@ export const test: Test = async ({ Editor, FileSystem, Workspace, Main }) => {
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
 
   // assert
-  // @ts-ignore
   await Editor.shouldHaveDiagnostics([
     {
       rowIndex: 1,
