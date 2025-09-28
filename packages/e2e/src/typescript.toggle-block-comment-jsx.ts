@@ -15,14 +15,14 @@ export const test: Test = async ({ FileSystem, Workspace, Main, Editor }) => {
   // act
   await Editor.toggleBlockComment()
 
+  // TODO could be improved a bit
   // assert
   await Editor.shouldHaveText(`export function Component() {
   return (
     <div>
-      {/* <div>test</div> */}
-    </div>
+      {/*<div>test</div>
+    </div>              */}
   )
 }
-
 `)
 }
