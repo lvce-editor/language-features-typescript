@@ -49,7 +49,7 @@ const registerProvider = (provider: any): void => {
 }
 
 export const registerProviders = (providers: any[]): void => {
-  for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript]) {
+  for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript, LanguageId.TypeScriptReact]) {
     for (const provider of providers) {
       const actualProvider = {
         ...provider,
