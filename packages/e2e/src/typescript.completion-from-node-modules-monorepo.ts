@@ -4,7 +4,7 @@ export const name = 'typescript.completion-from-node-modules-monorepo'
 
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/completion-from-node-modules-monorepo').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/completion-from-node-modules-monorepo')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/packages/app/src/test.ts`)

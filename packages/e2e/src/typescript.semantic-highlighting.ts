@@ -6,7 +6,7 @@ export const skip = true
 
 export const test: Test = async ({ FileSystem, Workspace, Main, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/semantic-highlighting').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/semantic-highlighting')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
 
