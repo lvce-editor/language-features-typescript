@@ -2,9 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.grow-selection'
 
-export const skip = 1
-
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Command }) => {
+export const test: Test = async ({ FileSystem, Workspace, Main, Editor }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/grow-selection')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
@@ -13,10 +11,10 @@ export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Command 
   await Editor.setCursor(0, 3)
 
   // act
-  await Command.execute('Editor.selectionGrow')
+  await Editor.growSelection()
 
   // assert
 
   // @ts-ignore
-  await Editor.shouldHaveSelections(new Uint32Array([0, 0, 0, 9]))
+  await Editor.shouldHaveSelections(new Uint32Array([0, 0, 1, 0]))
 }
