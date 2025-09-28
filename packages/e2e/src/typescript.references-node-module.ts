@@ -2,8 +2,6 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.references-node-module'
 
-export const skip = 1
-
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/references-node-module').toString()
@@ -24,5 +22,5 @@ export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator,
   const referenceItemOne = referenceItems.nth(0)
   await expect(referenceItemOne).toHaveText('test.ts')
   const referenceItemTwo = referenceItems.nth(1)
-  await expect(referenceItemTwo).toHaveText(`import { add } from './add.ts'`)
+  await expect(referenceItemTwo).toHaveText(`import { add } from 'lodash'`)
 }
