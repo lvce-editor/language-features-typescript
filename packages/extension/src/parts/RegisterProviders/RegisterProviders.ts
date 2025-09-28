@@ -50,6 +50,10 @@ const registerProvider = (provider: any): void => {
     vscode.registerCommentProvider(provider)
     return
   }
+  if ('provideComment' in provider && vscode.registerCommentProvider) {
+    vscode.registerCommentProvider(provider)
+    return
+  }
 }
 
 export const registerProviders = (providers: any[]): void => {
