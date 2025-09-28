@@ -1,3 +1,4 @@
+import * as Comment from '../Comment/Comment.ts'
 import * as Completion from '../Completion/Completion.ts'
 import * as Definition from '../Definition/Definition.ts'
 import * as Diagnostics from '../Diagnostics/Diagnostics.ts'
@@ -11,6 +12,7 @@ import * as Selection from '../Selection/Selection.ts'
 import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
 export const commandMap = {
+  'Comment.provide': WrapCommand.wrapCommand(Comment.provide),
   'Completion.getCompletions': WrapCommand.wrapCommand(Completion.getCompletion),
   'Completion.resolveCompletion': WrapCommand.wrapCommand(ResolveCompletion.resolveCompletion),
   'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
