@@ -9,22 +9,20 @@ export const test: Test = async ({ FileSystem, Workspace, Main, Editor }) => {
   const fixtureUrl = import.meta.resolve('../fixtures/toggle-block-comment-jsx')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
-  await Main.openUri(`${workspaceUrl}/src/test.ts`)
-
-  // Select the function body to test block comment toggling
-  await Editor.setSelections([1, 0, 3, 0])
+  await Main.openUri(`${workspaceUrl}/src/test.tsx`)
+  await Editor.setSelections([3, 15, 3, 15])
 
   // act
   await Editor.toggleBlockComment()
 
   // assert
-  // const editorContent = await Editor.getText()
-  // expect(editorContent).toContain('/*')
-  // expect(editorContent).toContain('*/')
+  await Editor.shouldHaveText(`export function Component() {
+  return (
+    <div>
+      {/* <div>test</div> */}
+    </div>
+  )
+}
 
-  // // Test toggling back (uncomment)
-  // await Editor.toggleBlockComment()
-  // const editorContentAfterToggle = await Editor.getText()
-  // expect(editorContentAfterToggle).not.toContain('/*')
-  // expect(editorContentAfterToggle).not.toContain('*/')
+`)
 }
