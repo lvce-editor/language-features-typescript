@@ -8,6 +8,14 @@ const getDirName = (path: string): string => {
   return path.slice(0, path.lastIndexOf('/'))
 }
 
+const getExtension = (fileName: string): string => {
+  const dotIndex = fileName.lastIndexOf('.')
+  if (dotIndex === -1) {
+    return ''
+  }
+  return fileName.slice(dotIndex + 1)
+}
+
 export const createModuleResolver = (syncRpc: SyncRpc): ModuleResolver => {
   const resolveModuleName = (
     text: string,
@@ -22,12 +30,14 @@ export const createModuleResolver = (syncRpc: SyncRpc): ModuleResolver => {
     if (text.startsWith('./') || text.startsWith('../')) {
       const dirname = getDirName(containingFile)
       // @ts-ignore
-      const resolved = joinPath(dirname, text)
+      const resolveFileName = joinPath(dirname, text)
+      const extension = getExtension(resolveFileName)
       // TODO resolve relative path
       return {
         resolvedModule: {
-          extension: '',
-          resolvedFileName: '',
+          extension,
+          resolvedFileName: resolveFileName,
+          resolvedUsingTsExtension: true,
         },
       }
     }
