@@ -25,6 +25,7 @@ export const getRenameResultFromTsResult2 = async (
     })
   }
   return {
+    canRename: true,
     edits: workspaceEdits,
   }
 }
