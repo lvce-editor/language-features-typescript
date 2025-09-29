@@ -2,7 +2,9 @@
   "compilerOptions": {
     "lib": ["esnext"],
     "types": [],
-    "module": "esnext",
-    "moduleResolution": "nodenext"
-  }
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir": "."
+  },
+  "include": ["src"]
 }
