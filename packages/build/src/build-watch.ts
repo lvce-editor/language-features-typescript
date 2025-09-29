@@ -3,11 +3,12 @@ import { root } from './root.ts'
 import { join } from 'node:path'
 
 const main = async (): Promise<void> => {
-  const binaryName: string = process.platform === 'win32' ? 'esbuild.exe' : 'esbuild'
+  const binaryName: string = 'esbuild'
   const esbuildPath: string = join(root, 'packages', 'build', 'node_modules', 'esbuild', 'bin', binaryName)
   execa(
-    esbuildPath,
+    'node',
     [
+      esbuildPath,
       '--format=esm',
       '--bundle',
       '--watch',
@@ -20,8 +21,9 @@ const main = async (): Promise<void> => {
     },
   )
   execa(
-    esbuildPath,
+    'node',
     [
+      esbuildPath,
       '--format=esm',
       '--bundle',
       '--watch',

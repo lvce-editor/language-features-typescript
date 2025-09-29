@@ -46,10 +46,18 @@ const registerProvider = (provider: any): void => {
     vscode.registerRenameProvider(provider)
     return
   }
+  if ('provideComments' in provider && vscode.registerCommentProvider) {
+    vscode.registerCommentProvider(provider)
+    return
+  }
+  if ('provideComment' in provider && vscode.registerCommentProvider) {
+    vscode.registerCommentProvider(provider)
+    return
+  }
 }
 
 export const registerProviders = (providers: any[]): void => {
-  for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript]) {
+  for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript, LanguageId.TypeScriptReact]) {
     for (const provider of providers) {
       const actualProvider = {
         ...provider,

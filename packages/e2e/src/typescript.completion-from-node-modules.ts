@@ -4,7 +4,7 @@ export const name = 'typescript.completion-from-node-modules'
 
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/completion-from-node-modules').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/completion-from-node-modules')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)

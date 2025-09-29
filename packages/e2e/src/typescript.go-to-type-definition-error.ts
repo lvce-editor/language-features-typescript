@@ -4,7 +4,7 @@ export const name = 'typescript.go-to-type-definition-error'
 
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/go-to-type-definition-error').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/go-to-type-definition-error')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)

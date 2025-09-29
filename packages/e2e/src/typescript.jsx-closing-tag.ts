@@ -6,7 +6,7 @@ export const skip = true
 
 export const test: Test = async ({ FileSystem, Workspace, Editor }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/jsx-closing-tag').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/jsx-closing-tag')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Editor.setCursor(1, 13)

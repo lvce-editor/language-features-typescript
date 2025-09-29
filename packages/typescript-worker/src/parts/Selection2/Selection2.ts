@@ -3,7 +3,7 @@ import * as GetOrCreateLanguageService from '../GetOrCreateLanguageService/GetOr
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 
 const getLocations = (positions: any) => {
-  const locations = []
+  const locations: any[] = []
   let last = {
     line: 0,
     offset: 0,

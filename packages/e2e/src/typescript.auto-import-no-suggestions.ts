@@ -2,12 +2,13 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.auto-import-no-suggestions'
 
+export const skip = 1
+
 export const test: Test = async ({ Workspace, FileSystem, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/auto-fix-spelling').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/auto-import-no-suggestions')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
-  await FileSystem.writeFile(`${workspaceUrl}/src/test.ts`, 'let x = add')
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 11)
 

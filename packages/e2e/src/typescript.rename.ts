@@ -4,7 +4,7 @@ export const name = 'typescript.rename'
 
 export const test: Test = async ({ EditorRename, FileSystem, Workspace, Main, Editor }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/rename').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/rename')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)

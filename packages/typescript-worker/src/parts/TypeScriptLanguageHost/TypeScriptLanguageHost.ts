@@ -83,6 +83,9 @@ export const create = (
     getScriptSnapshot(fileName) {
       if (isLibFile(fileName)) {
         const content = readLibFile(fileName)
+        if (!content) {
+          return undefined
+        }
         return ts.ScriptSnapshot.fromString(content)
       }
       const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
@@ -100,16 +103,10 @@ export const create = (
       containingSourceFile,
       reusedNames,
     ) {
-      // if (Map) {
-      //   const real = moduleLiterals.map((item) => {
-      //     return ts.resolveModuleName(item.text, containingFile, options, languageServiceHost)
-      //   })
-      //   console.log({ real })
-      //   return real
-      // }
-      return moduleLiterals.map((moduleLiteral) => {
+      const resolved = moduleLiterals.map((moduleLiteral) => {
         return resolveModuleName(moduleLiteral.text, containingFile, options)
       })
+      return resolved
     },
     getProjectReferences() {
       return []

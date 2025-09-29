@@ -2,11 +2,9 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.no-reference-found'
 
-export const skip = 1
-
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/no-reference-found').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/no-reference-found')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
