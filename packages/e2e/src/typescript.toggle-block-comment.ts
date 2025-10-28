@@ -2,27 +2,22 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.toggle-block-comment'
 
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor }) => {
+export const test: Test = async ({ Settings, FileSystem, Workspace, Main, Editor }) => {
   // arrange
+  await Settings.disableDiagnostics()
   const fixtureUrl = import.meta.resolve('../fixtures/toggle-block-comment')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
-
-  // Select the function body to test block comment toggling
   await Editor.setSelections([1, 0, 3, 0])
 
   // act
   await Editor.toggleBlockComment()
 
   // assert
-  // const editorContent = await Editor.getText()
-  // expect(editorContent).toContain('/*')
-  // expect(editorContent).toContain('*/')
-
-  // // Test toggling back (uncomment)
-  // await Editor.toggleBlockComment()
-  // const editorContentAfterToggle = await Editor.getText()
-  // expect(editorContentAfterToggle).not.toContain('/*')
-  // expect(editorContentAfterToggle).not.toContain('*/')
+  await Editor.shouldHaveText(`function example(){
+/* const message = 'Hello World'
+ *  return message
+ */
+}`)
 }
