@@ -29,7 +29,7 @@ const writeResultStatus = async (
     Atomics.store(buffer, 0, statusCode)
     Atomics.notify(buffer, 0)
   } else {
-    await accessHandle.write(new Uint8Array([1, statusCode]))
+    accessHandle.write(new Uint8Array([1, statusCode]), { at: 0 })
   }
 }
 
