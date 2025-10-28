@@ -5,7 +5,7 @@ export const name = 'typescript.diagnostics-problems-panel'
 export const test: Test = async ({ Settings, FileSystem, Workspace, Main, Panel, Problems, Locator, expect }) => {
   // arrange
   await Settings.enableDiagnostics()
-  const fixtureUrl = import.meta.resolve('../fixtures/diagnostics').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/diagnostics')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
 

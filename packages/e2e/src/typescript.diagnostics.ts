@@ -6,7 +6,7 @@ export const skip = 1
 
 export const test: Test = async ({ Editor, FileSystem, Workspace, Main }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/diagnostics').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/diagnostics')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
 

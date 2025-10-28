@@ -6,7 +6,7 @@ export const skip = 1
 
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
-  const fixtureUrl = import.meta.resolve('../fixtures/hover').toString()
+  const fixtureUrl = import.meta.resolve('../fixtures/hover')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
