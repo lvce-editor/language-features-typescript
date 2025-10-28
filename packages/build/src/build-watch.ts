@@ -6,9 +6,8 @@ const main = async (): Promise<void> => {
   const binaryName: string = 'esbuild'
   const esbuildPath: string = join(root, 'packages', 'build', 'node_modules', 'esbuild', 'bin', binaryName)
   execa(
-    'node',
+    esbuildPath,
     [
-      esbuildPath,
       '--format=esm',
       '--bundle',
       '--watch',
@@ -21,9 +20,8 @@ const main = async (): Promise<void> => {
     },
   )
   execa(
-    'node',
+    esbuildPath,
     [
-      esbuildPath,
       '--format=esm',
       '--bundle',
       '--watch',
