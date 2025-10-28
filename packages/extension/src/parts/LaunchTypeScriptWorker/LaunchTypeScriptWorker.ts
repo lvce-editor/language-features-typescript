@@ -8,6 +8,7 @@ export const launchTypeScriptWorker = async (): Promise<any> => {
     contentSecurityPolicy: "default-src 'none'; script-src 'self'",
   })
   const typeScriptPath = ''
-  await worker.invoke('Initialize.initialize', typeScriptPath)
+  const crossOriginIsolated = globalThis.crossOriginIsolated
+  await worker.invoke('Initialize.initialize', typeScriptPath, crossOriginIsolated)
   return worker
 }
