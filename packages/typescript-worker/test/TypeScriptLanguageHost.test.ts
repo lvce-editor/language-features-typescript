@@ -160,7 +160,7 @@ test('readFile should return empty string', () => {
   }
 
   const mockSyncRpc = {
-    invokeSync: () => true,
+    invokeSync: () => '',
   }
 
   const mockOptions = { options: {}, fileNames: [], errors: [] }

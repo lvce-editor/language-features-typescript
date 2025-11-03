@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.definition-node-core-module'
 
-export const skip = 1
+// export const skip = 1
 
 export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
   // arrange
