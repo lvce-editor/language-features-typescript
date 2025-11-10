@@ -3,6 +3,7 @@
   "name": "Language Features TypeScript",
   "description": "TypeScript Language Support",
   "browser": "dist/languageFeaturesTypeScriptMain.js",
+  "repository": "https://github.com/lvce-editor/language-features-typescript",
   "icon": "icon.png",
   "activation": [
     "onBraceCompletion:javascript",
