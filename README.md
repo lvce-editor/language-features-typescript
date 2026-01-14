@@ -9,10 +9,6 @@ npm ci &&
 npm test
 ```
 
-## Gitpod
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/lvce-editor/language-features-typescript)
-
 ## Credits
 
 This extension is based on https://github.com/microsoft/vscode/tree/main/extensions/typescript-language-features by Microsoft (License MIT)
