@@ -24,7 +24,7 @@
     "printWidth": 120
   },
   "dependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.0"
   },
   "devDependencies": {
     "@lerna/legacy-package-management": "^8.2.4",
