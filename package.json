@@ -24,7 +24,7 @@
     "printWidth": 120
   },
   "dependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.0"
   },
   "devDependencies": {
     "@lerna/legacy-package-management": "^8.2.4",
@@ -33,6 +33,6 @@
     "jest": "^30.1.3",
     "lerna": "^8.2.4",
     "prettier": "^3.8.0",
-    "ts-jest": "^29.4.6"
+    "ts-jest": "^29.4.11"
   }
 }
