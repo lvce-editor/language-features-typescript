@@ -3,6 +3,7 @@
   "name": "Language Features TypeScript",
   "description": "TypeScript Language Support",
   "browser": "dist/languageFeaturesTypeScriptMain.js",
+  "isolated": true,
   "repository": "https://github.com/lvce-editor/language-features-typescript",
   "icon": "icon.png",
   "activation": [
@@ -31,6 +32,21 @@
     "onHover:typescript",
     "onTabCompletion:javascript",
     "onTabCompletion:typescript"
+  ],
+  "completionProviders": [
+    { "id": "typescript.provideCompletions.javascript", "languageId": "javascript" },
+    { "id": "typescript.provideCompletions.typescript", "languageId": "typescript" },
+    { "id": "typescript.provideCompletions.typescriptreact", "languageId": "typescriptreact" }
+  ],
+  "diagnosticProviders": [
+    { "id": "typescript.provideDiagnostics.javascript", "languageId": "javascript" },
+    { "id": "typescript.provideDiagnostics.typescript", "languageId": "typescript" },
+    { "id": "typescript.provideDiagnostics.typescriptreact", "languageId": "typescriptreact" }
+  ],
+  "hoverProviders": [
+    { "id": "typescript.provideHover.javascript", "languageId": "javascript" },
+    { "id": "typescript.provideHover.typescript", "languageId": "typescript" },
+    { "id": "typescript.provideHover.typescriptreact", "languageId": "typescriptreact" }
   ],
   "languages": [
     {

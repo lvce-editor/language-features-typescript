@@ -8,9 +8,12 @@ export const provideReferences = async (textDocument: any, offset: number): Prom
   return worker.invoke('References.provideReferences', textDocument, offset)
 }
 
-export const provideReferences2 = async ({ uri, position }: { uri: any; position: any }): Promise<any> => {
+export const provideReferences2 = async (
+  _textDocument: any,
+  { position, uri }: { position: any; uri: any },
+): Promise<any> => {
   const worker = await TypeScriptWorker.getInstance()
-  return worker.invoke('References.provideReferences2', { uri, position })
+  return worker.invoke('References.provideReferences2', { position, uri })
 }
 
 export const provideFileReferences = async (textDocument: any): Promise<any> => {

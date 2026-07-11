@@ -1,3 +1,4 @@
+import { exists as existsApi, readDirWithFileTypes, readFile } from '@lvce-editor/api'
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
 
@@ -36,16 +37,14 @@ export const syncSetup = async (
 
 export const readFileSync = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = () => {
-    // @ts-ignore
-    return vscode.readFile(uri)
+    return readFile(uri)
   }
   await writeResult(id, resultGenerator)
 }
 
 export const readDirSync = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = async () => {
-    // @ts-ignore
-    const result = await vscode.readDirWithFileTypes(uri)
+    const result = await readDirWithFileTypes(uri)
     const baseNames = result.map((item) => item.name)
     return baseNames
   }
@@ -55,8 +54,7 @@ export const readDirSync = async (id: number, uri: string): Promise<void> => {
 export const exists = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = async () => {
     try {
-      // @ts-ignore
-      const result = await vscode.exists(uri)
+      const result = await existsApi(uri)
       return result
     } catch {
       return true
