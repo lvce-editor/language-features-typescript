@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { performance } from 'node:perf_hooks'
 import * as LanguageId from '../LanguageId/LanguageId.ts'
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
 
@@ -20,7 +19,7 @@ export const getSemanticTokensFromTsResult = (tsResult: any): readonly number[] 
  * @type{vscode.SemanticTokenProvider['provideSemanticTokens']}
  */
 export const provideSemanticTokens = async (textDocument: any): Promise<readonly number[]> => {
-  const text = vscode.getTextFromTextDocument(textDocument)
+  const text = textDocument.text
   console.warn('start-semantic-tokens', performance.now())
   const tsResult = await TsServerRequests.encodedSemanticClassificationsFull({
     file: textDocument.uri,

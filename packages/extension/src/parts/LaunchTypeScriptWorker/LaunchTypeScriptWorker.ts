@@ -3,12 +3,11 @@ import * as TypeScriptWorkerUrl from '../TypeScriptWorkerUrl/TypeScriptWorkerUrl
 
 export const launchTypeScriptWorker = async (): Promise<any> => {
   const worker = await LaunchWorker.launchWorker({
-    url: TypeScriptWorkerUrl.typeScriptWorkerUrl,
     name: 'TypeScript Worker',
-    contentSecurityPolicy: "default-src 'none'; script-src 'self'",
+    url: TypeScriptWorkerUrl.typeScriptWorkerUrl,
   })
   const typeScriptPath = ''
-  const crossOriginIsolated = globalThis.crossOriginIsolated
+  const { crossOriginIsolated } = globalThis
   await worker.invoke('Initialize.initialize', typeScriptPath, crossOriginIsolated)
   return worker
 }

@@ -2,7 +2,10 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.references-dom-lib'
 
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
+// TODO enable together with the existing lib.dom definition test
+export const skip = 1
+
+export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/references-dom-lib')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)

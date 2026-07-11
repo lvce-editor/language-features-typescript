@@ -11,7 +11,7 @@ const RE_WORD = /[a-zA-Z\d-]+$/
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
 export const provideTabCompletion = async (textDocument: any, offset: number): Promise<any> => {
-  const text = vscode.getTextFromTextDocument(textDocument)
+  const text = textDocument.text
   const wordMatch = text.slice(0, offset).match(RE_WORD)
   if (!wordMatch) {
     return undefined

@@ -1,5 +1,7 @@
+import { readDirWithFileTypes, readFile as readFileApi } from '@lvce-editor/api'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as SyncApi from '../SyncApi/SyncApi.ts'
+import * as TextDocument from '../TextDocument/TextDocument.ts'
 
 const rpcInvoke = (method: string, ...params: any[]): any => {
   return Rpc.invoke(method, ...params)
@@ -8,23 +10,19 @@ const rpcInvoke = (method: string, ...params: any[]): any => {
 const rpcListen = (path: any): void => {}
 
 const getOffset = (textDocument: any, position: any): any => {
-  // @ts-ignore
-  return vscode.getOffset(textDocument, position)
+  return TextDocument.getOffset(textDocument, position)
 }
 
 const getPosition = (textDocument: any, offset: any): any => {
-  // @ts-ignore
-  return vscode.getPosition(textDocument, offset)
+  return TextDocument.getPosition(textDocument, offset)
 }
 
 const readFile = (uri: any): any => {
-  // @ts-ignore
-  return vscode.readFile(uri)
+  return readFileApi(uri)
 }
 
 const readDir = (uri: any): any => {
-  // @ts-ignore
-  return vscode.readDirWithFileTypes(uri)
+  return readDirWithFileTypes(uri)
 }
 
 export const commandMap = {
