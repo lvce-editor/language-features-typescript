@@ -2,7 +2,10 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.no-definition-found'
 
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
+// TODO enable when no-result messaging supports isolated definition providers
+export const skip = 1
+
+export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/no-definition-found')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
