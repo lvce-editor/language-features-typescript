@@ -10,6 +10,8 @@ const main = async (): Promise<void> => {
     [
       '--format=esm',
       '--bundle',
+      '--external:electron',
+      '--external:node:*',
       '--watch',
       'packages/extension/src/languageFeaturesTypeScriptMain.ts',
       '--outfile=packages/extension/dist/languageFeaturesTypeScriptMain.js',
