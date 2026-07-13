@@ -1,7 +1,7 @@
 import { bundleJs, packageExtension, replace } from '@lvce-editor/package-extension'
-import * as esbuild from 'esbuild'
 import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path, { join } from 'path'
+import { bundleExtensionJs } from './bundleExtensionJs.ts'
 import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.ts'
 import { root } from './root.ts'
 
@@ -31,15 +31,10 @@ await replace({
   replacement: 'dist/languageFeaturesTypeScriptMain.js',
 })
 
-await esbuild.build({
-  bundle: true,
-  entryPoints: [join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.ts')],
-  external: ['electron', 'node:*'],
-  format: 'esm',
-  outfile: join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
-  platform: 'browser',
-  target: 'esnext',
-})
+await bundleExtensionJs(
+  join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.ts'),
+  join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
+)
 
 await bundleJs(
   join(root, 'packages', 'typescript-worker', 'src', 'typescriptWorkerMain.ts'),
