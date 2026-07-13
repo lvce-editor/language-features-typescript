@@ -8,6 +8,17 @@ import { root } from './root.ts'
 const extension: string = path.join(root, 'packages', 'extension')
 const dist: string = join(root, '.tmp', 'dist')
 
+const replaceTypeScriptWorkerAssetDir = async (filePath: string): Promise<void> => {
+  const content = await readFile(filePath, 'utf8')
+  const occurrences = [`new URL('../../', import.meta.url)`, `new URL("../../", import.meta.url)`]
+  const occurrence = occurrences.find((value) => content.includes(value))
+  if (!occurrence) {
+    throw new Error('Failed to find TypeScript worker asset directory in bundled extension')
+  }
+  const replacement = occurrence.replace('../../', '../')
+  await writeFile(filePath, content.replace(occurrence, replacement))
+}
+
 await rm(dist, { recursive: true, force: true })
 
 await mkdir(dist, { recursive: true })
@@ -59,11 +70,7 @@ await copyFile(
 )
 await copyFile(join(root, 'LICENSE'), join(dist, 'LICENSE'))
 
-await replace({
-  path: join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'),
-  occurrence: `"../../"`,
-  replacement: `"../"`,
-})
+await replaceTypeScriptWorkerAssetDir(join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'))
 
 await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
 
