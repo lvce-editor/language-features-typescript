@@ -2,27 +2,29 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics'
 
-export const skip = 1
-
-export const test: Test = async ({ Editor, FileSystem, Workspace, Main }) => {
+export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
+  await Settings.update({ 'editor.diagnostics': true })
 
   // act
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
 
   // assert
-  // @ts-ignore
-  await Editor.shouldHaveDiagnostics([
+  const expectedDiagnostics = [
     {
-      rowIndex: 1,
+      code: 2322,
       columnIndex: -1,
-      endRowIndex: 1,
       endColumnIndex: 0,
+      endRowIndex: 1,
       message: "Type 'string' is not assignable to type 'number'.",
+      rowIndex: 1,
+      source: 'ts',
       type: 'error',
+      uri: `${workspaceUrl}/src/test.ts`,
     },
-  ])
+  ] as const
+  await Editor.shouldHaveDiagnostics(expectedDiagnostics)
 }
