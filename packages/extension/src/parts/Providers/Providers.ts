@@ -1,3 +1,4 @@
+export * as BraceCompletionProvider from '../ExtensionHost/ExtensionHostBraceCompletionProviderTypeScript.ts'
 export * as CodeActionsProvider from '../ExtensionHost/ExtensionHostCodeActionsProviderTypeScript.ts'
 export * as CommentProvider from '../ExtensionHost/ExtensionHostCommentProviderTypeScript.ts'
 export * as CompletionProvider from '../ExtensionHost/ExtensionHostCompletionProviderTypeScript.ts'
