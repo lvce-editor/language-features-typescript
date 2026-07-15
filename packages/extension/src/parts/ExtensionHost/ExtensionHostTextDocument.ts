@@ -1,5 +1,4 @@
 // @ts-nocheck
-import { performance } from 'node:perf_hooks'
 import * as Position from '../Position/Position.ts'
 import * as TsServerRequests from '../TsServerRequests/TsServerRequests.ts'
 
@@ -73,7 +72,7 @@ const getScriptKind = (textDocument: any): string => {
 const getTsFileToOpen = (textDocument: any): any => {
   return {
     file: textDocument.uri,
-    fileContent: vscode.getTextFromTextDocument(textDocument),
+    fileContent: textDocument.text,
     scriptKindName: getScriptKind(textDocument),
   }
 }

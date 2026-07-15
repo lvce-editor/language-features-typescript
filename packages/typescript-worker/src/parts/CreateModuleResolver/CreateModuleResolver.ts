@@ -4,6 +4,8 @@ import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { isFullySpecified } from '../IsFullySpecified/IsFullySpecified.ts'
 import { joinPath } from '../JoinPath/JoinPath.ts'
 
+type ModuleResolutionCompilerOptions = Readonly<Pick<CompilerOptions, 'rootDir'>>
+
 const getDirName = (path: string): string => {
   return path.slice(0, path.lastIndexOf('/'))
 }
@@ -16,63 +18,110 @@ const getExtension = (fileName: string): string => {
   return fileName.slice(dotIndex)
 }
 
-export const createModuleResolver = (syncRpc: SyncRpc): ModuleResolver => {
+const isNode = (path: string): boolean => {
+  return path.startsWith('node:')
+}
+
+const resolveModuleNameRelative = (containingFile: string, text: string): ResolvedModuleWithFailedLookupLocations => {
+  const dirname = getDirName(containingFile)
+  // @ts-ignore
+  const resolveFileName = joinPath(dirname, text)
+  const extension = getExtension(resolveFileName)
+  // TODO resolve relative path
+  return {
+    resolvedModule: {
+      extension,
+      isExternalLibraryImport: false,
+      packageId: undefined,
+      resolvedFileName: resolveFileName,
+      resolvedUsingTsExtension: true,
+    },
+  }
+}
+
+const getNodeModulesLocation = (text: string): string => {
+  // TODO check that node types are in the compilerOptions, only then resolve them
+  if (isNode(text)) {
+    return '@types/node'
+  }
+  return text
+}
+
+const getNodeModulesSearchPaths = (containingFile: string, rootDir: string): readonly string[] => {
+  const searchPaths: string[] = []
+  let directory = getDirName(containingFile)
+  while (directory) {
+    searchPaths.push(directory)
+    if (directory === rootDir) {
+      return searchPaths
+    }
+    directory = getDirName(directory)
+  }
+  if (!searchPaths.includes(rootDir)) {
+    searchPaths.push(rootDir)
+  }
+  return searchPaths
+}
+
+const resolveModuleNodeModules = (
+  syncRpc: Readonly<SyncRpc>,
+  compilerOptions: ModuleResolutionCompilerOptions,
+  containingFile: string,
+  text: string,
+): ResolvedModuleWithFailedLookupLocations => {
+  const rootDir = compilerOptions.rootDir || ''
+  const nodeModulesLocation = getNodeModulesLocation(text)
+  const searchPaths = getNodeModulesSearchPaths(containingFile, rootDir)
+  for (const searchPath of searchPaths) {
+    const nodeModulesDir = joinPath(searchPath, 'node_modules', nodeModulesLocation)
+    const packageJsonPath = joinPath(nodeModulesDir, 'package.json')
+    try {
+      const content = syncRpc.invokeSync('SyncApi.readFileSync', packageJsonPath)
+      const parsed = JSON.parse(content)
+
+      // TODO handle case when package JSON is null
+      // TODO check types property
+      const tsMain = parsed.types || parsed.main
+      if (tsMain) {
+        const absoluteMain = joinPath(nodeModulesDir, tsMain)
+        return {
+          resolvedModule: {
+            extension: '.d.ts',
+            isExternalLibraryImport: true,
+            resolvedFileName: absoluteMain,
+          },
+        }
+      }
+    } catch {
+      // Keep looking in parent directories, matching Node.js module resolution.
+    }
+  }
+
+  // TODO
+  return {
+    resolvedModule: {
+      extension: '',
+      resolvedFileName: '',
+    },
+  }
+}
+
+export const createModuleResolver = (syncRpc: Readonly<SyncRpc>): ModuleResolver => {
   const resolveModuleName = (
     text: string,
     containingFile: string,
-    compilerOptions: CompilerOptions,
+    compilerOptions: ModuleResolutionCompilerOptions,
   ): ResolvedModuleWithFailedLookupLocations => {
+    // console.log({ compilerOptions })
     if (!isFullySpecified(text)) {
       return {
         resolvedModule: undefined,
       }
     }
     if (text.startsWith('./') || text.startsWith('../')) {
-      const dirname = getDirName(containingFile)
-      // @ts-ignore
-      const resolveFileName = joinPath(dirname, text)
-      const extension = getExtension(resolveFileName)
-      // TODO resolve relative path
-      return {
-        resolvedModule: {
-          extension,
-          resolvedFileName: resolveFileName,
-          resolvedUsingTsExtension: true,
-          packageId: undefined,
-          isExternalLibraryImport: false,
-        },
-      }
+      return resolveModuleNameRelative(containingFile, text)
     }
-    try {
-      const rootDir = compilerOptions.rootDir || ''
-      const packageJsonPath = joinPath(rootDir, 'node_modules', text, 'package.json')
-      const content = syncRpc.invokeSync('SyncApi.readFileSync', packageJsonPath)
-      const parsed = JSON.parse(content)
-
-      // TODO handle case when packagejson is null
-      // TODO check types property
-      const tsMain = parsed.types || parsed.main
-      if (tsMain) {
-        const absoluteMain = joinPath(rootDir, 'node_modules', text, tsMain)
-        return {
-          resolvedModule: {
-            extension: '.d.ts',
-            resolvedFileName: absoluteMain,
-            isExternalLibraryImport: true,
-          },
-        }
-      }
-    } catch (error) {
-      console.log({ error })
-    }
-
-    // TODO
-    return {
-      resolvedModule: {
-        extension: '',
-        resolvedFileName: '',
-      },
-    }
+    return resolveModuleNodeModules(syncRpc, compilerOptions, containingFile, text)
   }
   return resolveModuleName
 }

@@ -98,10 +98,10 @@ test('createModuleResolver should resolve node modules with package.json', () =>
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
-      if (method === 'SyncApi.readFileSync') {
+      if (method === 'SyncApi.readFileSync' && params[0] === '/project/node_modules/lodash/package.json') {
         return JSON.stringify({ main: 'index.js', types: 'index.d.ts' })
       }
-      throw new Error(`unexpected method ${method}`)
+      throw new Error('File not found')
     },
   }
 
@@ -118,6 +118,40 @@ test('createModuleResolver should resolve node modules with package.json', () =>
   expect(result.resolvedModule?.isExternalLibraryImport).toBe(true)
 })
 
+test('createModuleResolver should resolve node modules relative to a file in a monorepo package', () => {
+  globalThis.rpc = {
+    invoke: jest.fn(() => Promise.resolve()),
+  }
+
+  const readFileSync = jest.fn((method: string, packageJsonPath: string) => {
+    if (method !== 'SyncApi.readFileSync') {
+      throw new Error(`unexpected method ${method}`)
+    }
+    if (packageJsonPath === '/project/packages/build/node_modules/some-package/package.json') {
+      return JSON.stringify({ types: 'index.d.ts' })
+    }
+    throw new Error('File not found')
+  })
+  const resolver = createModuleResolver({ invokeSync: readFileSync })
+
+  const result = resolver('some-package', '/project/packages/build/src/build.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+    rootDir: '/project',
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/packages/build/node_modules/some-package/index.d.ts')
+  expect(readFileSync).toHaveBeenNthCalledWith(
+    1,
+    'SyncApi.readFileSync',
+    '/project/packages/build/src/node_modules/some-package/package.json',
+  )
+  expect(readFileSync).toHaveBeenNthCalledWith(
+    2,
+    'SyncApi.readFileSync',
+    '/project/packages/build/node_modules/some-package/package.json',
+  )
+})
+
 test('createModuleResolver should prefer types over main in package.json', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
@@ -125,10 +159,10 @@ test('createModuleResolver should prefer types over main in package.json', () =>
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
-      if (method === 'SyncApi.readFileSync') {
+      if (method === 'SyncApi.readFileSync' && params[0] === '/project/node_modules/some-package/package.json') {
         return JSON.stringify({ main: 'index.js', types: 'types/index.d.ts' })
       }
-      throw new Error(`unexpected method ${method}`)
+      throw new Error('File not found')
     },
   }
 
@@ -150,10 +184,10 @@ test('createModuleResolver should fallback to main when types is not available',
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
-      if (method === 'SyncApi.readFileSync') {
+      if (method === 'SyncApi.readFileSync' && params[0] === '/project/node_modules/some-package/package.json') {
         return JSON.stringify({ main: 'lib/index.js' })
       }
-      throw new Error(`unexpected method ${method}`)
+      throw new Error('File not found')
     },
   }
 
@@ -175,10 +209,10 @@ test('createModuleResolver should handle missing rootDir', () => {
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
-      if (method === 'SyncApi.readFileSync') {
+      if (method === 'SyncApi.readFileSync' && params[0] === '/node_modules/some-package/package.json') {
         return JSON.stringify({ main: 'index.js' })
       }
-      throw new Error(`unexpected method ${method}`)
+      throw new Error('File not found')
     },
   }
 

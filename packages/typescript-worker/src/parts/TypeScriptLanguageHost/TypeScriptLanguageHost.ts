@@ -7,6 +7,19 @@ import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 
 export interface ILanguageServiceHost extends LanguageServiceHost {}
 
+const doesSurelyNotExist = (path: string): boolean => {
+  if (!path) {
+    return true
+  }
+  if (path.includes('node_modules/@typescript/lib')) {
+    return true
+  }
+  if (path.includes('node_modules/@types/typescript__lib')) {
+    return true
+  }
+  return false
+}
+
 export const create = (
   ts: typeof import('typescript'),
   fileSystem: IFileSystem,
@@ -19,20 +32,22 @@ export const create = (
       return ts.ScriptKind.TS
     },
     directoryExists(directoryName) {
-      return true
-    },
-    fileExists(path) {
-      if (path.includes('node_modules/@typescript/lib')) {
+      if (doesSurelyNotExist(directoryName)) {
         return false
       }
-      if (path.includes('node_modules/@types/typescript__lib')) {
+      const result = syncRpc.invokeSync('SyncApi.exists', directoryName)
+      return result
+    },
+    fileExists(path) {
+      if (doesSurelyNotExist(path)) {
         return false
       }
       const result = syncRpc.invokeSync('SyncApi.exists', path)
       return result
     },
     readFile(path) {
-      return ''
+      const result = syncRpc.invokeSync('SyncApi.readFileSync', path)
+      return result
     },
     getNewLine() {
       return '\n'
