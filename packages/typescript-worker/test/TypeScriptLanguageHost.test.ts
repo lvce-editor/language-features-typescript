@@ -298,7 +298,7 @@ test('getProjectVersion should return string version', () => {
   expect(host.getProjectVersion?.()).toBe('0')
 })
 
-test('getScriptFileNames should return file system script names', () => {
+test('getScriptFileNames should return configured and file system script names', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
   }
@@ -315,11 +315,11 @@ test('getScriptFileNames should return file system script names', () => {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { options: {}, fileNames: ['configured.ts', 'file1.ts'], errors: [] }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptFileNames?.()).toEqual(['file1.ts', 'file2.ts'])
+  expect(host.getScriptFileNames?.()).toEqual(['configured.ts', 'file1.ts', 'file2.ts'])
 })
 
 test('getScriptVersion should return string version', () => {
@@ -429,7 +429,7 @@ test('getCustomTransformers should throw error', () => {
   }).toThrow('not implemented')
 })
 
-test('getCurrentDirectory should return empty string', () => {
+test('getCurrentDirectory should return configured root directory', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
   }
@@ -446,11 +446,11 @@ test('getCurrentDirectory should return empty string', () => {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { options: { rootDir: '/project' }, fileNames: [], errors: [] }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getCurrentDirectory?.()).toBe('')
+  expect(host.getCurrentDirectory?.()).toBe('/project')
 })
 
 test('getDefaultLibFileName should return TypeScript default lib', () => {

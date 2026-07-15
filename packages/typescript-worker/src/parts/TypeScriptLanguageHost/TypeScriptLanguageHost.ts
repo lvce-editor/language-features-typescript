@@ -74,7 +74,7 @@ export const create = (
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
-      return files
+      return [...new Set([...options.fileNames, ...files])]
     },
     getScriptVersion(fileName) {
       return `${0}`
@@ -89,7 +89,7 @@ export const create = (
       throw new Error('not implemented')
     },
     getCurrentDirectory() {
-      return ''
+      return options.options.rootDir || ''
     },
     getDefaultLibFileName(options) {
       const defaultLibFileName = ts.getDefaultLibFileName(options)

@@ -1,3 +1,4 @@
+import * as BraceCompletion from '../BraceCompletion/BraceCompletion.ts'
 import * as Comment from '../Comment/Comment.ts'
 import * as Completion from '../Completion/Completion.ts'
 import * as Definition from '../Definition/Definition.ts'
@@ -12,6 +13,7 @@ import * as Selection from '../Selection/Selection.ts'
 import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
 export const commandMap = {
+  'BraceCompletion.provide': WrapCommand.wrapCommand(BraceCompletion.provide),
   'Comment.provide': WrapCommand.wrapCommand(Comment.provide),
   'Completion.getCompletions': WrapCommand.wrapCommand(Completion.getCompletion),
   'Completion.resolveCompletion': WrapCommand.wrapCommand(ResolveCompletion.resolveCompletion),
