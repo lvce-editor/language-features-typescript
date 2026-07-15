@@ -2,12 +2,12 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-problems-panel'
 
-export const test: Test = async ({ Settings, FileSystem, Workspace, Main, Panel, Problems, Locator, expect }) => {
+export const test: Test = async ({ expect, FileSystem, Locator, Main, Panel, Problems, Settings, Workspace }) => {
   // arrange
-  await Settings.enableDiagnostics()
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
+  await Settings.update({ 'editor.diagnostics': true })
 
   // act
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
