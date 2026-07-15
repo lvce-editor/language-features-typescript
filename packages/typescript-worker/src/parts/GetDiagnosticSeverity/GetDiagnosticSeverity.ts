@@ -2,7 +2,7 @@ import * as IsStyleDiagnostic from '../IsStyleDiagnostic/IsStyleDiagnostic.ts'
 
 interface Diagnostic {
   readonly category: number | string
-  readonly code: number
+  readonly code?: number
 }
 
 export const getDiagnosticSeverity = (diagnostic: Diagnostic): 'error' | 'warning' => {
