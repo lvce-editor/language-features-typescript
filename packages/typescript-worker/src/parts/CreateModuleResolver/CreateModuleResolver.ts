@@ -22,12 +22,30 @@ const isNode = (path: string): boolean => {
   return path.startsWith('node:')
 }
 
+const windowsAbsolutePathRegex = /^[a-zA-Z]:\//
+
+const toFileUri = (path: string): string => {
+  const normalizedPath = path.replaceAll('\\', '/')
+  if (normalizedPath.startsWith('file://')) {
+    return normalizedPath
+  }
+  if (normalizedPath.startsWith('/')) {
+    return `file://${normalizedPath}`
+  }
+  if (windowsAbsolutePathRegex.test(normalizedPath)) {
+    return `file:///${normalizedPath}`
+  }
+  return normalizedPath
+}
+
+const resolveRelativePath = (containingFile: string, text: string): string => {
+  const containingFileUri = toFileUri(containingFile)
+  return new URL(text, containingFileUri).href
+}
+
 const resolveModuleNameRelative = (containingFile: string, text: string): ResolvedModuleWithFailedLookupLocations => {
-  const dirname = getDirName(containingFile)
-  // @ts-ignore
-  const resolveFileName = joinPath(dirname, text)
+  const resolveFileName = resolveRelativePath(containingFile, text)
   const extension = getExtension(resolveFileName)
-  // TODO resolve relative path
   return {
     resolvedModule: {
       extension,

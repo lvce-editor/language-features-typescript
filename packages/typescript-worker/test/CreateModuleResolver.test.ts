@@ -68,7 +68,7 @@ test('createModuleResolver should handle relative imports starting with ./', () 
 
   expect(result.resolvedModule).toBeDefined()
   expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('/path/to/relative-module')
+  expect(result.resolvedModule?.resolvedFileName).toBe('file:///path/to/relative-module')
 })
 
 test('createModuleResolver should handle relative imports starting with ../', () => {
@@ -87,8 +87,60 @@ test('createModuleResolver should handle relative imports starting with ../', ()
   })
 
   expect(result.resolvedModule).toBeDefined()
-  expect(result.resolvedModule?.extension).toBe('./parent-module')
-  expect(result.resolvedModule?.resolvedFileName).toBe('/path/to/../parent-module')
+  expect(result.resolvedModule?.extension).toBe('')
+  expect(result.resolvedModule?.resolvedFileName).toBe('file:///path/parent-module')
+})
+
+test('createModuleResolver should normalize relative imports from file uris', () => {
+  globalThis.rpc = {
+    invoke: jest.fn(() => Promise.resolve()),
+  }
+
+  const mockSyncRpc = {
+    invokeSync: () => '',
+  }
+
+  const resolver = createModuleResolver(mockSyncRpc)
+
+  const result = resolver(
+    '../src/parts/DomEventListenerFunctions/DomEventListenerFunctions.ts',
+    'file:///workspace/editor-worker/packages/editor-worker/test/DomEventListenerFunctions.test.ts',
+    {
+      target: TypeScript.ScriptTarget.ES2020,
+    },
+  )
+
+  expect(result.resolvedModule).toBeDefined()
+  expect(result.resolvedModule?.extension).toBe('.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe(
+    'file:///workspace/editor-worker/packages/editor-worker/src/parts/DomEventListenerFunctions/DomEventListenerFunctions.ts',
+  )
+})
+
+test('createModuleResolver should resolve relative imports from absolute file paths as file uris', () => {
+  globalThis.rpc = {
+    invoke: jest.fn(() => Promise.resolve()),
+  }
+
+  const mockSyncRpc = {
+    invokeSync: () => '',
+  }
+
+  const resolver = createModuleResolver(mockSyncRpc)
+
+  const result = resolver(
+    '../src/parts/DomEventListenerFunctions/DomEventListenerFunctions.ts',
+    '/workspace/editor-worker/packages/editor-worker/test/DomEventListenerFunctions.test.ts',
+    {
+      target: TypeScript.ScriptTarget.ES2020,
+    },
+  )
+
+  expect(result.resolvedModule).toBeDefined()
+  expect(result.resolvedModule?.extension).toBe('.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe(
+    'file:///workspace/editor-worker/packages/editor-worker/src/parts/DomEventListenerFunctions/DomEventListenerFunctions.ts',
+  )
 })
 
 test('createModuleResolver should resolve node modules with package.json', () => {
