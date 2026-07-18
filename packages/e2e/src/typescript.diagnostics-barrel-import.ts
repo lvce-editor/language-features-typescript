@@ -17,11 +17,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2540,
-      columnIndex: 8,
-      endColumnIndex: 13,
-      endRowIndex: 2,
+      columnIndex: 9,
+      endColumnIndex: 14,
+      endRowIndex: 3,
       message: "Cannot assign to 'theme' because it is a read-only property.",
-      rowIndex: 2,
+      rowIndex: 3,
       source: 'ts',
       type: 'error',
       uri,

@@ -16,11 +16,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2741,
-      columnIndex: 12,
-      endColumnIndex: 16,
-      endRowIndex: 5,
+      columnIndex: 13,
+      endColumnIndex: 17,
+      endRowIndex: 6,
       message: "Property 'age' is missing in type '{ name: string; }' but required in type 'User'.",
-      rowIndex: 5,
+      rowIndex: 6,
       source: 'ts',
       type: 'error',
       uri: `${workspaceUrl}/src/missing-property.ts`,

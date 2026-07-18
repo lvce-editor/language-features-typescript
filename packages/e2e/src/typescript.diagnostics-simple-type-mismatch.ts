@@ -17,11 +17,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2322,
-      columnIndex: 12,
-      endColumnIndex: 19,
-      endRowIndex: 1,
+      columnIndex: 13,
+      endColumnIndex: 20,
+      endRowIndex: 2,
       message: "Type 'number' is not assignable to type 'boolean'.",
-      rowIndex: 1,
+      rowIndex: 2,
       source: 'ts',
       type: 'error',
       uri,

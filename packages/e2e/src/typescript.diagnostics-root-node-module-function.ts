@@ -17,11 +17,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2345,
-      columnIndex: 28,
-      endColumnIndex: 33,
-      endRowIndex: 1,
+      columnIndex: 29,
+      endColumnIndex: 34,
+      endRowIndex: 2,
       message: "Argument of type 'string' is not assignable to parameter of type 'number'.",
-      rowIndex: 1,
+      rowIndex: 2,
       source: 'ts',
       type: 'error',
       uri,

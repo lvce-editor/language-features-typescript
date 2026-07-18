@@ -37,11 +37,11 @@ const convertTsDiagnostic = (text: string, diagnostic: TypeScriptDiagnosticWithL
   const end = getPositionAt(text, diagnostic.start + diagnostic.length)
   return {
     code: diagnostic.code,
-    columnIndex: start.columnIndex - 1, // TODO should be offset based here
-    endColumnIndex: end.columnIndex - 1,
-    endRowIndex: end.rowIndex - 1,
+    columnIndex: start.columnIndex,
+    endColumnIndex: end.columnIndex,
+    endRowIndex: end.rowIndex,
     message: diagnostic.messageText,
-    rowIndex: start.rowIndex - 1,
+    rowIndex: start.rowIndex,
     source: 'ts',
     type: GetDiagnosticSeverity.getDiagnosticSeverity(diagnostic),
     uri: diagnostic.file.fileName,

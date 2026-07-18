@@ -17,11 +17,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2345,
-      columnIndex: 35,
-      endColumnIndex: 44,
-      endRowIndex: 1,
+      columnIndex: 36,
+      endColumnIndex: 45,
+      endRowIndex: 2,
       message: `Argument of type '"pending"' is not assignable to parameter of type '"open" | "closed"'.`,
-      rowIndex: 1,
+      rowIndex: 2,
       source: 'ts',
       type: 'error',
       uri,

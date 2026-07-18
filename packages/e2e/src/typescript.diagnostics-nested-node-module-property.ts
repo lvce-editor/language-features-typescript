@@ -17,11 +17,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2339,
-      columnIndex: 35,
-      endColumnIndex: 41,
-      endRowIndex: 1,
+      columnIndex: 36,
+      endColumnIndex: 42,
+      endRowIndex: 2,
       message: "Property 'status' does not exist on type 'Response'.",
-      rowIndex: 1,
+      rowIndex: 2,
       source: 'ts',
       type: 'error',
       uri,

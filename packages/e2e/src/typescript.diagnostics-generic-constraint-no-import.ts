@@ -17,11 +17,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2344,
-      columnIndex: 29,
-      endColumnIndex: 35,
-      endRowIndex: 1,
+      columnIndex: 30,
+      endColumnIndex: 36,
+      endRowIndex: 2,
       message: "Type 'string' does not satisfy the constraint 'number'.",
-      rowIndex: 1,
+      rowIndex: 2,
       source: 'ts',
       type: 'error',
       uri,
