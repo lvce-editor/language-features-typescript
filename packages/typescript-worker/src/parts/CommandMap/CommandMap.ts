@@ -1,4 +1,5 @@
 import * as BraceCompletion from '../BraceCompletion/BraceCompletion.ts'
+import * as CodeActions from '../CodeActions/CodeActions.ts'
 import * as Comment from '../Comment/Comment.ts'
 import * as Completion from '../Completion/Completion.ts'
 import * as Definition from '../Definition/Definition.ts'
@@ -14,6 +15,7 @@ import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
 export const commandMap = {
   'BraceCompletion.provide': WrapCommand.wrapCommand(BraceCompletion.provide),
+  'CodeActions.getCodeActions': WrapCommand.wrapCommand(CodeActions.getCodeActions),
   'Comment.provide': WrapCommand.wrapCommand(Comment.provide),
   'Completion.getCompletions': WrapCommand.wrapCommand(Completion.getCompletion),
   'Completion.resolveCompletion': WrapCommand.wrapCommand(ResolveCompletion.resolveCompletion),

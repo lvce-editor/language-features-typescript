@@ -19,6 +19,12 @@ const createOrganizeImports = (): any => {
 
 /**
  */
-export const provideCodeActions = async (): Promise<any[]> => {
-  return [createOrganizeImports()]
+export const provideCodeActions = async (textDocument?: any, offset?: number): Promise<any[]> => {
+  const organizeImports = createOrganizeImports()
+  if (!textDocument || typeof offset !== 'number') {
+    return [organizeImports]
+  }
+  const worker = await TypeScriptWorker.getInstance()
+  const quickFixes = await worker.invoke('CodeActions.getCodeActions', textDocument, offset)
+  return [organizeImports, ...quickFixes]
 }
