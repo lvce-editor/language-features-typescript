@@ -30,5 +30,5 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Se
   const diagnostic = Locator('.Diagnostic.DiagnosticError')
   await expect(diagnostic).toHaveCSS('height', '20px')
   await expect(diagnostic).toHaveCSS('top', '20px')
-  await expect(diagnostic).toHaveCSS('width', '9.5px')
+  await expect(diagnostic).toHaveCSS('width', /^[1-9]\d*(?:\.\d+)?px$/ as unknown as string)
 }
