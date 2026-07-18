@@ -11,6 +11,9 @@ const getDirName = (path: string): string => {
 }
 
 const getExtension = (fileName: string): string => {
+  if (fileName.endsWith('.d.ts')) {
+    return '.d.ts'
+  }
   const dotIndex = fileName.lastIndexOf('.')
   if (dotIndex === -1) {
     return ''
@@ -43,8 +46,24 @@ const resolveRelativePath = (containingFile: string, text: string): string => {
   return new URL(text, containingFileUri).href
 }
 
+const getRelativeModuleName = (containingFile: string, text: string): string => {
+  const normalizedContainingFile = containingFile.replaceAll('\\', '/')
+  const isInNodeModules =
+    normalizedContainingFile.startsWith('node_modules/') || normalizedContainingFile.includes('/node_modules/')
+  if (
+    isInNodeModules &&
+    normalizedContainingFile.endsWith('.d.ts') &&
+    text.endsWith('.ts') &&
+    !text.endsWith('.d.ts')
+  ) {
+    return `${text.slice(0, -3)}.d.ts`
+  }
+  return text
+}
+
 const resolveModuleNameRelative = (containingFile: string, text: string): ResolvedModuleWithFailedLookupLocations => {
-  const resolveFileName = resolveRelativePath(containingFile, text)
+  const relativeModuleName = getRelativeModuleName(containingFile, text)
+  const resolveFileName = resolveRelativePath(containingFile, relativeModuleName)
   const extension = getExtension(resolveFileName)
   return {
     resolvedModule: {

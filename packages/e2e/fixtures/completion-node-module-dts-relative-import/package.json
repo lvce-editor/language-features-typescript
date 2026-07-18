@@ -1,0 +1,8 @@
+{
+  "name": "completion-node-module-dts-relative-import",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "abc": "^1.0.0"
+  }
+}

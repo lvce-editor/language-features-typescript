@@ -143,6 +143,48 @@ test('createModuleResolver should resolve relative imports from absolute file pa
   )
 })
 
+test('createModuleResolver should resolve .ts imports from declaration files in node_modules as .d.ts files', () => {
+  const resolver = createModuleResolver({
+    invokeSync: () => '',
+  })
+
+  const result = resolver('./parts/Activation/Activation.ts', '/project/node_modules/abc/index.d.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule).toBeDefined()
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe(
+    'file:///project/node_modules/abc/parts/Activation/Activation.d.ts',
+  )
+})
+
+test('createModuleResolver should preserve .d.ts imports from declaration files in node_modules', () => {
+  const resolver = createModuleResolver({
+    invokeSync: () => '',
+  })
+
+  const result = resolver('./parts/Activation/Activation.d.ts', '/project/node_modules/abc/index.d.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe(
+    'file:///project/node_modules/abc/parts/Activation/Activation.d.ts',
+  )
+})
+
+test('createModuleResolver should preserve .ts imports outside node_modules', () => {
+  const resolver = createModuleResolver({
+    invokeSync: () => '',
+  })
+
+  const result = resolver('./parts/Activation/Activation.ts', '/project/src/index.d.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe('file:///project/src/parts/Activation/Activation.ts')
+})
+
 test('createModuleResolver should resolve node modules with package.json', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
