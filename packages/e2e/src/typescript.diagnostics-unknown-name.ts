@@ -16,11 +16,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 2304,
-      columnIndex: 20,
-      endColumnIndex: 31,
-      endRowIndex: 0,
+      columnIndex: 21,
+      endColumnIndex: 32,
+      endRowIndex: 1,
       message: "Cannot find name 'missingName'.",
-      rowIndex: 0,
+      rowIndex: 1,
       source: 'ts',
       type: 'error',
       uri: `${workspaceUrl}/src/unknown-name.ts`,

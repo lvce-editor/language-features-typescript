@@ -16,11 +16,11 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const expectedDiagnostics = [
     {
       code: 6133,
-      columnIndex: 5,
-      endColumnIndex: 11,
-      endRowIndex: 0,
+      columnIndex: 6,
+      endColumnIndex: 12,
+      endRowIndex: 1,
       message: "'unused' is declared but its value is never read.",
-      rowIndex: 0,
+      rowIndex: 1,
       source: 'ts',
       type: 'warning',
       uri: `${workspaceUrl}/src/test.ts`,

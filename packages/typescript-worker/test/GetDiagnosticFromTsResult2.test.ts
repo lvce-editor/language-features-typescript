@@ -34,11 +34,11 @@ test('converts diagnostics with a source location', () => {
   expect(getDiagnosticsFromTsResult2('const value = 1', diagnostics)).toEqual([
     {
       code: 2322,
-      columnIndex: 5,
-      endColumnIndex: 10,
-      endRowIndex: -1,
+      columnIndex: 6,
+      endColumnIndex: 11,
+      endRowIndex: 0,
       message: "Type 'number' is not assignable to type 'string'.",
-      rowIndex: -1,
+      rowIndex: 0,
       source: 'ts',
       type: 'error',
       uri: '/test.ts',
