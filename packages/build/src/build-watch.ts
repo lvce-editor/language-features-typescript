@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 const main = async (): Promise<void> => {
   const binaryName: string = 'esbuild'
-  const esbuildPath: string = join(root, 'packages', 'build', 'node_modules', 'esbuild', 'bin', binaryName)
+  const esbuildPath: string = join(root, 'node_modules', 'esbuild', 'bin', binaryName)
   execa(
     esbuildPath,
     [
