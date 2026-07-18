@@ -1,11 +1,12 @@
 {
   "id": "builtin.language-features-typescript",
   "name": "Language Features TypeScript",
+  "workerName": "TypeScript Language Features Worker",
   "description": "TypeScript Language Support",
   "browser": "dist/languageFeaturesTypeScriptMain.js",
   "isolated": true,
   "repository": "https://github.com/lvce-editor/language-features-typescript",
-  "icon": "icon.png",
+  "icon": "media/icon.png",
   "activation": [
     "onBraceCompletion:javascript",
     "onBraceCompletion:typescript",
