@@ -26,5 +26,6 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
   await Command.execute('EditorSourceAction.selectItem', "Change spelling to 'abort'")
 
   // assert
-  await Editor.shouldHaveText(`globalThis.AbortSignal.abort()`)
+  await Editor.shouldHaveText(`globalThis.AbortSignal.abort()
+`)
 }
