@@ -29,8 +29,9 @@ delete packageJson.devDependencies
 
 await writeFile(join(dist, 'package.json'), JSON.stringify(packageJson, null, 2) + '\n')
 await copyFile(join(root, 'README.md'), join(dist, 'README.md'))
-await copyFile(join(extension, 'icon.png'), join(dist, 'icon.png'))
 await copyFile(join(extension, 'extension.json'), join(dist, 'extension.json'))
+await mkdir(join(dist, 'media'), { recursive: true })
+await copyFile(join(extension, 'media', 'icon.png'), join(dist, 'media', 'icon.png'))
 
 await cp(join(root, 'node_modules', 'typescript'), join(dist, 'typescript'), {
   recursive: true,
