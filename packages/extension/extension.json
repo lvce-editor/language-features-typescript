@@ -1,6 +1,7 @@
 {
   "id": "builtin.language-features-typescript",
   "name": "Language Features TypeScript",
+  "workerName": "TypeScript Language Features Worker",
   "description": "TypeScript Language Support",
   "browser": "dist/languageFeaturesTypeScriptMain.js",
   "isolated": true,
