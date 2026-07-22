@@ -1,12 +1,17 @@
 import * as GetDiagnosticSeverity from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 
+interface TypeScriptDiagnosticMessageChain {
+  readonly messageText: string
+  readonly next?: readonly TypeScriptDiagnosticMessageChain[]
+}
+
 interface TypeScriptDiagnostic {
   readonly category: number
   readonly code: number
   readonly file: { readonly fileName: string } | undefined
   readonly length: number | undefined
-  readonly messageText: string
+  readonly messageText: string | TypeScriptDiagnosticMessageChain
   readonly start: number | undefined
 }
 
@@ -28,6 +33,22 @@ interface ConvertedDiagnostic {
   readonly uri: string
 }
 
+const flattenDiagnosticMessageText = (
+  messageText: string | TypeScriptDiagnosticMessageChain,
+  indentation = 0,
+): string => {
+  if (typeof messageText === 'string') {
+    return messageText
+  }
+  const prefix = indentation === 0 ? '' : `\n${'  '.repeat(indentation)}`
+  let result = `${prefix}${messageText.messageText}`
+  const children = messageText.next || []
+  for (const child of children) {
+    result += flattenDiagnosticMessageText(child, indentation + 1)
+  }
+  return result
+}
+
 /**
  *
  */
@@ -40,7 +61,7 @@ const convertTsDiagnostic = (text: string, diagnostic: TypeScriptDiagnosticWithL
     columnIndex: start.columnIndex,
     endColumnIndex: end.columnIndex,
     endRowIndex: end.rowIndex,
-    message: diagnostic.messageText,
+    message: flattenDiagnosticMessageText(diagnostic.messageText),
     rowIndex: start.rowIndex,
     source: 'ts',
     type: GetDiagnosticSeverity.getDiagnosticSeverity(diagnostic),

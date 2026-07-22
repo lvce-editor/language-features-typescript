@@ -45,3 +45,45 @@ test('converts diagnostics with a source location', () => {
     },
   ])
 })
+
+test('flattens diagnostic message chains', () => {
+  const diagnostics = [
+    {
+      category: 1,
+      code: 7053,
+      file: {
+        fileName: '/test.ts',
+      } as ts.SourceFile,
+      length: 5,
+      messageText: {
+        category: 1,
+        code: 7053,
+        messageText:
+          "Element implicitly has an 'any' type because expression of type 'number' can't be used to index type 'State'.",
+        next: [
+          {
+            category: 1,
+            code: 7053,
+            messageText: "No index signature with a parameter of type 'number' was found on type 'State'.",
+          },
+        ],
+      },
+      start: 6,
+    },
+  ] as const
+
+  expect(getDiagnosticsFromTsResult2('const value = 1', diagnostics)).toEqual([
+    {
+      code: 7053,
+      columnIndex: 6,
+      endColumnIndex: 11,
+      endRowIndex: 0,
+      message:
+        "Element implicitly has an 'any' type because expression of type 'number' can't be used to index type 'State'.\n  No index signature with a parameter of type 'number' was found on type 'State'.",
+      rowIndex: 0,
+      source: 'ts',
+      type: 'error',
+      uri: '/test.ts',
+    },
+  ])
+})
