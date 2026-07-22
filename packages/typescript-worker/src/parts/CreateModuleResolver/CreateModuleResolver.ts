@@ -4,8 +4,6 @@ import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { isFullySpecified } from '../IsFullySpecified/IsFullySpecified.ts'
 import { joinPath } from '../JoinPath/JoinPath.ts'
 
-type ModuleResolutionCompilerOptions = Readonly<Pick<CompilerOptions, 'rootDir'>>
-
 const getDirName = (path: string): string => {
   return path.slice(0, path.lastIndexOf('/'))
 }
@@ -84,31 +82,26 @@ const getNodeModulesLocation = (text: string): string => {
   return text
 }
 
-const getNodeModulesSearchPaths = (containingFile: string, rootDir: string): readonly string[] => {
+const getNodeModulesSearchPaths = (containingFile: string): readonly string[] => {
   const searchPaths: string[] = []
   let directory = getDirName(containingFile)
-  while (directory) {
+  while (true) {
     searchPaths.push(directory)
-    if (directory === rootDir) {
-      return searchPaths
+    if (!directory) {
+      break
     }
     directory = getDirName(directory)
-  }
-  if (!searchPaths.includes(rootDir)) {
-    searchPaths.push(rootDir)
   }
   return searchPaths
 }
 
 const resolveModuleNodeModules = (
   syncRpc: Readonly<SyncRpc>,
-  compilerOptions: ModuleResolutionCompilerOptions,
   containingFile: string,
   text: string,
 ): ResolvedModuleWithFailedLookupLocations => {
-  const rootDir = compilerOptions.rootDir || ''
   const nodeModulesLocation = getNodeModulesLocation(text)
-  const searchPaths = getNodeModulesSearchPaths(containingFile, rootDir)
+  const searchPaths = getNodeModulesSearchPaths(containingFile)
   for (const searchPath of searchPaths) {
     const nodeModulesDir = joinPath(searchPath, 'node_modules', nodeModulesLocation)
     const packageJsonPath = joinPath(nodeModulesDir, 'package.json')
@@ -147,9 +140,8 @@ export const createModuleResolver = (syncRpc: Readonly<SyncRpc>): ModuleResolver
   const resolveModuleName = (
     text: string,
     containingFile: string,
-    compilerOptions: ModuleResolutionCompilerOptions,
+    _compilerOptions: CompilerOptions,
   ): ResolvedModuleWithFailedLookupLocations => {
-    // console.log({ compilerOptions })
     if (!isFullySpecified(text)) {
       return {
         resolvedModule: undefined,
@@ -158,7 +150,7 @@ export const createModuleResolver = (syncRpc: Readonly<SyncRpc>): ModuleResolver
     if (text.startsWith('./') || text.startsWith('../')) {
       return resolveModuleNameRelative(containingFile, text)
     }
-    return resolveModuleNodeModules(syncRpc, compilerOptions, containingFile, text)
+    return resolveModuleNodeModules(syncRpc, containingFile, text)
   }
   return resolveModuleName
 }
