@@ -206,6 +206,9 @@ test('createModuleResolver should resolve node modules with package.json', () =>
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return params[0] === '/project/node_modules/lodash/package.json'
+      }
       if (method === 'SyncApi.readFileSync' && params[0] === '/project/node_modules/lodash/package.json') {
         return JSON.stringify({ main: 'index.js', types: 'index.d.ts' })
       }
@@ -231,16 +234,16 @@ test('createModuleResolver should resolve node modules relative to a file in a m
     invoke: jest.fn(() => Promise.resolve()),
   }
 
-  const readFileSync = jest.fn((method: string, packageJsonPath: string) => {
-    if (method !== 'SyncApi.readFileSync') {
-      throw new Error(`unexpected method ${method}`)
+  const invokeSync = jest.fn((method: string, packageJsonPath: string) => {
+    if (method === 'SyncApi.exists') {
+      return packageJsonPath === '/project/packages/build/node_modules/some-package/package.json'
     }
-    if (packageJsonPath === '/project/packages/build/node_modules/some-package/package.json') {
+    if (method === 'SyncApi.readFileSync') {
       return JSON.stringify({ types: 'index.d.ts' })
     }
-    throw new Error('File not found')
+    throw new Error(`unexpected method ${method}`)
   })
-  const resolver = createModuleResolver({ invokeSync: readFileSync })
+  const resolver = createModuleResolver({ invokeSync })
 
   const result = resolver('some-package', '/project/packages/build/src/build.ts', {
     target: TypeScript.ScriptTarget.ES2020,
@@ -248,29 +251,34 @@ test('createModuleResolver should resolve node modules relative to a file in a m
   })
 
   expect(result.resolvedModule?.resolvedFileName).toBe('/project/packages/build/node_modules/some-package/index.d.ts')
-  expect(readFileSync).toHaveBeenNthCalledWith(
+  expect(invokeSync).toHaveBeenNthCalledWith(
     1,
-    'SyncApi.readFileSync',
+    'SyncApi.exists',
     '/project/packages/build/src/node_modules/some-package/package.json',
   )
-  expect(readFileSync).toHaveBeenNthCalledWith(
+  expect(invokeSync).toHaveBeenNthCalledWith(
     2,
+    'SyncApi.exists',
+    '/project/packages/build/node_modules/some-package/package.json',
+  )
+  expect(invokeSync).toHaveBeenNthCalledWith(
+    3,
     'SyncApi.readFileSync',
     '/project/packages/build/node_modules/some-package/package.json',
   )
 })
 
 test('createModuleResolver should resolve hoisted node modules above the configured root directory', () => {
-  const readFileSync = jest.fn((method: string, packageJsonPath: string) => {
-    if (method !== 'SyncApi.readFileSync') {
-      throw new Error(`unexpected method ${method}`)
+  const invokeSync = jest.fn((method: string, packageJsonPath: string) => {
+    if (method === 'SyncApi.exists') {
+      return packageJsonPath === '/project/node_modules/some-package/package.json'
     }
-    if (packageJsonPath === '/project/node_modules/some-package/package.json') {
+    if (method === 'SyncApi.readFileSync') {
       return JSON.stringify({ types: 'index.d.ts' })
     }
-    throw new Error('File not found')
+    throw new Error(`unexpected method ${method}`)
   })
-  const resolver = createModuleResolver({ invokeSync: readFileSync })
+  const resolver = createModuleResolver({ invokeSync })
 
   const result = resolver('some-package', '/project/packages/build/src/build.ts', {
     target: TypeScript.ScriptTarget.ES2020,
@@ -278,7 +286,7 @@ test('createModuleResolver should resolve hoisted node modules above the configu
   })
 
   expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/some-package/index.d.ts')
-  expect(readFileSync).toHaveBeenCalledWith('SyncApi.readFileSync', '/project/node_modules/some-package/package.json')
+  expect(invokeSync).toHaveBeenCalledWith('SyncApi.readFileSync', '/project/node_modules/some-package/package.json')
 })
 
 test('createModuleResolver should prefer types over main in package.json', () => {
@@ -288,6 +296,9 @@ test('createModuleResolver should prefer types over main in package.json', () =>
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return params[0] === '/project/node_modules/some-package/package.json'
+      }
       if (method === 'SyncApi.readFileSync' && params[0] === '/project/node_modules/some-package/package.json') {
         return JSON.stringify({ main: 'index.js', types: 'types/index.d.ts' })
       }
@@ -313,6 +324,9 @@ test('createModuleResolver should fallback to main when types is not available',
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return params[0] === '/project/node_modules/some-package/package.json'
+      }
       if (method === 'SyncApi.readFileSync' && params[0] === '/project/node_modules/some-package/package.json') {
         return JSON.stringify({ main: 'lib/index.js' })
       }
@@ -338,6 +352,9 @@ test('createModuleResolver should handle missing rootDir', () => {
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return params[0] === '/node_modules/some-package/package.json'
+      }
       if (method === 'SyncApi.readFileSync' && params[0] === '/node_modules/some-package/package.json') {
         return JSON.stringify({ main: 'index.js' })
       }
@@ -362,6 +379,9 @@ test('createModuleResolver should handle JSON parse errors', () => {
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return true
+      }
       if (method === 'SyncApi.readFileSync') {
         return 'invalid json'
       }
@@ -376,9 +396,7 @@ test('createModuleResolver should handle JSON parse errors', () => {
     rootDir: '/project',
   })
 
-  expect(result.resolvedModule).toBeDefined()
-  expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('')
+  expect(result.resolvedModule).toBeUndefined()
 })
 
 test('createModuleResolver should handle file read errors', () => {
@@ -388,6 +406,9 @@ test('createModuleResolver should handle file read errors', () => {
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return true
+      }
       if (method === 'SyncApi.readFileSync') {
         throw new Error('File not found')
       }
@@ -402,9 +423,7 @@ test('createModuleResolver should handle file read errors', () => {
     rootDir: '/project',
   })
 
-  expect(result.resolvedModule).toBeDefined()
-  expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('')
+  expect(result.resolvedModule).toBeUndefined()
 })
 
 test('createModuleResolver should handle empty package.json', () => {
@@ -414,6 +433,9 @@ test('createModuleResolver should handle empty package.json', () => {
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return true
+      }
       if (method === 'SyncApi.readFileSync') {
         return JSON.stringify({})
       }
@@ -428,9 +450,7 @@ test('createModuleResolver should handle empty package.json', () => {
     rootDir: '/project',
   })
 
-  expect(result.resolvedModule).toBeDefined()
-  expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('')
+  expect(result.resolvedModule).toBeUndefined()
 })
 
 test('createModuleResolver should handle null package.json', () => {
@@ -440,6 +460,9 @@ test('createModuleResolver should handle null package.json', () => {
 
   const mockSyncRpc = {
     invokeSync: (method: string, ...params: any[]) => {
+      if (method === 'SyncApi.exists') {
+        return true
+      }
       if (method === 'SyncApi.readFileSync') {
         return JSON.stringify({ main: null, types: null })
       }
@@ -454,7 +477,5 @@ test('createModuleResolver should handle null package.json', () => {
     rootDir: '/project',
   })
 
-  expect(result.resolvedModule).toBeDefined()
-  expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('')
+  expect(result.resolvedModule).toBeUndefined()
 })
