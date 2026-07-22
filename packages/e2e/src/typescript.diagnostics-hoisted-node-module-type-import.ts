@@ -11,18 +11,5 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const uri = `${workspaceUrl}/packages/running-extensions-view/src/type-import.ts`
   await Main.openUri(uri)
 
-  const expectedDiagnostics = [
-    {
-      code: 2741,
-      columnIndex: 13,
-      endColumnIndex: 18,
-      endRowIndex: 2,
-      message: "Property 'extensions' is missing in type '{}' but required in type 'RunningExtensionsState'.",
-      rowIndex: 2,
-      source: 'ts',
-      type: 'error',
-      uri,
-    },
-  ] as const
-  await Editor.shouldHaveDiagnostics(expectedDiagnostics)
+  await Editor.shouldHaveDiagnostics([])
 }

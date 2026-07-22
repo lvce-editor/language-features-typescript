@@ -1,3 +1,3 @@
-import { ExtensionManagementWorker } from '@lvce-editor/rpc-registry'
+import * as RpcRegistry from '@lvce-editor/rpc-registry'
 
-await ExtensionManagementWorker.invoke('Extensions.disableWorkspace', 42)
+export const registry = RpcRegistry
