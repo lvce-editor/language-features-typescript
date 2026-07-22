@@ -3,7 +3,8 @@
     "lib": ["esnext"],
     "types": [],
     "module": "nodenext",
-    "moduleResolution": "nodenext"
+    "moduleResolution": "nodenext",
+    "rootDir": "."
   },
   "include": ["src"]
 }

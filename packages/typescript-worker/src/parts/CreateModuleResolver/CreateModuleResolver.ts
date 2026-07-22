@@ -106,6 +106,10 @@ const resolveModuleNodeModules = (
     const nodeModulesDir = joinPath(searchPath, 'node_modules', nodeModulesLocation)
     const packageJsonPath = joinPath(nodeModulesDir, 'package.json')
     try {
+      const packageJsonExists = syncRpc.invokeSync('SyncApi.exists', packageJsonPath)
+      if (!packageJsonExists) {
+        continue
+      }
       const content = syncRpc.invokeSync('SyncApi.readFileSync', packageJsonPath)
       const parsed = JSON.parse(content)
 
@@ -127,12 +131,8 @@ const resolveModuleNodeModules = (
     }
   }
 
-  // TODO
   return {
-    resolvedModule: {
-      extension: '',
-      resolvedFileName: '',
-    },
+    resolvedModule: undefined,
   }
 }
 
