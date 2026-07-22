@@ -246,6 +246,27 @@ test('createModuleResolver should resolve node modules relative to a file in a m
   )
 })
 
+test('createModuleResolver should resolve hoisted node modules above the configured root directory', () => {
+  const readFileSync = jest.fn((method: string, packageJsonPath: string) => {
+    if (method !== 'SyncApi.readFileSync') {
+      throw new Error(`unexpected method ${method}`)
+    }
+    if (packageJsonPath === '/project/node_modules/some-package/package.json') {
+      return JSON.stringify({ types: 'index.d.ts' })
+    }
+    throw new Error('File not found')
+  })
+  const resolver = createModuleResolver({ invokeSync: readFileSync })
+
+  const result = resolver('some-package', '/project/packages/build/src/build.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+    rootDir: '/project/packages/build',
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/some-package/index.d.ts')
+  expect(readFileSync).toHaveBeenCalledWith('SyncApi.readFileSync', '/project/node_modules/some-package/package.json')
+})
+
 test('createModuleResolver should prefer types over main in package.json', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
