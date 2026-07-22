@@ -159,6 +159,20 @@ test('createModuleResolver should resolve .ts imports from declaration files in 
   )
 })
 
+test('createModuleResolver should resolve extensionless imports from declaration files in node_modules as .d.ts files', () => {
+  const resolver = createModuleResolver({
+    invokeSync: () => '',
+  })
+
+  const result = resolver('./dispatcher', '/project/node_modules/undici-types/index.d.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule).toBeDefined()
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('file:///project/node_modules/undici-types/dispatcher.d.ts')
+})
+
 test('createModuleResolver should preserve .d.ts imports from declaration files in node_modules', () => {
   const resolver = createModuleResolver({
     invokeSync: () => '',

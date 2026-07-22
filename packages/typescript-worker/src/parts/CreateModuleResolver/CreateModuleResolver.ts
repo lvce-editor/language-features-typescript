@@ -48,13 +48,13 @@ const getRelativeModuleName = (containingFile: string, text: string): string => 
   const normalizedContainingFile = containingFile.replaceAll('\\', '/')
   const isInNodeModules =
     normalizedContainingFile.startsWith('node_modules/') || normalizedContainingFile.includes('/node_modules/')
-  if (
-    isInNodeModules &&
-    normalizedContainingFile.endsWith('.d.ts') &&
-    text.endsWith('.ts') &&
-    !text.endsWith('.d.ts')
-  ) {
+  const isDeclarationFile = normalizedContainingFile.endsWith('.d.ts')
+  if (isInNodeModules && isDeclarationFile && text.endsWith('.ts') && !text.endsWith('.d.ts')) {
     return `${text.slice(0, -3)}.d.ts`
+  }
+  const baseName = text.slice(text.lastIndexOf('/') + 1)
+  if (isInNodeModules && isDeclarationFile && !baseName.includes('.')) {
+    return `${text}.d.ts`
   }
   return text
 }
