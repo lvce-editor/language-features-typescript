@@ -19,6 +19,15 @@ const replaceTypeScriptWorkerAssetDir = async (filePath: string): Promise<void> 
   await writeFile(filePath, content.replace(occurrence, replacement))
 }
 
+const replaceTypeScriptWorkerAssetPaths = async (filePath: string): Promise<void> => {
+  const content = await readFile(filePath, 'utf8')
+  const oldTypeScriptPath = '../../../node_modules/typescript/lib/'
+  if (!content.includes(oldTypeScriptPath)) {
+    throw new Error('Failed to find TypeScript asset paths in bundled worker')
+  }
+  await writeFile(filePath, content.replaceAll(oldTypeScriptPath, '../../typescript/lib/'))
+}
+
 await rm(dist, { recursive: true, force: true })
 
 await mkdir(dist, { recursive: true })
@@ -75,11 +84,7 @@ await replaceTypeScriptWorkerAssetDir(join(dist, 'dist', 'languageFeaturesTypeSc
 
 await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
 
-await replace({
-  path: join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-  occurrence: '../../../node_modules/typescript/lib/typescript-esm.js',
-  replacement: '../../typescript/lib/typescript-esm.js',
-})
+await replaceTypeScriptWorkerAssetPaths(join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'))
 
 await packageExtension({
   highestCompression: true,
