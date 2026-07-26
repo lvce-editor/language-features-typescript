@@ -14,6 +14,8 @@ test('resolveTsconfig should return empty tsconfig for empty path', () => {
 
   expect(result).toBeDefined()
   expect(result.options).toBeDefined()
+  expect(result.options.allowJs).toBe(true)
+  expect(result.options.checkJs).toBe(true)
   expect(result.errors).toEqual([])
   expect(result.fileNames).toEqual([])
 })
@@ -63,6 +65,8 @@ test('resolveTsconfig should parse valid tsconfig', () => {
   expect(result.options.target).toBe(TypeScript.ScriptTarget.ES2020)
   expect(result.options.module).toBe(TypeScript.ModuleKind.ESNext)
   expect(result.options.strict).toBe(true)
+  expect(result.options.allowJs).toBe(true)
+  expect(result.options.checkJs).toBe(true)
   expect(result.errors).toEqual([])
   expect(Array.isArray(result.fileNames)).toBe(true)
 })

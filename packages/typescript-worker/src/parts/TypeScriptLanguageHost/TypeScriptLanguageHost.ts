@@ -72,7 +72,7 @@ export const create = (
       return []
     },
     getProjectVersion() {
-      return '0'
+      return fileSystem.getVersion()
     },
     getScriptFileNames() {
       const files = fileSystem.getScriptFileNames() as string[]
@@ -97,7 +97,7 @@ export const create = (
       return snapshot
     },
     getScriptVersion(fileName) {
-      return '0'
+      return fileSystem.getScriptVersion(fileName)
     },
     readDirectory(path, extensions, exclude, include, depth) {
       const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)

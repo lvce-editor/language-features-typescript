@@ -1,5 +1,7 @@
 import { test, expect, jest } from '@jest/globals'
 import * as TypeScript from 'typescript'
+import { createFileSystem } from '../src/parts/CreateFileSystem/CreateFileSystem.ts'
+import { emptyTsconfig } from '../src/parts/EmptyTsConfig/EmptyTsConfig.ts'
 import { create } from '../src/parts/TypeScriptLanguageHost/TypeScriptLanguageHost.ts'
 
 test('create should return a language service host with proper methods', () => {
@@ -282,7 +284,7 @@ test('getProjectVersion should return string version', () => {
   const mockFileSystem = {
     getScriptFileNames: () => [],
     getScriptVersion: (uri: string) => '0',
-    getVersion: () => '0',
+    getVersion: () => '42',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
   }
@@ -295,7 +297,7 @@ test('getProjectVersion should return string version', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getProjectVersion?.()).toBe('0')
+  expect(host.getProjectVersion?.()).toBe('42')
 })
 
 test('getScriptFileNames should return configured and file system script names', () => {
@@ -329,7 +331,7 @@ test('getScriptVersion should return string version', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
-    getScriptVersion: (uri: string) => '0',
+    getScriptVersion: (uri: string) => '7',
     getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
@@ -343,7 +345,73 @@ test('getScriptVersion should return string version', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptVersion?.('any-file.ts')).toBe('0')
+  expect(host.getScriptVersion?.('any-file.ts')).toBe('7')
+})
+
+test('language service should discover and refresh in-memory files', () => {
+  const fileSystem = createFileSystem()
+  const mockSyncRpc = {
+    invokeSync(method: string) {
+      if (method === 'SyncApi.exists') {
+        return false
+      }
+      if (method === 'SyncApi.readDirSync') {
+        return []
+      }
+      if (method === 'SyncApi.readFileSync') {
+        return ''
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const mockOptions = {
+    errors: [],
+    fileNames: [],
+    options: {
+      noLib: true,
+      strict: true,
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, mockOptions)
+  const languageService = TypeScript.createLanguageService(host)
+  const uri = 'fetch:///workspace/test.ts'
+
+  fileSystem.writeFile(uri, "let value: number = ''")
+  expect(languageService.getSemanticDiagnostics(uri).map((diagnostic) => diagnostic.code)).toEqual([2322])
+
+  fileSystem.writeFile(uri, 'let value: number = 1')
+  expect(languageService.getSemanticDiagnostics(uri)).toEqual([])
+})
+
+test('default project should report JavaScript diagnostics', () => {
+  const fileSystem = createFileSystem()
+  const mockSyncRpc = {
+    invokeSync(method: string) {
+      if (method === 'SyncApi.exists') {
+        return false
+      }
+      if (method === 'SyncApi.readDirSync') {
+        return []
+      }
+      if (method === 'SyncApi.readFileSync') {
+        return ''
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, {
+    ...emptyTsconfig,
+    options: {
+      ...emptyTsconfig.options,
+      noLib: true,
+    },
+  })
+  const languageService = TypeScript.createLanguageService(host)
+  const uri = 'fetch:///workspace/test.js'
+
+  fileSystem.writeFile(uri, "let value = ''\nvalue++")
+
+  expect(languageService.getSemanticDiagnostics(uri).map((diagnostic) => diagnostic.code)).toContain(2356)
 })
 
 test('writeFile should throw error', () => {

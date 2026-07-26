@@ -23,7 +23,7 @@ export const resolveTsconfig = (
       readFile,
       useCaseSensitiveFileNames: false,
     }
-    const existingOptions = {}
+    const existingOptions = emptyTsconfig.options
     const config2 = ts.parseJsonConfigFileContent(parsed, host, rootDir, existingOptions, tsconfigPath)
     let { options } = config2
     options = {
