@@ -3,15 +3,15 @@ import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
 
 const getFileReference = (ref: any) => {
   return {
-    uri: ref.file,
-    startOffset: 0,
     endOffset: 0,
     lineText: ref.lineText,
+    startOffset: 0,
+    uri: ref.file,
   }
 }
 
 const getFileReferencesFromTsResult = (tsResult: any) => {
-  const refs = tsResult.refs
+  const { refs } = tsResult
   return refs.map(getFileReference)
 }
 

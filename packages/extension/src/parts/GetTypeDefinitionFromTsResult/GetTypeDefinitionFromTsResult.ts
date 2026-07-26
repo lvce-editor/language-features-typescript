@@ -19,9 +19,9 @@ export const getDefinitionFromTsResult = (textDocument: any, tsResult: any): any
     const startOffset = Position.getOffset(textDocument, firstTypeDefinition.start)
     const endOffset = Position.getOffset(textDocument, firstTypeDefinition.end)
     return {
-      uri: firstTypeDefinition.file,
-      startOffset,
       endOffset,
+      startOffset,
+      uri: firstTypeDefinition.file,
     }
   }
   // TODO want offset based result
@@ -29,8 +29,8 @@ export const getDefinitionFromTsResult = (textDocument: any, tsResult: any): any
   const startOffset = 0
   const endOffset = 0
   return {
-    uri: firstTypeDefinition.file,
-    startOffset,
     endOffset,
+    startOffset,
+    uri: firstTypeDefinition.file,
   }
 }

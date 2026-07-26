@@ -2,5 +2,7 @@
   "name": "diagnostics-hoisted-node-modules",
   "version": "1.0.0",
   "type": "module",
-  "workspaces": ["packages/*"]
+  "workspaces": [
+    "packages/*"
+  ]
 }

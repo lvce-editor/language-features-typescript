@@ -12,18 +12,18 @@ const formatLibFileMaybe = (uri: string): string => {
   return formattedUrl
 }
 
-const getReferenceFromTsResult = async (reference: ts.ReferenceEntry, fs: IFileSystem) => {
+const getReferenceFromTsResult = (reference: ts.ReferenceEntry, fs: IFileSystem) => {
   const { fileName, textSpan } = reference
-  const text = await fs.readFile(fileName)
+  const text = fs.readFile(fileName)
   const startPosition = getPositionAt(text, textSpan.start)
   const endPosition = getPositionAt(text, textSpan.start + textSpan.length)
   const formattedUri = formatLibFileMaybe(fileName)
   return {
-    uri: formattedUri,
-    startRowIndex: startPosition.rowIndex,
-    startColumnIndex: startPosition.columnIndex,
-    endRowIndex: endPosition.rowIndex,
     endColumnIndex: endPosition.columnIndex,
+    endRowIndex: endPosition.rowIndex,
+    startColumnIndex: startPosition.columnIndex,
+    startRowIndex: startPosition.rowIndex,
+    uri: formattedUri,
   }
 }
 
@@ -34,6 +34,6 @@ export const getReferencesFromTsResult2 = async (
   if (!tsResult) {
     return []
   }
-  const references = await Promise.all(tsResult.map((item) => getReferenceFromTsResult(item, fs)))
+  const references = tsResult.map((item) => getReferenceFromTsResult(item, fs))
   return references
 }

@@ -8,12 +8,12 @@ export const getCompletionOptions = (): GetCompletionsAtPositionOptions => {
     autoImportFileExcludePatterns: [],
     autoImportSpecifierExcludeRegexes: [],
     importModuleSpecifierEnding: 'js',
-    includeCompletionsForImportStatements: true,
-    includePackageJsonAutoImports: 'on',
-    includeCompletionsWithInsertText: true,
-    includeCompletionsWithSnippetText: true,
-    includeCompletionsForModuleExports: true,
     includeAutomaticOptionalChainCompletions: true,
+    includeCompletionsForImportStatements: true,
+    includeCompletionsForModuleExports: true,
+    includeCompletionsWithInsertText: true,
     includeCompletionsWithObjectLiteralMethodSnippets: true,
+    includeCompletionsWithSnippetText: true,
+    includePackageJsonAutoImports: 'on',
   }
 }

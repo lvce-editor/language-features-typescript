@@ -8,9 +8,9 @@ const getEntryNames = (name, completionItem) => {
   if (completionItem) {
     return [
       {
+        data: completionItem.data,
         name,
         source: completionItem.source,
-        data: completionItem.data,
       },
     ]
   }
@@ -25,7 +25,7 @@ export const resolveCompletion = async (
   name: string,
   completionItem: any,
 ) => {
-  const uri = textDocument.uri
+  const { uri } = textDocument
   Assert.string(uri)
   await TextDocumentSync.openTextDocuments2(typescriptRpc, [textDocument])
   const tsPosition = await Position.getTsPosition(textDocument, offset)
@@ -33,10 +33,10 @@ export const resolveCompletion = async (
   const tsResult = await typescriptRpc.invoke<TypeScriptProtocol.CompletionEntryDetails[]>(
     'ResolveCompletion.resolveCompletion',
     {
+      entryNames,
       file: textDocument.uri,
       line: tsPosition.line,
       offset: tsPosition.offset,
-      entryNames,
     },
   )
   const completion = GetResolvedCompletionItemFromTsResult.getResolveCompletionItemFromTsResult(tsResult)

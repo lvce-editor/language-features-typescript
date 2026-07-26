@@ -1,14 +1,14 @@
 export const getUserPreferences = (): any => {
   return {
-    includeCompletionsForModuleExports: true,
-    includeCompletionsForImportStatements: true,
-    includeCompletionsWithSnippetText: true,
-    includeAutomaticOptionalChainCompletions: true,
-    includeCompletionsWithObjectLiteralMethodSnippets: true,
-    includeCompletionsWithClassMemberSnippets: true,
-    importModuleSpecifierEnding: 'js',
-    includePackageJsonAutoImports: 'on',
     // @ts-ignore
     autoImportFileExcludePatterns: [],
+    importModuleSpecifierEnding: 'js',
+    includeAutomaticOptionalChainCompletions: true,
+    includeCompletionsForImportStatements: true,
+    includeCompletionsForModuleExports: true,
+    includeCompletionsWithClassMemberSnippets: true,
+    includeCompletionsWithObjectLiteralMethodSnippets: true,
+    includeCompletionsWithSnippetText: true,
+    includePackageJsonAutoImports: 'on',
   }
 }

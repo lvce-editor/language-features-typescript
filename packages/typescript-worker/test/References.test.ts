@@ -30,8 +30,8 @@ test('provideReferences', async () => {
   jest.spyOn(Rpc, 'invoke').mockImplementation(async (method) => {
     if (method === 'Position.getPosition') {
       return {
-        rowIndex: 0,
         columnIndex: 0,
+        rowIndex: 0,
       }
     }
   })
@@ -53,8 +53,8 @@ test('provideFileReferences', async () => {
   jest.spyOn(Rpc, 'invoke').mockImplementation(async (method) => {
     if (method === 'Position.getPosition') {
       return {
-        rowIndex: 0,
         columnIndex: 0,
+        rowIndex: 0,
       }
     }
   })

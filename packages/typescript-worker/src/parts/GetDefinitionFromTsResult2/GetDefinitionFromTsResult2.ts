@@ -6,7 +6,7 @@ const getUri = (fileName: string) => {
       .slice(fileName.lastIndexOf('/') + 1)
       .replaceAll('-', '.')
       .replace('.ts', '.d.ts')
-    const almost = new URL(`../../../node_modules/typescript/lib/${base}`, import.meta.url).toString()
+    const almost = new URL(`../../../node_modules/typescript/lib/${base}`, import.meta.url).href
     const uri = almost.slice(almost.indexOf('/remote') + '/remote'.length)
     return uri
   }
@@ -26,9 +26,9 @@ export const getDefinitionFromTsResult2 = async (textDocument: any, tsResult: re
     endOffset = firstDefinition.contextSpan.start + firstDefinition.contextSpan.length
   }
   return {
-    uri,
-    startOffset,
     endOffset,
+    startOffset,
+    uri,
   }
   // const { textSpan } = firstDefinition
   // if (file === textDocument.uri) {

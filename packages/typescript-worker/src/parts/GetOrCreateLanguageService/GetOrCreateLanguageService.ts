@@ -5,13 +5,13 @@ import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import { parseTsconfig } from '../ParseTsconfig/ParseTsconfig.ts'
 import { resolveTsconfig } from '../ResolveTsconfig/ResolveTsconfig.ts'
 
-let nextProjectId = 1
+const projectIds = { next: 1 }
 const projectCache: Record<number, LanguageService> = Object.create(null)
 const projectIdCache: Record<string, number> = Object.create(null)
 
 export const getOrCreateLanguageService = (uri: string) => {
   const id = 1
-  const { fs, ts, client } = LanguageServices.get(id)
+  const { client, fs, ts } = LanguageServices.get(id)
   if (uri in projectCache) {
     const projectId = projectIdCache[uri]
     const languageService = projectCache[projectId]
@@ -27,7 +27,7 @@ export const getOrCreateLanguageService = (uri: string) => {
   const parsed = parseTsconfig(tsConfigPath, readFile)
   const resolved = resolveTsconfig(tsConfigPath, parsed, readFile, readDir, exists, ts)
   const languageService = createTypeScriptLanguageService(ts, fs, client, resolved)
-  const projectId = nextProjectId++
+  const projectId = projectIds.next++
   projectCache[projectId] = languageService
   projectIdCache[uri] = projectId
 

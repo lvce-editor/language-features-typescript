@@ -7,13 +7,13 @@ test('getPositionsFomTsResult', () => {
   const tsResult: readonly Protocol.SelectionRange[] = [
     {
       textSpan: {
-        start: {
-          line: 2,
-          offset: 3,
-        },
         end: {
           line: 2,
           offset: 9,
+        },
+        start: {
+          line: 2,
+          offset: 3,
         },
       },
     },
@@ -26,11 +26,11 @@ test('getPositionsFomTsResult - no matching selection', () => {
   const tsResult: readonly Protocol.SelectionRange[] = [
     {
       textSpan: {
-        start: {
+        end: {
           line: 3,
           offset: 3,
         },
-        end: {
+        start: {
           line: 3,
           offset: 3,
         },
@@ -44,26 +44,26 @@ test('getPositionsFomTsResult - with parent range', () => {
   const positions = new Uint32Array([1, 1, 5, 5])
   const tsResult: readonly Protocol.SelectionRange[] = [
     {
-      textSpan: {
-        start: {
-          line: 3,
-          offset: 3,
-        },
-        end: {
-          line: 3,
-          offset: 3,
-        },
-      },
       parent: {
         textSpan: {
-          start: {
-            line: 1,
-            offset: 1,
-          },
           end: {
             line: 5,
             offset: 5,
           },
+          start: {
+            line: 1,
+            offset: 1,
+          },
+        },
+      },
+      textSpan: {
+        end: {
+          line: 3,
+          offset: 3,
+        },
+        start: {
+          line: 3,
+          offset: 3,
         },
       },
     },

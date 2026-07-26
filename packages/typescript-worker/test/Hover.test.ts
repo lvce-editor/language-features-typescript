@@ -11,8 +11,8 @@ test.skip('getHover', async () => {
   const Position = {
     getTsPosition() {
       return {
-        line: 0,
         column: 0,
+        line: 0,
       }
     },
   }

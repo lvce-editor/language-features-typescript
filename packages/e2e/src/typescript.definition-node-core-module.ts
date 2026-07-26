@@ -4,7 +4,7 @@ export const name = 'typescript.definition-node-core-module'
 
 // export const skip = 1
 
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/definition-node-core-module')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)

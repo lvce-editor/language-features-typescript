@@ -3,7 +3,7 @@ import * as Assert from '../Assert/Assert.ts'
 import { organizeImports2 } from '../OrganizeImports2/OrganizeImports2.ts'
 
 export const organizeImports = async (typescriptRpc: CommonRpc, Position: any, textDocument: any) => {
-  const uri = textDocument.uri
+  const { uri } = textDocument
   Assert.string(uri)
   return organizeImports2(textDocument)
 }

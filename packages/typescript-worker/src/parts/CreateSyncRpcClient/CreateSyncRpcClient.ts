@@ -7,8 +7,8 @@ import * as WaitForSyncBufferResultType from '../WaitForSyncBufferResultType/Wai
 import { waitForSyncRpcResult } from '../WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
 
 export const createSyncRpcClient = async ({
-  maxDelay,
   crossOriginIsolated,
+  maxDelay,
   syncId,
 }: SyncClientOptions): Promise<SyncRpc> => {
   const buffer = createBuffer(crossOriginIsolated)
@@ -60,7 +60,7 @@ export const createSyncRpcClient = async ({
       resultAccessHandle.flush()
       errorAccessHandle.truncate(0)
       errorAccessHandle.flush()
-      Rpc.invoke(method, syncId, ...params)
+      void Rpc.invoke(method, syncId, ...params)
       const resultType = waitForSyncRpcResult(accessHandle, maxDelay, buffer)
       if (resultType === WaitForSyncBufferResultType.Timeout) {
         throw new Error(`Rpc error: timeout of ${maxDelay}ms exceeded`)
@@ -69,7 +69,7 @@ export const createSyncRpcClient = async ({
         throw new Error(`Rpc error: Buffer did not change`)
       }
       if (resultType === WaitForSyncBufferResultType.Other) {
-        throw new Error(`Rpc error: Unexpected buffer errot`)
+        throw new Error(`Rpc error: Unexpected buffer error`)
       }
       const errorSize = errorAccessHandle.getSize()
       if (errorSize > 0) {

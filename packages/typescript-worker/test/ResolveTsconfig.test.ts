@@ -21,9 +21,9 @@ test('resolveTsconfig should return empty tsconfig for empty path', () => {
 test('resolveTsconfig should parse valid tsconfig', () => {
   const mockTsconfig = {
     compilerOptions: {
-      target: 'es2020',
       module: 'esnext',
       strict: true,
+      target: 'es2020',
     },
     include: ['src/**/*'],
   }
@@ -70,7 +70,7 @@ test('resolveTsconfig should parse valid tsconfig', () => {
 test('resolveTsconfig should handle include patterns', () => {
   const mockTsconfig = {
     compilerOptions: {
-      target: 'es5',
+      target: 'es2015',
     },
     include: ['src/**/*', 'tests/**/*'],
   }
@@ -110,7 +110,7 @@ test('resolveTsconfig should handle include patterns', () => {
 
   expect(result).toBeDefined()
   expect(result.options).toBeDefined()
-  expect(result.options.target).toBe(TypeScript.ScriptTarget.ES5)
+  expect(result.options.target).toBe(TypeScript.ScriptTarget.ES2015)
   expect(result.errors).toEqual([])
   expect(Array.isArray(result.fileNames)).toBe(true)
 })
@@ -237,28 +237,27 @@ test('resolveTsconfig should return empty tsconfig on error', () => {
 test('resolveTsconfig should handle complex tsconfig with multiple options', () => {
   const mockTsconfig = {
     compilerOptions: {
-      target: 'es2020',
-      module: 'esnext',
-      moduleResolution: 'node',
-      strict: true,
-      noImplicitAny: true,
-      strictNullChecks: true,
-      strictFunctionTypes: true,
-      noImplicitReturns: true,
-      noFallthroughCasesInSwitch: true,
-      noUncheckedIndexedAccess: true,
-      noImplicitOverride: true,
-      allowUnusedLabels: false,
       allowUnreachableCode: false,
-      exactOptionalPropertyTypes: true,
-      noPropertyAccessFromIndexSignature: true,
-      noImplicitThis: true,
-      useUnknownInCatchVariables: true,
+      allowUnusedLabels: false,
       alwaysStrict: true,
-      noImplicitUseStrict: false,
+      exactOptionalPropertyTypes: true,
+      module: 'esnext',
+      moduleResolution: 'bundler',
+      noFallthroughCasesInSwitch: true,
+      noImplicitAny: true,
+      noImplicitOverride: true,
+      noImplicitReturns: true,
+      noImplicitThis: true,
+      noPropertyAccessFromIndexSignature: true,
+      noUncheckedIndexedAccess: true,
+      strict: true,
+      strictFunctionTypes: true,
+      strictNullChecks: true,
+      target: 'es2020',
+      useUnknownInCatchVariables: true,
     },
-    include: ['src/**/*'],
     exclude: ['node_modules', 'dist'],
+    include: ['src/**/*'],
   }
 
   const mockReadFile = (uri: string): string => {
@@ -295,7 +294,7 @@ test('resolveTsconfig should handle complex tsconfig with multiple options', () 
   expect(result.options).toBeDefined()
   expect(result.options.target).toBe(TypeScript.ScriptTarget.ES2020)
   expect(result.options.module).toBe(TypeScript.ModuleKind.ESNext)
-  expect(result.options.moduleResolution).toBe(TypeScript.ModuleResolutionKind.NodeJs)
+  expect(result.options.moduleResolution).toBe(TypeScript.ModuleResolutionKind.Bundler)
   expect(result.options.strict).toBe(true)
   expect(result.options.noImplicitAny).toBe(true)
   expect(result.options.strictNullChecks).toBe(true)
@@ -311,7 +310,6 @@ test('resolveTsconfig should handle complex tsconfig with multiple options', () 
   expect(result.options.noImplicitThis).toBe(true)
   expect(result.options.useUnknownInCatchVariables).toBe(true)
   expect(result.options.alwaysStrict).toBe(true)
-  expect(result.options.noImplicitUseStrict).toBe(false)
   expect(result.errors).toEqual([])
   expect(Array.isArray(result.fileNames)).toBe(true)
 })

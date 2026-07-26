@@ -5,23 +5,23 @@ import * as GetReferencesFromTsResult from '../src/parts/GetReferencesFromTsResu
 test('getReferencesFromTsResult', () => {
   const textDocument = {}
   const tsResult: Protocol.ReferencesResponseBody = {
-    symbolDisplayString: '',
-    symbolName: '',
-    symbolStartOffset: 0,
     refs: [
       {
-        file: '/test/index.ts',
         end: {
           line: 1,
           offset: 1,
         },
+        file: '/test/index.ts',
+        isWriteAccess: false,
         start: {
           line: 1,
           offset: 1,
         },
-        isWriteAccess: false,
       },
     ],
+    symbolDisplayString: '',
+    symbolName: '',
+    symbolStartOffset: 0,
   }
   expect(GetReferencesFromTsResult.getReferencesFromTsResult(textDocument, tsResult)).toEqual([
     {

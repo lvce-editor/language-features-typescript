@@ -15,104 +15,104 @@ test('getParameterListParts', () => {
 test('getParameterListParts - object', () => {
   const displayParts: TypeScriptProtocol.SymbolDisplayPart[] = [
     {
+      kind: 'keyword',
       text: 'function',
-      kind: 'keyword',
     },
     {
-      text: ' ',
       kind: 'space',
+      text: ' ',
     },
     {
-      text: 'complex',
       kind: 'functionName',
+      text: 'complex',
     },
     {
+      kind: 'punctuation',
       text: '(',
-      kind: 'punctuation',
     },
     {
+      kind: 'punctuation',
       text: '{',
-      kind: 'punctuation',
     },
     {
-      text: ' ',
       kind: 'space',
+      text: ' ',
     },
     {
-      text: 'a',
       kind: 'parameterName',
-    },
-    {
-      text: ' ',
-      kind: 'space',
-    },
-    {
-      text: '}',
-      kind: 'punctuation',
-    },
-    {
-      text: ':',
-      kind: 'punctuation',
-    },
-    {
-      text: ' ',
-      kind: 'space',
-    },
-    {
-      text: '{',
-      kind: 'punctuation',
-    },
-    {
-      text: '\n',
-      kind: 'lineBreak',
-    },
-    {
-      text: '    ',
-      kind: 'space',
-    },
-    {
       text: 'a',
-      kind: 'propertyName',
     },
     {
-      text: ':',
-      kind: 'punctuation',
-    },
-    {
-      text: ' ',
       kind: 'space',
+      text: ' ',
     },
     {
-      text: 'number',
-      kind: 'keyword',
-    },
-    {
-      text: ';',
       kind: 'punctuation',
-    },
-    {
-      text: '\n',
-      kind: 'lineBreak',
-    },
-    {
       text: '}',
-      kind: 'punctuation',
     },
     {
-      text: ')',
       kind: 'punctuation',
-    },
-    {
       text: ':',
-      kind: 'punctuation',
     },
     {
-      text: ' ',
       kind: 'space',
+      text: ' ',
     },
     {
-      text: 'void',
+      kind: 'punctuation',
+      text: '{',
+    },
+    {
+      kind: 'lineBreak',
+      text: '\n',
+    },
+    {
+      kind: 'space',
+      text: ' '.repeat(4),
+    },
+    {
+      kind: 'propertyName',
+      text: 'a',
+    },
+    {
+      kind: 'punctuation',
+      text: ':',
+    },
+    {
+      kind: 'space',
+      text: ' ',
+    },
+    {
       kind: 'keyword',
+      text: 'number',
+    },
+    {
+      kind: 'punctuation',
+      text: ';',
+    },
+    {
+      kind: 'lineBreak',
+      text: '\n',
+    },
+    {
+      kind: 'punctuation',
+      text: '}',
+    },
+    {
+      kind: 'punctuation',
+      text: ')',
+    },
+    {
+      kind: 'punctuation',
+      text: ':',
+    },
+    {
+      kind: 'space',
+      text: ' ',
+    },
+    {
+      kind: 'keyword',
+      text: 'void',
     },
   ]
   expect(GetParameterListParts.getParameterListParts(displayParts)).toEqual([])
@@ -121,64 +121,64 @@ test('getParameterListParts - object', () => {
 test('getParameterListParts - rest parameters', () => {
   const displayParts: TypeScriptProtocol.SymbolDisplayPart[] = [
     {
+      kind: 'keyword',
       text: 'function',
-      kind: 'keyword',
     },
     {
-      text: ' ',
       kind: 'space',
+      text: ' ',
     },
     {
-      text: 'complex',
       kind: 'functionName',
+      text: 'complex',
     },
     {
+      kind: 'punctuation',
       text: '(',
-      kind: 'punctuation',
     },
     {
+      kind: 'punctuation',
       text: '...',
-      kind: 'punctuation',
     },
     {
-      text: 'items',
       kind: 'parameterName',
+      text: 'items',
     },
     {
-      text: ':',
       kind: 'punctuation',
+      text: ':',
     },
     {
-      text: ' ',
       kind: 'space',
+      text: ' ',
     },
     {
+      kind: 'keyword',
       text: 'any',
-      kind: 'keyword',
     },
     {
+      kind: 'punctuation',
       text: '[',
-      kind: 'punctuation',
     },
     {
+      kind: 'punctuation',
       text: ']',
-      kind: 'punctuation',
     },
     {
+      kind: 'punctuation',
       text: ')',
-      kind: 'punctuation',
     },
     {
+      kind: 'punctuation',
       text: ':',
-      kind: 'punctuation',
     },
     {
-      text: ' ',
       kind: 'space',
+      text: ' ',
     },
     {
-      text: 'void',
       kind: 'keyword',
+      text: 'void',
     },
   ]
   expect(GetParameterListParts.getParameterListParts(displayParts)).toEqual([])

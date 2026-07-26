@@ -30,9 +30,9 @@ test.skip('getCompletionFromTsResult - normal entries', () => {
     }),
   ).toEqual([
     {
+      kind: 5,
       label: 'const',
       snippet: 'const',
-      kind: 5,
     },
   ])
 })

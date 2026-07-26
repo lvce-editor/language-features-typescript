@@ -30,11 +30,9 @@ export const expandSelection2 = async (textDocument: any, positions: Uint32Array
   if (offsets.length === 0) {
     return []
   }
-  console.log({ locations })
   const firstOffset = offsets[0]
   const tsResult = languageService.getSmartSelectionRange(textDocument.uri, firstOffset)
-  console.log({ tsResult })
-  const start = tsResult.textSpan.start
+  const { start } = tsResult.textSpan
   const end = start + tsResult.textSpan.length
   const startPosition = getPositionAt(textDocument.text, start)
   const endPosition = getPositionAt(textDocument.text, end)

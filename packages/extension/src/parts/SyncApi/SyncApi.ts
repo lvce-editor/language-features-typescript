@@ -30,9 +30,9 @@ export const syncSetup = async (
 
   SyncSetupState.set(id, {
     accessHandle,
-    resultAccessHandle,
-    errorAccessHandle,
     buffer,
+    errorAccessHandle,
+    resultAccessHandle,
   })
 }
 

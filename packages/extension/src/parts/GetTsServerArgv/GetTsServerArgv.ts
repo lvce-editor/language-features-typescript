@@ -1,19 +1,18 @@
 export const getTsServerArgv = ({
   disableAutomaticTypingAcquisition = true,
-  npmLocation = '',
   maxMemory = 4096,
+  npmLocation = '',
 }: {
   disableAutomaticTypingAcquisition?: boolean
   npmLocation?: string
   maxMemory?: number
 }): any => {
-  const argv = []
-  argv.push('--useInferredProjectPerProjectRoot')
+  const argv = ['--useInferredProjectPerProjectRoot']
   if (disableAutomaticTypingAcquisition) {
     argv.push('--disableAutomaticTypingAcquisition')
   }
   if (npmLocation) {
-    argv.push('--npmLocation', `${npmLocation}`)
+    argv.push('--npmLocation', npmLocation)
   }
   argv.push('--locale', 'en')
   argv.push('--noGetErrOnBackgroundUpdate')

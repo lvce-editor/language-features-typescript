@@ -11,8 +11,8 @@ test.skip('organizeImports', async () => {
   const Position = {
     getTsPosition() {
       return {
-        line: 0,
         column: 0,
+        line: 0,
       }
     },
   }

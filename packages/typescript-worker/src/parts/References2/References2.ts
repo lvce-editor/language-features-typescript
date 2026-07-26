@@ -22,11 +22,11 @@ export const provideReferences = async (textDocument: any, offset: number) => {
   return references
 }
 
-export const provideReferences2 = async ({ uri, position }) => {
+export const provideReferences2 = async ({ position, uri }) => {
   const text = await Rpc.invoke('FileSystem.readFile', uri)
   const textDocument = {
-    uri,
     text,
+    uri,
   }
   await TextDocumentSync.openTextDocuments([textDocument])
   const tsPosition = {

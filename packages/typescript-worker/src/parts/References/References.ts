@@ -26,8 +26,8 @@ export const provideReferences = async (textDocument: any, offset: number) => {
 }
 
 // TODO ensure offset based api, makes things easier
-export const provideReferences2 = async ({ uri, position }) => {
-  const { languageService, fs } = getOrCreateLanguageService(uri)
+export const provideReferences2 = async ({ position, uri }) => {
+  const { fs, languageService } = getOrCreateLanguageService(uri)
   const text = await Rpc.invoke('FileSystem.readFile', uri)
   fs.writeFile(uri, text)
   const offset = getOffset(text, position.rowIndex, position.columnIndex)

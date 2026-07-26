@@ -1,6 +1,6 @@
 import { test, expect, jest } from '@jest/globals'
-import * as WaitForSyncRpcResultBuffer from '../src/parts/WaitForSyncRpcResultBuffer/WaitForSyncRpcResultBuffer.ts'
 import * as WaitForSyncBufferResultType from '../src/parts/WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
+import * as WaitForSyncRpcResultBuffer from '../src/parts/WaitForSyncRpcResultBuffer/WaitForSyncRpcResultBuffer.ts'
 
 test('waitForSyncRpcResultBuffer - ok result', () => {
   const maxWaitTime = 1000

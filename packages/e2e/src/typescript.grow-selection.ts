@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.grow-selection'
 
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor }) => {
+export const test: Test = async ({ Editor, FileSystem, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/grow-selection')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
