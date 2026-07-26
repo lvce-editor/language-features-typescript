@@ -5,13 +5,13 @@ export const getEditsFromTsResult2 = async (tsResult: readonly ts.FileTextChange
   const edits: any[] = []
   for (const item of tsResult) {
     for (const textChange of item.textChanges) {
-      const { span, newText } = textChange
+      const { newText, span } = textChange
       const startOffset = span.start
       const endOffset = span.start + span.length
       edits.push({
-        startOffset,
         endOffset,
         inserted: newText,
+        startOffset,
       })
     }
   }

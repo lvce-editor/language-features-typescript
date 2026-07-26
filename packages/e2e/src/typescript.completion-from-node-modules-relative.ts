@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.completion-from-node-modules-relative'
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(`${tmpDir}/package.json`, `{ "type": "module", "dependencies": { "lodash": "^1.0.0" } }`)
@@ -20,5 +20,6 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(1)
-  await expect(completionItems.nth(0)).toHaveText('node_modules')
+  const firstCompletionItem = completionItems.nth(0)
+  await expect(firstCompletionItem).toHaveText('node_modules')
 }

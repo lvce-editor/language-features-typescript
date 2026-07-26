@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.organize-imports'
 
-export const test: Test = async ({ FileSystem, Main, Editor, Workspace }) => {
+export const test: Test = async ({ Editor, FileSystem, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/organize-imports')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)

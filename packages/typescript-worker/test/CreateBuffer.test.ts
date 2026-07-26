@@ -23,8 +23,9 @@ test('createBuffer - isolated true - buffer properties', () => {
 test('createBuffer - isolated true - buffer is writable', () => {
   const result = CreateBuffer.createBuffer(true)
   expect(result).toBeInstanceOf(Int32Array)
-  if (result) {
-    result[0] = 42
-    expect(result[0]).toBe(42)
+  if (!result) {
+    throw new Error('Expected buffer to be defined')
   }
+  result[0] = 42
+  expect(result[0]).toBe(42)
 })

@@ -12,14 +12,11 @@ const isJavaScriptOrTypeScriptDocument = (textDocument: any): boolean => {
 }
 
 const getTsTextChanges = (textDocument: any, edits: any[]): any[] => {
-  const tsChanges = []
-  for (const edit of edits) {
-    tsChanges.push({
-      start: Position.getTsPosition(textDocument, edit.startOffset),
-      end: Position.getTsPosition(textDocument, edit.endOffset),
-      newText: edit.inserted,
-    })
-  }
+  const tsChanges = Array.from(edits, (edit) => ({
+    end: Position.getTsPosition(textDocument, edit.endOffset),
+    newText: edit.inserted,
+    start: Position.getTsPosition(textDocument, edit.startOffset),
+  }))
   return tsChanges
 }
 

@@ -4,12 +4,12 @@ import { getCompletionOptions } from '../GetCompletionOptions/GetCompletionOptio
 import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 
 export const getCompletion2 = async (textDocument: any, offset: number) => {
-  const uri = textDocument.uri
+  const { uri } = textDocument
   Assert.string(uri)
-  const { languageService, fs } = getOrCreateLanguageService(uri)
+  const { fs, languageService } = getOrCreateLanguageService(uri)
   fs.writeFile(textDocument.uri, textDocument.text)
   const completionOptions = getCompletionOptions()
   const tsResult = languageService.getCompletionsAtPosition(textDocument.uri, offset, completionOptions)
-  const completions = getCompletionFromTsResult2(tsResult as any)
+  const completions = getCompletionFromTsResult2(tsResult)
   return completions
 }

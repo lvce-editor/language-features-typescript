@@ -6,7 +6,6 @@ export const getHoverFromTsResult2 = (tsResult: ts.QuickInfo | undefined) => {
   }
   const displayStringParts = tsResult.displayParts || []
   const displayString = displayStringParts.map((item) => item.text).join('')
-  tsResult.textSpan
   return {
     displayString: displayString,
     documentation: tsResult.documentation,

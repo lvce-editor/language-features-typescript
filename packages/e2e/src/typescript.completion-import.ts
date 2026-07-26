@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.completion-import'
 
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/completion-import')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
@@ -18,5 +18,6 @@ export const test: Test = async ({ FileSystem, Workspace, Main, Editor, Locator,
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(1)
-  await expect(completionItems.nth(0)).toHaveText('add.js') // TODO should be ts
+  const firstCompletionItem = completionItems.nth(0)
+  await expect(firstCompletionItem).toHaveText('add.js') // TODO should be ts
 }

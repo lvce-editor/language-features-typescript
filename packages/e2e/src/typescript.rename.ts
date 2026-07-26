@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.rename'
 
-export const test: Test = async ({ EditorRename, FileSystem, Workspace, Main, Editor }) => {
+export const test: Test = async ({ Editor, EditorRename, FileSystem, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/rename')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)

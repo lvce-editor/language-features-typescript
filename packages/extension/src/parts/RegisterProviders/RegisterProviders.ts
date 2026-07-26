@@ -71,7 +71,6 @@ const registerProvider = (provider: any): void => {
   }
   if ('provideComment' in provider) {
     registerCommentProvider(provider)
-    return
   }
 }
 

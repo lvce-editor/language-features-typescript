@@ -14,38 +14,38 @@ test('createSyncRpcClient should create a sync RPC client with proper configurat
   // Mock navigator.storage
   const mockFileHandle = {
     createSyncAccessHandle: () => ({
-      write: () => {},
-      truncate: () => {},
       flush: () => {},
       getSize: () => 0,
+      truncate: () => {},
+      write: () => {},
     }),
   }
 
   const mockRoot = {
+    entries: () => [],
+    getDirectoryHandle: () => Promise.resolve({}),
     getFileHandle: () => Promise.resolve(mockFileHandle),
+    isSameEntry: () => Promise.resolve(false),
+    keys: () => [],
     kind: 'directory' as const,
     name: 'test-directory',
-    getDirectoryHandle: () => Promise.resolve({}),
     removeEntry: () => Promise.resolve(),
     resolve: () => Promise.resolve([]),
-    keys: () => [],
     values: () => [],
-    entries: () => [],
-    isSameEntry: () => Promise.resolve(false),
   } as any
 
   // @ts-ignore
   globalThis.navigator = {
     storage: {
-      getDirectory: () => Promise.resolve(mockRoot),
       estimate: () => Promise.resolve({}),
+      getDirectory: () => Promise.resolve(mockRoot),
       persisted: () => Promise.resolve(false),
     },
   }
 
   const syncRpcClient = await createSyncRpcClient({
-    maxDelay: 1000,
     crossOriginIsolated: true,
+    maxDelay: 1000,
     syncId: 123,
   })
 
@@ -65,38 +65,38 @@ test('createSyncRpcClient should handle crossOriginIsolated false', async () => 
 
   const mockFileHandle = {
     createSyncAccessHandle: () => ({
-      write: () => {},
-      truncate: () => {},
       flush: () => {},
       getSize: () => 0,
+      truncate: () => {},
+      write: () => {},
     }),
   }
 
   const mockRoot = {
+    entries: () => [],
+    getDirectoryHandle: () => Promise.resolve({}),
     getFileHandle: () => Promise.resolve(mockFileHandle),
+    isSameEntry: () => Promise.resolve(false),
+    keys: () => [],
     kind: 'directory' as const,
     name: 'test-directory',
-    getDirectoryHandle: () => Promise.resolve({}),
     removeEntry: () => Promise.resolve(),
     resolve: () => Promise.resolve([]),
-    keys: () => [],
     values: () => [],
-    entries: () => [],
-    isSameEntry: () => Promise.resolve(false),
   } as any
 
   // @ts-ignore
   globalThis.navigator = {
     storage: {
-      getDirectory: () => Promise.resolve(mockRoot),
       estimate: () => Promise.resolve({}),
+      getDirectory: () => Promise.resolve(mockRoot),
       persisted: () => Promise.resolve(false),
     },
   }
 
   const syncRpcClient = await createSyncRpcClient({
-    maxDelay: 1000,
     crossOriginIsolated: false,
+    maxDelay: 1000,
     syncId: 123,
   })
 

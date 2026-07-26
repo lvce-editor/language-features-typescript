@@ -27,16 +27,16 @@ const readDir = (uri: any): any => {
 }
 
 export const commandMap = {
-  'TypeScriptRpc.invoke': rpcInvoke,
   'Completion.getCompletion': rpcInvoke,
-  'ResolveCompletion.resolveCompletion': rpcInvoke,
-  'TypeScriptRpc.listen': rpcListen,
+  'FileSystem.readDir': readDir,
+  'FileSystem.readFile': readFile,
   'Position.getOffset': getOffset,
   'Position.getPosition': getPosition,
-  'FileSystem.readFile': readFile,
-  'FileSystem.readDir': readDir,
-  'SyncApi.readFileSync': SyncApi.readFileSync,
-  'SyncApi.readDirSync': SyncApi.readDirSync,
-  'SyncApi.setup': SyncApi.syncSetup,
+  'ResolveCompletion.resolveCompletion': rpcInvoke,
   'SyncApi.exists': SyncApi.exists,
+  'SyncApi.readDirSync': SyncApi.readDirSync,
+  'SyncApi.readFileSync': SyncApi.readFileSync,
+  'SyncApi.setup': SyncApi.syncSetup,
+  'TypeScriptRpc.invoke': rpcInvoke,
+  'TypeScriptRpc.listen': rpcListen,
 }

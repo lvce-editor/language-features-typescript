@@ -3,7 +3,6 @@ import * as WaitForSyncBufferResultType from '../WaitForSyncBufferResultType/Wai
 export const waitForSyncRpcResultFile = (handle: FileSystemSyncAccessHandle, maxWaitTime: number): number => {
   const start = Date.now()
   const end = start + maxWaitTime
-  let errcount = 0
   const buffer = new Uint8Array([2])
   while (true) {
     const now = Date.now()
@@ -14,6 +13,5 @@ export const waitForSyncRpcResultFile = (handle: FileSystemSyncAccessHandle, max
     if (buffer[0] === 1) {
       return WaitForSyncBufferResultType.Ok
     }
-    errcount++
   }
 }

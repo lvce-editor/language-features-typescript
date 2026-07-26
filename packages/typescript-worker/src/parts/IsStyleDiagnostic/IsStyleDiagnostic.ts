@@ -3,7 +3,7 @@ import * as TypeScriptErrorCodes from '../TypeScriptErrorCodes/TypeScriptErrorCo
 // Style check diagnostics that can be reported as warnings
 const styleCheckDiagnostics = new Set([
   ...TypeScriptErrorCodes.variableDeclaredButNeverUsed,
-  ...TypeScriptErrorCodes.propertyDeclaretedButNeverUsed,
+  ...TypeScriptErrorCodes.propertyDeclaredButNeverUsed,
   ...TypeScriptErrorCodes.allImportsAreUnused,
   ...TypeScriptErrorCodes.unreachableCode,
   ...TypeScriptErrorCodes.unusedLabel,

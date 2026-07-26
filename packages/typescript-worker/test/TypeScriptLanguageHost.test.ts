@@ -9,10 +9,10 @@ test('create should return a language service host with proper methods', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => ['test.ts'],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: (uri: string) => 'file content',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -31,12 +31,12 @@ test('create should return a language service host with proper methods', () => {
   }
 
   const mockOptions = {
-    options: {
-      target: TypeScript.ScriptTarget.ES2020,
-      module: TypeScript.ModuleKind.ESNext,
-    },
-    fileNames: [],
     errors: [],
+    fileNames: [],
+    options: {
+      module: TypeScript.ModuleKind.ESNext,
+      target: TypeScript.ScriptTarget.ES2020,
+    },
   }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
@@ -70,17 +70,17 @@ test('getScriptKind should return TS for all files', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -96,17 +96,17 @@ test('directoryExists should always return true', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -121,10 +121,10 @@ test('fileExists should handle node_modules paths correctly', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -136,7 +136,7 @@ test('fileExists should handle node_modules paths correctly', () => {
     },
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -153,17 +153,17 @@ test('readFile should return empty string', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => '',
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -177,17 +177,17 @@ test('getNewLine should return newline character', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -201,10 +201,10 @@ test('readDirectory should call syncRpc', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -216,7 +216,7 @@ test('readDirectory should call syncRpc', () => {
     },
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -231,17 +231,17 @@ test('getDirectories should handle @types paths', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -257,17 +257,17 @@ test('useCaseSensitiveFileNames should return true', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -281,17 +281,17 @@ test('getProjectVersion should return string version', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -305,17 +305,17 @@ test('getScriptFileNames should return configured and file system script names',
 
   const mockFileSystem = {
     getScriptFileNames: () => ['file1.ts', 'file2.ts'],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: ['configured.ts', 'file1.ts'], errors: [] }
+  const mockOptions = { errors: [], fileNames: ['configured.ts', 'file1.ts'], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -329,17 +329,17 @@ test('getScriptVersion should return string version', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -353,17 +353,17 @@ test('writeFile should throw error', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -379,10 +379,10 @@ test('getCompilationSettings should return options', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -390,12 +390,12 @@ test('getCompilationSettings should return options', () => {
   }
 
   const mockOptions = {
-    options: {
-      target: TypeScript.ScriptTarget.ES2020,
-      module: TypeScript.ModuleKind.ESNext,
-    },
-    fileNames: [],
     errors: [],
+    fileNames: [],
+    options: {
+      module: TypeScript.ModuleKind.ESNext,
+      target: TypeScript.ScriptTarget.ES2020,
+    },
   }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
@@ -410,17 +410,17 @@ test('getCustomTransformers should throw error', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -436,17 +436,17 @@ test('getCurrentDirectory should return configured root directory', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: { rootDir: '/project' }, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: { rootDir: '/project' } }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -460,17 +460,17 @@ test('getDefaultLibFileName should return TypeScript default lib', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -486,17 +486,17 @@ test('getProjectReferences should return empty array', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 

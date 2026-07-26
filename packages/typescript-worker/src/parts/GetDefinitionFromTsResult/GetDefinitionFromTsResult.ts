@@ -9,20 +9,20 @@ export const getDefinitionFromTsResult = async (
     return undefined
   }
   const firstDefinition = tsResult[0]
-  const { start, end, file } = firstDefinition
+  const { end, file, start } = firstDefinition
   if (file === textDocument.uri) {
     const startOffset = await Position.getOffset(textDocument, {
-      rowIndex: start.line - 1,
       columnIndex: start.offset - 1,
+      rowIndex: start.line - 1,
     })
     const endOffset = await Position.getOffset(textDocument, {
-      rowIndex: end.line - 1,
       columnIndex: end.offset - 1,
+      rowIndex: end.line - 1,
     })
     return {
-      uri: file,
-      startOffset,
       endOffset,
+      startOffset,
+      uri: file,
     }
   }
   // TODO want offset based result
@@ -30,12 +30,12 @@ export const getDefinitionFromTsResult = async (
   const startOffset = 0
   const endOffset = 0
   return {
-    uri: file,
-    startRowIndex: start.line - 1,
-    startColumnIndex: start.offset - 1,
-    endRowIndex: end.line - 1,
     endColumnIndex: end.offset - 1,
-    startOffset,
     endOffset,
+    endRowIndex: end.line - 1,
+    startColumnIndex: start.offset - 1,
+    startOffset,
+    startRowIndex: start.line - 1,
+    uri: file,
   }
 }

@@ -13,11 +13,11 @@ export const getImplementationsFromTsResult = async (tsResult: ImplementationRes
     const lines = file.split('\n')
     const line = lines[Position.getRowIndex(span.start)]
     implementations.push({
-      uri: span.file,
-      startOffset: 0,
       endOffset: 0,
       // @ts-ignore
       lineText: line,
+      startOffset: 0,
+      uri: span.file,
     })
   }
   return implementations

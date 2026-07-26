@@ -5,6 +5,7 @@
   "description": "TypeScript Language Support",
   "browser": "dist/languageFeaturesTypeScriptMain.js",
   "isolated": true,
+  "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'"],
   "repository": "https://github.com/lvce-editor/language-features-typescript",
   "icon": "media/icon.png",
   "activation": [

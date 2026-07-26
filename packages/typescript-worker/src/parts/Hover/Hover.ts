@@ -3,7 +3,7 @@ import * as Assert from '../Assert/Assert.ts'
 import { getHover2 } from '../Hover2/Hover2.ts'
 
 export const getHover = async (typescriptRpc: CommonRpc, Position: any, textDocument: any, offset: number) => {
-  const uri = textDocument.uri
+  const { uri } = textDocument
   Assert.string(uri)
   Assert.number(offset)
   const result = await getHover2(textDocument, offset)

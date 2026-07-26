@@ -1,3 +1,4 @@
+// cspell:ignore extensionless
 import { test, expect, jest } from '@jest/globals'
 import * as TypeScript from 'typescript'
 import { createModuleResolver } from '../src/parts/CreateModuleResolver/CreateModuleResolver.ts'
@@ -219,8 +220,8 @@ test('createModuleResolver should resolve node modules with package.json', () =>
   const resolver = createModuleResolver(mockSyncRpc)
 
   const result = resolver('lodash', '/project/src/file.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule).toBeDefined()
@@ -246,8 +247,8 @@ test('createModuleResolver should resolve node modules relative to a file in a m
   const resolver = createModuleResolver({ invokeSync })
 
   const result = resolver('some-package', '/project/packages/build/src/build.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule?.resolvedFileName).toBe('/project/packages/build/node_modules/some-package/index.d.ts')
@@ -281,8 +282,8 @@ test('createModuleResolver should resolve hoisted node modules above the configu
   const resolver = createModuleResolver({ invokeSync })
 
   const result = resolver('some-package', '/project/packages/build/src/build.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project/packages/build',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/some-package/index.d.ts')
@@ -309,8 +310,8 @@ test('createModuleResolver should prefer types over main in package.json', () =>
   const resolver = createModuleResolver(mockSyncRpc)
 
   const result = resolver('some-package', '/project/src/file.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule).toBeDefined()
@@ -337,8 +338,8 @@ test('createModuleResolver should fallback to main when types is not available',
   const resolver = createModuleResolver(mockSyncRpc)
 
   const result = resolver('some-package', '/project/src/file.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule).toBeDefined()
@@ -392,8 +393,8 @@ test('createModuleResolver should handle JSON parse errors', () => {
   const resolver = createModuleResolver(mockSyncRpc)
 
   const result = resolver('some-package', '/project/src/file.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule).toBeUndefined()
@@ -419,8 +420,8 @@ test('createModuleResolver should handle file read errors', () => {
   const resolver = createModuleResolver(mockSyncRpc)
 
   const result = resolver('some-package', '/project/src/file.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule).toBeUndefined()
@@ -446,8 +447,8 @@ test('createModuleResolver should handle empty package.json', () => {
   const resolver = createModuleResolver(mockSyncRpc)
 
   const result = resolver('some-package', '/project/src/file.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule).toBeUndefined()
@@ -473,8 +474,8 @@ test('createModuleResolver should handle null package.json', () => {
   const resolver = createModuleResolver(mockSyncRpc)
 
   const result = resolver('some-package', '/project/src/file.ts', {
-    target: TypeScript.ScriptTarget.ES2020,
     rootDir: '/project',
+    target: TypeScript.ScriptTarget.ES2020,
   })
 
   expect(result.resolvedModule).toBeUndefined()
