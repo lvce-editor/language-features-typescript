@@ -59,17 +59,33 @@ test('createFileSystem should return empty array when no files', () => {
   expect(fileNames).toEqual([])
 })
 
-test('createFileSystem should return version string', () => {
+test('createFileSystem should update version when files change', () => {
   const fileSystem = createFileSystem()
 
   expect(fileSystem.getVersion()).toBe('0')
+  fileSystem.writeFile('file.ts', 'content')
+  expect(fileSystem.getVersion()).toBe('1')
+  fileSystem.writeFile('file.ts', 'updated content')
+  expect(fileSystem.getVersion()).toBe('2')
 })
 
-test('createFileSystem should return script version string', () => {
+test('createFileSystem should update script version when a file changes', () => {
   const fileSystem = createFileSystem()
 
   fileSystem.writeFile('file.ts', 'content')
-  expect(fileSystem.getScriptVersion('file.ts')).toBe('0')
+  expect(fileSystem.getScriptVersion('file.ts')).toBe('1')
+  fileSystem.writeFile('file.ts', 'updated content')
+  expect(fileSystem.getScriptVersion('file.ts')).toBe('2')
+})
+
+test('createFileSystem should preserve versions when content is unchanged', () => {
+  const fileSystem = createFileSystem()
+
+  fileSystem.writeFile('file.ts', 'content')
+  fileSystem.writeFile('file.ts', 'content')
+
+  expect(fileSystem.getVersion()).toBe('1')
+  expect(fileSystem.getScriptVersion('file.ts')).toBe('1')
 })
 
 test('createFileSystem should handle empty file content', () => {

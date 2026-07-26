@@ -3,5 +3,8 @@ import type { ParsedCommandLine } from 'typescript'
 export const emptyTsconfig: ParsedCommandLine = {
   errors: [],
   fileNames: [],
-  options: {},
+  options: {
+    allowJs: true,
+    checkJs: true,
+  },
 }
