@@ -238,6 +238,49 @@ test('resolveTsconfig should return empty tsconfig on error', () => {
   expect(result.fileNames).toEqual([])
 })
 
+test('resolveTsconfig should include nested files from configured source directories', () => {
+  const mockTsconfig = {
+    compilerOptions: {
+      composite: true,
+    },
+    include: ['src', 'test'],
+  }
+  const mockReadDir = (uri: string): readonly string[] => {
+    if (uri === '/project/src') {
+      return ['parts']
+    }
+    if (uri === '/project/src/parts') {
+      return ['ElectronDialog', 'GetWindowId']
+    }
+    if (uri === '/project/src/parts/ElectronDialog') {
+      return ['ElectronDialog.ts']
+    }
+    if (uri === '/project/src/parts/GetWindowId') {
+      return ['GetWindowId.ts']
+    }
+    if (uri === '/project/test') {
+      return ['ElectronDialog.test.ts']
+    }
+    return []
+  }
+
+  const result = resolveTsconfig(
+    '/project/tsconfig.json',
+    mockTsconfig,
+    () => '',
+    mockReadDir,
+    () => true,
+    TypeScript,
+  )
+
+  expect(result.options.configFilePath).toBe('/project/tsconfig.json')
+  expect(result.fileNames).toEqual([
+    '/project/src/parts/ElectronDialog/ElectronDialog.ts',
+    '/project/src/parts/GetWindowId/GetWindowId.ts',
+    '/project/test/ElectronDialog.test.ts',
+  ])
+})
+
 test('resolveTsconfig should handle complex tsconfig with multiple options', () => {
   const mockTsconfig = {
     compilerOptions: {

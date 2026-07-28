@@ -32,8 +32,10 @@ export const resolveTsconfig = (
     }
 
     const dirname = getParentPath(tsconfigPath)
-    const include = options.include || []
-    const files = getFiles(dirname, include as string[], readDir)
+    const include = parsed.files && !parsed.include ? [] : parsed.include
+    const discoveredFiles = getFiles(dirname, include, readDir)
+    const configuredFiles = (parsed.files || []).map((file: string) => `${dirname}/${file}`)
+    const files = [...new Set([...configuredFiles, ...discoveredFiles])]
     const result: TypeScript.ParsedCommandLine = {
       errors: [],
       fileNames: files as string[],
