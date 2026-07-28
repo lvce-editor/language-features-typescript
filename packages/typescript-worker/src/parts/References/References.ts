@@ -2,26 +2,13 @@ import * as FileReferences from '../FileReferences/FileReferences.ts'
 import { getOffset } from '../GetOffset/GetOffset.ts'
 import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 import { getReferencesFromTsResult2 } from '../GetReferencesFromTsResult2/GetReferencesFromTsResult2.ts'
-import * as GetReferencesFromTsResult from '../GetReferencesFromTsResult/GetReferencesFromTsResult.ts'
-import * as Position from '../Position/Position.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
-import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
-import * as TypeScriptRpc from '../TypeScriptRpc/TypeScriptRpc.ts'
-
-const getReferences = async (textDocument: any, offset: number) => {
-  await TextDocumentSync.openTextDocuments([textDocument])
-  const tsPosition = await Position.getTsPosition(textDocument, offset)
-  const tsResult = await TypeScriptRpc.invoke('References.getReferences', {
-    file: textDocument.uri,
-    line: tsPosition.line,
-    offset: tsPosition.offset,
-  })
-  return tsResult
-}
 
 export const provideReferences = async (textDocument: any, offset: number) => {
-  const tsResult = await getReferences(textDocument, offset)
-  const references = GetReferencesFromTsResult.getReferencesFromTsResult(textDocument, tsResult)
+  const { fs, languageService } = getOrCreateLanguageService(textDocument.uri)
+  fs.writeFile(textDocument.uri, textDocument.text)
+  const tsResult = languageService.getReferencesAtPosition(textDocument.uri, offset)
+  const references = await getReferencesFromTsResult2(tsResult, fs)
   return references
 }
 
