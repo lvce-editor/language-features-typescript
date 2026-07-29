@@ -58,7 +58,7 @@ export const exists = async (id: number, uri: string): Promise<void> => {
       const result = await existsApi(toFileUri(uri))
       return result
     } catch {
-      return true
+      return false
     }
   }
   await writeResult(id, resultGenerator)

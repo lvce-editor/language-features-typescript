@@ -19,7 +19,7 @@ test('waitForSyncRpcResultBuffer - ok result', () => {
   Atomics.wait = originalAtomicsWait
 })
 
-test('waitForSyncRpcResultBuffer - not-equal result', () => {
+test('waitForSyncRpcResultBuffer - response arrived before waiting', () => {
   const maxWaitTime = 1000
   const sharedBuffer = new Int32Array(1)
 
@@ -29,7 +29,7 @@ test('waitForSyncRpcResultBuffer - not-equal result', () => {
 
   const result = WaitForSyncRpcResultBuffer.waitForSyncRpcResultBuffer(maxWaitTime, sharedBuffer)
 
-  expect(result).toBe(WaitForSyncBufferResultType.NotEqual)
+  expect(result).toBe(WaitForSyncBufferResultType.Ok)
   expect(Atomics.wait).toHaveBeenCalledWith(sharedBuffer, 0, 0, maxWaitTime)
 
   // Restore original function

@@ -19,6 +19,10 @@ const getExtension = (fileName: string): string => {
   return fileName.slice(dotIndex)
 }
 
+const usesTypeScriptExtension = (moduleName: string): boolean => {
+  return /\.(?:[cm]?ts|tsx)$/.test(moduleName)
+}
+
 const isNode = (path: string): boolean => {
   return path.startsWith('node:')
 }
@@ -40,36 +44,69 @@ const toFileUri = (path: string): string => {
 }
 
 const resolveRelativePath = (containingFile: string, text: string): string => {
+  const normalizedContainingFile = containingFile.replaceAll('\\', '/')
   const containingFileUri = toFileUri(containingFile)
-  return new URL(text, containingFileUri).href
+  const resolved = new URL(text, containingFileUri)
+  if (normalizedContainingFile.startsWith('file://')) {
+    return resolved.href
+  }
+  if (normalizedContainingFile.startsWith('/')) {
+    return decodeURIComponent(resolved.pathname)
+  }
+  if (windowsAbsolutePathRegex.test(normalizedContainingFile)) {
+    return decodeURIComponent(resolved.pathname.slice(1))
+  }
+  return resolved.href
 }
 
-const getRelativeModuleName = (containingFile: string, text: string): string => {
+const getRelativeModuleNames = (containingFile: string, text: string): readonly string[] => {
   const normalizedContainingFile = containingFile.replaceAll('\\', '/')
   const isInNodeModules =
     normalizedContainingFile.startsWith('node_modules/') || normalizedContainingFile.includes('/node_modules/')
   const isDeclarationFile = normalizedContainingFile.endsWith('.d.ts')
   if (isInNodeModules && isDeclarationFile && text.endsWith('.ts') && !text.endsWith('.d.ts')) {
-    return `${text.slice(0, -3)}.d.ts`
+    return [`${text.slice(0, -3)}.d.ts`, text]
+  }
+  if (isInNodeModules && isDeclarationFile && text.endsWith('.d')) {
+    return [`${text}.ts`, text]
   }
   const baseName = text.slice(text.lastIndexOf('/') + 1)
   if (isInNodeModules && isDeclarationFile && !baseName.includes('.')) {
-    return `${text}.d.ts`
+    return [`${text}.d.ts`, `${text}.ts`]
   }
-  return text
+  return [text]
 }
 
-const resolveModuleNameRelative = (containingFile: string, text: string): ResolvedModuleWithFailedLookupLocations => {
-  const relativeModuleName = getRelativeModuleName(containingFile, text)
-  const resolveFileName = resolveRelativePath(containingFile, relativeModuleName)
-  const extension = getExtension(resolveFileName)
+const getExistingRelativeModuleName = (syncRpc: Readonly<SyncRpc>, containingFile: string, text: string): string => {
+  const relativeModuleNames = getRelativeModuleNames(containingFile, text)
+  for (const relativeModuleName of relativeModuleNames) {
+    const resolvedFileName = resolveRelativePath(containingFile, relativeModuleName)
+    try {
+      if (syncRpc.invokeSync('SyncApi.exists', resolvedFileName)) {
+        return relativeModuleName
+      }
+    } catch {
+      // Fall back to the preferred candidate when synchronous file access is unavailable.
+    }
+  }
+  return relativeModuleNames[0]
+}
+
+const resolveModuleNameRelative = (
+  syncRpc: Readonly<SyncRpc>,
+  containingFile: string,
+  text: string,
+): ResolvedModuleWithFailedLookupLocations => {
+  const relativeModuleName = getExistingRelativeModuleName(syncRpc, containingFile, text)
+  const resolvedFileName = resolveRelativePath(containingFile, relativeModuleName)
+  const extension = getExtension(resolvedFileName)
   return {
     resolvedModule: {
       extension,
       isExternalLibraryImport: false,
       packageId: undefined,
-      resolvedFileName: resolveFileName,
-      resolvedUsingTsExtension: true,
+      resolvedFileName,
+      resolvedUsingTsExtension: usesTypeScriptExtension(text),
     },
   }
 }
@@ -148,7 +185,7 @@ export const createModuleResolver = (syncRpc: Readonly<SyncRpc>): ModuleResolver
       }
     }
     if (text.startsWith('./') || text.startsWith('../')) {
-      return resolveModuleNameRelative(containingFile, text)
+      return resolveModuleNameRelative(syncRpc, containingFile, text)
     }
     return resolveModuleNodeModules(syncRpc, containingFile, text)
   }

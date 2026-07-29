@@ -8,7 +8,7 @@ export const provideReferences = async (textDocument: any, offset: number) => {
   const { fs, languageService } = getOrCreateLanguageService(textDocument.uri)
   fs.writeFile(textDocument.uri, textDocument.text)
   const tsResult = languageService.getReferencesAtPosition(textDocument.uri, offset)
-  const references = await getReferencesFromTsResult2(tsResult, fs)
+  const references = await getReferencesFromTsResult2(tsResult, fs, (uri) => Rpc.invoke('FileSystem.readFile', uri))
   return references
 }
 
@@ -19,7 +19,7 @@ export const provideReferences2 = async ({ position, uri }) => {
   fs.writeFile(uri, text)
   const offset = getOffset(text, position.rowIndex, position.columnIndex)
   const tsResult = languageService.getReferencesAtPosition(uri, offset)
-  const references = await getReferencesFromTsResult2(tsResult, fs)
+  const references = await getReferencesFromTsResult2(tsResult, fs, (uri) => Rpc.invoke('FileSystem.readFile', uri))
   return references
 }
 

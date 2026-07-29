@@ -1,4 +1,6 @@
 import type ts from 'typescript'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 
 const getUri = (fileName: string) => {
   if (fileName.includes('/node_modules/@typescript/lib') || fileName.includes('node_modules/@typescript/lib')) {
@@ -13,54 +15,29 @@ const getUri = (fileName: string) => {
   return fileName
 }
 
-export const getDefinitionFromTsResult2 = async (textDocument: any, tsResult: readonly ts.DefinitionInfo[]) => {
+export const getDefinitionFromTsResult2 = async (
+  tsResult: readonly ts.DefinitionInfo[],
+  fs: IFileSystem,
+  readFile: (uri: string) => Promise<string>,
+) => {
   if (tsResult.length === 0) {
     return undefined
   }
   const firstDefinition = tsResult[0]
-  const uri = getUri(firstDefinition.fileName)
-  let startOffset = 0
-  let endOffset = 0
-  if (firstDefinition.contextSpan) {
-    startOffset = firstDefinition.contextSpan.start
-    endOffset = firstDefinition.contextSpan.start + firstDefinition.contextSpan.length
-  }
+  const { fileName, textSpan } = firstDefinition
+  const uri = getUri(fileName)
+  const text = fs.readFile(fileName) || (await readFile(fileName))
+  const startOffset = textSpan.start
+  const endOffset = textSpan.start + textSpan.length
+  const startPosition = getPositionAt(text, startOffset)
+  const endPosition = getPositionAt(text, endOffset)
   return {
+    endColumnIndex: endPosition.columnIndex,
     endOffset,
+    endRowIndex: endPosition.rowIndex,
+    startColumnIndex: startPosition.columnIndex,
     startOffset,
+    startRowIndex: startPosition.rowIndex,
     uri,
   }
-  // const { textSpan } = firstDefinition
-  // if (file === textDocument.uri) {
-  //   // TODO
-  //   const startOffset = 0
-  //   //  await Position.getOffset(textDocument, {
-  //   //   rowIndex: start.line - 1,
-  //   //   columnIndex: start.offset - 1,
-  //   // })
-
-  //   const endOffset = await 0
-  //   //  Position.getOffset(textDocument, {
-  //   //   rowIndex: end.line - 1,
-  //   //   columnIndex: end.offset - 1,
-  //   // })
-  //   return {
-  //     uri: file,
-  //     startOffset,
-  //     endOffset,
-  //   }
-  // }
-  // TODO want offset based result
-  // probably would require to read file and map position to offset (very slow)
-  // const startOffset = 0
-  // const endOffset = 0
-  // return {
-  //   uri: file,
-  //   startRowIndex: start.line - 1,
-  //   startColumnIndex: start.offset - 1,
-  //   endRowIndex: end.line - 1,
-  //   endColumnIndex: end.offset - 1,
-  //   startOffset,
-  //   endOffset,
-  // }
 }
