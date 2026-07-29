@@ -43,7 +43,7 @@ export const create = (
   syncRpc: SyncRpc,
   options: TypeScript.ParsedCommandLine,
 ): ILanguageServiceHost => {
-  const resolveModuleName = createModuleResolver(syncRpc)
+  const resolveModuleName = createModuleResolver(syncRpc, ts)
   const languageServiceHost: ILanguageServiceHost = {
     directoryExists(directoryName) {
       if (doesSurelyNotExist(directoryName)) {
