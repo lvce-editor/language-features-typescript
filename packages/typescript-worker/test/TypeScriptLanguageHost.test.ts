@@ -65,7 +65,7 @@ test('create should return a language service host with proper methods', () => {
   expect(typeof host.getProjectReferences).toBe('function')
 })
 
-test('getScriptKind should return TS for all files', () => {
+test('getScriptKind should return the kind matching the file extension', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
   }
@@ -87,8 +87,13 @@ test('getScriptKind should return TS for all files', () => {
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
   expect(host.getScriptKind?.('test.ts')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind?.('test.js')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind?.('test.tsx')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.tsx')).toBe(TypeScript.ScriptKind.TSX)
+  expect(host.getScriptKind?.('test.js')).toBe(TypeScript.ScriptKind.JS)
+  expect(host.getScriptKind?.('test.mjs')).toBe(TypeScript.ScriptKind.JS)
+  expect(host.getScriptKind?.('test.cjs')).toBe(TypeScript.ScriptKind.JS)
+  expect(host.getScriptKind?.('test.jsx')).toBe(TypeScript.ScriptKind.JSX)
+  expect(host.getScriptKind?.('test.json')).toBe(TypeScript.ScriptKind.JSON)
+  expect(host.getScriptKind?.('test.unknown')).toBe(TypeScript.ScriptKind.TS)
 })
 
 test('directoryExists should always return true', () => {

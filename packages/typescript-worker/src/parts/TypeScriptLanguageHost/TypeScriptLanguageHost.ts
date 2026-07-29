@@ -20,6 +20,23 @@ const doesSurelyNotExist = (path: string): boolean => {
   return false
 }
 
+const getScriptKind = (ts: typeof TypeScript, fileName: string): TypeScript.ScriptKind => {
+  const lowerCaseFileName = fileName.toLowerCase()
+  if (lowerCaseFileName.endsWith('.tsx')) {
+    return ts.ScriptKind.TSX
+  }
+  if (lowerCaseFileName.endsWith('.jsx')) {
+    return ts.ScriptKind.JSX
+  }
+  if (lowerCaseFileName.endsWith('.js') || lowerCaseFileName.endsWith('.mjs') || lowerCaseFileName.endsWith('.cjs')) {
+    return ts.ScriptKind.JS
+  }
+  if (lowerCaseFileName.endsWith('.json')) {
+    return ts.ScriptKind.JSON
+  }
+  return ts.ScriptKind.TS
+}
+
 export const create = (
   ts: typeof TypeScript,
   fileSystem: IFileSystem,
@@ -79,7 +96,7 @@ export const create = (
       return [...new Set([...options.fileNames, ...files])]
     },
     getScriptKind(fileName) {
-      return ts.ScriptKind.TS
+      return getScriptKind(ts, fileName)
     },
     getScriptSnapshot(fileName) {
       if (isLibFile(fileName)) {
