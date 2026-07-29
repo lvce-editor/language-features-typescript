@@ -419,6 +419,87 @@ test('default project should report JavaScript diagnostics', () => {
   expect(languageService.getSemanticDiagnostics(uri).map((diagnostic) => diagnostic.code)).toContain(2356)
 })
 
+test('React TSX project should use installed JSX declarations', () => {
+  const uri = '/project/src/App.tsx'
+  const files: Readonly<Record<string, string>> = {
+    '/project/node_modules/@types/react/global.d.ts':
+      'declare namespace JSX { interface IntrinsicElements { main: Record<string, unknown> } }',
+    '/project/node_modules/@types/react/index.d.ts':
+      "/// <reference path='global.d.ts' />\nexport = React\ndeclare namespace React {}",
+    '/project/node_modules/@types/react/jsx-runtime.d.ts': "import './'",
+    '/project/node_modules/@types/react/package.json': JSON.stringify({
+      exports: {
+        '.': {
+          types: {
+            default: './index.d.ts',
+          },
+        },
+        './jsx-runtime': {
+          types: {
+            default: './jsx-runtime.d.ts',
+          },
+        },
+      },
+      name: '@types/react',
+      types: 'index.d.ts',
+      version: '18.2.0',
+    }),
+    '/project/node_modules/react/jsx-runtime.js': 'module.exports = {}',
+    '/project/node_modules/react/package.json': JSON.stringify({
+      exports: {
+        './jsx-runtime': './jsx-runtime.js',
+      },
+      main: 'index.js',
+    }),
+  }
+  const existingPaths = new Set(Object.keys(files))
+  for (const fileName of Object.keys(files)) {
+    let path = fileName
+    while (path.includes('/')) {
+      path = path.slice(0, path.lastIndexOf('/'))
+      existingPaths.add(path)
+    }
+  }
+  const syncRpc = {
+    invokeSync(method: string, path: string) {
+      if (method === 'SyncApi.exists') {
+        return existingPaths.has(path)
+      }
+      if (method === 'SyncApi.readDirSync') {
+        return []
+      }
+      if (method === 'SyncApi.readFileSync') {
+        return files[path] || ''
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const fileSystem = createFileSystem()
+  fileSystem.writeFile(uri, 'export const App = () => <main />')
+  const host = create(TypeScript, fileSystem, syncRpc, {
+    errors: [],
+    fileNames: [uri],
+    options: {
+      jsx: TypeScript.JsxEmit.ReactJSX,
+      module: TypeScript.ModuleKind.ESNext,
+      moduleResolution: TypeScript.ModuleResolutionKind.Bundler,
+      noLib: true,
+      rootDir: '/project',
+      skipLibCheck: true,
+      strict: true,
+    },
+  })
+  const languageService = TypeScript.createLanguageService(host)
+  const sourceFileNames = languageService
+    .getProgram()
+    ?.getSourceFiles()
+    .map((sourceFile) => sourceFile.fileName)
+
+  expect(sourceFileNames).toContain('/project/node_modules/@types/react/index.d.ts')
+  expect(sourceFileNames).toContain('/project/node_modules/@types/react/global.d.ts')
+  expect(languageService.getSemanticDiagnostics(uri)).toEqual([])
+})
+
 test('writeFile should throw error', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),

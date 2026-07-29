@@ -514,3 +514,104 @@ test('createModuleResolver should handle null package.json', () => {
 
   expect(result.resolvedModule).toBeUndefined()
 })
+
+const createWorkspaceSyncRpc = (files: Readonly<Record<string, string>>) => {
+  const existingPaths = new Set(Object.keys(files))
+  for (const fileName of Object.keys(files)) {
+    let path = fileName
+    while (path.includes('/')) {
+      path = path.slice(0, path.lastIndexOf('/'))
+      existingPaths.add(path)
+    }
+  }
+  return {
+    invokeSync(method: string, path: string) {
+      if (method === 'SyncApi.exists') {
+        return existingPaths.has(path)
+      }
+      if (method === 'SyncApi.readFileSync') {
+        return files[path] || ''
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+}
+
+const bundlerOptions = {
+  jsx: TypeScript.JsxEmit.ReactJSX,
+  module: TypeScript.ModuleKind.ESNext,
+  moduleResolution: TypeScript.ModuleResolutionKind.Bundler,
+}
+
+test('createModuleResolver should prefer installed React declarations over the runtime JavaScript entrypoint', () => {
+  const syncRpc = createWorkspaceSyncRpc({
+    '/project/node_modules/@types/react/index.d.ts': 'export = React',
+    '/project/node_modules/@types/react/package.json': JSON.stringify({ types: 'index.d.ts' }),
+    '/project/node_modules/react/index.js': 'module.exports = {}',
+    '/project/node_modules/react/package.json': JSON.stringify({ main: 'index.js' }),
+    '/project/src/main.tsx': "import React from 'react'",
+  })
+  const resolver = createModuleResolver(syncRpc, TypeScript)
+
+  const result = resolver('react', '/project/src/main.tsx', bundlerOptions)
+
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/@types/react/index.d.ts')
+})
+
+test('createModuleResolver should resolve React declaration subpaths', () => {
+  const syncRpc = createWorkspaceSyncRpc({
+    '/project/node_modules/@types/react-dom/client.d.ts': "import React = require('react')",
+    '/project/node_modules/@types/react-dom/index.d.ts': 'export as namespace ReactDOM',
+    '/project/node_modules/@types/react-dom/package.json': JSON.stringify({ types: 'index.d.ts' }),
+    '/project/node_modules/react-dom/client.js': 'module.exports = {}',
+    '/project/node_modules/react-dom/package.json': JSON.stringify({
+      exports: {
+        './client': './client.js',
+      },
+      main: 'index.js',
+    }),
+    '/project/src/main.tsx': "import ReactDOM from 'react-dom/client'",
+  })
+  const resolver = createModuleResolver(syncRpc, TypeScript)
+
+  const result = resolver('react-dom/client', '/project/src/main.tsx', bundlerOptions)
+
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/@types/react-dom/client.d.ts')
+})
+
+test('createModuleResolver should resolve the automatic React JSX runtime declarations', () => {
+  const syncRpc = createWorkspaceSyncRpc({
+    '/project/node_modules/@types/react/index.d.ts': 'export = React',
+    '/project/node_modules/@types/react/jsx-runtime.d.ts': "import './'",
+    '/project/node_modules/@types/react/package.json': JSON.stringify({ types: 'index.d.ts' }),
+    '/project/node_modules/react/jsx-runtime.js': 'module.exports = {}',
+    '/project/node_modules/react/package.json': JSON.stringify({
+      exports: {
+        './jsx-runtime': './jsx-runtime.js',
+      },
+      main: 'index.js',
+    }),
+    '/project/src/App.tsx': 'export const App = () => <main />',
+  })
+  const resolver = createModuleResolver(syncRpc, TypeScript)
+
+  const result = resolver('react/jsx-runtime', '/project/src/App.tsx', bundlerOptions)
+
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/@types/react/jsx-runtime.d.ts')
+})
+
+test('createModuleResolver should resolve declaration package directory imports', () => {
+  const syncRpc = createWorkspaceSyncRpc({
+    '/project/node_modules/@types/react/index.d.ts': 'export = React',
+    '/project/node_modules/@types/react/jsx-runtime.d.ts': "import './'",
+  })
+  const resolver = createModuleResolver(syncRpc, TypeScript)
+
+  const result = resolver('./', '/project/node_modules/@types/react/jsx-runtime.d.ts', bundlerOptions)
+
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/@types/react/index.d.ts')
+})

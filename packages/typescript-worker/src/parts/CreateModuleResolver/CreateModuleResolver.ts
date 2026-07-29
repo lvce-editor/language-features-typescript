@@ -1,3 +1,4 @@
+import type * as TypeScript from 'typescript'
 import type { CompilerOptions, ResolvedModuleWithFailedLookupLocations } from 'typescript'
 import type { ModuleResolver } from '../ModuleResolver/ModuleResolver.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
@@ -111,6 +112,34 @@ const resolveModuleNameRelative = (
   }
 }
 
+const resolveRelativeDirectoryIndex = (
+  syncRpc: Readonly<SyncRpc>,
+  containingFile: string,
+  text: string,
+): ResolvedModuleWithFailedLookupLocations => {
+  const resolvedFileName = resolveRelativePath(containingFile, `${text}index.d.ts`)
+  try {
+    if (!syncRpc.invokeSync('SyncApi.exists', resolvedFileName)) {
+      return {
+        resolvedModule: undefined,
+      }
+    }
+  } catch {
+    return {
+      resolvedModule: undefined,
+    }
+  }
+  return {
+    resolvedModule: {
+      extension: '.d.ts',
+      isExternalLibraryImport: containingFile.includes('/node_modules/'),
+      packageId: undefined,
+      resolvedFileName,
+      resolvedUsingTsExtension: false,
+    },
+  }
+}
+
 const getNodeModulesLocation = (text: string): string => {
   // TODO check that node types are in the compilerOptions, only then resolve them
   if (isNode(text)) {
@@ -173,12 +202,64 @@ const resolveModuleNodeModules = (
   }
 }
 
-export const createModuleResolver = (syncRpc: Readonly<SyncRpc>): ModuleResolver => {
+const createModuleResolutionHost = (syncRpc: Readonly<SyncRpc>): TypeScript.ModuleResolutionHost => {
+  const exists = (path: string): boolean => {
+    try {
+      return Boolean(syncRpc.invokeSync('SyncApi.exists', path))
+    } catch {
+      return false
+    }
+  }
+  return {
+    directoryExists: exists,
+    fileExists: exists,
+    readFile(path) {
+      try {
+        return syncRpc.invokeSync('SyncApi.readFileSync', path)
+      } catch {
+        return undefined
+      }
+    },
+    realpath(path) {
+      return path
+    },
+  }
+}
+
+const resolveModuleNameWithTypeScript = (
+  ts: typeof TypeScript,
+  host: TypeScript.ModuleResolutionHost,
+  text: string,
+  containingFile: string,
+  compilerOptions: CompilerOptions,
+): ResolvedModuleWithFailedLookupLocations => {
+  if (containingFile.startsWith('file://')) {
+    return {
+      resolvedModule: undefined,
+    }
+  }
+  return ts.resolveModuleName(text, containingFile, compilerOptions, host)
+}
+
+export const createModuleResolver = (syncRpc: Readonly<SyncRpc>, ts?: typeof TypeScript): ModuleResolver => {
+  const moduleResolutionHost = ts ? createModuleResolutionHost(syncRpc) : undefined
   const resolveModuleName = (
     text: string,
     containingFile: string,
-    _compilerOptions: CompilerOptions,
+    compilerOptions: CompilerOptions,
   ): ResolvedModuleWithFailedLookupLocations => {
+    if (ts && moduleResolutionHost) {
+      const result = resolveModuleNameWithTypeScript(ts, moduleResolutionHost, text, containingFile, compilerOptions)
+      if (result.resolvedModule) {
+        return result
+      }
+      if ((text.startsWith('./') || text.startsWith('../')) && text.endsWith('/')) {
+        const directoryIndexResult = resolveRelativeDirectoryIndex(syncRpc, containingFile, text)
+        if (directoryIndexResult.resolvedModule) {
+          return directoryIndexResult
+        }
+      }
+    }
     if (!isFullySpecified(text)) {
       return {
         resolvedModule: undefined,
