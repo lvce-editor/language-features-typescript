@@ -18,5 +18,5 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   await expect(mainTabs).toHaveCount(1)
   const mainTabTwo = mainTabs.nth(0)
   await expect(mainTabTwo).toHaveText('test.ts')
-  await Editor.shouldHaveSelections(new Uint32Array([0, 0, 0, 0]))
+  await Editor.shouldHaveSelections(new Uint32Array([0, 6, 0, 6]))
 }

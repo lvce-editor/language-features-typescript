@@ -69,7 +69,7 @@ test('createModuleResolver should handle relative imports starting with ./', () 
 
   expect(result.resolvedModule).toBeDefined()
   expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('file:///path/to/relative-module')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/path/to/relative-module')
 })
 
 test('createModuleResolver should handle relative imports starting with ../', () => {
@@ -89,7 +89,7 @@ test('createModuleResolver should handle relative imports starting with ../', ()
 
   expect(result.resolvedModule).toBeDefined()
   expect(result.resolvedModule?.extension).toBe('')
-  expect(result.resolvedModule?.resolvedFileName).toBe('file:///path/parent-module')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/path/parent-module')
 })
 
 test('createModuleResolver should normalize relative imports from file uris', () => {
@@ -118,7 +118,7 @@ test('createModuleResolver should normalize relative imports from file uris', ()
   )
 })
 
-test('createModuleResolver should resolve relative imports from absolute file paths as file uris', () => {
+test('createModuleResolver should preserve absolute file paths for relative imports', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
   }
@@ -140,7 +140,7 @@ test('createModuleResolver should resolve relative imports from absolute file pa
   expect(result.resolvedModule).toBeDefined()
   expect(result.resolvedModule?.extension).toBe('.ts')
   expect(result.resolvedModule?.resolvedFileName).toBe(
-    'file:///workspace/editor-worker/packages/editor-worker/src/parts/DomEventListenerFunctions/DomEventListenerFunctions.ts',
+    '/workspace/editor-worker/packages/editor-worker/src/parts/DomEventListenerFunctions/DomEventListenerFunctions.ts',
   )
 })
 
@@ -155,9 +155,7 @@ test('createModuleResolver should resolve .ts imports from declaration files in 
 
   expect(result.resolvedModule).toBeDefined()
   expect(result.resolvedModule?.extension).toBe('.d.ts')
-  expect(result.resolvedModule?.resolvedFileName).toBe(
-    'file:///project/node_modules/abc/parts/Activation/Activation.d.ts',
-  )
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/abc/parts/Activation/Activation.d.ts')
 })
 
 test('createModuleResolver should resolve extensionless imports from declaration files in node_modules as .d.ts files', () => {
@@ -171,7 +169,45 @@ test('createModuleResolver should resolve extensionless imports from declaration
 
   expect(result.resolvedModule).toBeDefined()
   expect(result.resolvedModule?.extension).toBe('.d.ts')
-  expect(result.resolvedModule?.resolvedFileName).toBe('file:///project/node_modules/undici-types/dispatcher.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/undici-types/dispatcher.d.ts')
+})
+
+test('createModuleResolver should fall back to a TypeScript source when a declaration import has no declaration file', () => {
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists') {
+      return uri === '/project/node_modules/picocolors/types.ts'
+    }
+    throw new Error(`unexpected method ${method}`)
+  })
+  const resolver = createModuleResolver({ invokeSync })
+
+  const result = resolver('./types', '/project/node_modules/picocolors/picocolors.d.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule?.extension).toBe('.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/picocolors/types.ts')
+  expect(result.resolvedModule?.resolvedUsingTsExtension).toBe(false)
+  expect(invokeSync).toHaveBeenNthCalledWith(1, 'SyncApi.exists', '/project/node_modules/picocolors/types.d.ts')
+  expect(invokeSync).toHaveBeenNthCalledWith(2, 'SyncApi.exists', '/project/node_modules/picocolors/types.ts')
+})
+
+test('createModuleResolver should resolve declaration imports ending in .d', () => {
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists') {
+      return uri === '/project/node_modules/tailwindcss/types/config.d.ts'
+    }
+    throw new Error(`unexpected method ${method}`)
+  })
+  const resolver = createModuleResolver({ invokeSync })
+
+  const result = resolver('./config.d', '/project/node_modules/tailwindcss/types/index.d.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/tailwindcss/types/config.d.ts')
+  expect(result.resolvedModule?.resolvedUsingTsExtension).toBe(false)
 })
 
 test('createModuleResolver should preserve .d.ts imports from declaration files in node_modules', () => {
@@ -183,9 +219,7 @@ test('createModuleResolver should preserve .d.ts imports from declaration files 
     target: TypeScript.ScriptTarget.ES2020,
   })
 
-  expect(result.resolvedModule?.resolvedFileName).toBe(
-    'file:///project/node_modules/abc/parts/Activation/Activation.d.ts',
-  )
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/abc/parts/Activation/Activation.d.ts')
 })
 
 test('createModuleResolver should preserve .ts imports outside node_modules', () => {
@@ -197,7 +231,7 @@ test('createModuleResolver should preserve .ts imports outside node_modules', ()
     target: TypeScript.ScriptTarget.ES2020,
   })
 
-  expect(result.resolvedModule?.resolvedFileName).toBe('file:///project/src/parts/Activation/Activation.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/src/parts/Activation/Activation.ts')
 })
 
 test('createModuleResolver should resolve node modules with package.json', () => {
