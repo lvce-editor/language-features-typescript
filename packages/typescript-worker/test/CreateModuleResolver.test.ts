@@ -530,7 +530,10 @@ const createWorkspaceSyncRpc = (files: Readonly<Record<string, string>>) => {
         return existingPaths.has(path)
       }
       if (method === 'SyncApi.readFileSync') {
-        return files[path] || ''
+        if (Object.hasOwn(files, path)) {
+          return files[path]
+        }
+        throw new Error('File not found')
       }
       throw new Error(`unexpected method ${method}`)
     },
@@ -614,4 +617,21 @@ test('createModuleResolver should resolve declaration package directory imports'
 
   expect(result.resolvedModule?.extension).toBe('.d.ts')
   expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/@types/react/index.d.ts')
+})
+
+test('createModuleResolver should resolve a CommonJS package whose main entry is a directory', () => {
+  const syncRpc = createWorkspaceSyncRpc({
+    '/project/node_modules/chalk/package.json': JSON.stringify({ main: 'source' }),
+    '/project/node_modules/chalk/source/index.js': 'module.exports = {}',
+    '/project/src/main.ts': "import chalk from 'chalk'",
+  })
+  const resolver = createModuleResolver(syncRpc, TypeScript)
+
+  const result = resolver('chalk', '/project/src/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+
+  expect(result.resolvedModule?.extension).toBe('.js')
+  expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/chalk/source/index.js')
 })

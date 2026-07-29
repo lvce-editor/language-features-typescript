@@ -469,7 +469,10 @@ test('React TSX project should use installed JSX declarations', () => {
         return []
       }
       if (method === 'SyncApi.readFileSync') {
-        return files[path] || ''
+        if (Object.hasOwn(files, path)) {
+          return files[path]
+        }
+        throw new Error('File not found')
       }
       throw new Error(`unexpected method ${method}`)
     },
