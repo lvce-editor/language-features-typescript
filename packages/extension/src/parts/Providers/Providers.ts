@@ -9,5 +9,6 @@ export * as ImplementationProvider from '../ExtensionHost/ExtensionHostImplement
 export * as ReferenceProvider from '../ExtensionHost/ExtensionHostReferenceProviderTypeScript.ts'
 export * as RenameProvider from '../ExtensionHost/ExtensionHostRenameProviderTypeScript.ts'
 export * as Selection from '../ExtensionHost/ExtensionHostSelectionProviderTypeScript.ts'
+export * as SignatureHelpProvider from '../ExtensionHost/ExtensionHostSignatureHelpProviderTypeScript.ts'
 export * as TabCompletionProvider from '../ExtensionHost/ExtensionHostTabCompletionProviderTypeScript.ts'
 export * as TypeDefinitionProvider from '../ExtensionHost/ExtensionHostTypeDefinitionProviderTypeScript.ts'

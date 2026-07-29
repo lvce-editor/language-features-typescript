@@ -11,6 +11,7 @@ import {
   registerReferenceProvider,
   registerRenameProvider,
   registerSelectionProvider,
+  registerSignatureHelpProvider,
   registerTabCompletionProvider,
   registerTypeDefinitionProvider,
 } from '@lvce-editor/api'
@@ -47,6 +48,10 @@ const registerProvider = (provider: any): void => {
   }
   if ('provideHover' in provider) {
     registerHoverProvider(provider)
+    return
+  }
+  if ('provideSignatureHelp' in provider) {
+    registerSignatureHelpProvider(provider)
     return
   }
   if ('provideTabCompletion' in provider) {

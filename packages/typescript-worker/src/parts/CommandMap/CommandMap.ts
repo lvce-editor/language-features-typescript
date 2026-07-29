@@ -11,6 +11,7 @@ import * as References from '../References/References.ts'
 import * as Rename from '../Rename/Rename.ts'
 import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.ts'
 import * as Selection from '../Selection/Selection.ts'
+import * as SignatureHelp from '../SignatureHelp/SignatureHelp.ts'
 import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
 export const commandMap = {
@@ -29,4 +30,5 @@ export const commandMap = {
   'References.provideReferences2': References.provideReferences2,
   'Rename.rename': WrapCommand.wrapCommand(Rename.rename),
   'Selection.expandSelections': WrapCommand.wrapCommand(Selection.expandSelection),
+  'SignatureHelp.getSignatureHelp': WrapCommand.wrapCommand(SignatureHelp.getSignatureHelp),
 }
