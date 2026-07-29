@@ -15,6 +15,7 @@
     "onCompletion:javascript",
     "onDefinition:javascript",
     "onDefinition:typescript",
+    "onDefinition:typescriptreact",
     "onDiagnostic:javascript",
     "onDiagnostic:typescript",
     "onLanguage:javascript",
