@@ -26,6 +26,7 @@
     "onRename:typescript",
     "onReferences:javascript",
     "onReferences:typescript",
+    "onReferences:typescriptreact",
     "onImplementation:javascript",
     "onImplementation:typescript",
     "onClosingTag:javascript",
@@ -33,6 +34,7 @@
     "onTypeDefinition:typescript",
     "onHover:javascript",
     "onHover:typescript",
+    "onHover:typescriptreact",
     "onTabCompletion:javascript",
     "onTabCompletion:typescript"
   ],
