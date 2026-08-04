@@ -18,4 +18,8 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   await expect(mainTabs).toHaveCount(2)
   const mainTabTwo = mainTabs.nth(1)
   await expect(mainTabTwo).toHaveText('lib.dom.d.ts')
+  const editorError = Locator('.TextEditorError')
+  await expect(editorError).toBeHidden()
+  const editorContent = Locator('.EditorContent')
+  await expect(editorContent).toBeVisible()
 }

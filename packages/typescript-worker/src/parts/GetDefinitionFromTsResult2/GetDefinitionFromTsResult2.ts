@@ -5,13 +5,17 @@ import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 
+export const toOpenableUri = (libFileUrl: string): string => {
+  const url = new URL(libFileUrl)
+  if (url.protocol === 'http:' || url.protocol === 'https:') {
+    return `fetch://${url.host}${url.pathname}${url.search}${url.hash}`
+  }
+  return libFileUrl
+}
+
 const getUri = (fileName: string) => {
   if (isLibFile(fileName)) {
-    const url = new URL(getLibFileUrl(fileName))
-    if (url.pathname.startsWith('/remote/')) {
-      return url.pathname.slice('/remote'.length)
-    }
-    return url.pathname
+    return toOpenableUri(getLibFileUrl(fileName))
   }
   return fileName
 }
