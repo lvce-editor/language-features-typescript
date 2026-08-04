@@ -46,3 +46,33 @@ test('returns undefined when TypeScript finds no definition', async () => {
   expect(await getDefinitionFromTsResult2([], fs, readFile)).toBeUndefined()
   expect(readFile).not.toHaveBeenCalled()
 })
+
+test.each([
+  ['lib.es5.d.ts', 'lib.es5.d.ts'],
+  ['node_modules/@typescript/lib-es5.d.ts', 'lib.es5.d.ts'],
+])('converts the TypeScript library target %s to an openable asset URL', async (fileName, expectedBaseName) => {
+  const fs = createFileSystem()
+  fs.writeFile(fileName, 'round')
+  const readFile = jest.fn<(uri: string) => Promise<string>>(async () => 'round')
+
+  const definition = await getDefinitionFromTsResult2(
+    [
+      {
+        containerKind: ts.ScriptElementKind.unknown,
+        containerName: 'Math',
+        fileName,
+        kind: ts.ScriptElementKind.memberFunctionElement,
+        name: 'round',
+        textSpan: {
+          length: 5,
+          start: 0,
+        },
+      },
+    ],
+    fs,
+    readFile,
+  )
+
+  expect(readFile).not.toHaveBeenCalled()
+  expect(definition?.uri).toContain(`/node_modules/typescript/lib/${expectedBaseName}`)
+})

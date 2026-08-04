@@ -1,18 +1,37 @@
 import type ts from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import { getLibFileUrl } from '../GetLibFileUrl/GetLibFileUrl.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
+import { isLibFile } from '../IsLibFile/IsLibFile.ts'
+import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 
 const getUri = (fileName: string) => {
-  if (fileName.includes('/node_modules/@typescript/lib') || fileName.includes('node_modules/@typescript/lib')) {
-    const base = fileName
-      .slice(fileName.lastIndexOf('/') + 1)
-      .replaceAll('-', '.')
-      .replace('.ts', '.d.ts')
-    const almost = new URL(`../../../node_modules/typescript/lib/${base}`, import.meta.url).href
-    const uri = almost.slice(almost.indexOf('/remote') + '/remote'.length)
-    return uri
+  if (isLibFile(fileName)) {
+    const url = new URL(getLibFileUrl(fileName))
+    if (url.pathname.startsWith('/remote/')) {
+      return url.pathname.slice('/remote'.length)
+    }
+    return url.pathname
   }
   return fileName
+}
+
+const getText = async (
+  fileName: string,
+  fs: IFileSystem,
+  readFile: (uri: string) => Promise<string>,
+): Promise<string> => {
+  const cachedText = fs.readFile(fileName)
+  if (cachedText) {
+    return cachedText
+  }
+  if (isLibFile(fileName)) {
+    const libText = readLibFile(fileName)
+    if (libText) {
+      return libText
+    }
+  }
+  return readFile(fileName)
 }
 
 export const getDefinitionFromTsResult2 = async (
@@ -26,7 +45,7 @@ export const getDefinitionFromTsResult2 = async (
   const firstDefinition = tsResult[0]
   const { fileName, textSpan } = firstDefinition
   const uri = getUri(fileName)
-  const text = fs.readFile(fileName) || (await readFile(fileName))
+  const text = await getText(fileName, fs, readFile)
   const startOffset = textSpan.start
   const endOffset = textSpan.start + textSpan.length
   const startPosition = getPositionAt(text, startOffset)
