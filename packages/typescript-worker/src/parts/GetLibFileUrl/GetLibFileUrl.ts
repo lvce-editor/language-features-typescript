@@ -17,7 +17,7 @@ export const getLibFileUrl = (uri: string): string => {
     uri
       .slice(index + libStringLength)
       .replaceAll(/[-/]/g, '.')
-      .replaceAll('.ts', '') +
+      .replace(/(?:\.d)?\.ts$/, '') +
     '.d.ts'
 
   return new URL(`../../../node_modules/typescript/lib/${relativePath}`, import.meta.url).href
