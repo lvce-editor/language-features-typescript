@@ -329,6 +329,43 @@ test('getScriptFileNames should return configured and file system script names',
   expect(host.getScriptFileNames?.()).toEqual(['configured.ts', 'file1.ts', 'file2.ts'])
 })
 
+test('missing file reads should return undefined', () => {
+  const fileSystem = createFileSystem()
+  const mockSyncRpc = {
+    invokeSync(method: string) {
+      if (method === 'SyncApi.readFileSync') {
+        throw new Error('File not found')
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, {
+    errors: [],
+    fileNames: [],
+    options: {},
+  })
+
+  expect(host.getScriptSnapshot?.('/project/missing.ts')).toBeUndefined()
+  expect(host.readFile?.('/project/missing.ts')).toBeUndefined()
+})
+
+test('getScriptSnapshot should preserve empty in-memory files', () => {
+  const fileSystem = createFileSystem()
+  fileSystem.writeFile('/project/empty.ts', '')
+  const mockSyncRpc = {
+    invokeSync() {
+      throw new Error('unexpected synchronous file read')
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, {
+    errors: [],
+    fileNames: [],
+    options: {},
+  })
+
+  expect(host.getScriptSnapshot?.('/project/empty.ts')?.getLength()).toBe(0)
+})
+
 test('getScriptVersion should return string version', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
