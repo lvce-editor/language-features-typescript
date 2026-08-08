@@ -28,7 +28,7 @@ test('createModuleResolver should return undefined for non-fully specified modul
   }
 
   const mockSyncRpc = {
-    invokeSync: () => '',
+    invokeSync: () => true,
   }
 
   const resolver = createModuleResolver(mockSyncRpc)
@@ -58,7 +58,7 @@ test('createModuleResolver should handle relative imports starting with ./', () 
   }
 
   const mockSyncRpc = {
-    invokeSync: () => '',
+    invokeSync: () => true,
   }
 
   const resolver = createModuleResolver(mockSyncRpc)
@@ -78,7 +78,7 @@ test('createModuleResolver should handle relative imports starting with ../', ()
   }
 
   const mockSyncRpc = {
-    invokeSync: () => '',
+    invokeSync: () => true,
   }
 
   const resolver = createModuleResolver(mockSyncRpc)
@@ -98,7 +98,7 @@ test('createModuleResolver should normalize relative imports from file uris', ()
   }
 
   const mockSyncRpc = {
-    invokeSync: () => '',
+    invokeSync: () => true,
   }
 
   const resolver = createModuleResolver(mockSyncRpc)
@@ -124,7 +124,7 @@ test('createModuleResolver should preserve absolute file paths for relative impo
   }
 
   const mockSyncRpc = {
-    invokeSync: () => '',
+    invokeSync: () => true,
   }
 
   const resolver = createModuleResolver(mockSyncRpc)
@@ -146,7 +146,7 @@ test('createModuleResolver should preserve absolute file paths for relative impo
 
 test('createModuleResolver should resolve .ts imports from declaration files in node_modules as .d.ts files', () => {
   const resolver = createModuleResolver({
-    invokeSync: () => '',
+    invokeSync: () => true,
   })
 
   const result = resolver('./parts/Activation/Activation.ts', '/project/node_modules/abc/index.d.ts', {
@@ -160,7 +160,7 @@ test('createModuleResolver should resolve .ts imports from declaration files in 
 
 test('createModuleResolver should resolve extensionless imports from declaration files in node_modules as .d.ts files', () => {
   const resolver = createModuleResolver({
-    invokeSync: () => '',
+    invokeSync: () => true,
   })
 
   const result = resolver('./dispatcher', '/project/node_modules/undici-types/index.d.ts', {
@@ -212,7 +212,7 @@ test('createModuleResolver should resolve declaration imports ending in .d', () 
 
 test('createModuleResolver should preserve .d.ts imports from declaration files in node_modules', () => {
   const resolver = createModuleResolver({
-    invokeSync: () => '',
+    invokeSync: () => true,
   })
 
   const result = resolver('./parts/Activation/Activation.d.ts', '/project/node_modules/abc/index.d.ts', {
@@ -224,7 +224,7 @@ test('createModuleResolver should preserve .d.ts imports from declaration files 
 
 test('createModuleResolver should preserve .ts imports outside node_modules', () => {
   const resolver = createModuleResolver({
-    invokeSync: () => '',
+    invokeSync: () => true,
   })
 
   const result = resolver('./parts/Activation/Activation.ts', '/project/src/index.d.ts', {
@@ -617,6 +617,21 @@ test('createModuleResolver should resolve declaration package directory imports'
 
   expect(result.resolvedModule?.extension).toBe('.d.ts')
   expect(result.resolvedModule?.resolvedFileName).toBe('/project/node_modules/@types/react/index.d.ts')
+})
+
+test('createModuleResolver should not resolve a missing relative target from a declaration package', () => {
+  const syncRpc = createWorkspaceSyncRpc({
+    '/project/node_modules/incomplete-library/index.d.ts': "export { MissingType } from './contracts/MissingType.js'",
+  })
+  const resolver = createModuleResolver(syncRpc, TypeScript)
+
+  const result = resolver(
+    './contracts/MissingType.js',
+    '/project/node_modules/incomplete-library/index.d.ts',
+    bundlerOptions,
+  )
+
+  expect(result.resolvedModule).toBeUndefined()
 })
 
 test('createModuleResolver should resolve a CommonJS package whose main entry is a directory', () => {

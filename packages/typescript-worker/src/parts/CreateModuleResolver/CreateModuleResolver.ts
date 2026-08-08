@@ -78,8 +78,13 @@ const getRelativeModuleNames = (containingFile: string, text: string): readonly 
   return [text]
 }
 
-const getExistingRelativeModuleName = (syncRpc: Readonly<SyncRpc>, containingFile: string, text: string): string => {
+const getExistingRelativeModuleName = (
+  syncRpc: Readonly<SyncRpc>,
+  containingFile: string,
+  text: string,
+): string | undefined => {
   const relativeModuleNames = getRelativeModuleNames(containingFile, text)
+  let syncAccessUnavailable = false
   for (const relativeModuleName of relativeModuleNames) {
     const resolvedFileName = resolveRelativePath(containingFile, relativeModuleName)
     try {
@@ -87,10 +92,11 @@ const getExistingRelativeModuleName = (syncRpc: Readonly<SyncRpc>, containingFil
         return relativeModuleName
       }
     } catch {
-      // Fall back to the preferred candidate when synchronous file access is unavailable.
+      syncAccessUnavailable = true
     }
   }
-  return relativeModuleNames[0]
+  // Preserve the legacy fallback only when synchronous file access itself is unavailable.
+  return syncAccessUnavailable ? relativeModuleNames[0] : undefined
 }
 
 const resolveModuleNameRelative = (
@@ -99,6 +105,11 @@ const resolveModuleNameRelative = (
   text: string,
 ): ResolvedModuleWithFailedLookupLocations => {
   const relativeModuleName = getExistingRelativeModuleName(syncRpc, containingFile, text)
+  if (!relativeModuleName) {
+    return {
+      resolvedModule: undefined,
+    }
+  }
   const resolvedFileName = resolveRelativePath(containingFile, relativeModuleName)
   const extension = getExtension(resolvedFileName)
   return {

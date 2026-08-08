@@ -106,8 +106,15 @@ export const create = (
         }
         return ts.ScriptSnapshot.fromString(content)
       }
-      const content = fileSystem.readFile(fileName) || syncRpc.invokeSync('SyncApi.readFileSync', fileName)
-      if (!content) {
+      let content = fileSystem.readFile(fileName)
+      if (content === undefined) {
+        try {
+          content = syncRpc.invokeSync('SyncApi.readFileSync', fileName)
+        } catch {
+          return undefined
+        }
+      }
+      if (content === undefined) {
         return undefined
       }
       const snapshot = ts.ScriptSnapshot.fromString(content)
@@ -121,8 +128,11 @@ export const create = (
       return dirents
     },
     readFile(path) {
-      const result = syncRpc.invokeSync('SyncApi.readFileSync', path)
-      return result
+      try {
+        return syncRpc.invokeSync('SyncApi.readFileSync', path)
+      } catch {
+        return undefined
+      }
     },
     resolveModuleNameLiterals(
       moduleLiterals,
