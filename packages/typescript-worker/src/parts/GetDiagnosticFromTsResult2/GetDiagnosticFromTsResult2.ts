@@ -9,14 +9,15 @@ interface TypeScriptDiagnosticMessageChain {
 interface TypeScriptDiagnostic {
   readonly category: number
   readonly code: number
-  readonly file: { readonly fileName: string } | undefined
+  readonly file: { readonly fileName: string; readonly text?: string } | undefined
   readonly length: number | undefined
   readonly messageText: string | TypeScriptDiagnosticMessageChain
+  readonly relatedInformation?: readonly TypeScriptDiagnostic[]
   readonly start: number | undefined
 }
 
 interface TypeScriptDiagnosticWithLocation extends TypeScriptDiagnostic {
-  readonly file: { readonly fileName: string }
+  readonly file: { readonly fileName: string; readonly text?: string }
   readonly length: number
   readonly start: number
 }
@@ -27,9 +28,19 @@ interface ConvertedDiagnostic {
   readonly endColumnIndex: number
   readonly endRowIndex: number
   readonly message: string
+  readonly relatedInformation?: readonly ConvertedRelatedInformation[]
   readonly rowIndex: number
   readonly source: 'ts'
   readonly type: 'error' | 'warning'
+  readonly uri: string
+}
+
+interface ConvertedRelatedInformation {
+  readonly columnIndex: number
+  readonly endColumnIndex: number
+  readonly endRowIndex: number
+  readonly message: string
+  readonly rowIndex: number
   readonly uri: string
 }
 
@@ -49,6 +60,22 @@ const flattenDiagnosticMessageText = (
   return result
 }
 
+const convertRelatedInformation = (diagnostic: TypeScriptDiagnostic): ConvertedRelatedInformation | undefined => {
+  if (!hasLocation(diagnostic) || typeof diagnostic.file.text !== 'string') {
+    return undefined
+  }
+  const start = getPositionAt(diagnostic.file.text, diagnostic.start)
+  const end = getPositionAt(diagnostic.file.text, diagnostic.start + diagnostic.length)
+  return {
+    columnIndex: start.columnIndex,
+    endColumnIndex: end.columnIndex,
+    endRowIndex: end.rowIndex,
+    message: flattenDiagnosticMessageText(diagnostic.messageText),
+    rowIndex: start.rowIndex,
+    uri: diagnostic.file.fileName,
+  }
+}
+
 /**
  *
  */
@@ -56,7 +83,7 @@ const convertTsDiagnostic = (text: string, diagnostic: TypeScriptDiagnosticWithL
   // TODO in api, use only start offset and end offset. problems view can convert locations if needed
   const start = getPositionAt(text, diagnostic.start)
   const end = getPositionAt(text, diagnostic.start + diagnostic.length)
-  return {
+  const converted: ConvertedDiagnostic = {
     code: diagnostic.code,
     columnIndex: start.columnIndex,
     endColumnIndex: end.columnIndex,
@@ -67,6 +94,11 @@ const convertTsDiagnostic = (text: string, diagnostic: TypeScriptDiagnosticWithL
     type: GetDiagnosticSeverity.getDiagnosticSeverity(diagnostic),
     uri: diagnostic.file.fileName,
   }
+  const relatedInformation = diagnostic.relatedInformation?.flatMap((item) => {
+    const convertedItem = convertRelatedInformation(item)
+    return convertedItem ? [convertedItem] : []
+  })
+  return relatedInformation && relatedInformation.length > 0 ? { ...converted, relatedInformation } : converted
 }
 
 const hasLocation = (diagnostic: TypeScriptDiagnostic): diagnostic is TypeScriptDiagnosticWithLocation => {
