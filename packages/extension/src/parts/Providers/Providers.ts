@@ -4,6 +4,7 @@ export * as CommentProvider from '../ExtensionHost/ExtensionHostCommentProviderT
 export * as CompletionProvider from '../ExtensionHost/ExtensionHostCompletionProviderTypeScript.ts'
 export * as DefinitionProvider from '../ExtensionHost/ExtensionHostDefinitionProviderTypeScript.ts'
 export * as DiagnosticProvider from '../ExtensionHost/ExtensionHostDiagnosticProviderTypeScript.ts'
+export * as DocumentSymbolProvider from '../ExtensionHost/ExtensionHostDocumentSymbolProviderTypeScript.ts'
 export * as HoverProvider from '../ExtensionHost/ExtensionHostHoverProviderTypeScript.ts'
 export * as ImplementationProvider from '../ExtensionHost/ExtensionHostImplementationProviderTypeScript.ts'
 export * as ReferenceProvider from '../ExtensionHost/ExtensionHostReferenceProviderTypeScript.ts'
