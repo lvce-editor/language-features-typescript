@@ -87,3 +87,56 @@ test('flattens diagnostic message chains', () => {
     },
   ])
 })
+
+test('converts related diagnostic locations', () => {
+  const diagnostics = [
+    {
+      category: 1,
+      code: 2322,
+      file: {
+        fileName: '/main.ts',
+        text: 'const user: User = { name: 456 }',
+      } as ts.SourceFile,
+      length: 4,
+      messageText: "Type 'number' is not assignable to type 'string'.",
+      relatedInformation: [
+        {
+          category: 3,
+          code: 6500,
+          file: {
+            fileName: '/types.ts',
+            text: 'const name: string',
+          } as ts.SourceFile,
+          length: 4,
+          messageText: "The expected type comes from property 'name'.",
+          start: 6,
+        },
+      ],
+      start: 12,
+    },
+  ] as const
+
+  expect(getDiagnosticsFromTsResult2('const user: User = { name: 456 }', diagnostics)).toEqual([
+    {
+      code: 2322,
+      columnIndex: 12,
+      endColumnIndex: 16,
+      endRowIndex: 0,
+      message: "Type 'number' is not assignable to type 'string'.",
+      relatedInformation: [
+        {
+          columnIndex: 6,
+          endColumnIndex: 10,
+          endRowIndex: 0,
+          message: "The expected type comes from property 'name'.",
+          rowIndex: 0,
+          uri: '/types.ts',
+        },
+      ],
+      rowIndex: 0,
+      source: 'ts',
+      type: 'error',
+      uri: '/main.ts',
+    },
+  ])
+})
