@@ -118,6 +118,27 @@ test('createModuleResolver should normalize relative imports from file uris', ()
   )
 })
 
+test('createModuleResolver should resolve JavaScript imports from file uris to TypeScript source', () => {
+  const invokeSync = jest.fn((method: string, path: string) => {
+    if (method === 'SyncApi.exists') {
+      return path === '/workspace'
+    }
+    if (method === 'SyncApi.readFileSync' && path === '/workspace/types.ts') {
+      return 'export interface User { name: string }'
+    }
+    throw new Error('File not found')
+  })
+  const resolver = createModuleResolver({ invokeSync }, TypeScript)
+
+  const result = resolver('./types.js', 'file:///workspace/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+
+  expect(result.resolvedModule?.extension).toBe('.ts')
+  expect(result.resolvedModule?.resolvedFileName).toBe('file:///workspace/types.ts')
+})
+
 test('createModuleResolver should preserve absolute file paths for relative imports', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),

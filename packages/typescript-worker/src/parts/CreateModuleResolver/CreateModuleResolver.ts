@@ -44,6 +44,11 @@ const toFileUri = (path: string): string => {
   return normalizedPath
 }
 
+const toFilePath = (uri: string): string => {
+  const path = decodeURIComponent(new URL(uri).pathname)
+  return /^\/[a-zA-Z]:\//.test(path) ? path.slice(1) : path
+}
+
 const resolveRelativePath = (containingFile: string, text: string): string => {
   const normalizedContainingFile = containingFile.replaceAll('\\', '/')
   const containingFileUri = toFileUri(containingFile)
@@ -252,12 +257,19 @@ const resolveModuleNameWithTypeScript = (
   containingFile: string,
   compilerOptions: CompilerOptions,
 ): ResolvedModuleWithFailedLookupLocations => {
-  if (containingFile.startsWith('file://')) {
-    return {
-      resolvedModule: undefined,
-    }
+  const containingFileIsUri = containingFile.startsWith('file://')
+  const containingFilePath = containingFileIsUri ? toFilePath(containingFile) : containingFile
+  const result = ts.resolveModuleName(text, containingFilePath, compilerOptions, host)
+  if (!containingFileIsUri || !result.resolvedModule) {
+    return result
   }
-  return ts.resolveModuleName(text, containingFile, compilerOptions, host)
+  return {
+    ...result,
+    resolvedModule: {
+      ...result.resolvedModule,
+      resolvedFileName: toFileUri(result.resolvedModule.resolvedFileName),
+    },
+  }
 }
 
 export const createModuleResolver = (syncRpc: Readonly<SyncRpc>, ts?: typeof TypeScript): ModuleResolver => {
