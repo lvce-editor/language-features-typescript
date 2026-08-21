@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.shrink-selection'
 
-export const test: Test = async ({ Editor, FileSystem, Main, QuickPick, Workspace }) => {
+export const test: Test = async ({ Editor, FileSystem, Main, Workspace }) => {
   const fixtureUrl = import.meta.resolve('../fixtures/grow-selection')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
@@ -12,15 +12,17 @@ export const test: Test = async ({ Editor, FileSystem, Main, QuickPick, Workspac
     await Editor.growSelection()
   }
 
-  await QuickPick.executeCommand('Cursor Undo')
+  const { shrinkSelection } = Editor as typeof Editor & { readonly shrinkSelection: () => Promise<void> }
+
+  await shrinkSelection()
   await Editor.shouldHaveSelections(new Uint32Array([1, 17, 1, 37]))
 
-  await QuickPick.executeCommand('Cursor Undo')
+  await shrinkSelection()
   await Editor.shouldHaveSelections(new Uint32Array([1, 17, 1, 28]))
 
-  await QuickPick.executeCommand('Cursor Undo')
+  await shrinkSelection()
   await Editor.shouldHaveSelections(new Uint32Array([1, 25, 1, 27]))
 
-  await QuickPick.executeCommand('Cursor Undo')
+  await shrinkSelection()
   await Editor.shouldHaveSelections(new Uint32Array([1, 26, 1, 26]))
 }

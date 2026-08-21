@@ -49,3 +49,8 @@ jobs:
         if: matrix.os != 'macos-15'
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run smart selection headless tests
+        run: npm run e2e:smart-selection
+        if: matrix.os != 'macos-15'
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0

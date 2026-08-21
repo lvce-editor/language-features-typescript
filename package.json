@@ -15,6 +15,7 @@
     "dev": "node packages/build/src/dev.ts",
     "e2e": "npm run e2e --workspace=packages/e2e",
     "e2e:headless": "npm run e2e:headless --workspace=packages/e2e",
+    "e2e:smart-selection": "npm run e2e:smart-selection --workspace=packages/e2e",
     "format": "prettier --write .",
     "postinstall": "node packages/build/src/postinstall.ts",
     "lint": "eslint . && prettier --check .",

@@ -4,8 +4,9 @@
   "description": "End-to-end tests for TypeScript language features",
   "main": "index.js",
   "scripts": {
-    "e2e": "test-with-playwright --only-extension=../extension --test-path=.",
-    "e2e:headless": "test-with-playwright --only-extension=../extension --test-path=. --headless"
+    "e2e": "node ../build/src/run-e2e.ts stable-e2e",
+    "e2e:headless": "node ../build/src/run-e2e.ts stable-e2e --headless",
+    "e2e:smart-selection": "node ../build/src/run-e2e.ts smart-selection-e2e --headless"
   },
   "type": "module",
   "author": {
@@ -14,6 +15,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@lvce-editor/server-smart-selection": "npm:@lvce-editor/server@0.105.19",
     "@lvce-editor/test-with-playwright": "^10.3.0"
   }
 }
