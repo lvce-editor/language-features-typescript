@@ -1,19 +1,15 @@
 import type { Test } from '@lvce-editor/test-with-playwright'
 
-export const name = 'typescript.grow-selection'
+export const name = 'typescript.grow-selection-reversed'
 
 export const test: Test = async ({ Editor, FileSystem, Main, Workspace }) => {
-  // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/grow-selection')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
-  await Editor.setCursor(1, 26)
+  await Editor.setSelections(new Uint32Array([1, 27, 1, 25]))
 
-  // act
   await Editor.growSelection()
 
-  // assert
-
-  await Editor.shouldHaveSelections(new Uint32Array([1, 25, 1, 27]))
+  await Editor.shouldHaveSelections(new Uint32Array([1, 28, 1, 17]))
 }
