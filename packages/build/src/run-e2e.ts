@@ -7,7 +7,7 @@ const [manifestName, ...args] = process.argv.slice(2)
 const e2ePath = join(root, 'packages', 'e2e')
 const isSmartSelectionE2e = manifestName === 'smart-selection-e2e'
 const runnerPath = join(
-  e2ePath,
+  root,
   'node_modules',
   '@lvce-editor',
   'test-with-playwright',
