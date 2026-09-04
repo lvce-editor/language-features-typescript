@@ -16,6 +16,7 @@
   "license": "MIT",
   "devDependencies": {
     "@lvce-editor/server-smart-selection": "npm:@lvce-editor/server@0.105.19",
-    "@lvce-editor/test-with-playwright": "^22.10.0"
+    "@lvce-editor/test-with-playwright": "22.28.0",
+    "@lvce-editor/test-worker": "17.17.2"
   }
 }

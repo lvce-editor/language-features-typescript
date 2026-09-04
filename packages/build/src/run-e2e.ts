@@ -1,18 +1,15 @@
 import { spawn } from 'node:child_process'
 import { copyFile, cp, mkdir, readdir, rm } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { root } from './root.ts'
 
 const [manifestName, ...args] = process.argv.slice(2)
 const e2ePath = join(root, 'packages', 'e2e')
 const isSmartSelectionE2e = manifestName === 'smart-selection-e2e'
-const runnerPath = join(
-  root,
-  'node_modules',
-  '@lvce-editor',
-  'test-with-playwright',
-  'bin',
-  'test-with-playwright.js',
+const requireFromE2e = createRequire(join(e2ePath, 'package.json'))
+const runnerPath = requireFromE2e.resolve(
+  '@lvce-editor/test-with-playwright/bin/test-with-playwright.js',
 )
 const testPath = join(root, '.tmp', 'e2e-manifests', manifestName)
 const testSourcePath = join(e2ePath, 'src')
