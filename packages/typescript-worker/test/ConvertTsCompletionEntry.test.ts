@@ -5,9 +5,9 @@ import * as ConvertTsCompletionEntry from '../src/parts/ConvertTsCompletionEntry
 test('convertTsCompletionEntry', () => {
   const tsResult: Protocol.CompletionEntry = {
     kind: 'keyword' as Protocol.CompletionEntry['kind'],
+    kindModifiers: '',
     name: 'abc',
     sortText: 'abc',
-    kindModifiers: '',
   }
   expect(ConvertTsCompletionEntry.convertTsCompletionEntry(tsResult)).toEqual({
     data: undefined,

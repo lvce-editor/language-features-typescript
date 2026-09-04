@@ -4,7 +4,7 @@ export const name = 'typescript.jsx-closing-tag'
 
 export const skip = true
 
-export const test: Test = async ({ FileSystem, Workspace, Editor }) => {
+export const test: Test = async ({ Editor, FileSystem, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/jsx-closing-tag')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)

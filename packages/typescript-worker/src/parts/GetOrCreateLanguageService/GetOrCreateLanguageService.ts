@@ -5,14 +5,14 @@ import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import { parseTsconfig } from '../ParseTsconfig/ParseTsconfig.ts'
 import { resolveTsconfig } from '../ResolveTsconfig/ResolveTsconfig.ts'
 
-let nextProjectId = 1
+const projectIds = { next: 1 }
 const projectCache: Record<number, LanguageService> = Object.create(null)
 const projectIdCache: Record<string, number> = Object.create(null)
 
 export const getOrCreateLanguageService = (uri: string) => {
   const id = 1
-  const { fs, ts, client } = LanguageServices.get(id)
-  if (uri in projectCache) {
+  const { client, fs, ts } = LanguageServices.get(id)
+  if (uri in projectIdCache) {
     const projectId = projectIdCache[uri]
     const languageService = projectCache[projectId]
     return {
@@ -24,12 +24,15 @@ export const getOrCreateLanguageService = (uri: string) => {
   const readFile = (uri: string) => client.invokeSync('SyncApi.readFileSync', uri)
   const readDir = (uri: string) => client.invokeSync('SyncApi.readDirSync', uri)
   const tsConfigPath = getTsConfigPath(uri, exists)
-  const parsed = parseTsconfig(tsConfigPath, readFile)
+  const parsed = parseTsconfig(tsConfigPath, readFile, ts)
   const resolved = resolveTsconfig(tsConfigPath, parsed, readFile, readDir, exists, ts)
   const languageService = createTypeScriptLanguageService(ts, fs, client, resolved)
-  const projectId = nextProjectId++
+  const projectId = projectIds.next++
   projectCache[projectId] = languageService
   projectIdCache[uri] = projectId
+  for (const fileName of resolved.fileNames) {
+    projectIdCache[fileName] = projectId
+  }
 
   return {
     fs,

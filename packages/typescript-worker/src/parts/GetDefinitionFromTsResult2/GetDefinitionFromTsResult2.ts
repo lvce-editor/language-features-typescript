@@ -1,66 +1,66 @@
 import type ts from 'typescript'
+import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import { getLibFileUrl } from '../GetLibFileUrl/GetLibFileUrl.ts'
+import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
+import { isLibFile } from '../IsLibFile/IsLibFile.ts'
+import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
+
+export const toOpenableUri = (libFileUrl: string): string => {
+  const url = new URL(libFileUrl)
+  if (url.protocol === 'http:' || url.protocol === 'https:') {
+    return `fetch://${url.host}${url.pathname}${url.search}${url.hash}`
+  }
+  return libFileUrl
+}
 
 const getUri = (fileName: string) => {
-  if (fileName.includes('/node_modules/@typescript/lib') || fileName.includes('node_modules/@typescript/lib')) {
-    const base = fileName
-      .slice(fileName.lastIndexOf('/') + 1)
-      .replaceAll('-', '.')
-      .replace('.ts', '.d.ts')
-    const almost = new URL(`../../../node_modules/typescript/lib/${base}`, import.meta.url).toString()
-    const uri = almost.slice(almost.indexOf('/remote') + '/remote'.length)
-    return uri
+  if (isLibFile(fileName)) {
+    return toOpenableUri(getLibFileUrl(fileName))
   }
   return fileName
 }
 
-export const getDefinitionFromTsResult2 = async (textDocument: any, tsResult: readonly ts.DefinitionInfo[]) => {
+const getText = async (
+  fileName: string,
+  fs: IFileSystem,
+  readFile: (uri: string) => Promise<string>,
+): Promise<string> => {
+  const cachedText = fs.readFile(fileName)
+  if (cachedText) {
+    return cachedText
+  }
+  if (isLibFile(fileName)) {
+    const libText = readLibFile(fileName)
+    if (libText) {
+      return libText
+    }
+  }
+  return readFile(fileName)
+}
+
+export const getDefinitionFromTsResult2 = async (
+  tsResult: readonly ts.DefinitionInfo[],
+  fs: IFileSystem,
+  readFile: (uri: string) => Promise<string>,
+) => {
   if (tsResult.length === 0) {
     return undefined
   }
   const firstDefinition = tsResult[0]
-  const uri = getUri(firstDefinition.fileName)
-  let startOffset = 0
-  let endOffset = 0
-  if (firstDefinition.contextSpan) {
-    startOffset = firstDefinition.contextSpan.start
-    endOffset = firstDefinition.contextSpan.start + firstDefinition.contextSpan.length
-  }
+  const { fileName, textSpan } = firstDefinition
+  const uri = getUri(fileName)
+  const text = await getText(fileName, fs, readFile)
+  const startOffset = textSpan.start
+  const endOffset = textSpan.start + textSpan.length
+  const startPosition = getPositionAt(text, startOffset)
+  const endPosition = getPositionAt(text, endOffset)
   return {
-    uri,
-    startOffset,
+    endColumnIndex: endPosition.columnIndex,
     endOffset,
+    endRowIndex: endPosition.rowIndex,
+    startColumnIndex: startPosition.columnIndex,
+    startOffset,
+    startRowIndex: startPosition.rowIndex,
+    uri,
   }
-  // const { textSpan } = firstDefinition
-  // if (file === textDocument.uri) {
-  //   // TODO
-  //   const startOffset = 0
-  //   //  await Position.getOffset(textDocument, {
-  //   //   rowIndex: start.line - 1,
-  //   //   columnIndex: start.offset - 1,
-  //   // })
-
-  //   const endOffset = await 0
-  //   //  Position.getOffset(textDocument, {
-  //   //   rowIndex: end.line - 1,
-  //   //   columnIndex: end.offset - 1,
-  //   // })
-  //   return {
-  //     uri: file,
-  //     startOffset,
-  //     endOffset,
-  //   }
-  // }
-  // TODO want offset based result
-  // probably would require to read file and map position to offset (very slow)
-  // const startOffset = 0
-  // const endOffset = 0
-  // return {
-  //   uri: file,
-  //   startRowIndex: start.line - 1,
-  //   startColumnIndex: start.offset - 1,
-  //   endRowIndex: end.line - 1,
-  //   endColumnIndex: end.offset - 1,
-  //   startOffset,
-  //   endOffset,
-  // }
 }

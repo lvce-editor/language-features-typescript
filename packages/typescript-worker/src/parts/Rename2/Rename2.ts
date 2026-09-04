@@ -3,9 +3,9 @@ import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrC
 import { getRenameResultFromTsResult2 } from '../GetRenameFromTsResult2/GetRenameFromTsResult2.ts'
 
 export const rename2 = async (textDocument: any, offset: number, newName: string) => {
-  const uri = textDocument.uri
+  const { uri } = textDocument
   Assert.string(uri)
-  const { languageService, fs } = getOrCreateLanguageService(textDocument.uri)
+  const { fs, languageService } = getOrCreateLanguageService(textDocument.uri)
   fs.writeFile(textDocument.uri, textDocument.text)
   const tsResult = languageService.getRenameInfo(textDocument.uri, offset, {})
   const tsLocations = languageService.findRenameLocations(textDocument.uri, offset, false, false, {})

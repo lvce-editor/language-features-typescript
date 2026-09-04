@@ -5,30 +5,39 @@ import * as LanguageId from '../LanguageId/LanguageId.ts'
 
 export const languageId = LanguageId.TypeScript
 
-const RE_WORD = /[a-zA-Z\d-]+$/
+const isWordCharacter = (character: string): boolean => {
+  return /[\dA-Za-z-]/.test(character)
+}
+
+const getWord = (text: string, offset: number): string => {
+  let start = offset
+  while (start > 0 && isWordCharacter(text[start - 1])) {
+    start--
+  }
+  return text.slice(start, offset)
+}
 
 /**
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
 export const provideTabCompletion = async (textDocument: any, offset: number): Promise<any> => {
-  const text = textDocument.text
-  const wordMatch = text.slice(0, offset).match(RE_WORD)
-  if (!wordMatch) {
+  const { text } = textDocument
+  const word = getWord(text, offset)
+  if (!word) {
     return undefined
   }
-  const word = wordMatch[0]
   if (word === 'con') {
     return {
-      inserted: 'console',
       deleted: 3,
+      inserted: 'console',
       offset: offset - 3,
       type: /* Snippet */ 2,
     }
   }
   if (word === 'cons') {
     return {
-      inserted: 'console',
       deleted: 4,
+      inserted: 'console',
       offset: offset - 4,
       type: /* Snippet */ 2,
     }

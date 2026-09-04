@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.auto-import-no-suggestions'
 
-export const test: Test = async ({ Workspace, FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/auto-import-no-suggestions')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)

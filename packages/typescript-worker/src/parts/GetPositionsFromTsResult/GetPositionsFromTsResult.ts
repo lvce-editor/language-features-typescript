@@ -14,19 +14,17 @@ export const getPositionsFromTsResult = (
   let current = first
   while (true) {
     const { textSpan } = current
-    const { start, end } = textSpan
+    const { end, start } = textSpan
     const rangeStartRowIndex = start.line - 1
     const rangeStartColumnIndex = start.offset - 1
     const rangeEndRowIndex = end.line - 1
     const rangeEndColumnIndex = end.offset - 1
-    if (
-      !(
-        rangeStartRowIndex >= startRowIndex &&
-        rangeStartColumnIndex >= startColumnIndex &&
-        rangeEndRowIndex <= endRowIndex &&
-        rangeEndColumnIndex <= endColumnIndex
-      )
-    ) {
+    if (!(
+      rangeStartRowIndex >= startRowIndex &&
+      rangeStartColumnIndex >= startColumnIndex &&
+      rangeEndRowIndex <= endRowIndex &&
+      rangeEndColumnIndex <= endColumnIndex
+    )) {
       break
     }
     if (!current.parent) {
@@ -36,6 +34,6 @@ export const getPositionsFromTsResult = (
   }
 
   const { textSpan } = current
-  const { start, end } = textSpan
+  const { end, start } = textSpan
   return [start.line - 1, start.offset - 1, end.line - 1, end.offset - 1]
 }

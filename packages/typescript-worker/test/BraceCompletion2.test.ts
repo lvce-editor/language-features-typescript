@@ -26,5 +26,5 @@ test('provideBraceCompletion updates the document and checks the opening brace',
 
   expect(provideBraceCompletion(textDocument, 3, '{')).toBe(true)
   expect(writeFile).toHaveBeenCalledWith(textDocument.uri, textDocument.text)
-  expect(isValidBraceCompletionAtPosition).toHaveBeenCalledWith(textDocument.uri, 3, '{'.charCodeAt(0))
+  expect(isValidBraceCompletionAtPosition).toHaveBeenCalledWith(textDocument.uri, 3, '{'.codePointAt(0) ?? 0)
 })

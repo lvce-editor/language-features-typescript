@@ -3,7 +3,7 @@ import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrC
 import { getEditsFromTsResult2 } from '../GetOrganizeImportEditsFromTsResult2/GetOrgnizeImportEditsFromTsResult2.ts'
 
 export const organizeImports2 = async (textDocument: any) => {
-  const uri = textDocument.uri
+  const { uri } = textDocument
   Assert.string(uri)
   const { fs, languageService } = getOrCreateLanguageService(textDocument.uri)
   fs.writeFile(textDocument.uri, textDocument.text)

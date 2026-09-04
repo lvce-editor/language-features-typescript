@@ -1,6 +1,6 @@
 import { test, expect, jest } from '@jest/globals'
-import * as WaitForSyncRpcResultFile from '../src/parts/WaitForSyncRpcResultFile/WaitForSyncRpcResultFile.ts'
 import * as WaitForSyncBufferResultType from '../src/parts/WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
+import * as WaitForSyncRpcResultFile from '../src/parts/WaitForSyncRpcResultFile/WaitForSyncRpcResultFile.ts'
 
 test('waitForSyncRpcResultFile - success', () => {
   const mockHandle = {

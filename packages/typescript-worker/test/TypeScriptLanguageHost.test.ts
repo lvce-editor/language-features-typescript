@@ -1,5 +1,7 @@
 import { test, expect, jest } from '@jest/globals'
 import * as TypeScript from 'typescript'
+import { createFileSystem } from '../src/parts/CreateFileSystem/CreateFileSystem.ts'
+import { emptyTsconfig } from '../src/parts/EmptyTsConfig/EmptyTsConfig.ts'
 import { create } from '../src/parts/TypeScriptLanguageHost/TypeScriptLanguageHost.ts'
 
 test('create should return a language service host with proper methods', () => {
@@ -9,10 +11,10 @@ test('create should return a language service host with proper methods', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => ['test.ts'],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: (uri: string) => 'file content',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -31,12 +33,12 @@ test('create should return a language service host with proper methods', () => {
   }
 
   const mockOptions = {
-    options: {
-      target: TypeScript.ScriptTarget.ES2020,
-      module: TypeScript.ModuleKind.ESNext,
-    },
-    fileNames: [],
     errors: [],
+    fileNames: [],
+    options: {
+      module: TypeScript.ModuleKind.ESNext,
+      target: TypeScript.ScriptTarget.ES2020,
+    },
   }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
@@ -63,30 +65,35 @@ test('create should return a language service host with proper methods', () => {
   expect(typeof host.getProjectReferences).toBe('function')
 })
 
-test('getScriptKind should return TS for all files', () => {
+test('getScriptKind should return the kind matching the file extension', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
   }
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
   expect(host.getScriptKind?.('test.ts')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind?.('test.js')).toBe(TypeScript.ScriptKind.TS)
-  expect(host.getScriptKind?.('test.tsx')).toBe(TypeScript.ScriptKind.TS)
+  expect(host.getScriptKind?.('test.tsx')).toBe(TypeScript.ScriptKind.TSX)
+  expect(host.getScriptKind?.('test.js')).toBe(TypeScript.ScriptKind.JS)
+  expect(host.getScriptKind?.('test.mjs')).toBe(TypeScript.ScriptKind.JS)
+  expect(host.getScriptKind?.('test.cjs')).toBe(TypeScript.ScriptKind.JS)
+  expect(host.getScriptKind?.('test.jsx')).toBe(TypeScript.ScriptKind.JSX)
+  expect(host.getScriptKind?.('test.json')).toBe(TypeScript.ScriptKind.JSON)
+  expect(host.getScriptKind?.('test.unknown')).toBe(TypeScript.ScriptKind.TS)
 })
 
 test('directoryExists should always return true', () => {
@@ -96,17 +103,17 @@ test('directoryExists should always return true', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -121,10 +128,10 @@ test('fileExists should handle node_modules paths correctly', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -136,7 +143,7 @@ test('fileExists should handle node_modules paths correctly', () => {
     },
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -153,17 +160,17 @@ test('readFile should return empty string', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => '',
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -177,17 +184,17 @@ test('getNewLine should return newline character', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -201,10 +208,10 @@ test('readDirectory should call syncRpc', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -216,7 +223,7 @@ test('readDirectory should call syncRpc', () => {
     },
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -231,17 +238,17 @@ test('getDirectories should handle @types paths', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -257,17 +264,17 @@ test('useCaseSensitiveFileNames should return true', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -281,21 +288,21 @@ test('getProjectVersion should return string version', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '42',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getProjectVersion?.()).toBe('0')
+  expect(host.getProjectVersion?.()).toBe('42')
 })
 
 test('getScriptFileNames should return configured and file system script names', () => {
@@ -305,21 +312,58 @@ test('getScriptFileNames should return configured and file system script names',
 
   const mockFileSystem = {
     getScriptFileNames: () => ['file1.ts', 'file2.ts'],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: ['configured.ts', 'file1.ts'], errors: [] }
+  const mockOptions = { errors: [], fileNames: ['configured.ts', 'file1.ts'], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
   expect(host.getScriptFileNames?.()).toEqual(['configured.ts', 'file1.ts', 'file2.ts'])
+})
+
+test('missing file reads should return undefined', () => {
+  const fileSystem = createFileSystem()
+  const mockSyncRpc = {
+    invokeSync(method: string) {
+      if (method === 'SyncApi.readFileSync') {
+        throw new Error('File not found')
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, {
+    errors: [],
+    fileNames: [],
+    options: {},
+  })
+
+  expect(host.getScriptSnapshot?.('/project/missing.ts')).toBeUndefined()
+  expect(host.readFile?.('/project/missing.ts')).toBeUndefined()
+})
+
+test('getScriptSnapshot should preserve empty in-memory files', () => {
+  const fileSystem = createFileSystem()
+  fileSystem.writeFile('/project/empty.ts', '')
+  const mockSyncRpc = {
+    invokeSync() {
+      throw new Error('unexpected synchronous file read')
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, {
+    errors: [],
+    fileNames: [],
+    options: {},
+  })
+
+  expect(host.getScriptSnapshot?.('/project/empty.ts')?.getLength()).toBe(0)
 })
 
 test('getScriptVersion should return string version', () => {
@@ -329,21 +373,171 @@ test('getScriptVersion should return string version', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '7',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptVersion?.('any-file.ts')).toBe('0')
+  expect(host.getScriptVersion?.('any-file.ts')).toBe('7')
+})
+
+test('language service should discover and refresh in-memory files', () => {
+  const fileSystem = createFileSystem()
+  const mockSyncRpc = {
+    invokeSync(method: string) {
+      if (method === 'SyncApi.exists') {
+        return false
+      }
+      if (method === 'SyncApi.readDirSync') {
+        return []
+      }
+      if (method === 'SyncApi.readFileSync') {
+        return ''
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const mockOptions = {
+    errors: [],
+    fileNames: [],
+    options: {
+      noLib: true,
+      strict: true,
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, mockOptions)
+  const languageService = TypeScript.createLanguageService(host)
+  const uri = 'fetch:///workspace/test.ts'
+
+  fileSystem.writeFile(uri, "let value: number = ''")
+  expect(languageService.getSemanticDiagnostics(uri).map((diagnostic) => diagnostic.code)).toEqual([2322])
+
+  fileSystem.writeFile(uri, 'let value: number = 1')
+  expect(languageService.getSemanticDiagnostics(uri)).toEqual([])
+})
+
+test('default project should report JavaScript diagnostics', () => {
+  const fileSystem = createFileSystem()
+  const mockSyncRpc = {
+    invokeSync(method: string) {
+      if (method === 'SyncApi.exists') {
+        return false
+      }
+      if (method === 'SyncApi.readDirSync') {
+        return []
+      }
+      if (method === 'SyncApi.readFileSync') {
+        return ''
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const host = create(TypeScript, fileSystem, mockSyncRpc, {
+    ...emptyTsconfig,
+    options: {
+      ...emptyTsconfig.options,
+      noLib: true,
+    },
+  })
+  const languageService = TypeScript.createLanguageService(host)
+  const uri = 'fetch:///workspace/test.js'
+
+  fileSystem.writeFile(uri, "let value = ''\nvalue++")
+
+  expect(languageService.getSemanticDiagnostics(uri).map((diagnostic) => diagnostic.code)).toContain(2356)
+})
+
+test('React TSX project should use installed JSX declarations', () => {
+  const uri = '/project/src/App.tsx'
+  const files: Readonly<Record<string, string>> = {
+    '/project/node_modules/@types/react/global.d.ts':
+      'declare namespace JSX { interface IntrinsicElements { main: Record<string, unknown> } }',
+    '/project/node_modules/@types/react/index.d.ts':
+      "/// <reference path='global.d.ts' />\nexport = React\ndeclare namespace React {}",
+    '/project/node_modules/@types/react/jsx-runtime.d.ts': "import './'",
+    '/project/node_modules/@types/react/package.json': JSON.stringify({
+      exports: {
+        '.': {
+          types: {
+            default: './index.d.ts',
+          },
+        },
+        './jsx-runtime': {
+          types: {
+            default: './jsx-runtime.d.ts',
+          },
+        },
+      },
+      name: '@types/react',
+      types: 'index.d.ts',
+      version: '18.2.0',
+    }),
+    '/project/node_modules/react/jsx-runtime.js': 'module.exports = {}',
+    '/project/node_modules/react/package.json': JSON.stringify({
+      exports: {
+        './jsx-runtime': './jsx-runtime.js',
+      },
+      main: 'index.js',
+    }),
+  }
+  const existingPaths = new Set(Object.keys(files))
+  for (const fileName of Object.keys(files)) {
+    let path = fileName
+    while (path.includes('/')) {
+      path = path.slice(0, path.lastIndexOf('/'))
+      existingPaths.add(path)
+    }
+  }
+  const syncRpc = {
+    invokeSync(method: string, path: string) {
+      if (method === 'SyncApi.exists') {
+        return existingPaths.has(path)
+      }
+      if (method === 'SyncApi.readDirSync') {
+        return []
+      }
+      if (method === 'SyncApi.readFileSync') {
+        if (Object.hasOwn(files, path)) {
+          return files[path]
+        }
+        throw new Error('File not found')
+      }
+      throw new Error(`unexpected method ${method}`)
+    },
+  }
+  const fileSystem = createFileSystem()
+  fileSystem.writeFile(uri, 'export const App = () => <main />')
+  const host = create(TypeScript, fileSystem, syncRpc, {
+    errors: [],
+    fileNames: [uri],
+    options: {
+      jsx: TypeScript.JsxEmit.ReactJSX,
+      module: TypeScript.ModuleKind.ESNext,
+      moduleResolution: TypeScript.ModuleResolutionKind.Bundler,
+      noLib: true,
+      rootDir: '/project',
+      skipLibCheck: true,
+      strict: true,
+    },
+  })
+  const languageService = TypeScript.createLanguageService(host)
+  const sourceFileNames = languageService
+    .getProgram()
+    ?.getSourceFiles()
+    .map((sourceFile) => sourceFile.fileName)
+
+  expect(sourceFileNames).toContain('/project/node_modules/@types/react/index.d.ts')
+  expect(sourceFileNames).toContain('/project/node_modules/@types/react/global.d.ts')
+  expect(languageService.getSemanticDiagnostics(uri)).toEqual([])
 })
 
 test('writeFile should throw error', () => {
@@ -353,17 +547,17 @@ test('writeFile should throw error', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -379,10 +573,10 @@ test('getCompilationSettings should return options', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
@@ -390,12 +584,12 @@ test('getCompilationSettings should return options', () => {
   }
 
   const mockOptions = {
-    options: {
-      target: TypeScript.ScriptTarget.ES2020,
-      module: TypeScript.ModuleKind.ESNext,
-    },
-    fileNames: [],
     errors: [],
+    fileNames: [],
+    options: {
+      module: TypeScript.ModuleKind.ESNext,
+      target: TypeScript.ScriptTarget.ES2020,
+    },
   }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
@@ -410,17 +604,17 @@ test('getCustomTransformers should throw error', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -436,17 +630,17 @@ test('getCurrentDirectory should return configured root directory', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: { rootDir: '/project' }, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: { rootDir: '/project' } }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -460,17 +654,17 @@ test('getDefaultLibFileName should return TypeScript default lib', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
@@ -486,17 +680,17 @@ test('getProjectReferences should return empty array', () => {
 
   const mockFileSystem = {
     getScriptFileNames: () => [],
+    getScriptVersion: (uri: string) => '0',
+    getVersion: () => '0',
     readFile: () => '',
     writeFile: (uri: string, content: string) => {},
-    getVersion: () => '0',
-    getScriptVersion: (uri: string) => '0',
   }
 
   const mockSyncRpc = {
     invokeSync: () => true,
   }
 
-  const mockOptions = { options: {}, fileNames: [], errors: [] }
+  const mockOptions = { errors: [], fileNames: [], options: {} }
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 

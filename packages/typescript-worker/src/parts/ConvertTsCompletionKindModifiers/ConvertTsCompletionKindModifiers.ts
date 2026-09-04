@@ -2,15 +2,8 @@ import * as CompletionItemFlags from '../CompletionItemFlags/CompletionItemFlags
 
 export const convertTsCompletionKindModifiers = (modifier: string): number => {
   const parts = modifier.split(',')
-  let flag = CompletionItemFlags.None
-  for (const part of parts) {
-    switch (part) {
-      case 'deprecated':
-        flag |= CompletionItemFlags.Deprecated
-        break
-      default:
-        break
-    }
+  if (parts.includes('deprecated')) {
+    return CompletionItemFlags.Deprecated
   }
-  return flag
+  return CompletionItemFlags.None
 }

@@ -19,9 +19,9 @@ export const getTabCompletionFromTsResult = (tsResult: any, offset: number, word
   const firstEntry = getFirstMatchingEntry(usefulEntries, word)
   const text = firstEntry.name
   return {
-    offset: offset - word.length,
-    inserted: text,
     deleted: word.length,
+    inserted: text,
+    offset: offset - word.length,
     type: /* Snippet */ 2,
   }
 }

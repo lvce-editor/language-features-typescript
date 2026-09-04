@@ -15,6 +15,7 @@
     "dev": "node packages/build/src/dev.ts",
     "e2e": "npm run e2e --workspace=packages/e2e",
     "e2e:headless": "npm run e2e:headless --workspace=packages/e2e",
+    "e2e:smart-selection": "npm run e2e:smart-selection --workspace=packages/e2e",
     "format": "prettier --write .",
     "postinstall": "node packages/build/src/postinstall.ts",
     "lint": "eslint . && prettier --check .",
@@ -30,9 +31,9 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@lvce-editor/api": "^8.54.0",
-    "@lvce-editor/eslint-config": "^17.0.3",
-    "eslint": "^10.7.0",
+    "@lvce-editor/api": "^9.23.0",
+    "@lvce-editor/eslint-config": "^18.4.0",
+    "eslint": "^10.8.1",
     "jest": "^30.4.2",
     "prettier": "^3.9.5",
     "ts-jest": "^29.4.11"

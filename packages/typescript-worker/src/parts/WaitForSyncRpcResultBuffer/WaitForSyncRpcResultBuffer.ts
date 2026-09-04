@@ -6,7 +6,7 @@ export const waitForSyncRpcResultBuffer = (maxWaitTime: number, sharedBuffer: In
     return WaitForSyncBufferResultType.Ok
   }
   if (result === 'not-equal') {
-    return WaitForSyncBufferResultType.NotEqual
+    return WaitForSyncBufferResultType.Ok
   }
   if (result === 'timed-out') {
     return WaitForSyncBufferResultType.Timeout

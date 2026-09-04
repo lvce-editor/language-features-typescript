@@ -16,15 +16,15 @@ test('getEditsFromTsResult', async () => {
       fileName: '/test/index.ts',
       textChanges: [
         {
-          start: {
-            line: 1,
-            offset: 1,
-          },
           end: {
             line: 1,
             offset: 1,
           },
           newText: 'abc',
+          start: {
+            line: 1,
+            offset: 1,
+          },
         },
       ],
     },

@@ -6,13 +6,13 @@ import * as ConvertTsCompletionKindModifiers from '../ConvertTsCompletionKindMod
 // source and data properties are only necessary for resolveCompletionItem
 
 export const convertTsCompletionEntry = (tsEntry: TypeScriptProtocol.CompletionEntry) => {
-  const { name, kind, source, data, kindModifiers } = tsEntry
+  const { data, kind, kindModifiers, name, source } = tsEntry
   return {
-    label: name,
-    snippet: name,
-    kind: ConvertCompletionItemKind.convertCompletionItemKind(kind),
-    source,
     data,
     flags: ConvertTsCompletionKindModifiers.convertTsCompletionKindModifiers(kindModifiers || ''),
+    kind: ConvertCompletionItemKind.convertCompletionItemKind(kind),
+    label: name,
+    snippet: name,
+    source,
   }
 }

@@ -7,11 +7,11 @@ export const getCompletionFromTsResult2 = (tsResult: ts.CompletionInfo | undefin
   }
   return tsResult.entries.filter(IsUsefulEntry.isUsefulEntry).map((item) => {
     return {
+      flags: 0,
+      kind: 0,
       label: item.name,
       snippet: item.name,
-      kind: 0,
       source: 'ts',
-      flags: 0,
     }
   })
 }

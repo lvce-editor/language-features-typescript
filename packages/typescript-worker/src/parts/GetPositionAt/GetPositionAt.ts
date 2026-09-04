@@ -1,6 +1,6 @@
 export const getPositionAt = (text: string, offset: number): { rowIndex: number; columnIndex: number } => {
   if (!text) {
-    return { rowIndex: 0, columnIndex: 0 }
+    return { columnIndex: 0, rowIndex: 0 }
   }
   const lines = text.split('\n')
   let currentOffset = 0
@@ -11,7 +11,7 @@ export const getPositionAt = (text: string, offset: number): { rowIndex: number;
 
     if (offset <= lineEndOffset) {
       const columnIndex = offset - currentOffset
-      return { rowIndex, columnIndex }
+      return { columnIndex, rowIndex }
     }
 
     currentOffset = lineEndOffset + 1 // +1 for the newline character
@@ -20,5 +20,5 @@ export const getPositionAt = (text: string, offset: number): { rowIndex: number;
   // If offset is beyond the text, return the last position
   const lastRowIndex = lines.length - 1
   const lastColumnIndex = lines[lastRowIndex]?.length || 0
-  return { rowIndex: lastRowIndex, columnIndex: lastColumnIndex }
+  return { columnIndex: lastColumnIndex, rowIndex: lastRowIndex }
 }

@@ -3,29 +3,29 @@ import * as TsCompletionItemKind from '../TsCompletionItemKind/TsCompletionItemK
 
 export const convertCompletionItemKind = (tsKind: string): number => {
   switch (tsKind) {
-    case TsCompletionItemKind.Function:
-    case TsCompletionItemKind.Method:
-    case TsCompletionItemKind.LocalFunction:
-      return CompletionItemKind.Function
-    case TsCompletionItemKind.Var:
+    case TsCompletionItemKind.Alias:
     case TsCompletionItemKind.Const:
     case TsCompletionItemKind.Let:
     case TsCompletionItemKind.LocalVariable:
-    case TsCompletionItemKind.Alias:
     case TsCompletionItemKind.Parameter:
+    case TsCompletionItemKind.Var:
       return CompletionItemKind.Variable
-    case TsCompletionItemKind.PrimitiveType:
-    case TsCompletionItemKind.Keyword:
-      return CompletionItemKind.Keyword
     case TsCompletionItemKind.Directory:
       return CompletionItemKind.Folder
-    case TsCompletionItemKind.Script:
-      return CompletionItemKind.File
-    case TsCompletionItemKind.Property:
-    case TsCompletionItemKind.MemberVariable:
+    case TsCompletionItemKind.Function:
+    case TsCompletionItemKind.LocalFunction:
+    case TsCompletionItemKind.Method:
+      return CompletionItemKind.Function
+    case TsCompletionItemKind.Keyword:
+    case TsCompletionItemKind.PrimitiveType:
+      return CompletionItemKind.Keyword
     case TsCompletionItemKind.MemberGetAccessor:
     case TsCompletionItemKind.MemberSetAccessor:
+    case TsCompletionItemKind.MemberVariable:
+    case TsCompletionItemKind.Property:
       return CompletionItemKind.Field
+    case TsCompletionItemKind.Script:
+      return CompletionItemKind.File
     default:
       return CompletionItemKind.Unknown
   }

@@ -5,6 +5,7 @@
   "description": "TypeScript Language Support",
   "browser": "dist/languageFeaturesTypeScriptMain.js",
   "isolated": true,
+  "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self'"],
   "repository": "https://github.com/lvce-editor/language-features-typescript",
   "icon": "media/icon.png",
   "activation": [
@@ -14,8 +15,12 @@
     "onCompletion:javascript",
     "onDefinition:javascript",
     "onDefinition:typescript",
+    "onDefinition:typescriptreact",
     "onDiagnostic:javascript",
     "onDiagnostic:typescript",
+    "onDocumentSymbol:javascript",
+    "onDocumentSymbol:typescript",
+    "onDocumentSymbol:typescriptreact",
     "onLanguage:javascript",
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
@@ -24,6 +29,7 @@
     "onRename:typescript",
     "onReferences:javascript",
     "onReferences:typescript",
+    "onReferences:typescriptreact",
     "onImplementation:javascript",
     "onImplementation:typescript",
     "onClosingTag:javascript",
@@ -31,6 +37,10 @@
     "onTypeDefinition:typescript",
     "onHover:javascript",
     "onHover:typescript",
+    "onHover:typescriptreact",
+    "onSignatureHelp:javascript",
+    "onSignatureHelp:typescript",
+    "onSignatureHelp:typescriptreact",
     "onTabCompletion:javascript",
     "onTabCompletion:typescript"
   ],
@@ -48,6 +58,11 @@
     { "id": "typescript.provideHover.javascript", "languageId": "javascript" },
     { "id": "typescript.provideHover.typescript", "languageId": "typescript" },
     { "id": "typescript.provideHover.typescriptreact", "languageId": "typescriptreact" }
+  ],
+  "signatureHelpProviders": [
+    { "id": "typescript.provideSignatureHelp.javascript", "languageId": "javascript" },
+    { "id": "typescript.provideSignatureHelp.typescript", "languageId": "typescript" },
+    { "id": "typescript.provideSignatureHelp.typescriptreact", "languageId": "typescriptreact" }
   ],
   "languages": [
     {

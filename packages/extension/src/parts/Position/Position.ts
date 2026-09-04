@@ -11,8 +11,8 @@ export const getTsPosition = (textDocument: any, offset: number): any => {
 
 export const getOffset = (textDocument: any, tsPosition: any): any => {
   const position = {
-    rowIndex: tsPosition.line - 1,
     columnIndex: tsPosition.offset - 1,
+    rowIndex: tsPosition.line - 1,
   }
   const offset = TextDocument.getOffset(textDocument, position)
   return offset

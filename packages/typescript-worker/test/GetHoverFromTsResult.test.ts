@@ -6,16 +6,16 @@ test('getHoverFromTsResult', () => {
   const tsResult: Protocol.QuickInfoResponseBody = {
     displayString: 'abc',
     documentation: 'def',
-    start: {
-      line: 1,
-      offset: 1,
-    },
     end: {
       line: 1,
       offset: 1,
     },
     kind: '' as Protocol.QuickInfoResponseBody['kind'],
     kindModifiers: '',
+    start: {
+      line: 1,
+      offset: 1,
+    },
     tags: [],
   }
   expect(GetHoverFromTsResult.getHoverFromTsResult(tsResult)).toEqual({
@@ -27,5 +27,5 @@ test('getHoverFromTsResult', () => {
 
 test('getHoverFromTsResult - null', () => {
   const tsResult = null as any
-  expect(GetHoverFromTsResult.getHoverFromTsResult(tsResult)).toBe(undefined)
+  expect(GetHoverFromTsResult.getHoverFromTsResult(tsResult)).toBeUndefined()
 })

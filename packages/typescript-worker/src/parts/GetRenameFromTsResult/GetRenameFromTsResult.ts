@@ -11,18 +11,18 @@ export const getRenameResultFromTsResult = async (textDocument, Position, tsResu
       const suffixText = textSpan.suffixText || ''
       const inserted = prefixText + newName + suffixText
       const offset = await Position.getOffset(textDocument, {
-        rowIndex: textSpan.start.line - 1,
         columnIndex: textSpan.start.offset - 1,
+        rowIndex: textSpan.start.line - 1,
       })
       edits.push({
-        offset,
-        inserted,
         deleted: 0,
+        inserted,
+        offset,
       })
     }
     workspaceEdits.push({
-      file: spanGroup.file,
       edits,
+      file: spanGroup.file,
     })
   }
   return {

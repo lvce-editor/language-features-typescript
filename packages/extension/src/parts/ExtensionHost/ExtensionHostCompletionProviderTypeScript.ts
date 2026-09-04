@@ -1,26 +1,26 @@
 import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.ts'
 
 interface TextDocument {
-  uri: string
   languageId: string
-  version: number
   text: string
+  uri: string
+  version: number
 }
 
 interface CompletionItem {
-  label: string
-  kind?: number
-  detail?: string
-  documentation?: string
-  insertText?: string
-  sortText?: string
-  filterText?: string
   additionalTextEdits?: any[]
   command?: any
   commitCharacters?: string[]
-  preselect?: boolean
+  detail?: string
+  documentation?: string
+  filterText?: string
+  insertText?: string
   insertTextFormat?: number
+  kind?: number
+  label: string
+  preselect?: boolean
   range?: any
+  sortText?: string
 }
 
 export const provideCompletions = async (textDocument: TextDocument, offset: number): Promise<any> => {

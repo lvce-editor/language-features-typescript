@@ -5,8 +5,8 @@ import * as TsCompletionItemKind from '../src/parts/TsCompletionItemKind/TsCompl
 
 test('function', () => {
   const tsResult: TypeScriptProtocol.CompletionEntryDetails = {
-    kind: TsCompletionItemKind.Function as TypeScriptProtocol.ScriptElementKind,
     displayParts: [],
+    kind: TsCompletionItemKind.Function as TypeScriptProtocol.ScriptElementKind,
     kindModifiers: '',
     name: '',
   }
@@ -15,8 +15,8 @@ test('function', () => {
 
 test('local function', () => {
   const tsResult: TypeScriptProtocol.CompletionEntryDetails = {
-    kind: TsCompletionItemKind.LocalFunction as TypeScriptProtocol.ScriptElementKind,
     displayParts: [],
+    kind: TsCompletionItemKind.LocalFunction as TypeScriptProtocol.ScriptElementKind,
     kindModifiers: '',
     name: '',
   }
@@ -25,8 +25,8 @@ test('local function', () => {
 
 test('method', () => {
   const tsResult: TypeScriptProtocol.CompletionEntryDetails = {
-    kind: TsCompletionItemKind.Method as TypeScriptProtocol.ScriptElementKind,
     displayParts: [],
+    kind: TsCompletionItemKind.Method as TypeScriptProtocol.ScriptElementKind,
     kindModifiers: '',
     name: '',
   }
@@ -35,8 +35,8 @@ test('method', () => {
 
 test('other', () => {
   const tsResult: TypeScriptProtocol.CompletionEntryDetails = {
-    kind: TsCompletionItemKind.Const as TypeScriptProtocol.ScriptElementKind,
     displayParts: [],
+    kind: TsCompletionItemKind.Const as TypeScriptProtocol.ScriptElementKind,
     kindModifiers: '',
     name: '',
   }

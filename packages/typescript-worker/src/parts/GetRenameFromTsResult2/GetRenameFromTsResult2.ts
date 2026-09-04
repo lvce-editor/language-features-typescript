@@ -13,15 +13,16 @@ export const getRenameResultFromTsResult2 = async (
   const workspaceEdits: any[] = []
   // TODO
   for (const spanGroup of tsLocations) {
-    const edits: any[] = []
-    edits.push({
-      offset: spanGroup.textSpan.start,
-      inserted: newName,
-      deleted: spanGroup.textSpan.length,
-    })
+    const edits: any[] = [
+      {
+        deleted: spanGroup.textSpan.length,
+        inserted: newName,
+        offset: spanGroup.textSpan.start,
+      },
+    ]
     workspaceEdits.push({
-      uri: spanGroup.fileName,
       edits,
+      uri: spanGroup.fileName,
     })
   }
   return {

@@ -9,19 +9,19 @@ test.skip('getDefinition', async () => {
     }),
   }
   const Position = {
-    getTsPosition() {
-      return {
-        line: 1,
-        column: 1,
-      }
-    },
     getOffset() {
       return 0
+    },
+    getTsPosition() {
+      return {
+        column: 1,
+        line: 1,
+      }
     },
   }
   const textDocument = {
     uri: '',
   }
   const offset = 0
-  expect(await Definition.getDefinition(typeScriptRpc, Position, textDocument, offset)).toBe(undefined)
+  expect(await Definition.getDefinition(typeScriptRpc, Position, textDocument, offset)).toBeUndefined()
 })

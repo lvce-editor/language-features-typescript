@@ -1,6 +1,6 @@
 import { test, expect, jest } from '@jest/globals'
-import * as WaitForSyncRpcResult from '../src/parts/WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
 import * as WaitForSyncBufferResultType from '../src/parts/WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
+import * as WaitForSyncRpcResult from '../src/parts/WaitForSyncRpcResult/WaitForSyncRpcResult.ts'
 
 test('waitForSyncRpcResult - with sharedBuffer', () => {
   const mockHandle = {} as FileSystemSyncAccessHandle

@@ -6,31 +6,21 @@ import {
   registerCompletionProvider,
   registerDefinitionProvider,
   registerDiagnosticProvider,
+  registerDocumentSymbolProvider,
   registerHoverProvider,
   registerImplementationProvider,
   registerReferenceProvider,
   registerRenameProvider,
   registerSelectionProvider,
+  registerSignatureHelpProvider,
   registerTabCompletionProvider,
   registerTypeDefinitionProvider,
 } from '@lvce-editor/api'
 import * as LanguageId from '../LanguageId/LanguageId.ts'
 
-const registerProvider = (provider: any): void => {
-  if ('provideBraceCompletion' in provider) {
-    registerBraceCompletionProvider(provider)
-    return
-  }
-  if ('provideClosingTag' in provider) {
-    registerClosingTagProvider(provider)
-    return
-  }
-  if ('provideCompletions' in provider) {
-    registerCompletionProvider(provider)
-    return
-  }
-  if ('provideDefinition' in provider) {
-    registerDefinitionProvider(provider)
+const registerSecondaryProvider = (provider: any): void => {
+  if ('provideDocumentSymbols' in provider) {
+    registerDocumentSymbolProvider(provider)
     return
   }
   if ('provideReferences' in provider) {
@@ -47,6 +37,10 @@ const registerProvider = (provider: any): void => {
   }
   if ('provideHover' in provider) {
     registerHoverProvider(provider)
+    return
+  }
+  if ('provideSignatureHelp' in provider) {
+    registerSignatureHelpProvider(provider)
     return
   }
   if ('provideTabCompletion' in provider) {
@@ -71,8 +65,27 @@ const registerProvider = (provider: any): void => {
   }
   if ('provideComment' in provider) {
     registerCommentProvider(provider)
+  }
+}
+
+const registerProvider = (provider: any): void => {
+  if ('provideBraceCompletion' in provider) {
+    registerBraceCompletionProvider(provider)
     return
   }
+  if ('provideClosingTag' in provider) {
+    registerClosingTagProvider(provider)
+    return
+  }
+  if ('provideCompletions' in provider) {
+    registerCompletionProvider(provider)
+    return
+  }
+  if ('provideDefinition' in provider) {
+    registerDefinitionProvider(provider)
+    return
+  }
+  registerSecondaryProvider(provider)
 }
 
 export const registerProviders = (providers: any[]): void => {

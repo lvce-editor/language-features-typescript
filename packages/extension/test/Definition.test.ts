@@ -19,5 +19,5 @@ test.skip('getDefinitionFromTsResult', () => {
         },
       ],
     ),
-  ).toEqual(undefined)
+  ).toBeUndefined()
 })

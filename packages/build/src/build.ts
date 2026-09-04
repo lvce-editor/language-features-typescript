@@ -2,6 +2,7 @@ import { bundleJs, packageExtension, replace } from '@lvce-editor/package-extens
 import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path, { join } from 'path'
 import { bundleExtensionJs } from './bundleExtensionJs.ts'
+import { copyExtensionSchemas } from './copyExtensionSchemas.ts'
 import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.ts'
 import { root } from './root.ts'
 
@@ -19,6 +20,15 @@ const replaceTypeScriptWorkerAssetDir = async (filePath: string): Promise<void> 
   await writeFile(filePath, content.replace(occurrence, replacement))
 }
 
+const replaceTypeScriptWorkerAssetPaths = async (filePath: string): Promise<void> => {
+  const content = await readFile(filePath, 'utf8')
+  const oldTypeScriptPath = '../../../node_modules/typescript/lib/'
+  if (!content.includes(oldTypeScriptPath)) {
+    throw new Error('Failed to find TypeScript asset paths in bundled worker')
+  }
+  await writeFile(filePath, content.replaceAll(oldTypeScriptPath, '../../typescript/lib/'))
+}
+
 await rm(dist, { recursive: true, force: true })
 
 await mkdir(dist, { recursive: true })
@@ -32,6 +42,7 @@ await copyFile(join(root, 'README.md'), join(dist, 'README.md'))
 await copyFile(join(extension, 'extension.json'), join(dist, 'extension.json'))
 await mkdir(join(dist, 'media'), { recursive: true })
 await copyFile(join(extension, 'media', 'icon.png'), join(dist, 'media', 'icon.png'))
+await copyExtensionSchemas(extension, dist)
 
 await cp(join(root, 'node_modules', 'typescript'), join(dist, 'typescript'), {
   recursive: true,
@@ -75,11 +86,7 @@ await replaceTypeScriptWorkerAssetDir(join(dist, 'dist', 'languageFeaturesTypeSc
 
 await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
 
-await replace({
-  path: join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-  occurrence: '../../../node_modules/typescript/lib/typescript-esm.js',
-  replacement: '../../typescript/lib/typescript-esm.js',
-})
+await replaceTypeScriptWorkerAssetPaths(join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'))
 
 await packageExtension({
   highestCompression: true,

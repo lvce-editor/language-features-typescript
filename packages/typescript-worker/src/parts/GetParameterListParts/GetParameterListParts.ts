@@ -7,17 +7,16 @@ import * as TsDisplayPartKind from '../TsDisplayPartKind/TsDisplayPartKind.ts'
 export const getParameterListParts = (displayParts: readonly TypeScriptProtocol.SymbolDisplayPart[]) => {
   const parts: TypeScriptProtocol.SymbolDisplayPart[] = []
   let isInMethod = false
-  let hasOptionalParameters = false
   let parenCount = 0
   let braceCount = 0
 
   outer: for (let i = 0; i < displayParts.length; ++i) {
     const part = displayParts[i]
     switch (part.kind) {
-      case TsDisplayPartKind.MethodName:
       case TsDisplayPartKind.FunctionName:
-      case TsDisplayPartKind.Text:
+      case TsDisplayPartKind.MethodName:
       case TsDisplayPartKind.PropertyName:
+      case TsDisplayPartKind.Text:
         if (parenCount === 0 && braceCount === 0) {
           isInMethod = true
         }
@@ -34,7 +33,6 @@ export const getParameterListParts = (displayParts: readonly TypeScriptProtocol.
           if (!nameIsFollowedByOptionalIndicator && !nameIsThis) {
             parts.push(part)
           }
-          hasOptionalParameters = hasOptionalParameters || nameIsFollowedByOptionalIndicator
         }
         break
 
@@ -48,7 +46,6 @@ export const getParameterListParts = (displayParts: readonly TypeScriptProtocol.
           }
         } else if (part.text === Character.Ellipsis && parenCount === 1) {
           // Found rest parameter. Do not fill in any further arguments
-          hasOptionalParameters = true
           break outer
         } else if (part.text === Character.CurlyOpen) {
           ++braceCount

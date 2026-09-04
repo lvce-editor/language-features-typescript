@@ -5,84 +5,84 @@ import * as GetResolvedCompletionItemFromTsResult from '../src/parts/GetResolved
 test('getCompletion', async () => {
   const tsResult: TypeScriptProtocol.CompletionEntryDetails[] = [
     {
-      name: 'add',
-      kindModifiers: 'export',
-      kind: 'function' as TypeScriptProtocol.ScriptElementKind,
       displayParts: [
         {
+          kind: 'keyword',
           text: 'function',
-          kind: 'keyword',
         },
         {
-          text: ' ',
           kind: 'space',
+          text: ' ',
         },
         {
-          text: 'add',
           kind: 'text',
+          text: 'add',
         },
         {
+          kind: 'punctuation',
           text: '(',
-          kind: 'punctuation',
         },
         {
+          kind: 'parameterName',
           text: 'a',
-          kind: 'parameterName',
         },
         {
-          text: ':',
           kind: 'punctuation',
+          text: ':',
         },
         {
-          text: ' ',
           kind: 'space',
+          text: ' ',
         },
         {
-          text: 'number',
           kind: 'keyword',
+          text: 'number',
         },
         {
+          kind: 'punctuation',
           text: ',',
-          kind: 'punctuation',
         },
         {
-          text: ' ',
           kind: 'space',
+          text: ' ',
         },
         {
-          text: 'b',
           kind: 'parameterName',
+          text: 'b',
         },
         {
-          text: ':',
           kind: 'punctuation',
+          text: ':',
         },
         {
-          text: ' ',
           kind: 'space',
+          text: ' ',
         },
         {
+          kind: 'keyword',
           text: 'number',
-          kind: 'keyword',
         },
         {
+          kind: 'punctuation',
           text: ')',
-          kind: 'punctuation',
         },
         {
+          kind: 'punctuation',
           text: ':',
-          kind: 'punctuation',
         },
         {
-          text: ' ',
           kind: 'space',
+          text: ' ',
         },
         {
-          text: 'void',
           kind: 'keyword',
+          text: 'void',
         },
       ],
       documentation: [],
+      kind: 'function' as TypeScriptProtocol.ScriptElementKind,
+      kindModifiers: 'export',
+      name: 'add',
       tags: [],
     },
   ]

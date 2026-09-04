@@ -1,6 +1,7 @@
+import type * as TypeScript from 'typescript'
 import * as ImportScript from '../ImportScript/ImportScript.ts'
 
-export const loadTypeScript = async (typescriptPath: string): Promise<typeof import('typescript')> => {
+export const loadTypeScript = async (typescriptPath: string): Promise<typeof TypeScript> => {
   try {
     const module = await ImportScript.importScript(typescriptPath)
     if (!module || !module.ts) {

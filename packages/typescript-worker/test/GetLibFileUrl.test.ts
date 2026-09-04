@@ -27,19 +27,19 @@ test('getLibFileUrl - lib.dom.d.ts', () => {
 
 test('getLibFileUrl - with node_modules/@typescript/lib path', () => {
   const result = GetLibFileUrl.getLibFileUrl('node_modules/@typescript/lib/lib.d.ts')
-  expect(result).toContain('node_modules/typescript/lib/lib.lib.d.d.ts')
+  expect(result).toContain('node_modules/typescript/lib/lib.lib.d.ts')
   expect(result).toContain('file://')
 })
 
 test('getLibFileUrl - with node_modules/@typescript/lib path and dashes', () => {
   const result = GetLibFileUrl.getLibFileUrl('node_modules/@typescript/lib/lib-es2015.d.ts')
-  expect(result).toContain('node_modules/typescript/lib/lib.lib.es2015.d.d.ts')
+  expect(result).toContain('node_modules/typescript/lib/lib.lib.es2015.d.ts')
   expect(result).toContain('file://')
 })
 
 test('getLibFileUrl - with node_modules/@typescript/lib path and slashes', () => {
   const result = GetLibFileUrl.getLibFileUrl('node_modules/@typescript/lib/dom/lib.d.ts')
-  expect(result).toContain('node_modules/typescript/lib/lib.dom.lib.d.d.ts')
+  expect(result).toContain('node_modules/typescript/lib/lib.dom.lib.d.ts')
   expect(result).toContain('file://')
 })
 

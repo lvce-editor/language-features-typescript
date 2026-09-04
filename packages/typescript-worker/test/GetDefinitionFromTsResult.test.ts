@@ -2,7 +2,7 @@ import { expect, test } from '@jest/globals'
 import type * as TypeScriptProtocol from '../src/parts/TypeScriptProtocol/TypeScriptProtocol.ts'
 import * as GetDefinitionFromTsResult from '../src/parts/GetDefinitionFromTsResult/GetDefinitionFromTsResult.ts'
 
-test('getDefintionFromTsResult', async () => {
+test('getDefinitionFromTsResult', async () => {
   const Position = {
     getOffset() {
       return 0
@@ -31,7 +31,7 @@ test('getDefintionFromTsResult', async () => {
   })
 })
 
-test('getDefintionFromTsResult - empty', async () => {
+test('getDefinitionFromTsResult - empty', async () => {
   const Position = {
     getOffset() {
       return 0
@@ -41,10 +41,10 @@ test('getDefintionFromTsResult - empty', async () => {
     uri: '/test/index.ts',
   }
   const tsResult: TypeScriptProtocol.DefinitionInfo[] = []
-  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, Position, tsResult)).toBe(undefined)
+  expect(await GetDefinitionFromTsResult.getDefinitionFromTsResult(textDocument, Position, tsResult)).toBeUndefined()
 })
 
-test('getDefintionFromTsResult - different file', async () => {
+test('getDefinitionFromTsResult - different file', async () => {
   const Position = {
     getOffset() {
       return 0

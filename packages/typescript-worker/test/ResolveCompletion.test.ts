@@ -15,8 +15,8 @@ test('resolveCompletion', async () => {
   const Position = {
     getTsPosition() {
       return {
-        line: 0,
         column: 0,
+        line: 0,
       }
     },
   }
@@ -40,8 +40,8 @@ test('resolveCompletion - no item', async () => {
   const Position = {
     getTsPosition() {
       return {
-        line: 0,
         column: 0,
+        line: 0,
       }
     },
   }
@@ -53,5 +53,5 @@ test('resolveCompletion - no item', async () => {
   const completionItem = undefined
   expect(
     await ResolveCompletion.resolveCompletion(typeScriptRpc, Position, textDocument, offset, name, completionItem),
-  ).toEqual(undefined)
+  ).toBeUndefined()
 })

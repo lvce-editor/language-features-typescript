@@ -19,7 +19,7 @@ test('getFiles should filter TypeScript files', () => {
     return []
   }
 
-  const result = getFiles('/project', [], readDir)
+  const result = getFiles('/project', undefined, readDir)
 
   expect(result).toEqual(['/project/file1.ts', '/project/file2.js'])
 })
@@ -41,14 +41,12 @@ test('getFiles should recursively search src directories', () => {
     return []
   }
 
-  const result = getFiles('/project', [], readDir)
+  const result = getFiles('/project', undefined, readDir)
 
   expect(result).toContain('/project/file1.ts')
   expect(result).toContain('/project/src/index.ts')
-  // The function only recursively searches directories ending with /src
-  // It doesn't recursively search subdirectories of /src
-  expect(result).not.toContain('/project/src/utils/helper.ts')
-  expect(result).not.toContain('/project/src/utils/constants.ts')
+  expect(result).toContain('/project/src/utils/helper.ts')
+  expect(result).toContain('/project/src/utils/constants.ts')
   // .tsx files are not considered TypeScript files by isTypeScriptFile
   expect(result).not.toContain('/project/src/components/Button.tsx')
   expect(result).not.toContain('/project/src/components/Modal.tsx')
@@ -68,13 +66,12 @@ test('getFiles should handle multiple src directories', () => {
     return []
   }
 
-  const result = getFiles('/project', [], readDir)
+  const result = getFiles('/project', undefined, readDir)
 
   expect(result).toContain('/project/file1.ts')
   expect(result).toContain('/project/src/index.ts')
-  // Note: tests directory is not /src so it won't be included
-  expect(result).not.toContain('/project/tests/test1.ts')
-  expect(result).not.toContain('/project/tests/test2.ts')
+  expect(result).toContain('/project/tests/test1.ts')
+  expect(result).toContain('/project/tests/test2.ts')
 })
 
 test('getFiles should handle nested src directories', () => {
@@ -94,14 +91,14 @@ test('getFiles should handle nested src directories', () => {
     return []
   }
 
-  const result = getFiles('/project', [], readDir)
+  const result = getFiles('/project', undefined, readDir)
 
   // .tsx files are not considered TypeScript files by isTypeScriptFile
   expect(result).not.toContain('/project/src/components/Button.tsx')
   expect(result).toContain('/project/src/src/deep.ts')
 })
 
-test('getFiles should handle include patterns (though not implemented)', () => {
+test('getFiles should handle include patterns', () => {
   const readDir = (uri: string): readonly string[] => {
     if (uri === '/project') {
       return ['src', 'file1.ts']
@@ -115,7 +112,6 @@ test('getFiles should handle include patterns (though not implemented)', () => {
   const include = ['src/**/*', '*.ts']
   const result = getFiles('/project', include, readDir)
 
-  // The function doesn't actually use include patterns yet, but should still work
   expect(result).toContain('/project/file1.ts')
   expect(result).toContain('/project/src/index.ts')
 })
@@ -133,8 +129,7 @@ test('getFiles should handle empty include array', () => {
 
   const result = getFiles('/project', [], readDir)
 
-  expect(result).toContain('/project/file1.ts')
-  expect(result).toContain('/project/src/index.ts')
+  expect(result).toEqual([])
 })
 
 test('getFiles should handle mixed file types', () => {
@@ -148,7 +143,7 @@ test('getFiles should handle mixed file types', () => {
     return []
   }
 
-  const result = getFiles('/project', [], readDir)
+  const result = getFiles('/project', undefined, readDir)
 
   expect(result).toContain('/project/file1.ts')
   expect(result).toContain('/project/file2.js')
@@ -182,11 +177,9 @@ test('getFiles should handle deep nesting', () => {
     return []
   }
 
-  const result = getFiles('/project', [], readDir)
+  const result = getFiles('/project', undefined, readDir)
 
-  // The function only recursively searches directories ending with /src
-  // So it won't find files in nested non-src directories
-  expect(result).toEqual([])
+  expect(result).toEqual(['/project/src/level1/level2/level3/deep.ts'])
 })
 
 test('getFiles should handle readDir errors gracefully', () => {
@@ -200,8 +193,5 @@ test('getFiles should handle readDir errors gracefully', () => {
     return []
   }
 
-  // The function should not throw, but may not include files from erroring directories
-  expect(() => {
-    getFiles('/project', [], readDir)
-  }).toThrow()
+  expect(getFiles('/project', undefined, readDir)).toEqual(['/project/file1.ts'])
 })

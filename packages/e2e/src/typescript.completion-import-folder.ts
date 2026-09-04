@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.completion-import-folder'
 
-export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) => {
+export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main }) => {
   // arrange
   const tmpDir = await FileSystem.getTmpDir()
   await FileSystem.writeFile(
@@ -32,6 +32,8 @@ export const test: Test = async ({ FileSystem, Main, Editor, Locator, expect }) 
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(2)
-  await expect(completionItems.nth(0)).toHaveText('tsconfig.json')
-  await expect(completionItems.nth(1)).toHaveText('add.js') // TODO should be ts
+  const firstCompletionItem = completionItems.nth(0)
+  await expect(firstCompletionItem).toHaveText('tsconfig.json')
+  const secondCompletionItem = completionItems.nth(1)
+  await expect(secondCompletionItem).toHaveText('add.js') // TODO should be ts
 }

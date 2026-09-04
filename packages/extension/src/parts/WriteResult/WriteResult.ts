@@ -14,9 +14,9 @@ const getResponse = async (resultGenerator) => {
 
   const code = _error ? errorCode : successCode
   return {
-    result,
-    error: _error,
     code,
+    error: _error,
+    result,
   }
 }
 
@@ -55,9 +55,9 @@ const writeResultError = async (errorAccessHandle: FileSystemSyncAccessHandle, e
   }
   await writeJson(errorAccessHandle, {
     // @ts-ignore
-    name: error.name,
-    // @ts-ignore
     message: error.message,
+    // @ts-ignore
+    name: error.name,
     // @ts-ignore
     stack: error.stack,
   })
@@ -71,8 +71,8 @@ const writeResultContent = async (resultAccessHandle: FileSystemSyncAccessHandle
 }
 
 export const writeResult = async (id: any, resultGenerator: () => Promise<any>) => {
-  const { accessHandle, resultAccessHandle, errorAccessHandle, buffer } = SyncSetupState.get(id)
-  const { result, error, code } = await getResponse(resultGenerator)
+  const { accessHandle, buffer, errorAccessHandle, resultAccessHandle } = SyncSetupState.get(id)
+  const { code, error, result } = await getResponse(resultGenerator)
   await writeResultError(errorAccessHandle, error)
   await writeResultContent(resultAccessHandle, result, error)
   await writeResultStatus(buffer, accessHandle, code)

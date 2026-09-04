@@ -3,19 +3,19 @@ export const getEditsFromTsResult = async (Position: any, textDocument: any, tsR
   const edits: any[] = []
   for (const item of tsResult) {
     for (const textChange of item.textChanges) {
-      const { start, end, newText } = textChange
+      const { end, newText, start } = textChange
       const startOffset = await Position.getOffset(textDocument, {
-        rowIndex: start.line - 1,
         columnIndex: start.offset - 1,
+        rowIndex: start.line - 1,
       })
       const endOffset = await Position.getOffset(textDocument, {
-        rowIndex: end.line - 1,
         columnIndex: end.offset - 1,
+        rowIndex: end.line - 1,
       })
       edits.push({
-        startOffset,
         endOffset,
         inserted: newText,
+        startOffset,
       })
     }
   }

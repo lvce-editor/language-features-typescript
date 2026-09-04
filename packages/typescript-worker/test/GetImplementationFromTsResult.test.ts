@@ -16,9 +16,8 @@ jest.unstable_mockModule('../src/parts/Rpc/Rpc.ts', () => {
   }
 })
 
-const GetImplementationFromTsResult = await import(
-  '../src/parts/GetImplementationFromTsResult/GetImplementationFromTsResult.ts'
-)
+const GetImplementationFromTsResult =
+  await import('../src/parts/GetImplementationFromTsResult/GetImplementationFromTsResult.ts')
 const TypeScriptRpc = await import('../src/parts/TypeScriptRpc/TypeScriptRpc.ts')
 const Rpc = await import('../src/parts/Rpc/Rpc.ts')
 
@@ -39,11 +38,11 @@ test('getGetImplementationFromTsResult', async () => {
         line: 1,
         offset: 1,
       },
+      file: '/test/index.ts',
       start: {
         line: 1,
         offset: 1,
       },
-      file: '/test/index.ts',
     },
   ]
   expect(await GetImplementationFromTsResult.getImplementationsFromTsResult(tsResult)).toEqual([

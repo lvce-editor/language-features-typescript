@@ -4,7 +4,7 @@ export const name = 'typescript.add-missing-imports'
 
 export const skip = 1
 
-export const test: Test = async ({ FileSystem, Workspace, Main, Editor }) => {
+export const test: Test = async ({ Editor, FileSystem, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/add-missing-imports')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)

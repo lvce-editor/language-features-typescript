@@ -1,3 +1,3 @@
-import { count } from './value.ts'
+import { count } from './value.js'
 
 export const label: string = count

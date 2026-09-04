@@ -8,7 +8,7 @@ import * as TextDocumentSync from '../TextDocumentSync/TextDocumentSync.ts'
  * @type {vscode.CompletionProvider['provideCompletions']}
  */
 export const getCompletion = async (textDocument: any, offset: number): Promise<any> => {
-  const uri = textDocument.uri
+  const { uri } = textDocument
   Assert.string(uri)
   await TextDocumentSync.openTextDocuments([textDocument])
   const tsPosition = Position.getTsPosition(textDocument, offset)

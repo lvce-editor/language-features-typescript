@@ -1,10 +1,9 @@
+import type * as TypeScript from 'typescript'
 import type { CompilerOptions, ResolvedModuleWithFailedLookupLocations } from 'typescript'
 import type { ModuleResolver } from '../ModuleResolver/ModuleResolver.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { isFullySpecified } from '../IsFullySpecified/IsFullySpecified.ts'
 import { joinPath } from '../JoinPath/JoinPath.ts'
-
-type ModuleResolutionCompilerOptions = Readonly<Pick<CompilerOptions, 'rootDir'>>
 
 const getDirName = (path: string): string => {
   return path.slice(0, path.lastIndexOf('/'))
@@ -19,6 +18,10 @@ const getExtension = (fileName: string): string => {
     return ''
   }
   return fileName.slice(dotIndex)
+}
+
+const usesTypeScriptExtension = (moduleName: string): boolean => {
+  return /\.(?:[cm]?ts|tsx)$/.test(moduleName)
 }
 
 const isNode = (path: string): boolean => {
@@ -41,37 +44,114 @@ const toFileUri = (path: string): string => {
   return normalizedPath
 }
 
-const resolveRelativePath = (containingFile: string, text: string): string => {
-  const containingFileUri = toFileUri(containingFile)
-  return new URL(text, containingFileUri).href
+const toFilePath = (uri: string): string => {
+  const path = decodeURIComponent(new URL(uri).pathname)
+  return /^\/[a-zA-Z]:\//.test(path) ? path.slice(1) : path
 }
 
-const getRelativeModuleName = (containingFile: string, text: string): string => {
+const resolveRelativePath = (containingFile: string, text: string): string => {
+  const normalizedContainingFile = containingFile.replaceAll('\\', '/')
+  const containingFileUri = toFileUri(containingFile)
+  const resolved = new URL(text, containingFileUri)
+  if (normalizedContainingFile.startsWith('file://')) {
+    return resolved.href
+  }
+  if (normalizedContainingFile.startsWith('/')) {
+    return decodeURIComponent(resolved.pathname)
+  }
+  if (windowsAbsolutePathRegex.test(normalizedContainingFile)) {
+    return decodeURIComponent(resolved.pathname.slice(1))
+  }
+  return resolved.href
+}
+
+const getRelativeModuleNames = (containingFile: string, text: string): readonly string[] => {
   const normalizedContainingFile = containingFile.replaceAll('\\', '/')
   const isInNodeModules =
     normalizedContainingFile.startsWith('node_modules/') || normalizedContainingFile.includes('/node_modules/')
-  if (
-    isInNodeModules &&
-    normalizedContainingFile.endsWith('.d.ts') &&
-    text.endsWith('.ts') &&
-    !text.endsWith('.d.ts')
-  ) {
-    return `${text.slice(0, -3)}.d.ts`
+  const isDeclarationFile = normalizedContainingFile.endsWith('.d.ts')
+  if (isInNodeModules && isDeclarationFile && text.endsWith('.ts') && !text.endsWith('.d.ts')) {
+    return [`${text.slice(0, -3)}.d.ts`, text]
   }
-  return text
+  if (isInNodeModules && isDeclarationFile && text.endsWith('.d')) {
+    return [`${text}.ts`, text]
+  }
+  const baseName = text.slice(text.lastIndexOf('/') + 1)
+  if (isInNodeModules && isDeclarationFile && !baseName.includes('.')) {
+    return [`${text}.d.ts`, `${text}.ts`]
+  }
+  return [text]
 }
 
-const resolveModuleNameRelative = (containingFile: string, text: string): ResolvedModuleWithFailedLookupLocations => {
-  const relativeModuleName = getRelativeModuleName(containingFile, text)
-  const resolveFileName = resolveRelativePath(containingFile, relativeModuleName)
-  const extension = getExtension(resolveFileName)
+const getExistingRelativeModuleName = (
+  syncRpc: Readonly<SyncRpc>,
+  containingFile: string,
+  text: string,
+): string | undefined => {
+  const relativeModuleNames = getRelativeModuleNames(containingFile, text)
+  let syncAccessUnavailable = false
+  for (const relativeModuleName of relativeModuleNames) {
+    const resolvedFileName = resolveRelativePath(containingFile, relativeModuleName)
+    try {
+      if (syncRpc.invokeSync('SyncApi.exists', resolvedFileName)) {
+        return relativeModuleName
+      }
+    } catch {
+      syncAccessUnavailable = true
+    }
+  }
+  // Preserve the legacy fallback only when synchronous file access itself is unavailable.
+  return syncAccessUnavailable ? relativeModuleNames[0] : undefined
+}
+
+const resolveModuleNameRelative = (
+  syncRpc: Readonly<SyncRpc>,
+  containingFile: string,
+  text: string,
+): ResolvedModuleWithFailedLookupLocations => {
+  const relativeModuleName = getExistingRelativeModuleName(syncRpc, containingFile, text)
+  if (!relativeModuleName) {
+    return {
+      resolvedModule: undefined,
+    }
+  }
+  const resolvedFileName = resolveRelativePath(containingFile, relativeModuleName)
+  const extension = getExtension(resolvedFileName)
   return {
     resolvedModule: {
       extension,
       isExternalLibraryImport: false,
       packageId: undefined,
-      resolvedFileName: resolveFileName,
-      resolvedUsingTsExtension: true,
+      resolvedFileName,
+      resolvedUsingTsExtension: usesTypeScriptExtension(text),
+    },
+  }
+}
+
+const resolveRelativeDirectoryIndex = (
+  syncRpc: Readonly<SyncRpc>,
+  containingFile: string,
+  text: string,
+): ResolvedModuleWithFailedLookupLocations => {
+  const resolvedFileName = resolveRelativePath(containingFile, `${text}index.d.ts`)
+  try {
+    if (!syncRpc.invokeSync('SyncApi.exists', resolvedFileName)) {
+      return {
+        resolvedModule: undefined,
+      }
+    }
+  } catch {
+    return {
+      resolvedModule: undefined,
+    }
+  }
+  return {
+    resolvedModule: {
+      extension: '.d.ts',
+      isExternalLibraryImport: containingFile.includes('/node_modules/'),
+      packageId: undefined,
+      resolvedFileName,
+      resolvedUsingTsExtension: false,
     },
   }
 }
@@ -84,35 +164,34 @@ const getNodeModulesLocation = (text: string): string => {
   return text
 }
 
-const getNodeModulesSearchPaths = (containingFile: string, rootDir: string): readonly string[] => {
+const getNodeModulesSearchPaths = (containingFile: string): readonly string[] => {
   const searchPaths: string[] = []
   let directory = getDirName(containingFile)
-  while (directory) {
+  while (true) {
     searchPaths.push(directory)
-    if (directory === rootDir) {
-      return searchPaths
+    if (!directory) {
+      break
     }
     directory = getDirName(directory)
-  }
-  if (!searchPaths.includes(rootDir)) {
-    searchPaths.push(rootDir)
   }
   return searchPaths
 }
 
 const resolveModuleNodeModules = (
   syncRpc: Readonly<SyncRpc>,
-  compilerOptions: ModuleResolutionCompilerOptions,
   containingFile: string,
   text: string,
 ): ResolvedModuleWithFailedLookupLocations => {
-  const rootDir = compilerOptions.rootDir || ''
   const nodeModulesLocation = getNodeModulesLocation(text)
-  const searchPaths = getNodeModulesSearchPaths(containingFile, rootDir)
+  const searchPaths = getNodeModulesSearchPaths(containingFile)
   for (const searchPath of searchPaths) {
     const nodeModulesDir = joinPath(searchPath, 'node_modules', nodeModulesLocation)
     const packageJsonPath = joinPath(nodeModulesDir, 'package.json')
     try {
+      const packageJsonExists = syncRpc.invokeSync('SyncApi.exists', packageJsonPath)
+      if (!packageJsonExists) {
+        continue
+      }
       const content = syncRpc.invokeSync('SyncApi.readFileSync', packageJsonPath)
       const parsed = JSON.parse(content)
 
@@ -134,31 +213,93 @@ const resolveModuleNodeModules = (
     }
   }
 
-  // TODO
   return {
-    resolvedModule: {
-      extension: '',
-      resolvedFileName: '',
+    resolvedModule: undefined,
+  }
+}
+
+const createModuleResolutionHost = (syncRpc: Readonly<SyncRpc>): TypeScript.ModuleResolutionHost => {
+  const exists = (path: string): boolean => {
+    try {
+      return Boolean(syncRpc.invokeSync('SyncApi.exists', path))
+    } catch {
+      return false
+    }
+  }
+  const fileExists = (path: string): boolean => {
+    try {
+      syncRpc.invokeSync('SyncApi.readFileSync', path)
+      return true
+    } catch {
+      return false
+    }
+  }
+  return {
+    directoryExists: exists,
+    fileExists,
+    readFile(path) {
+      try {
+        return syncRpc.invokeSync('SyncApi.readFileSync', path)
+      } catch {
+        return undefined
+      }
+    },
+    realpath(path) {
+      return path
     },
   }
 }
 
-export const createModuleResolver = (syncRpc: Readonly<SyncRpc>): ModuleResolver => {
+const resolveModuleNameWithTypeScript = (
+  ts: typeof TypeScript,
+  host: TypeScript.ModuleResolutionHost,
+  text: string,
+  containingFile: string,
+  compilerOptions: CompilerOptions,
+): ResolvedModuleWithFailedLookupLocations => {
+  const containingFileIsUri = containingFile.startsWith('file://')
+  const containingFilePath = containingFileIsUri ? toFilePath(containingFile) : containingFile
+  const result = ts.resolveModuleName(text, containingFilePath, compilerOptions, host)
+  if (!containingFileIsUri || !result.resolvedModule) {
+    return result
+  }
+  return {
+    ...result,
+    resolvedModule: {
+      ...result.resolvedModule,
+      resolvedFileName: toFileUri(result.resolvedModule.resolvedFileName),
+    },
+  }
+}
+
+export const createModuleResolver = (syncRpc: Readonly<SyncRpc>, ts?: typeof TypeScript): ModuleResolver => {
+  const moduleResolutionHost = ts ? createModuleResolutionHost(syncRpc) : undefined
   const resolveModuleName = (
     text: string,
     containingFile: string,
-    compilerOptions: ModuleResolutionCompilerOptions,
+    compilerOptions: CompilerOptions,
   ): ResolvedModuleWithFailedLookupLocations => {
-    // console.log({ compilerOptions })
+    if (ts && moduleResolutionHost) {
+      const result = resolveModuleNameWithTypeScript(ts, moduleResolutionHost, text, containingFile, compilerOptions)
+      if (result.resolvedModule) {
+        return result
+      }
+      if ((text.startsWith('./') || text.startsWith('../')) && text.endsWith('/')) {
+        const directoryIndexResult = resolveRelativeDirectoryIndex(syncRpc, containingFile, text)
+        if (directoryIndexResult.resolvedModule) {
+          return directoryIndexResult
+        }
+      }
+    }
     if (!isFullySpecified(text)) {
       return {
         resolvedModule: undefined,
       }
     }
     if (text.startsWith('./') || text.startsWith('../')) {
-      return resolveModuleNameRelative(containingFile, text)
+      return resolveModuleNameRelative(syncRpc, containingFile, text)
     }
-    return resolveModuleNodeModules(syncRpc, compilerOptions, containingFile, text)
+    return resolveModuleNodeModules(syncRpc, containingFile, text)
   }
   return resolveModuleName
 }

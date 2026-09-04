@@ -1,13 +1,13 @@
 import type * as TypeScriptProtocol from '../TypeScriptProtocol/TypeScriptProtocol.ts'
 
 const getReferenceFromTsResult = (reference: TypeScriptProtocol.ReferencesResponseItem) => {
-  const { start, end, file } = reference
+  const { end, file, start } = reference
   return {
-    uri: file,
-    startRowIndex: start.line - 1,
-    startColumnIndex: start.offset - 1,
-    endRowIndex: end.line - 1,
     endColumnIndex: end.offset - 1,
+    endRowIndex: end.line - 1,
+    startColumnIndex: start.offset - 1,
+    startRowIndex: start.line - 1,
+    uri: file,
   }
 }
 

@@ -1,5 +1,6 @@
 import { exists as existsApi, readDirWithFileTypes, readFile } from '@lvce-editor/api'
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
+import { toFileUri } from '../ToFileUri/ToFileUri.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
 
 export const syncSetup = async (
@@ -29,22 +30,22 @@ export const syncSetup = async (
 
   SyncSetupState.set(id, {
     accessHandle,
-    resultAccessHandle,
-    errorAccessHandle,
     buffer,
+    errorAccessHandle,
+    resultAccessHandle,
   })
 }
 
 export const readFileSync = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = () => {
-    return readFile(uri)
+    return readFile(toFileUri(uri))
   }
   await writeResult(id, resultGenerator)
 }
 
 export const readDirSync = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = async () => {
-    const result = await readDirWithFileTypes(uri)
+    const result = await readDirWithFileTypes(toFileUri(uri))
     const baseNames = result.map((item) => item.name)
     return baseNames
   }
@@ -54,10 +55,10 @@ export const readDirSync = async (id: number, uri: string): Promise<void> => {
 export const exists = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = async () => {
     try {
-      const result = await existsApi(uri)
+      const result = await existsApi(toFileUri(uri))
       return result
     } catch {
-      return true
+      return false
     }
   }
   await writeResult(id, resultGenerator)

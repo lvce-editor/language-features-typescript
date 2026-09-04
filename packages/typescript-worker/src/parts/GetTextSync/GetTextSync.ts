@@ -1,6 +1,6 @@
 // TODO maybe use separate worker and atomics to sync
 
-const RE_URL = /^[a-z\-]+\:\/\//
+const RE_URL = /^[a-z-]+:\/\//
 
 // TODO could also use origin private file system for this
 export const getTextSync = (url: string): string => {

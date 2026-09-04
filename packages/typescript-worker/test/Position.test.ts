@@ -14,7 +14,7 @@ const Position = await import('../src/parts/Position/Position.ts')
 const Rpc = await import('../src/parts/Rpc/Rpc.ts')
 
 test('getPosition', async () => {
-  jest.spyOn(Rpc, 'invoke').mockResolvedValue({ rowIndex: 0, columnIndex: 0 })
+  jest.spyOn(Rpc, 'invoke').mockResolvedValue({ columnIndex: 0, rowIndex: 0 })
   const textDocument = {
     uri: '',
   }

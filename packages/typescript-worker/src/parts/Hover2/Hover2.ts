@@ -2,9 +2,9 @@ import { getHoverFromTsResult2 } from '../GetHoverFromTsResult2/GetHoverFromTsRe
 import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 
 export const getHover2 = async (textDocument: any, offset: number) => {
-  const { languageService, fs } = getOrCreateLanguageService(textDocument.uri)
+  const { fs, languageService } = getOrCreateLanguageService(textDocument.uri)
   fs.writeFile(textDocument.uri, textDocument.text)
   const tsResult = languageService.getQuickInfoAtPosition(textDocument.uri, offset)
-  const hover = getHoverFromTsResult2(tsResult as any)
+  const hover = getHoverFromTsResult2(tsResult)
   return hover
 }

@@ -19,13 +19,13 @@ export const getSemanticTokensFromTsResult = (tsResult: any): readonly number[] 
  * @type{vscode.SemanticTokenProvider['provideSemanticTokens']}
  */
 export const provideSemanticTokens = async (textDocument: any): Promise<readonly number[]> => {
-  const text = textDocument.text
+  const { text } = textDocument
   console.warn('start-semantic-tokens', performance.now())
   const tsResult = await TsServerRequests.encodedSemanticClassificationsFull({
     file: textDocument.uri,
-    start: 0,
-    length: text.length,
     format: '2020',
+    length: text.length,
+    start: 0,
   })
   console.warn('finished-semantic-tokens', performance.now())
   return getSemanticTokensFromTsResult(tsResult)
