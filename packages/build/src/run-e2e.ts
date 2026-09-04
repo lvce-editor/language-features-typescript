@@ -8,9 +8,7 @@ const [manifestName, ...args] = process.argv.slice(2)
 const e2ePath = join(root, 'packages', 'e2e')
 const isSmartSelectionE2e = manifestName === 'smart-selection-e2e'
 const requireFromE2e = createRequire(join(e2ePath, 'package.json'))
-const runnerPath = requireFromE2e.resolve(
-  '@lvce-editor/test-with-playwright/bin/test-with-playwright.js',
-)
+const runnerPath = requireFromE2e.resolve('@lvce-editor/test-with-playwright/bin/test-with-playwright.js')
 const testPath = join(root, '.tmp', 'e2e-manifests', manifestName)
 const testSourcePath = join(e2ePath, 'src')
 const allTestNames = (await readdir(testSourcePath)).filter((name) => !name.startsWith('_'))
