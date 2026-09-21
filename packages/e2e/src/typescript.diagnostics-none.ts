@@ -13,5 +13,6 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   await Main.openUri(`${workspaceUrl}/src/valid.ts`)
 
   // assert
+  await Editor.shouldHaveDiagnosticProviderResult([])
   await Editor.shouldHaveDiagnostics([])
 }

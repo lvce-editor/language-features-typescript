@@ -15,10 +15,10 @@ export const test: Test = async ({ expect, FileSystem, Locator, Main, Panel, Pro
   // assert
   await Panel.open('Problems')
   await Problems.show()
-  const problems = Locator('.Problem')
+  const problems = Locator('.Problem:not([aria-level="3"])')
   await expect(problems).toHaveCount(2)
   const problemInfo = problems.nth(1)
-  const label = problemInfo.locator('.Label')
+  const label = problemInfo.locator('.ProblemLabel')
   await expect(label).toHaveText(
     "A 'break' statement can only be used within an enclosing iteration or switch statement.",
   )

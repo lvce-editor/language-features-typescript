@@ -26,6 +26,7 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Se
       uri: `${workspaceUrl}/src/test.ts`,
     },
   ] as const
+  await expect(Locator('.Diagnostic')).toHaveCount(expectedDiagnostics.length)
   await Editor.shouldHaveDiagnostics(expectedDiagnostics)
   const diagnostic = Locator('.Diagnostic.DiagnosticError')
   await expect(diagnostic).toHaveCSS('height', '20px')
