@@ -15,12 +15,12 @@ export const test: Test = async ({ expect, FileSystem, Locator, Main, Panel, Pro
   // assert
   await Panel.open('Problems')
   await Problems.show()
-  const problems = Locator('.Problem')
+  const problems = Locator('.Problem:not([aria-level="3"])')
   await expect(problems).toHaveCount(3)
   const declarationProblem = problems.nth(1)
-  const declarationLabel = declarationProblem.locator('.Label')
+  const declarationLabel = declarationProblem.locator('.ProblemLabel')
   await expect(declarationLabel).toHaveText(`Block-scoped variable 'later' used before its declaration.`)
   const assignmentProblem = problems.nth(2)
-  const assignmentLabel = assignmentProblem.locator('.Label')
+  const assignmentLabel = assignmentProblem.locator('.ProblemLabel')
   await expect(assignmentLabel).toHaveText(`Variable 'later' is used before being assigned.`)
 }

@@ -12,9 +12,9 @@ export const test: Test = async ({ expect, FileSystem, Locator, Main, Panel, Pro
 
   await Panel.open('Problems')
   await Problems.show()
-  const problems = Locator('.Problem')
+  const problems = Locator('.Problem:not([aria-level="3"])')
   await expect(problems).toHaveCount(2)
-  const label = problems.nth(1).locator('.Label')
+  const label = problems.nth(1).locator('.ProblemLabel')
   await expect(label).toHaveText(
     `Class 'UserModel' incorrectly extends base class 'BaseModel'.\n  Types have separate declarations of a private property 'id'.`,
   )
