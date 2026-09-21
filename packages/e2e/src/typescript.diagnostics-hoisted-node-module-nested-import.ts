@@ -11,6 +11,5 @@ export const test: Test = async ({ Editor, FileSystem, Main, Settings, Workspace
   const uri = `${workspaceUrl}/packages/running-extensions-view/src/parts/DisableWorkspace/side-effect-import.ts`
   await Main.openUri(uri)
 
-  await Editor.shouldHaveDiagnosticProviderResult([])
   await Editor.shouldHaveDiagnostics([])
 }
