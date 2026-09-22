@@ -25,6 +25,7 @@
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
     "onLanguage:javascriptreact",
+    "onCommand:typescript.showPerformanceTrace",
     "onRename:javascript",
     "onRename:typescript",
     "onReferences:javascript",
@@ -53,6 +54,12 @@
     { "id": "typescript.provideDiagnostics.javascript", "languageId": "javascript" },
     { "id": "typescript.provideDiagnostics.typescript", "languageId": "typescript" },
     { "id": "typescript.provideDiagnostics.typescriptreact", "languageId": "typescriptreact" }
+  ],
+  "commands": [
+    {
+      "id": "typescript.showPerformanceTrace",
+      "label": "TypeScript: Show Performance Trace"
+    }
   ],
   "hoverProviders": [
     { "id": "typescript.provideHover.javascript", "languageId": "javascript" },
