@@ -3,6 +3,8 @@ import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path, { join } from 'path'
 import { bundleExtensionJs } from './bundleExtensionJs.ts'
 import { copyExtensionSchemas } from './copyExtensionSchemas.ts'
+import { getTypeScriptLibManifest } from './getTypeScriptLibManifest.ts'
+import { replaceTypeScriptLibManifest } from './replaceTypeScriptLibManifest.ts'
 import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.ts'
 import { root } from './root.ts'
 
@@ -64,6 +66,10 @@ await bundleJs(
   join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
   false,
 )
+
+const workerBundlePath = join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js')
+const typeScriptLibManifest = await getTypeScriptLibManifest(join(root, 'node_modules', 'typescript', 'lib'))
+await replaceTypeScriptLibManifest(workerBundlePath, typeScriptLibManifest)
 
 await mkdir(join(dist, 'typescript-worker', 'dist'), {
   recursive: true,
