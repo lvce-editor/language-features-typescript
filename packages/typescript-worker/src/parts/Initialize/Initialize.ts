@@ -3,10 +3,12 @@ import { createSyncRpcClient } from '../CreateSyncRpcClient/CreateSyncRpcClient.
 import { getTypeScriptPath } from '../GetTypeScriptPath/GetTypeScriptPath.ts'
 import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import { loadTypeScript } from '../LoadTypeScript/LoadTypeScript.ts'
+import * as ReadLibFile from '../ReadLibFile/ReadLibFile.ts'
 
 export const initialize = async (typeScriptPath: string, crossOriginIsolated: boolean) => {
   const tsPath = getTypeScriptPath()
   const ts = await loadTypeScript(tsPath)
+  await ReadLibFile.initialize()
   const fs = createFileSystem()
   const client = await createSyncRpcClient({
     crossOriginIsolated,

@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises'
 import { join } from 'node:path'
 
-const NOT_NEEDED: string[] = [
+export const NOT_NEEDED: string[] = [
   'bin',
   'loc',
   'AUTHORS.md',
