@@ -5,6 +5,8 @@ import * as TypeScriptLibCache from '../TypeScriptLibCache/TypeScriptLibCache.ts
 let libCache: Awaited<ReturnType<typeof TypeScriptLibCache.initialize>> | undefined
 
 export const initialize = async (): Promise<void> => {
+  libCache?.close()
+  libCache = undefined
   try {
     libCache = await TypeScriptLibCache.initialize(TypeScriptLibCache.getManifest())
   } catch {
@@ -18,9 +20,15 @@ export const readLibFile = (uri: string): string | undefined => {
   if (!url) {
     return undefined
   }
-  const cached = libCache && TypeScriptLibCache.read(libCache, url)
-  if (cached !== undefined) {
-    return cached
+  try {
+    const cached = libCache && TypeScriptLibCache.read(libCache, url)
+    if (cached !== undefined) {
+      return cached
+    }
+  } catch {
+    // An evicted or unavailable cache must not prevent library reads.
+    libCache?.close()
+    libCache = undefined
   }
   return GetTextSync.getTextSync(url)
 }

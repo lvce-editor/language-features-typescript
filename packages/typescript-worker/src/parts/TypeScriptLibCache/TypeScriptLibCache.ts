@@ -20,6 +20,7 @@ interface SyncAccessHandle {
 }
 
 interface LibCache {
+  close(): void
   read(uri: string): string | undefined
 }
 
@@ -39,7 +40,12 @@ const getHeader = (manifest: TypeScriptLibManifest): Uint8Array => {
   return paddedHeader
 }
 
-const isCacheValid = (handle: SyncAccessHandle, manifest: TypeScriptLibManifest): boolean => {
+const getSha256 = async (content: Uint8Array): Promise<string> => {
+  const digest = await crypto.subtle.digest('SHA-256', content.slice().buffer as ArrayBuffer)
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+const isCacheValid = async (handle: SyncAccessHandle, manifest: TypeScriptLibManifest): Promise<boolean> => {
   if (handle.getSize() !== HEADER_SIZE + manifest.totalByteLength) {
     return false
   }
@@ -49,7 +55,19 @@ const isCacheValid = (handle: SyncAccessHandle, manifest: TypeScriptLibManifest)
     return false
   }
   const expected = `${HEADER_MAGIC}\n${manifest.hash}\n${manifest.totalByteLength}\n`
-  return textDecoder.decode(header.subarray(0, expected.length)) === expected
+  if (textDecoder.decode(header.subarray(0, expected.length)) !== expected) {
+    return false
+  }
+  let offset = HEADER_SIZE
+  for (const file of manifest.files) {
+    const content = new Uint8Array(file.byteLength)
+    const bytesRead = handle.read(content, { at: offset })
+    if (bytesRead !== file.byteLength || (await getSha256(content)) !== file.sha256) {
+      return false
+    }
+    offset += file.byteLength
+  }
+  return true
 }
 
 const getFileContents = async (manifest: TypeScriptLibManifest): Promise<Uint8Array[]> => {
@@ -62,7 +80,8 @@ const getFileContents = async (manifest: TypeScriptLibManifest): Promise<Uint8Ar
     }
     const { fileName, sha256, byteLength } = manifest.files[index]
     const url = GetLibFileUrl.getLibFileUrl(fileName)
-    const response = await fetch(url)
+    // Request declaration text: the development server otherwise transpiles .ts files.
+    const response = await fetch(url, { headers: { Accept: 'text/plain' } })
     if (!response.ok) {
       throw new Error(`Failed to fetch TypeScript lib ${fileName}: ${response.status}`)
     }
@@ -70,8 +89,7 @@ const getFileContents = async (manifest: TypeScriptLibManifest): Promise<Uint8Ar
     if (content.byteLength !== byteLength) {
       throw new Error(`TypeScript lib size changed during cache population: ${fileName}`)
     }
-    const digest = await crypto.subtle.digest('SHA-256', content.slice().buffer as ArrayBuffer)
-    const hash = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
+    const hash = await getSha256(content)
     if (hash !== sha256) {
       throw new Error(`TypeScript lib content changed during cache population: ${fileName}`)
     }
@@ -103,6 +121,9 @@ const populateCache = async (handle: SyncAccessHandle, manifest: TypeScriptLibMa
       throw new Error('Failed to publish TypeScript lib cache header')
     }
     handle.flush()
+    if (!(await isCacheValid(handle, manifest))) {
+      throw new Error('Written TypeScript lib cache failed content verification')
+    }
   } catch (error) {
     handle.truncate(0)
     handle.flush()
@@ -123,6 +144,9 @@ const createLibCache = (handle: SyncAccessHandle, manifest: TypeScriptLibManifes
     offset += file.byteLength
   }
   return {
+    close() {
+      handle.close()
+    },
     read(uri) {
       const fileName = uri.slice(uri.lastIndexOf('/') + 1)
       const entry = offsets.get(fileName)
@@ -146,10 +170,17 @@ const openOrPopulateCache = async (directory: FileSystemDirectoryHandle, manifes
     try {
       fileHandle = await directory.getFileHandle(cacheFileName)
       const readHandle = await getAccessHandle(fileHandle, 'read-only')
-      if (isCacheValid(readHandle, manifest)) {
-        return readHandle
+      let valid = false
+      try {
+        valid = await isCacheValid(readHandle, manifest)
+        if (valid) {
+          return readHandle
+        }
+      } finally {
+        if (!valid) {
+          readHandle.close()
+        }
       }
-      readHandle.close()
     } catch {
       fileHandle = await directory.getFileHandle(cacheFileName, { create: true })
     }

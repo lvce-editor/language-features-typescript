@@ -15,6 +15,7 @@ const getManifest = async (hash: string, content: string): Promise<TypeScriptLib
 }
 
 const createStorage = () => {
+  const close = jest.fn()
   const files = new Map<string, Uint8Array>()
   const locks = new Map<string, Promise<unknown>>()
   const directory = {
@@ -28,7 +29,7 @@ const createStorage = () => {
       return {
         async createSyncAccessHandle({ mode }: { mode: 'read-only' | 'readwrite-unsafe' }) {
           return {
-            close() {},
+            close,
             getSize() {
               return files.get(name)!.byteLength
             },
@@ -87,7 +88,7 @@ const createStorage = () => {
       },
     },
   }
-  return { files, navigatorMock }
+  return { files, navigatorMock, close }
 }
 
 describe('TypeScriptLibCache', () => {
@@ -106,7 +107,14 @@ describe('TypeScriptLibCache', () => {
   it('populates once and serves warm reads synchronously without fetching libraries again', async () => {
     const storage = createStorage()
     Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
-    globalThis.fetch = jest.fn(async () => new Response('declare const value: string'))
+    globalThis.fetch = jest.fn(async (_url: string | URL | Request, options?: RequestInit) => {
+      // Match the development server, which transpiles declarations unless text is requested.
+      const content =
+        options?.headers && new Headers(options.headers).get('Accept') === 'text/plain'
+          ? 'declare const value: string'
+          : '                           '
+      return new Response(content)
+    })
     const manifest = await getManifest('first-hash', 'declare const value: string')
 
     const coldCache = await initialize(manifest)
@@ -158,5 +166,38 @@ describe('TypeScriptLibCache', () => {
 
     expect(read(cache, 'https://example.test/lib.d.ts')).toBe('declare const value: string')
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('repairs cached content whose identity header is valid but body has changed', async () => {
+    const storage = createStorage()
+    const content = 'declare const value: string'
+    const manifest = await getManifest('corrupt-hash', content)
+    const file = new Uint8Array(128 + content.length)
+    file.set(new TextEncoder().encode(`LVCE-TypeScript-Lib-Cache\n${manifest.hash}\n${manifest.totalByteLength}\n`))
+    file.set(new TextEncoder().encode('declare const wrong: string'), 128)
+    storage.files.set('corrupt-hash.bin', file)
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
+    globalThis.fetch = jest.fn(async () => new Response(content))
+
+    const cache = await initialize(manifest)
+
+    expect(read(cache, 'https://example.test/lib.d.ts')).toBe(content)
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+  })
+  it('closes a failed population handle and permits a successful retry', async () => {
+    const storage = createStorage()
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
+    const content = 'declare const value: string'
+    const manifest = await getManifest('retry-hash', content)
+    globalThis.fetch = jest.fn(async () => new Response('', { status: 404 }))
+
+    await expect(initialize(manifest)).rejects.toThrow('Failed to fetch TypeScript lib')
+    expect(storage.close).toHaveBeenCalledTimes(1)
+
+    globalThis.fetch = jest.fn(async () => new Response(content))
+    const cache = await initialize(manifest)
+    expect(read(cache, 'https://example.test/lib.d.ts')).toBe(content)
+    cache.close()
+    expect(storage.close).toHaveBeenCalledTimes(4)
   })
 })
