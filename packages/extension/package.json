@@ -28,9 +28,9 @@
     }
   },
   "devDependencies": {
-    "@lvce-editor/api": "^9.33.2",
-    "@lvce-editor/rpc": "^6.21.0",
-    "@lvce-editor/rpc-registry": "^9.65.1",
+    "@lvce-editor/api": "^9.36.0",
+    "@lvce-editor/rpc": "^6.21.1",
+    "@lvce-editor/rpc-registry": "^9.65.4",
     "typescript": "^6.0.3"
   }
 }
