@@ -11,17 +11,6 @@ import { root } from './root.ts'
 const extension: string = path.join(root, 'packages', 'extension')
 const dist: string = join(root, '.tmp', 'dist')
 
-const replaceTypeScriptWorkerAssetDir = async (filePath: string): Promise<void> => {
-  const content = await readFile(filePath, 'utf8')
-  const occurrences = [`new URL('../../', import.meta.url)`, `new URL("../../", import.meta.url)`]
-  const occurrence = occurrences.find((value) => content.includes(value))
-  if (!occurrence) {
-    throw new Error('Failed to find TypeScript worker asset directory in bundled extension')
-  }
-  const replacement = occurrence.replace('../../', '../')
-  await writeFile(filePath, content.replace(occurrence, replacement))
-}
-
 const replaceTypeScriptWorkerAssetPaths = async (filePath: string): Promise<void> => {
   const content = await readFile(filePath, 'utf8')
   const oldTypeScriptPath = '../../../node_modules/typescript/lib/'
@@ -56,6 +45,12 @@ await replace({
   replacement: 'dist/languageFeaturesTypeScriptMain.js',
 })
 
+await replace({
+  path: join(dist, 'extension.json'),
+  occurrence: '../typescript-worker/dist/typescriptWorkerMain.js',
+  replacement: 'typescript-worker/dist/typescriptWorkerMain.js',
+})
+
 await bundleExtensionJs(
   join(root, 'packages', 'extension', 'src', 'languageFeaturesTypeScriptMain.ts'),
   join(root, 'packages', 'extension', 'dist', 'languageFeaturesTypeScriptMain.js'),
@@ -87,8 +82,6 @@ await copyFile(
   join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'),
 )
 await copyFile(join(root, 'LICENSE'), join(dist, 'LICENSE'))
-
-await replaceTypeScriptWorkerAssetDir(join(dist, 'dist', 'languageFeaturesTypeScriptMain.js'))
 
 await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
 
