@@ -2,12 +2,16 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.auto-fix-import'
 
-export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Workspace }) => {
+export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/auto-fix-imports')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
+  await Settings.update({ 'editor.diagnostics': true })
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
+
+  // assert
+  await Editor.shouldHaveDiagnostics([])
   await Editor.setCursor(0, 11)
 
   // act
