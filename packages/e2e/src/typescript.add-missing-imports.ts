@@ -17,7 +17,7 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
   await Command.execute('EditorSourceAction.selectItem', 'Add All Missing Imports')
 
   // assert
-  await Editor.shouldHaveText(`import { a } from './a.ts'
+  await Editor.shouldHaveText(`import { a } from "./a.js";
 
 export const c = a + 1
 `)
