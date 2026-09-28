@@ -12,7 +12,6 @@ test('code actions can cross the isolated worker boundary', async () => {
   })
 })
 
-
 test('missing import action can cross the isolated worker boundary', async () => {
   const actions = await provideCodeActions()
   const action = actions.find((action) => action.kind === 'source.addMissingImports')
