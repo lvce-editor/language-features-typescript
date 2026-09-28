@@ -97,6 +97,12 @@
       "languageId": "typescript"
     },
     {
+      "kind": "source.addMissingImports",
+      "name": "Add All Missing Imports",
+      "command": "Editor.addAllMissingImports",
+      "languageId": "typescript"
+    },
+    {
       "kind": "source.sortImports",
       "name": "Sort Imports",
       "command": "Editor.sortImports",

@@ -1,3 +1,4 @@
+import * as AddMissingImports from '../AddMissingImports/AddMissingImports.ts'
 import * as BraceCompletion from '../BraceCompletion/BraceCompletion.ts'
 import * as CodeActions from '../CodeActions/CodeActions.ts'
 import * as Comment from '../Comment/Comment.ts'
@@ -16,6 +17,7 @@ import * as SignatureHelp from '../SignatureHelp/SignatureHelp.ts'
 import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
 export const commandMap = {
+  'AddMissingImports.addMissingImports': WrapCommand.wrapCommand(AddMissingImports.addMissingImports),
   'BraceCompletion.provide': WrapCommand.wrapCommand(BraceCompletion.provide),
   'CodeActions.getCodeActions': WrapCommand.wrapCommand(CodeActions.getCodeActions),
   'Comment.provide': WrapCommand.wrapCommand(Comment.provide),

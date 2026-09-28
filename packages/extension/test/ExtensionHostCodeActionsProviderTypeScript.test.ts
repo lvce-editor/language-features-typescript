@@ -11,3 +11,14 @@ test('code actions can cross the isolated worker boundary', async () => {
     name: 'Organize Imports',
   })
 })
+
+test('missing import action can cross the isolated worker boundary', async () => {
+  const actions = await provideCodeActions()
+  const action = actions.find((action) => action.kind === 'source.addMissingImports')
+
+  expect(typeof action.execute).toBe('function')
+  expect(structuredClone(action)).toEqual({
+    kind: 'source.addMissingImports',
+    name: 'Add All Missing Imports',
+  })
+})

@@ -31,7 +31,7 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@lvce-editor/api": "^9.33.2",
+    "@lvce-editor/api": "^9.37.0",
     "@lvce-editor/eslint-config": "^18.14.0",
     "eslint": "^10.11.0",
     "jest": "^30.4.2",
