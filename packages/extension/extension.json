@@ -11,7 +11,7 @@
       "id": "builtin.language-features-typescript.typescript-worker",
       "type": "web-worker",
       "name": "TypeScript Worker",
-      "url": "../typescript-worker/dist/typescriptWorkerMain.js",
+      "url": "../../typescriptWorkerMain.js",
       "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self'"]
     }
   ],

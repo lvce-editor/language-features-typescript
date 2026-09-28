@@ -11,13 +11,13 @@ import { root } from './root.ts'
 const extension: string = path.join(root, 'packages', 'extension')
 const dist: string = join(root, '.tmp', 'dist')
 
-const replaceTypeScriptWorkerAssetPaths = async (filePath: string): Promise<void> => {
+const replaceTypeScriptWorkerAssetPaths = async (filePath: string, replacement: string): Promise<void> => {
   const content = await readFile(filePath, 'utf8')
   const oldTypeScriptPath = '../../../node_modules/typescript/lib/'
   if (!content.includes(oldTypeScriptPath)) {
     throw new Error('Failed to find TypeScript asset paths in bundled worker')
   }
-  await writeFile(filePath, content.replaceAll(oldTypeScriptPath, '../../typescript/lib/'))
+  await writeFile(filePath, content.replaceAll(oldTypeScriptPath, replacement))
 }
 
 await rm(dist, { recursive: true, force: true })
@@ -47,8 +47,8 @@ await replace({
 
 await replace({
   path: join(dist, 'extension.json'),
-  occurrence: '../typescript-worker/dist/typescriptWorkerMain.js',
-  replacement: 'typescript-worker/dist/typescriptWorkerMain.js',
+  occurrence: '../../typescriptWorkerMain.js',
+  replacement: 'typescriptWorkerMain.js',
 })
 
 await bundleExtensionJs(
@@ -66,13 +66,13 @@ const workerBundlePath = join(root, 'packages', 'typescript-worker', 'dist', 'ty
 const typeScriptLibManifest = await getTypeScriptLibManifest(join(root, 'node_modules', 'typescript', 'lib'))
 await replaceTypeScriptLibManifest(workerBundlePath, typeScriptLibManifest)
 
-await mkdir(join(dist, 'typescript-worker', 'dist'), {
-  recursive: true,
-})
-await copyFile(
-  join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-  join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'),
-)
+const developmentWorkerPath = join(root, 'typescriptWorkerMain.js')
+await copyFile(workerBundlePath, developmentWorkerPath)
+await replaceTypeScriptWorkerAssetPaths(developmentWorkerPath, 'node_modules/typescript/lib/')
+
+const packagedWorkerPath = join(dist, 'typescriptWorkerMain.js')
+await copyFile(workerBundlePath, packagedWorkerPath)
+await replaceTypeScriptWorkerAssetPaths(packagedWorkerPath, 'typescript/lib/')
 
 await mkdir(join(dist, 'dist'), {
   recursive: true,
@@ -84,8 +84,6 @@ await copyFile(
 await copyFile(join(root, 'LICENSE'), join(dist, 'LICENSE'))
 
 await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
-
-await replaceTypeScriptWorkerAssetPaths(join(dist, 'typescript-worker', 'dist', 'typescriptWorkerMain.js'))
 
 await packageExtension({
   highestCompression: true,
