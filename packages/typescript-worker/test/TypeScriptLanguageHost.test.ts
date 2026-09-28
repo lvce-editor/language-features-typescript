@@ -349,6 +349,28 @@ test('missing file reads should return undefined', () => {
   expect(host.readFile?.('/project/missing.ts')).toBeUndefined()
 })
 
+test('script snapshots fall back to synchronous reads when the in-memory file is absent', () => {
+  const fileSystem = createFileSystem()
+  const host = create(TypeScript, fileSystem, {
+    invokeSync(method: string, uri: string) {
+      if (method === 'SyncApi.readFileSync' && uri === '/project/from-disk.ts') {
+        return 'export const value = 1'
+      }
+      throw new Error(`unexpected request ${method} ${uri}`)
+    },
+  }, emptyTsconfig)
+
+  expect(host.getScriptSnapshot?.('/project/from-disk.ts')?.getLength()).toBe('export const value = 1'.length)
+})
+
+test('directory checks reject empty paths without calling sync RPC', () => {
+  const invokeSync = jest.fn(() => true)
+  const host = create(TypeScript, createFileSystem(), { invokeSync }, emptyTsconfig)
+
+  expect(host.directoryExists?.('')).toBe(false)
+  expect(invokeSync).not.toHaveBeenCalled()
+})
+
 test('getScriptSnapshot should preserve empty in-memory files', () => {
   const fileSystem = createFileSystem()
   fileSystem.writeFile('/project/empty.ts', '')

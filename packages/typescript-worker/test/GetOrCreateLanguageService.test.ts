@@ -44,3 +44,21 @@ test('reuses a language service for files in the same configured project', () =>
   expect(second.languageService).toBe(first.languageService)
   expect(createTypeScriptLanguageService).toHaveBeenCalledTimes(1)
 })
+
+test('records newly created and reused project details in a performance trace', async () => {
+  const PerformanceTrace = await import('../src/parts/PerformanceTrace/PerformanceTrace.ts')
+  const trace = PerformanceTrace.createPerformanceTrace('/workspace/trace-main.tsx')
+  const first = getOrCreateLanguageService('/workspace/trace-main.tsx', trace)
+
+  expect(trace.languageService).toEqual({
+    cache: 'created',
+    configPath: '/workspace/tsconfig.json',
+    fileCount: 2,
+  })
+  expect(first.languageService).toBeDefined()
+
+  const reusedTrace = PerformanceTrace.createPerformanceTrace('/workspace/trace-main.tsx')
+  const second = getOrCreateLanguageService('/workspace/trace-main.tsx', reusedTrace)
+  expect(second.languageService).toBe(first.languageService)
+  expect(reusedTrace.languageService.cache).toBe('reused')
+})

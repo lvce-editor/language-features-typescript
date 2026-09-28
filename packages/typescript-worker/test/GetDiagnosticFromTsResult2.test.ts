@@ -140,3 +140,48 @@ test('converts related diagnostic locations', () => {
     },
   ])
 })
+
+test('omits related information without complete locations or source text', () => {
+  const diagnostics = [
+    {
+      category: 1,
+      code: 2322,
+      file: { fileName: '/main.ts', text: 'value' },
+      length: 1,
+      messageText: 'Invalid value',
+      relatedInformation: [
+        {
+          category: 3,
+          code: 6500,
+          file: undefined,
+          length: 1,
+          messageText: 'No file',
+          start: 0,
+        },
+        {
+          category: 3,
+          code: 6501,
+          file: { fileName: '/types.ts' },
+          length: 1,
+          messageText: 'No source text',
+          start: 0,
+        },
+      ],
+      start: 0,
+    },
+  ] as const
+
+  expect(getDiagnosticsFromTsResult2('value', diagnostics)).toEqual([
+    {
+      code: 2322,
+      columnIndex: 0,
+      endColumnIndex: 1,
+      endRowIndex: 0,
+      message: 'Invalid value',
+      rowIndex: 0,
+      source: 'ts',
+      type: 'error',
+      uri: '/main.ts',
+    },
+  ])
+})
