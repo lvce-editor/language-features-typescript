@@ -6,6 +6,15 @@
   "browser": "dist/languageFeaturesTypeScriptMain.js",
   "isolated": true,
   "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self'"],
+  "rpc": [
+    {
+      "id": "builtin.language-features-typescript.typescript-worker",
+      "type": "web-worker",
+      "name": "TypeScript Worker",
+      "url": "../../typescriptWorkerMain.js",
+      "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self'"]
+    }
+  ],
   "repository": "https://github.com/lvce-editor/language-features-typescript",
   "icon": "media/icon.png",
   "activation": [
