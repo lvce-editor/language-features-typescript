@@ -183,3 +183,21 @@ test('getParameterListParts - rest parameters', () => {
   ]
   expect(GetParameterListParts.getParameterListParts(displayParts)).toEqual([])
 })
+
+test('skips this and optional parameters while retaining required parameters', () => {
+  const displayParts: TypeScriptProtocol.SymbolDisplayPart[] = [
+    { kind: 'functionName', text: 'run' },
+    { kind: 'punctuation', text: '(' },
+    { kind: 'parameterName', text: 'this' },
+    { kind: 'punctuation', text: ',' },
+    { kind: 'space', text: ' ' },
+    { kind: 'parameterName', text: 'optional' },
+    { kind: 'punctuation', text: '?' },
+    { kind: 'punctuation', text: ',' },
+    { kind: 'space', text: ' ' },
+    { kind: 'parameterName', text: 'required' },
+    { kind: 'punctuation', text: ')' },
+  ]
+
+  expect(GetParameterListParts.getParameterListParts(displayParts)).toEqual([{ kind: 'parameterName', text: 'required' }])
+})

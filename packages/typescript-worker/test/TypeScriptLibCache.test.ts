@@ -14,7 +14,10 @@ const getManifest = async (hash: string, content: string): Promise<TypeScriptLib
   }
 }
 
-const createStorage = () => {
+const createStorage = (behaviors: {
+  readLength?: (name: string, at: number, byteLength: number) => number
+  writeLength?: (name: string, at: number, byteLength: number) => number
+} = {}) => {
   const close = jest.fn()
   const files = new Map<string, Uint8Array>()
   const locks = new Map<string, Promise<unknown>>()
@@ -35,7 +38,8 @@ const createStorage = () => {
             },
             read(buffer: Uint8Array, { at = 0 }: { at?: number } = {}) {
               const file = files.get(name)!
-              const length = Math.max(0, Math.min(buffer.byteLength, file.byteLength - at))
+              const available = Math.max(0, Math.min(buffer.byteLength, file.byteLength - at))
+              const length = behaviors.readLength?.(name, at, available) ?? available
               buffer.set(file.subarray(at, at + length))
               return length
             },
@@ -51,7 +55,7 @@ const createStorage = () => {
                 files.set(name, expanded)
               }
               files.get(name)!.set(buffer, at)
-              return buffer.byteLength
+              return behaviors.writeLength?.(name, at, buffer.byteLength) ?? buffer.byteLength
             },
             truncate(size: number) {
               if (mode === 'read-only') {
@@ -199,5 +203,93 @@ describe('TypeScriptLibCache', () => {
     expect(read(cache, 'https://example.test/lib.d.ts')).toBe(content)
     cache.close()
     expect(storage.close).toHaveBeenCalledTimes(4)
+  })
+
+  it('repairs a cache file with an unexpected on-disk size', async () => {
+    const storage = createStorage()
+    storage.files.set('wrong-size.bin', new Uint8Array([1]))
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
+    globalThis.fetch = jest.fn(async () => new Response('declare const value: string'))
+    const manifest = await getManifest('wrong-size', 'declare const value: string')
+
+    const cache = await initialize(manifest)
+    expect(read(cache, 'https://example.test/lib.d.ts')).toBe('declare const value: string')
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects manifests whose cache header would exceed its fixed storage', async () => {
+    const storage = createStorage()
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
+    globalThis.fetch = jest.fn(async () => new Response('x'))
+    const manifest = await getManifest('x'.repeat(120), 'x')
+
+    await expect(initialize(manifest)).rejects.toThrow('header is too large')
+    expect(storage.files.get(`${manifest.hash}.bin`)?.byteLength).toBe(0)
+  })
+
+  it('rejects fetched declaration text when the published size or digest differs', async () => {
+    const storage = createStorage()
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
+    const content = 'declare const value: string'
+    const manifest = await getManifest('bad-content', content)
+    globalThis.fetch = jest.fn(async () => new Response('different length'))
+
+    await expect(initialize(manifest)).rejects.toThrow('size changed')
+    globalThis.fetch = jest.fn(async () => new Response(content))
+    manifest.files[0].sha256 = '0'.repeat(64)
+    await expect(initialize(manifest)).rejects.toThrow('content changed')
+  })
+
+  it('rejects short reads and writes rather than exposing a partial cache', async () => {
+    const shortHeaderRead = createStorage({
+      readLength: (_name, at, byteLength) => (at === 0 ? byteLength - 1 : byteLength),
+    })
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: shortHeaderRead.navigatorMock })
+    globalThis.fetch = jest.fn(async () => new Response('declare const value: string'))
+    const manifest = await getManifest('short-header-read', 'declare const value: string')
+    await expect(initialize(manifest)).rejects.toThrow('content verification')
+
+    const shortContentWrite = createStorage({
+      writeLength: (_name, at, byteLength) => (at > 0 ? byteLength - 1 : byteLength),
+    })
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: shortContentWrite.navigatorMock })
+    await expect(initialize(manifest)).rejects.toThrow('complete TypeScript lib cache')
+
+    const shortHeaderWrite = createStorage({
+      writeLength: (_name, at, byteLength) => (at === 0 ? byteLength - 1 : byteLength),
+    })
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: shortHeaderWrite.navigatorMock })
+    await expect(initialize(manifest)).rejects.toThrow('publish TypeScript lib cache header')
+  })
+
+  it('rejects a manifest whose total length does not equal its file lengths', async () => {
+    const storage = createStorage()
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
+    globalThis.fetch = jest.fn(async () => new Response('declare const value: string'))
+    const manifest = await getManifest('wrong-total', 'declare const value: string')
+    manifest.totalByteLength++
+
+    await expect(initialize(manifest)).rejects.toThrow('manifest size does not match')
+  })
+
+  it('returns undefined for unknown files and reads truncated cache entries safely', async () => {
+    const storage = createStorage()
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: storage.navigatorMock })
+    globalThis.fetch = jest.fn(async () => new Response('declare const value: string'))
+    const manifest = await getManifest('truncated-entry', 'declare const value: string')
+    const cache = await initialize(manifest)
+
+    expect(read(cache, 'https://example.test/other.d.ts')).toBeUndefined()
+    storage.files.set(`${manifest.hash}.bin`, new Uint8Array())
+    expect(read(cache, 'https://example.test/lib.d.ts')).toBeUndefined()
+  })
+
+  it('requires Web Locks before opening a cache', async () => {
+    const storage = createStorage()
+    const { locks: _locks, ...navigatorMock } = storage.navigatorMock
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: navigatorMock })
+    const manifest = await getManifest('no-locks', 'declare const value: string')
+
+    await expect(initialize(manifest)).rejects.toThrow('Web Locks are unavailable')
   })
 })

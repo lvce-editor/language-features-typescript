@@ -428,6 +428,107 @@ test('createModuleResolver should handle missing rootDir', () => {
   expect(result.resolvedModule?.resolvedFileName).toBe('/node_modules/some-package/index.js')
 })
 
+test('createModuleResolver falls back to the requested relative file when sync access is unavailable', () => {
+  const resolver = createModuleResolver({
+    invokeSync() {
+      throw new Error('synchronous access unavailable')
+    },
+  })
+
+  const result = resolver('./types.d.ts', '/workspace/src/main.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe('/workspace/src/types.d.ts')
+  expect(result.resolvedModule?.extension).toBe('.d.ts')
+})
+
+test('createModuleResolver uses a declaration file for a relative directory import', () => {
+  const invokeSync = jest.fn((_method: string, uri: string) => uri === '/workspace/src/types/index.d.ts')
+  const resolver = createModuleResolver({ invokeSync }, TypeScript)
+
+  const result = resolver('./types/', '/workspace/src/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe('/workspace/src/types/index.d.ts')
+  expect(result.resolvedModule?.isExternalLibraryImport).toBe(false)
+})
+
+test('createModuleResolver reports a missing relative directory index', () => {
+  const resolver = createModuleResolver({ invokeSync: () => false }, TypeScript)
+
+  const result = resolver('./types/', '/workspace/src/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+
+  expect(result.resolvedModule).toBeUndefined()
+})
+
+test('createModuleResolver normalizes Windows file URLs and paths', () => {
+  const resolver = createModuleResolver(
+    {
+      invokeSync: () => true,
+    },
+    TypeScript,
+  )
+
+  const fromUrl = resolver('./types.js', 'file:///C:/workspace/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+  expect(fromUrl.resolvedModule?.resolvedFileName).toBe('file:///C:/workspace/types.ts')
+
+  const fromPath = createModuleResolver({ invokeSync: () => true })('./types.d.ts', 'C:\\workspace\\main.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+  expect(fromPath.resolvedModule?.resolvedFileName).toBe('C:/workspace/types.d.ts')
+})
+
+test('createModuleResolver treats node built-ins as @types/node packages', () => {
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists') {
+      return uri === '/workspace/node_modules/@types/node/package.json'
+    }
+    if (method === 'SyncApi.readFileSync') {
+      return JSON.stringify({ types: 'index.d.ts' })
+    }
+    throw new Error(`unexpected method ${method}`)
+  })
+  const resolver = createModuleResolver({ invokeSync })
+
+  const result = resolver('node:fs', '/workspace/src/main.ts', {
+    target: TypeScript.ScriptTarget.ES2020,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe('/workspace/node_modules/@types/node/index.d.ts')
+})
+
+test('createModuleResolver skips invalid or incomplete package manifests and reports unresolved packages', () => {
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists') {
+      return uri.endsWith('/package.json')
+    }
+    if (method === 'SyncApi.readFileSync') {
+      if (uri === '/workspace/src/node_modules/broken/package.json') {
+        return '{'
+      }
+      return JSON.stringify({})
+    }
+    throw new Error(`unexpected method ${method}`)
+  })
+  const resolver = createModuleResolver({ invokeSync })
+
+  expect(
+    resolver('broken', '/workspace/src/main.ts', { target: TypeScript.ScriptTarget.ES2020 }).resolvedModule,
+  ).toBeUndefined()
+  expect(
+    resolver('incomplete', '/workspace/src/main.ts', { target: TypeScript.ScriptTarget.ES2020 }).resolvedModule,
+  ).toBeUndefined()
+})
+
 test('createModuleResolver should handle JSON parse errors', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),

@@ -195,3 +195,24 @@ test('getFiles should handle readDir errors gracefully', () => {
 
   expect(getFiles('/project', undefined, readDir)).toEqual(['/project/file1.ts'])
 })
+
+test('getFiles should include explicit file patterns and skip excluded or duplicate directories', () => {
+  const readDir = (uri: string): readonly string[] => {
+    if (uri === '/project') {
+      return ['src', 'node_modules', '.git', 'entry.ts']
+    }
+    if (uri === '/project/src') {
+      return ['entry.ts', 'nested']
+    }
+    if (uri === '/project/src/nested') {
+      return ['other.d.ts']
+    }
+    throw new Error(`unexpected directory ${uri}`)
+  }
+
+  expect([...getFiles('/project', ['entry.ts', 'src/**/*.ts'], readDir)].sort()).toEqual([
+    '/project/entry.ts',
+    '/project/src/entry.ts',
+    '/project/src/nested/other.d.ts',
+  ])
+})
