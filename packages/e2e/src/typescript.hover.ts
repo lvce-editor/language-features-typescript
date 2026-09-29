@@ -25,4 +25,5 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   await expect(hover).toContainText('const hoverExample: string | undefined')
   await expect(documentation).toBeVisible()
   await expect(documentation).toContainText('Documentation with undefined.')
+  await expect(hover).toHaveText('const hoverExample: string | undefinedDocumentation with undefined.')
 }
