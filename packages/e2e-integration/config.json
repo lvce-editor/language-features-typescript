@@ -1,0 +1,4 @@
+{
+  "artifacts": [[".tmp/dist", "extensions/builtin.language-features-typescript"]],
+  "scripts": []
+}
