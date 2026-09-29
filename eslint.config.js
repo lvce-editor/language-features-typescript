@@ -22,7 +22,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['packages/e2e/**/*.ts'],
+    files: ['packages/{e2e,e2e-integration}/**/*.ts'],
     rules: {
       'e2e/prefer-filesystem-set-files': 'off',
     },
@@ -33,5 +33,10 @@ export default defineConfig([
       'sonarjs/cognitive-complexity': 'off',
       'unicorn/no-break-in-nested-loop': 'off',
     },
+  },
+  {
+    // The pinned application supplies its own Node runtime.
+    files: ['.github/workflows/integration.yml'],
+    rules: { 'github-actions/node-version-file': 'off', 'github-actions/on': 'off' },
   },
 ])

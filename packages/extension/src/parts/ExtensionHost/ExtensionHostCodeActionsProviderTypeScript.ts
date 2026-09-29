@@ -17,14 +17,30 @@ const createOrganizeImports = (): any => {
   return organizeImports
 }
 
+const createAddMissingImports = (): any => {
+  const addMissingImports: any = {
+    kind: 'source.addMissingImports',
+    name: 'Add All Missing Imports',
+  }
+  Object.defineProperty(addMissingImports, 'execute', {
+    enumerable: false,
+    async value(textDocument: any): Promise<any> {
+      const worker = await TypeScriptWorker.getInstance()
+      return worker.invoke('AddMissingImports.addMissingImports', textDocument)
+    },
+  })
+  return addMissingImports
+}
+
 /**
  */
 export const provideCodeActions = async (textDocument?: any, offset?: number): Promise<any[]> => {
   const organizeImports = createOrganizeImports()
+  const addMissingImports = createAddMissingImports()
   if (!textDocument || typeof offset !== 'number') {
-    return [organizeImports]
+    return [organizeImports, addMissingImports]
   }
   const worker = await TypeScriptWorker.getInstance()
   const quickFixes = await worker.invoke('CodeActions.getCodeActions', textDocument, offset)
-  return [organizeImports, ...quickFixes]
+  return [organizeImports, addMissingImports, ...quickFixes]
 }

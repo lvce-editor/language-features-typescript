@@ -1,4 +1,4 @@
-import { test, expect } from '@jest/globals'
+import { test, expect, jest } from '@jest/globals'
 import * as TypeScript from 'typescript'
 import { resolveTsconfig } from '../src/parts/ResolveTsconfig/ResolveTsconfig.ts'
 
@@ -236,6 +236,27 @@ test('resolveTsconfig should return empty tsconfig on error', () => {
   expect(result.options).toBeDefined()
   expect(result.errors).toEqual([])
   expect(result.fileNames).toEqual([])
+})
+
+test('explicit files take precedence over automatic discovery unless include is specified', () => {
+  const readDir = jest.fn(() => ['discovered.ts'])
+  const fileExists = jest.fn(() => true)
+  const parsed = { files: ['configured.ts'] }
+
+  const withoutInclude = resolveTsconfig('/project/tsconfig.json', parsed, () => '', readDir, fileExists, TypeScript)
+  expect(withoutInclude.fileNames).toEqual(['/project/configured.ts'])
+
+  const withInclude = resolveTsconfig(
+    '/project/tsconfig.json',
+    { ...parsed, include: ['src/**/*.ts'] },
+    () => '',
+    (uri) => (uri === '/project/src' ? ['discovered.ts'] : []),
+    fileExists,
+    TypeScript,
+  )
+  expect(withInclude.fileNames).toContain('/project/configured.ts')
+  expect(withInclude.fileNames).toContain('/project/src/discovered.ts')
+  expect(readDir).not.toHaveBeenCalled()
 })
 
 test('resolveTsconfig should include nested files from configured source directories', () => {

@@ -1,6 +1,7 @@
 .tmp
 playground
 extension.tar.br
+/typescriptWorkerMain.js
 
 # Logs
 logs
