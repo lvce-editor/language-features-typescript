@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { root } from './root.ts'
 
 import { pathToFileURL } from 'node:url'
+import { updateStaticExtension } from './updateStaticExtension.ts'
 
 const sharedProcessPath = join(root, 'node_modules', '@lvce-editor', 'shared-process', 'index.js')
 
@@ -31,6 +32,18 @@ const updateSettings = (oldSettings: any): any => {
     'editor.diagnostics': true,
   }
 }
+
+const updateStaticExtensions = (configPath: string, extensionJsonPath: string): void => {
+  const extensions = JSON.parse(readFileSync(configPath, 'utf8'))
+  const extensionJson = JSON.parse(readFileSync(extensionJsonPath, 'utf8'))
+  const updatedExtensions = updateStaticExtension(extensions, extensionJson)
+  writeFileSync(configPath, JSON.stringify(updatedExtensions, null, 2) + '\n')
+}
+
+const extensionJsonPath = join(root, '.tmp', 'dist', 'extension.json')
+updateStaticExtensions(join(root, 'dist', commitHash, 'config', 'extensions.json'), extensionJsonPath)
+updateStaticExtensions(join(root, 'dist', commitHash, 'config', 'webExtensions.json'), extensionJsonPath)
+
 const defaultSettingsPath: string = join(root, 'dist', commitHash, 'config', 'defaultSettings.json')
 updateJson(defaultSettingsPath, updateSettings)
 
