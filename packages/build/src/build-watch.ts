@@ -49,6 +49,8 @@ const main = async (): Promise<void> => {
     [
       '--format=esm',
       '--bundle',
+      '--external:electron',
+      '--external:node:*',
       '--watch',
       'packages/typescript-worker/src/typescriptWorkerMain.ts',
       '--outfile=packages/typescript-worker/dist/typescriptWorkerMain.js',

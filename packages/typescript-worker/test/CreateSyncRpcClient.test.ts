@@ -4,7 +4,7 @@ import { createSyncRpcClient } from '../src/parts/CreateSyncRpcClient/CreateSync
 test('createSyncRpcClient should create a sync RPC client with proper configuration', async () => {
   globalThis.rpc = {
     invoke: jest.fn((method: string) => {
-      if (method === 'SyncApi.setup') {
+      if (method === 'SyncApi.setup' || method === 'SyncApi.setupShared') {
         return Promise.resolve()
       }
       throw new Error(`unexpected method ${method}`)
@@ -56,7 +56,7 @@ test('createSyncRpcClient should create a sync RPC client with proper configurat
 test('createSyncRpcClient should handle crossOriginIsolated false', async () => {
   globalThis.rpc = {
     invoke: jest.fn((method: string) => {
-      if (method === 'SyncApi.setup') {
+      if (method === 'SyncApi.setup' || method === 'SyncApi.setupShared') {
         return Promise.resolve()
       }
       throw new Error(`unexpected method ${method}`)

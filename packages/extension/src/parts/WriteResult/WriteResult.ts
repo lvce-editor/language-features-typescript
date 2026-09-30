@@ -1,4 +1,5 @@
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
+import { writeSharedResult } from '../WriteSharedResult/WriteSharedResult.ts'
 
 const successCode = 123
 const errorCode = 123
@@ -71,8 +72,13 @@ const writeResultContent = async (resultAccessHandle: FileSystemSyncAccessHandle
 }
 
 export const writeResult = async (id: any, resultGenerator: () => Promise<any>) => {
-  const { accessHandle, buffer, errorAccessHandle, resultAccessHandle } = SyncSetupState.get(id)
+  const setup = SyncSetupState.get(id)
   const { code, error, result } = await getResponse(resultGenerator)
+  if ('shared' in setup) {
+    await writeSharedResult(setup, result, error)
+    return
+  }
+  const { accessHandle, buffer, errorAccessHandle, resultAccessHandle } = setup
   await writeResultError(errorAccessHandle, error)
   await writeResultContent(resultAccessHandle, result, error)
   await writeResultStatus(buffer, accessHandle, code)

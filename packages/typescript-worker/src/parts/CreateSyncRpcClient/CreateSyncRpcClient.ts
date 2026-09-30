@@ -1,6 +1,7 @@
 import type { SyncClientOptions } from '../SyncClientOptions/SyncClientOptions.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { createBuffer } from '../CreateBuffer/CreateBuffer.ts'
+import { createSharedSyncRpcClient } from '../CreateSharedSyncRpcClient/CreateSharedSyncRpcClient.ts'
 import { readJsonFromHandle } from '../ReadJsonFromHandle/ReadJsonFromHandle.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as WaitForSyncBufferResultType from '../WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
@@ -11,6 +12,9 @@ export const createSyncRpcClient = async ({
   maxDelay,
   syncId,
 }: SyncClientOptions): Promise<SyncRpc> => {
+  if (crossOriginIsolated) {
+    return createSharedSyncRpcClient(syncId, maxDelay)
+  }
   const buffer = createBuffer(crossOriginIsolated)
   const statusFileName = 'draft.txt'
   const resultFileName = 'result.txt'

@@ -32,6 +32,8 @@ jobs:
         if: steps.npm-cache.outputs.cache-hit != 'true'
       - run: npm run type-check
       - run: npm test
+      - name: Test shared synchronous response transport
+        run: node --test scripts/test-shared-sync-rpc.mjs
       - name: Build
         run: npm run build
       - name: Build static site
@@ -52,5 +54,15 @@ jobs:
       - name: Run smart selection headless tests
         run: npm run e2e:smart-selection
         if: matrix.os != 'macos-15'
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Install Firefox
+        if: matrix.os == 'ubuntu-24.04'
+        run: npx playwright install --with-deps firefox
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run Firefox performance trace regression
+        if: matrix.os == 'ubuntu-24.04'
+        run: node packages/build/src/run-e2e.ts stable-e2e --headless --browser=firefox --filter=typescript.performance-trace
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
