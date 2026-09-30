@@ -62,6 +62,73 @@ test('records diagnostic stages and result count', async () => {
   expect(getOrCreateLanguageService).toHaveBeenCalledWith(document.uri, trace)
 })
 
+test('captures and returns the first ordinary diagnostic trace for its document', async () => {
+  const document = {
+    text: 'const first = true',
+    uri: 'file:///workspace/first-diagnostic-trace.ts',
+  }
+
+  await Diagnostics2.getDiagnostics2(document)
+  const trace = await Diagnostics2.getFirstPerformanceTrace(document)
+  const laterTrace = await Diagnostics2.getFirstPerformanceTrace(document)
+
+  expect(trace).toBe(laterTrace)
+  expect(trace.file.uri).toBe(document.uri)
+  expect(trace.totalDurationMs).toBeGreaterThanOrEqual(0)
+  expect(trace.diagnostics).toEqual({ count: 1 })
+  expect(trace.loadedFiles).toHaveLength(3)
+  expect(getOrCreateLanguageService).toHaveBeenLastCalledWith(
+    document.uri,
+    expect.objectContaining({
+      fresh: true,
+      syncRpc: expect.any(Object),
+    }),
+  )
+
+  await Diagnostics2.getDiagnostics2(document)
+
+  expect(getOrCreateLanguageService).toHaveBeenLastCalledWith(document.uri, undefined)
+})
+
+test('retains a failed first diagnostic trace for inspection', async () => {
+  const document = {
+    text: 'const first = true',
+    uri: 'file:///workspace/failed-first-diagnostic-trace.ts',
+  }
+  getOrCreateLanguageService.mockImplementationOnce(() => {
+    throw new Error('first diagnostic failed')
+  })
+
+  await expect(Diagnostics2.getDiagnostics2(document)).rejects.toThrow('first diagnostic failed')
+
+  const trace = await Diagnostics2.getFirstPerformanceTrace(document)
+  expect(trace.error).toEqual(
+    expect.objectContaining({
+      details: expect.objectContaining({ message: 'first diagnostic failed' }),
+      stage: 'semanticDiagnostics',
+    }),
+  )
+})
+
+test('limits first-pass trace capture to a bounded number of documents', async () => {
+  const documents = Array.from({ length: 9 }, (_, index) => ({
+    text: 'const first = true',
+    uri: `file:///workspace/first-trace-cap-${index}.ts`,
+  }))
+
+  for (const document of documents) await Diagnostics2.getDiagnostics2(document)
+
+  const lastDocumentTraceArgument = getOrCreateLanguageService.mock.calls.findLast(
+    ([uri]) => uri === documents.at(-1)!.uri,
+  )?.[1]
+  expect(lastDocumentTraceArgument).toBeUndefined()
+  expect(
+    getOrCreateLanguageService.mock.calls.filter(
+      ([uri, trace]) => uri.startsWith('file:///workspace/first-trace-cap-') && trace,
+    ).length,
+  ).toBeGreaterThan(0)
+})
+
 test('reports a cached source file snapshot for a reused language service', async () => {
   const trace = PerformanceTrace.createPerformanceTrace('file:///workspace/test.ts')
   trace.languageService.cache = 'reused'

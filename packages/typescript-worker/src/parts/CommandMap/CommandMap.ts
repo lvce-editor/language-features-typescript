@@ -25,6 +25,7 @@ export const commandMap = {
   'Completion.resolveCompletion': WrapCommand.wrapCommand(ResolveCompletion.resolveCompletion),
   'Definition.getDefinition': WrapCommand.wrapCommand(Definition.getDefinition),
   'Diagnostic.getDiagnostics': WrapCommand.wrapCommand(Diagnostics.getDiagnostics),
+  'Diagnostic.getFirstPerformanceTrace': WrapCommand.wrapCommand(Diagnostics.getFirstPerformanceTrace),
   'Diagnostic.getPerformanceTrace': WrapCommand.wrapCommand(Diagnostics.getPerformanceTrace),
   'DocumentSymbols.getDocumentSymbols': WrapCommand.wrapCommand(DocumentSymbols.getDocumentSymbols),
   'Hover.getHover': WrapCommand.wrapCommand(Hover.getHover),
