@@ -20,6 +20,13 @@ export const getDiagnostics2 = async (
     getDiagnosticsFromTsResult2(textDocument.text, tsResult || []),
   )
   if (trace) {
+    if (trace.languageService.cache === 'created') {
+      const program = languageService.getProgram()
+      trace.loadedFiles = (program?.getSourceFiles() || []).map((sourceFile) => ({
+        fileName: sourceFile.fileName,
+        sizeBytes: new TextEncoder().encode(sourceFile.text).byteLength,
+      }))
+    }
     trace.diagnostics = {
       count: diagnostics.length,
     }

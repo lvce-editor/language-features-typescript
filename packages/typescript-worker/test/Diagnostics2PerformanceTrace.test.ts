@@ -6,6 +6,12 @@ const getOrCreateLanguageService = jest.fn((_uri: string, _trace: unknown) => ({
   },
   languageService: {
     getSemanticDiagnostics: jest.fn(() => []),
+    getProgram: jest.fn(() => ({
+      getSourceFiles: () => [
+        { fileName: '/workspace/main.ts', text: 'const value = "😀"' },
+        { fileName: '/typescript/lib.d.ts', text: 'interface X {}' },
+      ],
+    })),
   },
 }))
 
@@ -39,6 +45,10 @@ test('records diagnostic stages and result count', async () => {
 
   expect(diagnostics).toHaveLength(1)
   expect(trace.diagnostics).toEqual({ count: 1 })
+  expect(trace.loadedFiles).toEqual([
+    { fileName: '/workspace/main.ts', sizeBytes: 20 },
+    { fileName: '/typescript/lib.d.ts', sizeBytes: 14 },
+  ])
   expect(trace.stages).toEqual(
     expect.objectContaining({
       conversion: expect.any(Object),
@@ -48,6 +58,15 @@ test('records diagnostic stages and result count', async () => {
     }),
   )
   expect(getOrCreateLanguageService).toHaveBeenCalledWith(document.uri, trace)
+})
+
+test('does not enumerate loaded files for a reused language service', async () => {
+  const trace = PerformanceTrace.createPerformanceTrace('file:///workspace/test.ts')
+  trace.languageService.cache = 'reused'
+
+  await Diagnostics2.getDiagnostics2({ text: 'const value = 1', uri: trace.file.uri }, trace)
+
+  expect(trace.loadedFiles).toBeUndefined()
 })
 
 test('measures work without a trace and records repeated synchronous RPC calls', () => {
