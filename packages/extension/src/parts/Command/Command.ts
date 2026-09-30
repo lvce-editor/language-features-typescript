@@ -37,6 +37,7 @@ export const commandMap = {
   'SyncApi.readDirSync': SyncApi.readDirSync,
   'SyncApi.readFileSync': SyncApi.readFileSync,
   'SyncApi.setup': SyncApi.syncSetup,
+  'SyncApi.setupShared': SyncApi.syncSetupShared,
   'TypeScriptRpc.invoke': rpcInvoke,
   'TypeScriptRpc.listen': rpcListen,
 }

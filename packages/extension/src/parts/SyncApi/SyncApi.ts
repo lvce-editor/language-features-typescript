@@ -3,6 +3,10 @@ import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 import { toFileUri } from '../ToFileUri/ToFileUri.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
 
+export const syncSetupShared = (id: number, shared: SharedArrayBuffer, maxDelay: number): void => {
+  SyncSetupState.set(id, { maxDelay, shared })
+}
+
 export const syncSetup = async (
   id: number,
   buffer: Int32Array<ArrayBufferLike>,
