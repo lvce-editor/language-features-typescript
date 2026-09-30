@@ -10,6 +10,7 @@ const getOrCreateLanguageService = jest.fn((_uri: string, _trace: unknown) => ({
       getSourceFiles: () => [
         { fileName: '/workspace/main.ts', text: 'const value = "😀"' },
         { fileName: '/typescript/lib.d.ts', text: 'interface X {}' },
+        { fileName: '/workspace/empty.d.ts', text: '' },
       ],
     })),
   },
@@ -48,6 +49,7 @@ test('records diagnostic stages and result count', async () => {
   expect(trace.loadedFiles).toEqual([
     { fileName: '/workspace/main.ts', sizeBytes: 20 },
     { fileName: '/typescript/lib.d.ts', sizeBytes: 14 },
+    { fileName: '/workspace/empty.d.ts', sizeBytes: 0 },
   ])
   expect(trace.stages).toEqual(
     expect.objectContaining({
