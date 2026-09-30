@@ -3,6 +3,21 @@ import { getDiagnosticsFromTsResult2 } from '../GetDiagnosticFromTsResult2/GetDi
 import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 import * as PerformanceTrace from '../PerformanceTrace/PerformanceTrace.ts'
 
+const loadedFilesByLanguageService = new WeakMap<object, readonly PerformanceTrace.PerformanceTraceLoadedFile[]>()
+
+const getLoadedFiles = (languageService: {
+  getProgram: () => { getSourceFiles: () => readonly { fileName: string; text: string }[] } | undefined
+}): readonly PerformanceTrace.PerformanceTraceLoadedFile[] => {
+  const cached = loadedFilesByLanguageService.get(languageService)
+  if (cached) return cached
+  const loadedFiles = (languageService.getProgram()?.getSourceFiles() || []).map((sourceFile) => ({
+    fileName: sourceFile.fileName,
+    sizeBytes: new TextEncoder().encode(sourceFile.text).byteLength,
+  }))
+  loadedFilesByLanguageService.set(languageService, loadedFiles)
+  return loadedFiles
+}
+
 export const getDiagnostics2 = async (
   textDocument: any,
   trace?: PerformanceTrace.MutablePerformanceTrace,
@@ -20,13 +35,7 @@ export const getDiagnostics2 = async (
     getDiagnosticsFromTsResult2(textDocument.text, tsResult || []),
   )
   if (trace) {
-    if (trace.languageService.cache === 'created') {
-      const program = languageService.getProgram()
-      trace.loadedFiles = (program?.getSourceFiles() || []).map((sourceFile) => ({
-        fileName: sourceFile.fileName,
-        sizeBytes: new TextEncoder().encode(sourceFile.text).byteLength,
-      }))
-    }
+    trace.loadedFiles = getLoadedFiles(languageService)
     trace.diagnostics = {
       count: diagnostics.length,
     }

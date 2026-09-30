@@ -5,7 +5,6 @@ const getOrCreateLanguageService = jest.fn((_uri: string, _trace: unknown) => ({
     writeFile: jest.fn(),
   },
   languageService: {
-    getSemanticDiagnostics: jest.fn(() => []),
     getProgram: jest.fn(() => ({
       getSourceFiles: () => [
         { fileName: '/workspace/main.ts', text: 'const value = "😀"' },
@@ -13,6 +12,7 @@ const getOrCreateLanguageService = jest.fn((_uri: string, _trace: unknown) => ({
         { fileName: '/workspace/empty.d.ts', text: '' },
       ],
     })),
+    getSemanticDiagnostics: jest.fn(() => []),
   },
 }))
 
@@ -62,13 +62,30 @@ test('records diagnostic stages and result count', async () => {
   expect(getOrCreateLanguageService).toHaveBeenCalledWith(document.uri, trace)
 })
 
-test('does not enumerate loaded files for a reused language service', async () => {
+test('reports a cached source file snapshot for a reused language service', async () => {
   const trace = PerformanceTrace.createPerformanceTrace('file:///workspace/test.ts')
   trace.languageService.cache = 'reused'
+  const getSourceFiles = jest.fn(() => [
+    { fileName: '/workspace/main.ts', text: 'const value = "😀"' },
+    { fileName: '/typescript/lib.d.ts', text: 'interface X {}' },
+  ])
+  const languageService = {
+    getProgram: jest.fn(() => ({ getSourceFiles })),
+    getSemanticDiagnostics: jest.fn(() => []),
+  }
+  getOrCreateLanguageService.mockReturnValue({ fs: { writeFile: jest.fn() }, languageService })
 
   await Diagnostics2.getDiagnostics2({ text: 'const value = 1', uri: trace.file.uri }, trace)
+  const repeatedTrace = PerformanceTrace.createPerformanceTrace(trace.file.uri)
+  repeatedTrace.languageService.cache = 'reused'
+  await Diagnostics2.getDiagnostics2({ text: 'const value = 2', uri: trace.file.uri }, repeatedTrace)
 
-  expect(trace.loadedFiles).toBeUndefined()
+  expect(trace.loadedFiles).toEqual([
+    { fileName: '/workspace/main.ts', sizeBytes: 20 },
+    { fileName: '/typescript/lib.d.ts', sizeBytes: 14 },
+  ])
+  expect(repeatedTrace.loadedFiles).toEqual(trace.loadedFiles)
+  expect(getSourceFiles).toHaveBeenCalledTimes(1)
 })
 
 test('measures work without a trace and records repeated synchronous RPC calls', () => {
@@ -97,7 +114,7 @@ test('normalizes non-error values and errors without stacks for trace output', (
     name: 'Error',
   })
   const error = new Error('failure')
-  error.stack = undefined
+  Object.defineProperty(error, 'stack', { value: undefined })
   expect(PerformanceTrace.toErrorDetails(error)).toEqual({
     message: 'failure',
     name: 'Error',
