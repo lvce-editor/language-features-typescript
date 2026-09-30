@@ -7,6 +7,11 @@ export interface PerformanceTraceRpcMethod {
   durationMs: number
 }
 
+export interface PerformanceTraceLoadedFile {
+  readonly fileName: string
+  readonly sizeBytes: number
+}
+
 export interface PerformanceTrace {
   readonly diagnostics:
     | {
@@ -31,6 +36,7 @@ export interface PerformanceTrace {
     readonly configPath?: string
     readonly fileCount?: number
   }
+  readonly loadedFiles?: readonly PerformanceTraceLoadedFile[]
   readonly schemaVersion: 1
   readonly stages: Record<string, PerformanceTraceStage>
   readonly syncRpc: {
@@ -58,6 +64,7 @@ export interface MutablePerformanceTrace {
     configPath?: string
     fileCount?: number
   }
+  loadedFiles?: readonly PerformanceTraceLoadedFile[]
   readonly schemaVersion: 1
   readonly stages: Record<string, PerformanceTraceStage>
   readonly syncRpc: {
