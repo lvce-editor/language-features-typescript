@@ -23,7 +23,7 @@ test('makes the language service available while the optional library cache is s
   try {
     const result = await Promise.race([
       initializing.then(() => 'ready'),
-      new Promise<string>((resolve) => setImmediate(() => resolve('waiting for cache'))),
+      new Promise<string>((resolve) => setTimeout(() => resolve('waiting for cache'), 0)),
     ])
     expect(initializeCache).toHaveBeenCalledTimes(1)
     expect(result).toBe('ready')
