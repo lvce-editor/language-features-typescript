@@ -121,7 +121,7 @@ test('createModuleResolver should normalize relative imports from file uris', ()
 test('createModuleResolver should resolve JavaScript imports from file uris to TypeScript source', () => {
   const invokeSync = jest.fn((method: string, path: string) => {
     if (method === 'SyncApi.exists') {
-      return path === '/workspace'
+      return path === '/workspace' || path === '/workspace/types.ts'
     }
     if (method === 'SyncApi.readFileSync' && path === '/workspace/types.ts') {
       return 'export interface User { name: string }'
@@ -137,6 +137,29 @@ test('createModuleResolver should resolve JavaScript imports from file uris to T
 
   expect(result.resolvedModule?.extension).toBe('.ts')
   expect(result.resolvedModule?.resolvedFileName).toBe('file:///workspace/types.ts')
+})
+
+test('checks module file existence without reading its contents', () => {
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists') {
+      return uri === '/workspace/types.ts'
+    }
+    if (method === 'SyncApi.readFileSync') {
+      return undefined
+    }
+    throw new Error(`unexpected method ${method}`)
+  })
+  const resolver = createModuleResolver({ invokeSync }, TypeScript)
+
+  const result = resolver('./types.ts', '/workspace/main.ts', {
+    allowImportingTsExtensions: true,
+    module: TypeScript.ModuleKind.ESNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.Bundler,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe('/workspace/types.ts')
+  expect(invokeSync).toHaveBeenCalledWith('SyncApi.exists', '/workspace/types.ts')
+  expect(invokeSync).not.toHaveBeenCalledWith('SyncApi.readFileSync', '/workspace/types.ts')
 })
 
 test('createModuleResolver should preserve absolute file paths for relative imports', () => {
