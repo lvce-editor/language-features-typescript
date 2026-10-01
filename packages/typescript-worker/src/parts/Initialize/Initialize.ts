@@ -7,9 +7,9 @@ import * as ReadLibFile from '../ReadLibFile/ReadLibFile.ts'
 
 export const initialize = async (typeScriptPath: string, crossOriginIsolated: boolean) => {
   const tsPath = getTypeScriptPath()
-  const ts = await loadTypeScript(tsPath)
-  // Library reads use the synchronous fallback until the optional cache is ready.
+  // Warm the optional cache while TypeScript loads; reads can fall back until it is ready.
   void ReadLibFile.initialize()
+  const ts = await loadTypeScript(tsPath)
   const fs = createFileSystem()
   const client = await createSyncRpcClient({
     crossOriginIsolated,
