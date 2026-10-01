@@ -50,13 +50,39 @@ jobs:
           PATH_PREFIX: auto
       - name: install playwright dependencies
         working-directory: ./packages/e2e
-        run: npx playwright install chromium
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium firefox webkit
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: install playwright system dependencies
+        working-directory: ./packages/e2e
+        run: sudo npx playwright install-deps chromium firefox webkit
+        if: runner.os == 'Linux'
       - name: Run headless test
         run: npm run e2e:headless
-        if: matrix.os != 'macos-15'
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run Firefox headless tests
+        run: npm run e2e:firefox:headless
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run WebKit headless tests
+        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
+        if: runner.os != 'Windows'
+        run: npm run e2e:webkit:headless
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run smart selection headless tests
+        run: npm run e2e:smart-selection
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run smart selection Firefox headless tests
+        run: npm run e2e:smart-selection:firefox
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run smart selection WebKit headless tests
+        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
+        if: runner.os != 'Windows'
+        run: npm run e2e:smart-selection:webkit
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
 

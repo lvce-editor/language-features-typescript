@@ -28,7 +28,6 @@ const child = spawn(
   process.execPath,
   [
     runnerPath,
-    '--only-extension=../extension',
     `--test-path=${testPath}`,
     ...(isSmartSelectionE2e ? [`--server-path=${serverPath}`] : []),
     ...args,

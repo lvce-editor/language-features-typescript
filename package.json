@@ -15,7 +15,11 @@
     "dev": "node packages/build/src/dev.ts",
     "e2e": "npm run e2e --workspace=packages/e2e",
     "e2e:headless": "npm run e2e:headless --workspace=packages/e2e",
+    "e2e:firefox:headless": "npm run e2e:firefox:headless --workspace=packages/e2e",
+    "e2e:webkit:headless": "npm run e2e:webkit:headless --workspace=packages/e2e",
     "e2e:smart-selection": "npm run e2e:smart-selection --workspace=packages/e2e",
+    "e2e:smart-selection:firefox": "npm run e2e:smart-selection:firefox --workspace=packages/e2e",
+    "e2e:smart-selection:webkit": "npm run e2e:smart-selection:webkit --workspace=packages/e2e",
     "format": "prettier --write .",
     "postinstall": "node packages/build/src/postinstall.ts",
     "lint": "eslint . && prettier --check .",
@@ -31,7 +35,7 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
-    "@lvce-editor/api": "^9.33.2",
+    "@lvce-editor/api": "^9.37.0",
     "@lvce-editor/eslint-config": "^18.14.0",
     "eslint": "^10.11.0",
     "jest": "^30.4.2",

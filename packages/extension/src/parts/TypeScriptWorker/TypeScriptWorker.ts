@@ -2,12 +2,13 @@ import * as LaunchTypeScriptWorker from '../LaunchTypeScriptWorker/LaunchTypeScr
 
 export const state = {
   ipc: undefined,
+  launchTypeScriptWorker: LaunchTypeScriptWorker.launchTypeScriptWorker,
   rpcPromise: undefined,
 }
 
 const getOrCreateRpc = async () => {
   if (!state.rpcPromise) {
-    state.rpcPromise = LaunchTypeScriptWorker.launchTypeScriptWorker()
+    state.rpcPromise = state.launchTypeScriptWorker()
   }
   return state.rpcPromise
 }

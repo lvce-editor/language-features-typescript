@@ -228,8 +228,7 @@ const createModuleResolutionHost = (syncRpc: Readonly<SyncRpc>): TypeScript.Modu
   }
   const fileExists = (path: string): boolean => {
     try {
-      syncRpc.invokeSync('SyncApi.readFileSync', path)
-      return true
+      return syncRpc.invokeSync('SyncApi.exists', path)
     } catch {
       return false
     }
