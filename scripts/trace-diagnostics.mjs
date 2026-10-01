@@ -23,5 +23,5 @@ patch(diagnostics, '  const shouldCaptureFirstTrace =', `  ${log('compute-start'
 patch(diagnostics, '      actualTrace.totalDurationMs = performance.now() - start', `      actualTrace.totalDurationMs = performance.now() - start\n      ${log('compute-done', ', uri: textDocument.uri, stages: actualTrace.stages, syncRpc: actualTrace.syncRpc, duration: actualTrace.totalDurationMs, count: actualTrace.diagnostics?.count')}`)
 
 const runner = 'node_modules/@lvce-editor/test-with-playwright-worker/dist/workerMain.js'
-patch(runner, '    const tests = await getTests(testSrc);', `    page.on('console', message => {\n      if (message.text().startsWith('[typescript-diagnostic]')) console.log(message.text());\n    });\n    const tests = await getTests(testSrc);`)
+patch(runner, '    const tests = await getTests(testSrc);\n    await runWithJavascriptCoverage({', `    page.on('console', message => {\n      if (message.text().startsWith('[typescript-diagnostic]')) console.log(message.text());\n    });\n    const tests = await getTests(testSrc);\n    await runWithJavascriptCoverage({`)
 patch(runner, '    if (rendererWorkerTraceDirectory) {\n      await exportTrace({', `    if (result.status === Fail$1) await page.waitForTimeout(5000);\n    if (rendererWorkerTraceDirectory) {\n      await exportTrace({`)
