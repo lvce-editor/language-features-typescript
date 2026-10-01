@@ -115,7 +115,7 @@ jobs:
         run: |
           mkdir -p e2e-artifacts
           set -o pipefail
-          node packages/build/src/run-e2e.ts stable-e2e --browser=firefox --headless --filter=typescript.diagnostics-problems-panel --trace-renderer-worker 2>&1 | tee e2e-artifacts/firefox.log
+          node packages/build/src/run-e2e.ts stable-e2e --browser=firefox --headless --trace-renderer-worker 2>&1 | tee e2e-artifacts/firefox.log
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Upload e2e artifacts

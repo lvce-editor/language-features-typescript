@@ -8,7 +8,8 @@ import * as ReadLibFile from '../ReadLibFile/ReadLibFile.ts'
 export const initialize = async (typeScriptPath: string, crossOriginIsolated: boolean) => {
   const tsPath = getTypeScriptPath()
   const ts = await loadTypeScript(tsPath)
-  await ReadLibFile.initialize()
+  // Library reads use the synchronous fallback until the optional cache is ready.
+  void ReadLibFile.initialize()
   const fs = createFileSystem()
   const client = await createSyncRpcClient({
     crossOriginIsolated,
