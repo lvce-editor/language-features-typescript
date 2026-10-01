@@ -49,3 +49,18 @@ test('continues without the cache when initialization fails', async () => {
   await expect(initialize()).resolves.toBeUndefined()
   expect(readLibFile('lib.es5.d.ts')).toBe('fallback text')
 })
+
+test('uses synchronous loading while the cache opens and switches to the cache when ready', async () => {
+  const cacheReady = Promise.withResolvers<{ close: typeof close; read: typeof read }>()
+  initializeCache.mockReturnValueOnce(cacheReady.promise)
+  const initializing = initialize()
+
+  expect(readLibFile('lib.es5.d.ts')).toBe('fallback text')
+  expect(read).not.toHaveBeenCalled()
+
+  cacheReady.resolve({ close, read })
+  await initializing
+
+  expect(readLibFile('lib.es5.d.ts')).toBe('cached text')
+  expect(getTextSync).toHaveBeenCalledTimes(1)
+})

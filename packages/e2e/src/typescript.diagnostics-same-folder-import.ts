@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-same-folder-import'
 
-export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
+export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics-varied')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
@@ -27,6 +27,8 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Se
       uri,
     },
   ] as const
+  const editorId = await Command.execute('GetActiveEditor.getActiveEditorId')
+  await Editor.shouldHaveDiagnosticProviderResult(expectedDiagnostics, editorId)
   await expect(Locator('.Diagnostic')).toHaveCount(expectedDiagnostics.length)
   await Editor.shouldHaveDiagnostics(expectedDiagnostics)
 }
