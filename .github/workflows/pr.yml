@@ -82,3 +82,48 @@ jobs:
         run: node packages/build/src/run-e2e.ts stable-e2e --headless --browser=firefox --filter=typescript.performance-trace
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
+
+  firefox-reproduction:
+    name: Windows Firefox attempt ${{ matrix.attempt }}
+    strategy:
+      fail-fast: false
+      matrix:
+        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Build static site
+        run: npm run build:static
+        env:
+          PATH_PREFIX: auto
+      - name: Install Firefox
+        working-directory: ./packages/e2e
+        run: npx playwright install firefox
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run Firefox headless tests
+        shell: bash
+        run: |
+          mkdir -p e2e-artifacts
+          set -o pipefail
+          node packages/build/src/run-e2e.ts stable-e2e --browser=firefox --headless --trace-renderer-worker 2>&1 | tee e2e-artifacts/firefox.log
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Upload e2e artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: firefox-reproduction-${{ matrix.attempt }}
+          path: |
+            e2e-artifacts/
+            packages/e2e/screenshots/
+            packages/e2e/test-results/
+            packages/e2e/renderer-worker-traces/
+          if-no-files-found: warn
