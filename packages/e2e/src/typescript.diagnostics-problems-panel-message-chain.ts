@@ -12,23 +12,21 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
   await Main.openUri(uri)
   const message =
     "Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{ extensions: never[]; }'.\n  No index signature with a parameter of type 'number' was found on type '{ extensions: never[]; }'."
+  const expectedDiagnostics = [
+    {
+      code: 7053,
+      columnIndex: 25,
+      endColumnIndex: 37,
+      endRowIndex: 5,
+      message,
+      rowIndex: 5,
+      source: 'ts',
+      type: 'error',
+      uri,
+    },
+  ] as const
   const editorId = await Command.execute('GetActiveEditor.getActiveEditorId')
-  await Editor.shouldHaveDiagnosticProviderResult(
-    [
-      {
-        code: 7053,
-        columnIndex: 25,
-        endColumnIndex: 37,
-        endRowIndex: 5,
-        message,
-        rowIndex: 5,
-        source: 'ts',
-        type: 'error',
-        uri,
-      },
-    ],
-    editorId,
-  )
+  await Editor.shouldHaveDiagnosticProviderResult(expectedDiagnostics, editorId)
 
   await Panel.open('Problems')
   await Problems.show()
