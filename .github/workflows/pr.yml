@@ -111,9 +111,9 @@ jobs:
       - name: Run Firefox headless tests
         shell: bash
         run: |
-          mkdir -p .e2e-artifacts
+          mkdir -p e2e-artifacts
           set -o pipefail
-          npm run e2e:firefox:headless 2>&1 | tee .e2e-artifacts/firefox.log
+          node packages/build/src/run-e2e.ts stable-e2e --browser=firefox --headless --filter=typescript.diagnostics-problems-panel --trace-renderer-worker 2>&1 | tee e2e-artifacts/firefox.log
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Upload e2e artifacts
@@ -122,7 +122,7 @@ jobs:
         with:
           name: firefox-reproduction-${{ matrix.attempt }}
           path: |
-            .e2e-artifacts/
+            e2e-artifacts/
             packages/e2e/screenshots/
             packages/e2e/test-results/
             packages/e2e/renderer-worker-traces/
