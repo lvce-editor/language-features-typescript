@@ -97,6 +97,8 @@ jobs:
         with:
           node-version-file: '.nvmrc'
       - run: npm ci
+      - name: Instrument diagnostic timing
+        run: node scripts/trace-diagnostics.mjs
       - name: Build
         run: npm run build
       - name: Build static site
