@@ -49,18 +49,6 @@ jobs:
         working-directory: ./packages/e2e
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
-      - name: Diagnose Windows WebKit startup
-        if: runner.os == 'Windows'
-        run: node packages/build/src/run-e2e.ts stable-e2e --browser=webkit --headless --no-reuse-page --filter=typescript.add-missing-imports --trace-renderer-worker
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Upload Windows WebKit startup trace
-        if: always() && runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-webkit-startup-trace
-          path: packages/e2e/renderer-worker-traces
-          if-no-files-found: warn
       - name: Run headless test
         run: npm run e2e:headless
         env:
@@ -70,7 +58,9 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run WebKit headless tests
-        run: node packages/build/src/run-e2e.ts stable-e2e --browser=webkit --headless --no-reuse-page --trace-renderer-worker
+        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
+        if: runner.os != 'Windows'
+        run: npm run e2e:webkit:headless
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run smart selection headless tests
@@ -82,6 +72,8 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run smart selection WebKit headless tests
+        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
+        if: runner.os != 'Windows'
         run: npm run e2e:smart-selection:webkit
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
@@ -90,10 +82,3 @@ jobs:
         run: node packages/build/src/run-e2e.ts stable-e2e --headless --browser=firefox --filter=typescript.performance-trace
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Upload Windows WebKit suite traces
-        if: failure() && runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-webkit-suite-traces
-          path: packages/e2e/renderer-worker-traces
-          if-no-files-found: warn

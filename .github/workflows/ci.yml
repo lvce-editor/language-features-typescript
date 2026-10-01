@@ -66,6 +66,8 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run WebKit headless tests
+        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
+        if: runner.os != 'Windows'
         run: npm run e2e:webkit:headless
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
@@ -78,6 +80,8 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run smart selection WebKit headless tests
+        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
+        if: runner.os != 'Windows'
         run: npm run e2e:smart-selection:webkit
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
