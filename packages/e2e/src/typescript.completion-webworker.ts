@@ -18,5 +18,5 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   const firstCompletionItem = completionItems.nth(0)
-  await expect(firstCompletionItem).toHaveText('DedicatedWorkerGlobalScope')
+  await expect(firstCompletionItem).toHaveText('WorkerGlobalScope')
 }
