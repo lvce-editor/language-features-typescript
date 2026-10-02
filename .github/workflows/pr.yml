@@ -57,8 +57,10 @@ jobs:
           git worktree add .tmp/diagnostics-baseline FETCH_HEAD
           cp packages/extension/src/parts/Activate/Activate.ts .tmp/diagnostics-baseline/packages/extension/src/parts/Activate/Activate.ts
           cp packages/e2e/src/typescript.diagnostics-problems-panel-nan-comparison.ts .tmp/diagnostics-baseline/packages/e2e/src/typescript.diagnostics-problems-panel-nan-comparison.ts
+          cp packages/extension/extension.json .tmp/diagnostics-baseline/packages/extension/extension.json
           cd .tmp/diagnostics-baseline
           npm ci
+          npx playwright install chromium
           npm run build
           for iteration in {1..5}; do
             npm run e2e:headless --workspace=packages/e2e -- --filter=typescript.diagnostics-problems-panel-nan-comparison --trace-renderer-worker || break
