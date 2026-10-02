@@ -49,13 +49,21 @@ jobs:
         working-directory: ./packages/e2e
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
-      - name: Diagnose Windows NaN comparison diagnostics
+      - name: Compare Windows full Chromium baseline
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          for iteration in {1..20}; do
-            npm run e2e:headless --workspace=packages/e2e -- --filter=typescript.diagnostics-problems-panel-nan-comparison --trace-renderer-worker || exit 1
-          done
+          git fetch origin 2e612aa86c44156959e8c32e4fe800989ec83ef6
+          git worktree add .tmp/diagnostics-baseline FETCH_HEAD
+          cp packages/extension/src/parts/Activate/Activate.ts .tmp/diagnostics-baseline/packages/extension/src/parts/Activate/Activate.ts
+          cp packages/extension/extension.json .tmp/diagnostics-baseline/packages/extension/extension.json
+          cp packages/e2e/src/typescript.diagnostics-problems-panel-nan-comparison.ts .tmp/diagnostics-baseline/packages/e2e/src/
+          cp packages/e2e/src/typescript.diagnostics-problems-panel-readonly-index.ts .tmp/diagnostics-baseline/packages/e2e/src/
+          cd .tmp/diagnostics-baseline
+          npm ci
+          npx playwright install chromium
+          npm run build
+          npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker || echo "Baseline failed; compare candidate next"
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run headless test
