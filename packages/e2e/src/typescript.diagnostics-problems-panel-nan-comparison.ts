@@ -19,9 +19,12 @@ export const test: Test = async ({ Command, expect, FileSystem, Locator, Main, P
   try {
     await expect(problems).toHaveCount(2)
   } catch (error) {
-    const trace = await Command.executeExtensionCommand('typescript.showPerformanceTrace')
-    console.log('[DEBUG-pr-678] diagnostics failure trace', JSON.stringify(trace))
-    throw error
+    const uri = `${workspaceUrl}/src/nan-comparison.ts`
+    const trace = await Command.executeExtensionCommand('typescript.debugFirstTrace', {
+      uri,
+      text: await FileSystem.readFile(uri),
+    })
+    throw new Error(`[DEBUG-pr-678] ${error}; first diagnostics: ${JSON.stringify(trace)}`)
   }
   const problemInfo = problems.nth(1)
   const label = problemInfo.locator('.ProblemLabel')

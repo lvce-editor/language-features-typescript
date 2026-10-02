@@ -49,6 +49,22 @@ jobs:
         working-directory: ./packages/e2e
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
+      - name: Compare Windows diagnostics baseline
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          git fetch origin 2e612aa86c44156959e8c32e4fe800989ec83ef6
+          git worktree add .tmp/diagnostics-baseline FETCH_HEAD
+          cp packages/extension/src/parts/Activate/Activate.ts .tmp/diagnostics-baseline/packages/extension/src/parts/Activate/Activate.ts
+          cp packages/e2e/src/typescript.diagnostics-problems-panel-nan-comparison.ts .tmp/diagnostics-baseline/packages/e2e/src/typescript.diagnostics-problems-panel-nan-comparison.ts
+          cd .tmp/diagnostics-baseline
+          npm ci
+          npm run build
+          for iteration in {1..5}; do
+            npm run e2e:headless --workspace=packages/e2e -- --filter=typescript.diagnostics-problems-panel-nan-comparison --trace-renderer-worker || break
+          done
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Diagnose Windows NaN comparison diagnostics
         if: runner.os == 'Windows'
         shell: bash
