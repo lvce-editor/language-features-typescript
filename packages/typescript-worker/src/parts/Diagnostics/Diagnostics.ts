@@ -13,3 +13,7 @@ export const getDiagnostics = async (
 export const getPerformanceTrace = async (typescriptRpc: CommonRpc, Position, textDocument) => {
   return Diagnostics2.getPerformanceTrace(textDocument)
 }
+
+export const getFirstPerformanceTrace = async (typescriptRpc: CommonRpc, Position, textDocument) => {
+  return Diagnostics2.getFirstPerformanceTrace(textDocument)
+}
