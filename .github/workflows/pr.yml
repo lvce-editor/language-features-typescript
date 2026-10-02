@@ -49,6 +49,15 @@ jobs:
         working-directory: ./packages/e2e
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
+      - name: Diagnose Windows NaN comparison diagnostics
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          for iteration in {1..10}; do
+            npm run e2e:headless --workspace=packages/e2e -- --filter=typescript.diagnostics-problems-panel-nan-comparison --trace-renderer-worker || exit 1
+          done
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run headless test
         run: npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
