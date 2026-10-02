@@ -89,3 +89,23 @@ jobs:
           name: renderer-worker-traces-${{ matrix.os }}
           path: '**/renderer-worker-traces/**'
           include-hidden-files: true
+
+  firefox-baseline:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 2e612aa86c44156959e8c32e4fe800989ec83ef6
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install firefox
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Diagnose baseline Firefox suite
+        run: npm run e2e:firefox:headless
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0

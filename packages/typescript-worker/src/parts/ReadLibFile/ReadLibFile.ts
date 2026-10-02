@@ -2,11 +2,9 @@ import * as GetLibFileUrl from '../GetLibFileUrl/GetLibFileUrl.ts'
 import * as GetTextSync from '../GetTextSync/GetTextSync.ts'
 import * as TypeScriptLibCache from '../TypeScriptLibCache/TypeScriptLibCache.ts'
 
-let initializationStarted = false
 let libCache: Awaited<ReturnType<typeof TypeScriptLibCache.initialize>> | undefined
 
 export const initialize = async (): Promise<void> => {
-  initializationStarted = true
   libCache?.close()
   libCache = undefined
   try {
@@ -21,9 +19,6 @@ export const readLibFile = (uri: string): string | undefined => {
   const url = GetLibFileUrl.getLibFileUrl(uri)
   if (!url) {
     return undefined
-  }
-  if (!initializationStarted) {
-    void initialize()
   }
   try {
     const cached = libCache && TypeScriptLibCache.read(libCache, url)
