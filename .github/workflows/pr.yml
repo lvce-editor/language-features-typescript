@@ -50,7 +50,7 @@ jobs:
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
       - name: Run headless test
-        run: npm run e2e:headless
+        run: npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run Firefox headless tests
@@ -82,3 +82,10 @@ jobs:
         run: node packages/build/src/run-e2e.ts stable-e2e --headless --browser=firefox --filter=typescript.performance-trace
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Upload failing test traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: renderer-worker-traces-${{ matrix.os }}
+          path: '**/renderer-worker-traces/**'
+          include-hidden-files: true
