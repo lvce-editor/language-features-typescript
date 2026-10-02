@@ -3,12 +3,9 @@ import { createSyncRpcClient } from '../CreateSyncRpcClient/CreateSyncRpcClient.
 import { getTypeScriptPath } from '../GetTypeScriptPath/GetTypeScriptPath.ts'
 import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import { loadTypeScript } from '../LoadTypeScript/LoadTypeScript.ts'
-import * as ReadLibFile from '../ReadLibFile/ReadLibFile.ts'
 
 export const initialize = async (typeScriptPath: string, crossOriginIsolated: boolean) => {
   const tsPath = getTypeScriptPath()
-  // Warm the optional cache while TypeScript loads; reads can fall back until it is ready.
-  void ReadLibFile.initialize()
   const ts = await loadTypeScript(tsPath)
   const fs = createFileSystem()
   const client = await createSyncRpcClient({

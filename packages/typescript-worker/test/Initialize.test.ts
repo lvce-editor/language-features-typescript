@@ -30,7 +30,7 @@ test('makes the language service available while the optional library cache is s
       initializing.then(() => 'ready'),
       new Promise<string>((resolve) => setTimeout(() => resolve('waiting for cache'), 0)),
     ])
-    expect(initializeCache).toHaveBeenCalledTimes(1)
+    expect(initializeCache).not.toHaveBeenCalled()
     expect(result).toBe('ready')
     expect(set).toHaveBeenCalledWith(1, fs, client, ts)
   } finally {
@@ -39,13 +39,13 @@ test('makes the language service available while the optional library cache is s
   }
 })
 
-test('warms the library cache while the TypeScript module is still loading', async () => {
+test('does not compete with TypeScript loading by warming the library cache', async () => {
   const typeScriptReady = Promise.withResolvers<typeof ts>()
   loadTypeScript.mockReturnValueOnce(typeScriptReady.promise)
   const initializing = initialize('', true)
   try {
     expect(loadTypeScript).toHaveBeenCalledTimes(1)
-    expect(initializeCache).toHaveBeenCalledTimes(1)
+    expect(initializeCache).not.toHaveBeenCalled()
     expect(set).not.toHaveBeenCalled()
   } finally {
     typeScriptReady.resolve(ts)

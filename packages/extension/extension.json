@@ -35,7 +35,6 @@
     "onLanguage:typescriptreact",
     "onLanguage:javascriptreact",
     "onCommand:typescript.showPerformanceTrace",
-    "onCommand:typescript.debugFirstTrace",
     "onRename:javascript",
     "onRename:typescript",
     "onReferences:javascript",
@@ -66,7 +65,6 @@
     { "id": "typescript.provideDiagnostics.typescriptreact", "languageId": "typescriptreact" }
   ],
   "commands": [
-    { "id": "typescript.debugFirstTrace", "label": "Debug First Trace" },
     {
       "id": "typescript.showPerformanceTrace",
       "label": "TypeScript: Show Performance Trace"

@@ -22,6 +22,21 @@ afterEach(() => {
   read.mockReturnValue('cached text')
 })
 
+test('starts the optional cache only once on first library access and falls back while it opens', async () => {
+  const cacheReady = Promise.withResolvers<{ close: typeof close; read: typeof read }>()
+  initializeCache.mockReturnValueOnce(cacheReady.promise)
+
+  expect(readLibFile('source.ts')).toBeUndefined()
+  expect(initializeCache).not.toHaveBeenCalled()
+  expect(readLibFile('lib.es5.d.ts')).toBe('fallback text')
+  expect(readLibFile('lib.esnext.d.ts')).toBe('fallback text')
+  expect(initializeCache).toHaveBeenCalledTimes(1)
+
+  cacheReady.resolve({ close, read })
+  await cacheReady.promise
+  expect(readLibFile('lib.es5.d.ts')).toBe('cached text')
+})
+
 test('reads library text from the warm cache and ignores paths outside the library', async () => {
   await initialize()
 
