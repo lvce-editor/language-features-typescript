@@ -2,9 +2,10 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.file-cache'
 
-export const test: Test = async ({ Command, FileSystem, Main, Settings }) => {
-  const root = await FileSystem.getTmpDir({ scheme: 'file' })
+const run = async ({ Command, FileSystem, Main, Settings }: Parameters<Test>[0], scheme: 'file' | 'memfs') => {
+  const root = await FileSystem.getTmpDir({ scheme })
   try {
+    await FileSystem.mkdir(`${root}/node_modules/cache-test`)
     const uri = `${root}/main.ts`
     const dependency = `${root}/node_modules/cache-test/index.d.ts`
     const source = `${root}/value.ts`
@@ -46,7 +47,8 @@ export const test: Test = async ({ Command, FileSystem, Main, Settings }) => {
     }
     await FileSystem.writeFile(dependency, 'export declare const dependency: string;')
     await trace(2)
-    await FileSystem.remove(source)
+    if (scheme === 'file') await FileSystem.rename(source, `${root}/removed-value.ts`)
+    else await FileSystem.remove(source)
     await trace(2)
     await FileSystem.writeFile(source, 'export const value = 1;')
     await trace(1)
@@ -62,6 +64,11 @@ export const test: Test = async ({ Command, FileSystem, Main, Settings }) => {
       throw new Error(`Expected identity checks without source reads: ${JSON.stringify({ restored, warm })}`)
     }
   } finally {
-    await FileSystem.remove(root)
+    // Disk fixtures live in the OS temporary directory. The public remove API
+    // uses the desktop trash service, unavailable in headless environments.
+    if (scheme === 'memfs') await FileSystem.remove(root)
   }
 }
+
+export const test: Test = (context) => run(context, 'memfs')
+export const testDisk: Test = (context) => run(context, 'file')

@@ -19,7 +19,8 @@ hash.
 Every persistent read first asks `getFileHashes` for the current source identity.
 The disk provider caches SHA256 by device/inode/size/mtime/ctime, checking metadata
 around the initial content read. Subsequent unchanged identities use stat calls.
-Other filesystem providers may read contents to compute their hashes: fewer
+Non-disk URIs are hashed through their owning read provider because the legacy
+disk hash API rejects other schemes: fewer
 TypeScript source RPCs do not imply fewer provider reads in those environments.
 In-memory documents take precedence over saved contents. Before reusing a project,
 the client refreshes read identities, missing-path existence and directory listings;
@@ -38,9 +39,12 @@ Chromium. The script uses the production cache/client, language host and TypeScr
 in fresh dedicated browser workers. The fixed project imports 20 source files and
 20 declaration files and must produce the same 20 type errors in every run. It
 also verifies concurrent-lock fallback, termination/reopen and corrupt-entry repair.
-The new integrated `typescript.file-cache` end-to-end case separately exercises
-actual extension API routing, dependency/source edits, deletion/recreation and an
-unsaved document.
+The integrated `typescript.file-cache` and `typescript.file-cache-disk` end-to-end
+cases separately exercise actual extension API routing, memory/disk providers,
+dependency/source edits, missing paths/recreation and an unsaved document. The disk
+case renames a source away before recreating it; the memory case removes it. Disk
+fixtures use OS temporary directories, avoiding the desktop trash service in
+headless tests.
 
 The benchmark source transport is synchronous HTTP to a local filesystem server,
 not the application's shared RPC. Its server uses a stat-validated SHA256 map, and
