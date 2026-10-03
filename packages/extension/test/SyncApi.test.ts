@@ -1,6 +1,6 @@
 import { beforeEach, expect, jest, test } from '@jest/globals'
 
-const existsApi = jest.fn<() => Promise<boolean>>()
+const existsApi = jest.fn<(uri: string) => Promise<boolean>>()
 const writeResultValue = jest.fn()
 
 jest.unstable_mockModule('@lvce-editor/api', () => ({
@@ -34,5 +34,15 @@ test('exists writes the filesystem result', async () => {
 
   await SyncApi.exists(1, '/workspace/src/main.ts')
 
+  expect(writeResultValue).toHaveBeenCalledWith(true)
+})
+
+test('exists preserves remote filesystem uris', async () => {
+  existsApi.mockResolvedValue(true)
+  const uri = 'remote-ssh://simon@host/workspace/src/main.ts'
+
+  await SyncApi.exists(1, uri)
+
+  expect(existsApi).toHaveBeenCalledWith(uri)
   expect(writeResultValue).toHaveBeenCalledWith(true)
 })

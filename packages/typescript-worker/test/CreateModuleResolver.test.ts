@@ -118,6 +118,24 @@ test('createModuleResolver should normalize relative imports from file uris', ()
   )
 })
 
+test('createModuleResolver should preserve remote workspace identity when resolving relative imports', () => {
+  const resolvedUri = 'remote-ssh://simon@host/workspace/packages/about-view/src/parts/Main/Main.ts'
+  const invokeSync = jest.fn((method: string, uri: string) => method === 'SyncApi.exists' && uri === resolvedUri)
+  const resolver = createModuleResolver({ invokeSync }, TypeScript)
+
+  const result = resolver(
+    './parts/Main/Main.ts',
+    'remote-ssh://simon@host/workspace/packages/about-view/src/aboutWorkerMain.ts',
+    {
+      module: TypeScript.ModuleKind.NodeNext,
+      moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+    },
+  )
+
+  expect(result.resolvedModule?.resolvedFileName).toBe(resolvedUri)
+  expect(invokeSync).toHaveBeenCalledWith('SyncApi.exists', resolvedUri)
+})
+
 test('createModuleResolver should resolve JavaScript imports from file uris to TypeScript source', () => {
   const invokeSync = jest.fn((method: string, path: string) => {
     if (method === 'SyncApi.exists') {
