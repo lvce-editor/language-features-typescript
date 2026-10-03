@@ -1,6 +1,6 @@
 import { beforeEach, expect, jest, test } from '@jest/globals'
 
-const existsApi = jest.fn<() => Promise<boolean>>()
+const existsApi = jest.fn<(uri: string) => Promise<boolean>>()
 const writeResultValue = jest.fn()
 
 jest.unstable_mockModule('@lvce-editor/api', () => ({
