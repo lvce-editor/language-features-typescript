@@ -1,4 +1,5 @@
 import { readDirWithFileTypes, readFile as readFileApi } from '@lvce-editor/api'
+import * as FileCacheApi from '../FileCacheApi/FileCacheApi.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as SyncApi from '../SyncApi/SyncApi.ts'
 import * as TextDocument from '../TextDocument/TextDocument.ts'
@@ -28,6 +29,8 @@ const readDir = (uri: any): any => {
 
 export const commandMap = {
   'Completion.getCompletion': rpcInvoke,
+  'FileCache.getHandle': FileCacheApi.getHandle,
+  'FileCache.getHashes': FileCacheApi.getHashes,
   'FileSystem.readDir': readDir,
   'FileSystem.readFile': readFile,
   'Position.getOffset': getOffset,

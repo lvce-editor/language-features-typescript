@@ -10,6 +10,12 @@ const projectIds = { next: 1 }
 const projectCache: Record<number, LanguageService> = Object.create(null)
 const projectIdCache: Record<string, number> = Object.create(null)
 
+export const resetLanguageServices = (): void => {
+  for (const service of Object.values(projectCache)) service.dispose()
+  for (const key of Object.keys(projectCache)) delete projectCache[key]
+  for (const key of Object.keys(projectIdCache)) delete projectIdCache[key]
+}
+
 const createTracedClient = (
   client: ReturnType<typeof LanguageServices.get>['client'],
   trace: PerformanceTrace.MutablePerformanceTrace,
@@ -27,6 +33,9 @@ const createTracedClient = (
 export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace.MutablePerformanceTrace) => {
   const id = 1
   const { client, fs, ts } = LanguageServices.get(id)
+  if (client.refresh?.()) {
+    resetLanguageServices()
+  }
   if (uri in projectIdCache) {
     const projectId = projectIdCache[uri]
     const languageService = projectCache[projectId]

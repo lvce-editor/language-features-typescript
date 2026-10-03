@@ -6,6 +6,9 @@ const fs = {}
 const client = {}
 const ts = {}
 const set = jest.fn()
+const dispose = jest.fn()
+const resetLanguageServices = jest.fn()
+const initializeFiles = jest.fn(async (_client: unknown, _fs: unknown) => client)
 const loadTypeScript = jest.fn(async () => ts)
 
 jest.unstable_mockModule('../src/parts/CreateFileSystem/CreateFileSystem.ts', () => ({ createFileSystem: () => fs }))
@@ -13,7 +16,14 @@ jest.unstable_mockModule('../src/parts/CreateSyncRpcClient/CreateSyncRpcClient.t
   createSyncRpcClient: async () => client,
 }))
 jest.unstable_mockModule('../src/parts/GetTypeScriptPath/GetTypeScriptPath.ts', () => ({ getTypeScriptPath: () => '' }))
-jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', () => ({ set }))
+jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', () => ({
+  get: () => ({ client: { dispose } }),
+  set,
+}))
+jest.unstable_mockModule('../src/parts/GetOrCreateLanguageService/GetOrCreateLanguageService.ts', () => ({
+  resetLanguageServices,
+}))
+jest.unstable_mockModule('../src/parts/CachedFileClient/CachedFileClient.ts', () => ({ initialize: initializeFiles }))
 jest.unstable_mockModule('../src/parts/LoadTypeScript/LoadTypeScript.ts', () => ({ loadTypeScript }))
 jest.unstable_mockModule('../src/parts/ReadLibFile/ReadLibFile.ts', () => ({ initialize: initializeCache }))
 
@@ -27,8 +37,11 @@ test('makes the language service available while the optional library cache is s
   const initializing = initialize('', true)
   try {
     const result = await Promise.race([
-      initializing.then(() => 'ready'),
-      new Promise<string>((resolve) => setTimeout(() => resolve('waiting for cache'), 0)),
+      (async () => {
+        await initializing
+        return 'ready'
+      })(),
+      new Promise<string>((resolve) => setTimeout(resolve, 0, 'waiting for cache')),
     ])
     expect(initializeCache).toHaveBeenCalledTimes(1)
     expect(result).toBe('ready')
@@ -51,4 +64,12 @@ test('warms the library cache while the TypeScript module is still loading', asy
     typeScriptReady.resolve(ts)
     await initializing
   }
+})
+
+test('disposes old programs and cache handles before acquiring replacement handles', async () => {
+  await initialize('', true)
+  expect(resetLanguageServices).toHaveBeenCalledTimes(1)
+  expect(dispose).toHaveBeenCalledTimes(1)
+  expect(initializeFiles).toHaveBeenCalledWith(client, fs)
+  expect(dispose.mock.invocationCallOrder[0]).toBeLessThan(initializeFiles.mock.invocationCallOrder[0])
 })
