@@ -36,3 +36,13 @@ test('exists writes the filesystem result', async () => {
 
   expect(writeResultValue).toHaveBeenCalledWith(true)
 })
+
+test('exists preserves remote filesystem uris', async () => {
+  existsApi.mockResolvedValue(true)
+  const uri = 'remote-ssh://simon@host/workspace/src/main.ts'
+
+  await SyncApi.exists(1, uri)
+
+  expect(existsApi).toHaveBeenCalledWith(uri)
+  expect(writeResultValue).toHaveBeenCalledWith(true)
+})
