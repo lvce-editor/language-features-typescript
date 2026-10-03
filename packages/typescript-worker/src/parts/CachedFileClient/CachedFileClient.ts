@@ -36,6 +36,27 @@ export const createCachedClient = (
     if (!Array.isArray(result) || result.length !== uris.length) throw new Error('Invalid file identities')
     return result.map((hash) => (typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash) ? hash : null))
   }
+  const readFile = (uri: string) => {
+    const live = fs.readFile(uri)
+    if (live !== undefined) return live
+    const cache = /(^|[/\\])node_modules[/\\]/.test(uri) ? dependencies : general
+    let hash: string | null = null
+    try {
+      hash = getHashes([uri])[0]
+    } catch {
+      // Source reads remain available when the optional hashing API fails.
+    }
+    identities.set(uri, hash)
+    if (hash) {
+      const cached = cache?.get(hash)
+      if (cached !== undefined) return cached
+    }
+    const content = client.invokeSync('SyncApi.readFileSync', uri)
+    // A readable file without a trustworthy identity cannot retain a program snapshot.
+    if (!hash) identities.set(uri, undefined)
+    if (hash && typeof content === 'string') cache?.set(hash, content)
+    return content
+  }
   return {
     dispose() {
       if (disposed) return
@@ -54,25 +75,7 @@ export const createCachedClient = (
         if (method === 'SyncApi.readDirSync') directories.set(uri, directoryIdentity(value))
         return value
       }
-      const live = fs.readFile(uri)
-      if (live !== undefined) return live
-      const cache = /(^|[/\\])node_modules[/\\]/.test(uri) ? dependencies : general
-      let hash: string | null = null
-      try {
-        hash = getHashes([uri])[0]
-      } catch {
-        // Source reads remain available when the optional hashing API fails.
-      }
-      identities.set(uri, hash)
-      if (hash) {
-        const cached = cache?.get(hash)
-        if (cached !== undefined) return cached
-      }
-      const content = client.invokeSync(method, ...params)
-      // A readable file without a trustworthy identity cannot retain a program snapshot.
-      if (!hash) identities.set(uri, undefined)
-      if (hash && typeof content === 'string') cache?.set(hash, content)
-      return content
+      return readFile(uri)
     },
     refresh() {
       if (disposed) return false
