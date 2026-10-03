@@ -1,3 +1,5 @@
+import type { FileCacheStatistics } from '../SyncRpc/SyncRpc.ts'
+
 export interface PerformanceTraceStage {
   readonly durationMs: number
 }
@@ -29,6 +31,7 @@ export interface PerformanceTrace {
   readonly file: {
     readonly uri: string
   }
+  readonly fileCache?: FileCacheStatistics
   readonly fresh: true
   readonly generatedAt: string
   readonly languageService: {
@@ -57,6 +60,7 @@ export interface MutablePerformanceTrace {
   readonly file: {
     readonly uri: string
   }
+  fileCache?: FileCacheStatistics
   readonly fresh: true
   readonly generatedAt: string
   readonly languageService: {

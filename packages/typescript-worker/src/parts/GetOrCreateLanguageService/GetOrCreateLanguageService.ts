@@ -44,6 +44,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
     }
     return {
       fs,
+      getCacheStatistics: client.getCacheStatistics,
       languageService,
     }
   }
@@ -72,6 +73,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
 
   return {
     fs,
+    getCacheStatistics: client.getCacheStatistics,
     languageService,
   }
 }

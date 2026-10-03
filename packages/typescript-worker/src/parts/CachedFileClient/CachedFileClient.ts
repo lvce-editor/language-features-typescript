@@ -30,8 +30,20 @@ export const createCachedClient = (
   if (!general && !dependencies) return client
   const identities = new Map<string, string | null | undefined>()
   const directories = new Map<string, string>()
+  const missing = new Set<string>()
   let disposed = false
+  const statistics = {
+    dependenciesEnabled: !!dependencies,
+    dependencyHits: 0,
+    generalEnabled: !!general,
+    generalHits: 0,
+    identitiesChecked: 0,
+    identityRequests: 0,
+    sourceReads: 0,
+  }
   const getHashes = (uris: readonly string[]): readonly (string | null)[] => {
+    statistics.identityRequests++
+    statistics.identitiesChecked += uris.length
     const result = client.invokeSync('FileCache.getHashes', uris)
     if (!Array.isArray(result) || result.length !== uris.length) throw new Error('Invalid file identities')
     return result.map((hash) => (typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash) ? hash : null))
@@ -49,8 +61,13 @@ export const createCachedClient = (
     identities.set(uri, hash)
     if (hash) {
       const cached = cache?.get(hash)
-      if (cached !== undefined) return cached
+      if (cached !== undefined) {
+        if (cache === dependencies) statistics.dependencyHits++
+        else statistics.generalHits++
+        return cached
+      }
     }
+    statistics.sourceReads++
     const content = client.invokeSync('SyncApi.readFileSync', uri)
     // A readable file without a trustworthy identity cannot retain a program snapshot.
     if (!hash) identities.set(uri, undefined)
@@ -65,13 +82,15 @@ export const createCachedClient = (
       dependencies?.close()
       identities.clear()
       directories.clear()
+      missing.clear()
     },
+    getCacheStatistics: () => ({ ...statistics }),
     invokeSync(method, ...params) {
       if (disposed) return client.invokeSync(method, ...params)
       const uri = params[0]
       if (method !== 'SyncApi.readFileSync') {
         const value = client.invokeSync(method, ...params)
-        if (method === 'SyncApi.exists' && !value) identities.set(uri, null)
+        if (method === 'SyncApi.exists' && !value) missing.add(uri)
         if (method === 'SyncApi.readDirSync') directories.set(uri, directoryIdentity(value))
         return value
       }
@@ -86,6 +105,9 @@ export const createCachedClient = (
           .toArray()
         const hashes = uris.length > 0 ? getHashes(uris) : []
         let changed = hashes.some((hash, index) => hash !== identities.get(uris[index]))
+        for (const uri of missing) {
+          if (client.invokeSync('SyncApi.exists', uri)) changed = true
+        }
         for (const [uri, identity] of directories) {
           const entries = client.invokeSync('SyncApi.readDirSync', uri)
           if (directoryIdentity(entries) !== identity) changed = true
@@ -96,6 +118,7 @@ export const createCachedClient = (
       }
       identities.clear()
       directories.clear()
+      missing.clear()
       return true
     },
   }

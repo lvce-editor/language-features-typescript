@@ -103,6 +103,7 @@ test('newly available missing modules and changed directory listings invalidate 
   expect(cached.invokeSync('SyncApi.exists', '/file.ts')).toBe(false)
   expect(cached.refresh?.()).toBe(false)
   state.hash = firstHash
+  state.missing = false
   expect(cached.refresh?.()).toBe(true)
   cached.invokeSync('SyncApi.readDirSync', '/')
   state.entries = ['file.ts', 'added.ts']
@@ -134,4 +135,29 @@ test('readable files with unavailable identities cannot retain stale program sna
   state.content = 'changed'
   expect(cached.refresh?.()).toBe(true)
   expect(cached.invokeSync('SyncApi.readFileSync', '/file.ts')).toBe('changed')
+})
+
+test('partial cache availability keeps the other category on source reads and disposal is idempotent', () => {
+  const { client, fs, state } = fixture()
+  const cached = createCachedClient(client, fs, cache(), undefined)
+  cached.invokeSync('SyncApi.readFileSync', '/node_modules/pkg/index.ts')
+  cached.invokeSync('SyncApi.readFileSync', '/node_modules/pkg/index.ts')
+  expect(state.reads).toBe(2)
+  expect(cached.getCacheStatistics?.()).toMatchObject({ dependenciesEnabled: false, dependencyHits: 0, sourceReads: 2 })
+  cached.dispose?.()
+  cached.dispose?.()
+  cached.invokeSync('SyncApi.readFileSync', '/file.ts')
+  expect(state.hashes).toBe(2)
+  expect(state.reads).toBe(3)
+})
+
+test('a previously missing directory becoming available invalidates resolution even without a file hash', () => {
+  const { client, fs, state } = fixture()
+  state.hash = null
+  state.missing = true
+  const cached = createCachedClient(client, fs, cache(), cache())
+  expect(cached.invokeSync('SyncApi.exists', '/node_modules/new-package')).toBe(false)
+  expect(cached.refresh?.()).toBe(false)
+  state.missing = false
+  expect(cached.refresh?.()).toBe(true)
 })

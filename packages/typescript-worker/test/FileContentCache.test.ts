@@ -105,3 +105,52 @@ test('resets oversized storage and bounds retained entries', async () => {
   expect(state.bytes.length).toBeLessThan(100)
   cache.close()
 })
+
+test.each(['getSize', 'truncate', 'read'] as const)('storage %s errors disable the cache safely', async (operation) => {
+  const { handle, state } = file()
+  const key = await hash('value')
+  const initial = createFileContentCache(handle)
+  initial.set(key, 'value')
+  initial.close()
+  if (operation !== 'read')
+    handle[operation] = () => {
+      throw new Error('Storage unavailable')
+    }
+  const reopened = createFileContentCache(handle)
+  if (operation === 'read')
+    handle.read = () => {
+      throw new Error('Storage unavailable')
+    }
+  expect(reopened.get(key)).toBeUndefined()
+  expect(() => reopened.set(key, 'value')).not.toThrow()
+  reopened.close()
+  expect(state.closes).toBe(2)
+})
+
+test.each([1, 2, 3])('short write at publication step %s never exposes a partial entry', async (step) => {
+  const { handle, state } = file()
+  const {write} = handle
+  let writes = 0
+  handle.write = (bytes, options) => (++writes === step ? 0 : write(bytes, options))
+  const cache = createFileContentCache(handle)
+  const key = await hash('contents')
+  cache.set(key, 'contents')
+  expect(cache.get(key)).toBeUndefined()
+  expect(state.closes).toBe(1)
+  const reopened = createFileContentCache(handle)
+  expect(reopened.get(key)).toBeUndefined()
+  reopened.close()
+})
+
+test('close errors do not escape and a truncated body is rejected', async () => {
+  const { handle, state } = file()
+  const cache = createFileContentCache(handle)
+  const key = await hash('contents')
+  cache.set(key, 'contents')
+  state.bytes = state.bytes.subarray(0, 70)
+  expect(cache.get(key)).toBeUndefined()
+  handle.close = () => {
+    throw new Error('Handle lost')
+  }
+  expect(() => cache.close()).not.toThrow()
+})
