@@ -46,6 +46,7 @@ export const createCachedClient = (
       directories.clear()
     },
     invokeSync(method, ...params) {
+      if (disposed) return client.invokeSync(method, ...params)
       const uri = params[0]
       if (method !== 'SyncApi.readFileSync') {
         const value = client.invokeSync(method, ...params)
@@ -63,14 +64,14 @@ export const createCachedClient = (
         // Source reads remain available when the optional hashing API fails.
       }
       identities.set(uri, hash)
-      if (hash && !disposed) {
+      if (hash) {
         const cached = cache?.get(hash)
         if (cached !== undefined) return cached
       }
       const content = client.invokeSync(method, ...params)
       // A readable file without a trustworthy identity cannot retain a program snapshot.
       if (!hash) identities.set(uri, undefined)
-      if (hash && !disposed && typeof content === 'string') cache?.set(hash, content)
+      if (hash && typeof content === 'string') cache?.set(hash, content)
       return content
     },
     refresh() {
