@@ -25,10 +25,16 @@ interface PerformanceTrace {
   readonly totalDurationMs: number
 }
 
+interface LoadingTrace {
+  readonly status: 'loading'
+}
+
+type TraceDocument = LoadingTrace | PerformanceTrace
+
 interface Dependencies {
   readonly getActiveTextDocument: () => Promise<TextDocument | undefined>
   readonly getPerformanceTrace: (textDocument: TextDocument) => Promise<PerformanceTrace>
-  readonly openTrace: (trace: PerformanceTrace) => Promise<void>
+  readonly openTrace: (trace: TraceDocument) => Promise<void>
 }
 
 interface OutputDependencies {
@@ -38,6 +44,13 @@ interface OutputDependencies {
 }
 
 const traceUri = 'memfs://typescript-performance-trace.json'
+
+const traceOutputState = {
+  currentOutputUri: '',
+  latestRequestId: 0,
+  outputGeneration: 0,
+  outputQueue: Promise.resolve(),
+}
 
 const isTextDocument = (value: unknown): value is TextDocument => {
   return (
@@ -63,20 +76,51 @@ const toErrorDetails = (error: unknown) => {
 }
 
 export const openPerformanceTraceWithDependencies = async (
-  trace: PerformanceTrace,
+  trace: TraceDocument,
   dependencies: OutputDependencies,
 ): Promise<void> => {
-  await dependencies.closeUri(traceUri)
-  await dependencies.writeFile(traceUri, JSON.stringify(trace, null, 2))
-  await dependencies.openUri(traceUri)
+  const previousOutputUri = traceOutputState.currentOutputUri
+  const isLoading = 'status' in trace
+  const nextOutputUri = isLoading ? traceUri : `${traceUri}?result=${++traceOutputState.outputGeneration}`
+  if (isLoading && previousOutputUri) {
+    await dependencies.closeUri(previousOutputUri)
+  }
+  await dependencies.writeFile(nextOutputUri, JSON.stringify(trace, null, 2))
+  await dependencies.openUri(nextOutputUri)
+  if (!isLoading && previousOutputUri) {
+    await dependencies.closeUri(previousOutputUri)
+  }
+  traceOutputState.currentOutputUri = nextOutputUri
 }
 
-const openTrace = (trace: PerformanceTrace): Promise<void> => {
+const openTrace = (trace: TraceDocument): Promise<void> => {
   return openPerformanceTraceWithDependencies(trace, {
     closeUri,
     openUri,
     writeFile,
   })
+}
+
+const openTraceForRequest = async (
+  requestId: number,
+  trace: TraceDocument,
+  open: (trace: TraceDocument) => Promise<void>,
+): Promise<void> => {
+  const previousOperation = traceOutputState.outputQueue
+  const outputQueueRelease = { release: () => {} }
+  const nextOutputQueue: Promise<void> = new Promise((resolve) => {
+    outputQueueRelease.release = resolve
+  })
+  traceOutputState.outputQueue = nextOutputQueue
+  try {
+    await previousOperation
+    if (requestId !== traceOutputState.latestRequestId) {
+      return
+    }
+    await open(trace)
+  } finally {
+    outputQueueRelease.release()
+  }
 }
 
 const getActiveTextDocument = async (): Promise<TextDocument | undefined> => {
@@ -100,6 +144,7 @@ export const showPerformanceTraceWithDependencies = async (
   textDocument: TextDocument | undefined,
   dependencies: Dependencies,
 ): Promise<PerformanceTrace> => {
+  const requestId = ++traceOutputState.latestRequestId
   const start = performance.now()
   let actualTextDocument: TextDocument | undefined
   try {
@@ -116,7 +161,7 @@ export const showPerformanceTraceWithDependencies = async (
       schemaVersion: 1 as const,
       totalDurationMs: performance.now() - start,
     }
-    await dependencies.openTrace(trace)
+    await openTraceForRequest(requestId, trace, dependencies.openTrace)
     return trace
   }
   if (!actualTextDocument) {
@@ -134,16 +179,18 @@ export const showPerformanceTraceWithDependencies = async (
       schemaVersion: 1 as const,
       totalDurationMs: performance.now() - start,
     }
-    await dependencies.openTrace(trace)
+    await openTraceForRequest(requestId, trace, dependencies.openTrace)
     return trace
   }
+  const performanceTracePromise = Promise.try(() => dependencies.getPerformanceTrace(actualTextDocument))
+  await openTraceForRequest(requestId, { status: 'loading' }, dependencies.openTrace)
   try {
-    const trace = await dependencies.getPerformanceTrace(actualTextDocument)
+    const trace = await performanceTracePromise
     const result = {
       ...trace,
       commandDurationMs: performance.now() - start,
     }
-    await dependencies.openTrace(result)
+    await openTraceForRequest(requestId, result, dependencies.openTrace)
     return result
   } catch (error) {
     const trace = {
@@ -157,7 +204,7 @@ export const showPerformanceTraceWithDependencies = async (
       schemaVersion: 1 as const,
       totalDurationMs: performance.now() - start,
     }
-    await dependencies.openTrace(trace)
+    await openTraceForRequest(requestId, trace, dependencies.openTrace)
     return trace
   }
 }
