@@ -58,7 +58,7 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run Firefox headless tests
-        run: npm run e2e:firefox:headless
+        run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run WebKit headless tests
