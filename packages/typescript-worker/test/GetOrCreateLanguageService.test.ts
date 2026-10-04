@@ -1,6 +1,9 @@
 import { expect, jest, test } from '@jest/globals'
 
+const refresh = jest.fn(() => false)
+
 const createTypeScriptLanguageService = jest.fn(() => ({
+  dispose: jest.fn(),
   getProgram: jest.fn(),
 }))
 
@@ -16,6 +19,7 @@ jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', ()
   get: jest.fn(() => ({
     client: {
       invokeSync: jest.fn(),
+      refresh,
     },
     fs: {},
     ts: {},
@@ -61,4 +65,13 @@ test('records newly created and reused project details in a performance trace', 
   const second = getOrCreateLanguageService('/workspace/trace-main.tsx', reusedTrace)
   expect(second.languageService).toBe(first.languageService)
   expect(reusedTrace.languageService.cache).toBe('reused')
+})
+
+test('rebuilds and disposes project state when external file identities change', () => {
+  const previous = getOrCreateLanguageService('/workspace/src/main.tsx')
+  refresh.mockReturnValueOnce(true)
+  const next = getOrCreateLanguageService('/workspace/src/main.tsx')
+  expect(next.languageService).not.toBe(previous.languageService)
+  expect(previous.languageService.dispose).toHaveBeenCalledTimes(1)
+  expect(getOrCreateLanguageService('/workspace/src/App.tsx').languageService).toBe(next.languageService)
 })

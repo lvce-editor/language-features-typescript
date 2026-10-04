@@ -30,7 +30,7 @@ export const getDiagnostics2 = async (
     trace || (shouldCaptureFirstTrace ? PerformanceTrace.createPerformanceTrace(textDocument.uri) : undefined)
   const start = actualTrace ? performance.now() : 0
   try {
-    const { fs, languageService } = PerformanceTrace.measure(actualTrace, 'languageService', () =>
+    const { fs, getCacheStatistics, languageService } = PerformanceTrace.measure(actualTrace, 'languageService', () =>
       getOrCreateLanguageService(textDocument.uri, actualTrace),
     )
     PerformanceTrace.measure(actualTrace, 'documentUpdate', () => {
@@ -43,6 +43,7 @@ export const getDiagnostics2 = async (
       getDiagnosticsFromTsResult2(textDocument.text, tsResult || []),
     )
     if (actualTrace) {
+      actualTrace.fileCache = getCacheStatistics?.()
       actualTrace.loadedFiles = getLoadedFiles(languageService)
       actualTrace.diagnostics = {
         count: diagnostics.length,

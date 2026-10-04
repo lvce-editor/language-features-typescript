@@ -49,12 +49,16 @@ jobs:
         working-directory: ./packages/e2e
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
+      - name: Test persistent file cache and measure diagnostics
+        run: node scripts/benchmark-file-cache.mjs
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run headless test
         run: npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run Firefox headless tests
-        run: npm run e2e:firefox:headless
+        run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run WebKit headless tests
