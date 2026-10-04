@@ -49,14 +49,15 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run headless test
+        id: chromium
         run: npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Preserve Chromium traces
-        if: always()
+        if: ${{ !cancelled() && steps.chromium.outcome != 'skipped' }}
         run: node -e "require('node:fs').cpSync('packages/e2e/renderer-worker-traces', 'packages/e2e/chromium-traces', {recursive:true})"
       - name: Run Firefox headless tests
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.chromium.outcome != 'skipped' }}
         run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0

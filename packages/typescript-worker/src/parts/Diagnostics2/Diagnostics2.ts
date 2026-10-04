@@ -76,11 +76,7 @@ export const getDiagnostics2 = async (
           time: performance.now(),
           uri: textDocument.uri,
           durationMs: performance.now() - start,
-          diagnostics: actualTrace?.diagnostics,
-          error: actualTrace?.error,
-          stages: actualTrace?.stages,
-          syncRpc: actualTrace?.syncRpc,
-          fileCache: actualTrace?.fileCache,
+          trace: actualTrace,
         }),
     )
     if (actualTrace) {

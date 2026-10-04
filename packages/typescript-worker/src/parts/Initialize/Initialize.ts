@@ -14,7 +14,6 @@ export const initialize = async (typeScriptPath: string, crossOriginIsolated: bo
         stage: 'initialize:start',
         timeOrigin: performance.timeOrigin,
         time: performance.now(),
-        worker: globalThis.location.href,
       }),
   )
   resetLanguageServices()
