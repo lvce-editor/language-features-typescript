@@ -8,39 +8,27 @@ import { loadTypeScript } from '../LoadTypeScript/LoadTypeScript.ts'
 import * as ReadLibFile from '../ReadLibFile/ReadLibFile.ts'
 
 export const initialize = async (typeScriptPath: string, crossOriginIsolated: boolean) => {
-  console.info(
-    'LVCE_TS_DIAGNOSTIC ' +
-      JSON.stringify({
-        stage: 'initialize:start',
-        timeOrigin: performance.timeOrigin,
-        time: performance.now(),
-      }),
-  )
   resetLanguageServices()
   LanguageServices.get(1)?.client.dispose?.()
   const tsPath = getTypeScriptPath()
   // Warm the optional cache while TypeScript loads; reads can fall back until it is ready.
   void ReadLibFile.initialize()
-  const ts = await loadTypeScript(tsPath)
-  console.info(
-    'LVCE_TS_DIAGNOSTIC ' +
-      JSON.stringify({ stage: 'typescript:loaded', timeOrigin: performance.timeOrigin, time: performance.now() }),
-  )
   const fs = createFileSystem()
-  const client = await createSyncRpcClient({
+  const clientReady = createSyncRpcClient({
     crossOriginIsolated,
     maxDelay: 30_000,
     syncId: 1,
   })
-  console.info(
-    'LVCE_TS_DIAGNOSTIC ' +
-      JSON.stringify({ stage: 'sync:ready', timeOrigin: performance.timeOrigin, time: performance.now() }),
-  )
-  const id = 1
-  const cachedClient = await CachedFileClient.initialize(client, fs)
-  console.info(
-    'LVCE_TS_DIAGNOSTIC ' +
-      JSON.stringify({ stage: 'cache:ready', timeOrigin: performance.timeOrigin, time: performance.now() }),
-  )
-  LanguageServices.set(id, fs, cachedClient, ts)
+  // Open the independent source journals while the TypeScript module loads.
+  // Serializing these operations delays the first diagnostics on cold startup.
+  const cachedClientReady = clientReady.then((client) => CachedFileClient.initialize(client, fs))
+  try {
+    const [ts, cachedClient] = await Promise.all([loadTypeScript(tsPath), cachedClientReady])
+    const id = 1
+    LanguageServices.set(id, fs, cachedClient, ts)
+  } catch (error) {
+    const cachedClient = await cachedClientReady.catch(() => undefined)
+    cachedClient?.dispose?.()
+    throw error
+  }
 }
