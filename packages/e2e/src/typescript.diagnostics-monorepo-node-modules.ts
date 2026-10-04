@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-monorepo-node-modules'
 
-export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
+export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics-monorepo-node-modules')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
@@ -12,6 +12,7 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Se
   // act
   const uri = `${workspaceUrl}/packages/build/src/build.ts`
   await Main.openUri(uri)
+  await Command.execute('Editor.waitForDiagnostics')
 
   // assert
   const expectedDiagnostics = [

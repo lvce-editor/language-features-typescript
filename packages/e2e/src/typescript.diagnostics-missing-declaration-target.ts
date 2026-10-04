@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-missing-declaration-target'
 
-export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
+export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics-missing-declaration-target')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
@@ -11,6 +11,7 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Se
 
   // act
   await Main.openUri(`${workspaceUrl}/src/main.ts`)
+  await Command.execute('Editor.waitForDiagnostics')
 
   // assert
   const uri = `${workspaceUrl}/src/main.ts`

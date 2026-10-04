@@ -2,7 +2,17 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-problems-panel-rest-parameter-not-array'
 
-export const test: Test = async ({ expect, FileSystem, Locator, Main, Panel, Problems, Settings, Workspace }) => {
+export const test: Test = async ({
+  Command,
+  expect,
+  FileSystem,
+  Locator,
+  Main,
+  Panel,
+  Problems,
+  Settings,
+  Workspace,
+}) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
@@ -11,6 +21,7 @@ export const test: Test = async ({ expect, FileSystem, Locator, Main, Panel, Pro
 
   // act
   await Main.openUri(`${workspaceUrl}/src/rest-parameter-not-array.ts`)
+  await Command.execute('Editor.waitForDiagnostics')
 
   // assert
   await Panel.open('Problems')

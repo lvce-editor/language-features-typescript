@@ -12,6 +12,7 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
   // act
   const uri = `${workspaceUrl}/src/local-import/consumer.ts`
   await Main.openUri(uri)
+  await Command.execute('Editor.waitForDiagnostics')
 
   // assert
   const expectedDiagnostics = [

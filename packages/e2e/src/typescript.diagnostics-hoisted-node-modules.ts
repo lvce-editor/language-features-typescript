@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-hoisted-node-modules'
 
-export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
+export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics-hoisted-node-modules')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
@@ -10,6 +10,7 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Se
 
   const uri = `${workspaceUrl}/packages/running-extensions-view/src/diagnostics.ts`
   await Main.openUri(uri)
+  await Command.execute('Editor.waitForDiagnostics')
 
   const expectedDiagnostics = [
     {
