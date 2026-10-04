@@ -2,6 +2,7 @@ import type { Diagnostic } from '../Diagnostic/Diagnostic.ts'
 import { getDiagnosticsFromTsResult2 } from '../GetDiagnosticFromTsResult2/GetDiagnosticFromTsResult2.ts'
 import { getOrCreateLanguageService } from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 import * as PerformanceTrace from '../PerformanceTrace/PerformanceTrace.ts'
+import * as SyncRpcCache from '../SyncRpcCache/SyncRpcCache.ts'
 
 const loadedFilesByLanguageService = new WeakMap<object, readonly PerformanceTrace.PerformanceTraceLoadedFile[]>()
 const firstPerformanceTraceByUri = new Map<string, PerformanceTrace.PerformanceTrace>()
@@ -20,10 +21,10 @@ const getLoadedFiles = (languageService: {
   return loadedFiles
 }
 
-export const getDiagnostics2 = async (
+const getDiagnosticsSync = (
   textDocument: any,
   trace?: PerformanceTrace.MutablePerformanceTrace,
-): Promise<readonly Diagnostic[]> => {
+): readonly Diagnostic[] => {
   const shouldCaptureFirstTrace =
     !firstPerformanceTraceByUri.has(textDocument.uri) && firstPerformanceTraceByUri.size < maxFirstPerformanceTraces
   const actualTrace =
@@ -63,6 +64,13 @@ export const getDiagnostics2 = async (
       if (shouldCaptureFirstTrace) firstPerformanceTraceByUri.set(textDocument.uri, actualTrace)
     }
   }
+}
+
+export const getDiagnostics2 = async (
+  textDocument: any,
+  trace?: PerformanceTrace.MutablePerformanceTrace,
+): Promise<readonly Diagnostic[]> => {
+  return SyncRpcCache.withRequestCache(() => getDiagnosticsSync(textDocument, trace))
 }
 
 export const getPerformanceTrace = async (textDocument: any): Promise<PerformanceTrace.PerformanceTrace> => {

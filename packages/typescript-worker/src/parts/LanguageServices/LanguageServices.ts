@@ -1,6 +1,7 @@
 import type * as TypeScript from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import * as SyncRpcCache from '../SyncRpcCache/SyncRpcCache.ts'
 
 interface LanguageServiceItem {
   readonly client: SyncRpc
@@ -16,7 +17,7 @@ export const get = (id: number): LanguageServiceItem => {
 
 export const set = (id: number, fs: IFileSystem, client: SyncRpc, ts: typeof TypeScript) => {
   languageServices[id] = {
-    client,
+    client: SyncRpcCache.createCachedClient(client),
     fs,
     ts,
   }
