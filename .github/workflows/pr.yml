@@ -14,23 +14,17 @@ jobs:
         attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    env:
+      DIAGNOSTIC_ATTEMPT: ${{ matrix.attempt }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
-      - name: Compute node modules cache key
-        id: nodeModulesCacheKey
-        run: echo "value=$(node packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
-        shell: bash
-      - uses: actions/cache@v4
-        id: npm-cache
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
       - name: npm ci
         run: npm ci
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+      - name: Capture TypeScript diagnostic stages
+        run: node scripts/capture-typescript-diagnostics.mjs
       - run: npm run type-check
       - run: npm test
       - name: Test shared synchronous response transport
@@ -58,7 +52,11 @@ jobs:
         run: npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Preserve Chromium traces
+        if: always()
+        run: node -e "require('node:fs').cpSync('packages/e2e/renderer-worker-traces', 'packages/e2e/chromium-traces', {recursive:true})"
       - name: Run Firefox headless tests
+        if: ${{ !cancelled() }}
         run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
@@ -67,5 +65,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: renderer-worker-traces-${{ matrix.os }}-attempt-${{ matrix.attempt }}
-          path: '**/renderer-worker-traces/**'
+          path: |
+            **/renderer-worker-traces/**
+            **/chromium-traces/**
+            **/typescript-diagnostics/**
           include-hidden-files: true

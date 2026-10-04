@@ -24,6 +24,15 @@ export const getDiagnostics2 = async (
   textDocument: any,
   trace?: PerformanceTrace.MutablePerformanceTrace,
 ): Promise<readonly Diagnostic[]> => {
+  console.info(
+    'LVCE_TS_DIAGNOSTIC ' +
+      JSON.stringify({
+        stage: 'diagnostics:start',
+        timeOrigin: performance.timeOrigin,
+        time: performance.now(),
+        uri: textDocument.uri,
+      }),
+  )
   const shouldCaptureFirstTrace =
     !firstPerformanceTraceByUri.has(textDocument.uri) && firstPerformanceTraceByUri.size < maxFirstPerformanceTraces
   const actualTrace =
@@ -59,6 +68,21 @@ export const getDiagnostics2 = async (
     }
     throw error
   } finally {
+    console.info(
+      'LVCE_TS_DIAGNOSTIC ' +
+        JSON.stringify({
+          stage: 'diagnostics:end',
+          timeOrigin: performance.timeOrigin,
+          time: performance.now(),
+          uri: textDocument.uri,
+          durationMs: performance.now() - start,
+          diagnostics: actualTrace?.diagnostics,
+          error: actualTrace?.error,
+          stages: actualTrace?.stages,
+          syncRpc: actualTrace?.syncRpc,
+          fileCache: actualTrace?.fileCache,
+        }),
+    )
     if (actualTrace) {
       actualTrace.totalDurationMs = performance.now() - start
       if (shouldCaptureFirstTrace) firstPerformanceTraceByUri.set(textDocument.uri, actualTrace)
