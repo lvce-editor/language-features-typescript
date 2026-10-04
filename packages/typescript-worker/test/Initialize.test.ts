@@ -66,6 +66,21 @@ test('warms the library cache while the TypeScript module is still loading', asy
   }
 })
 
+test('opens source caches before the TypeScript module finishes loading', async () => {
+  const typeScriptReady = Promise.withResolvers<typeof ts>()
+  loadTypeScript.mockReturnValueOnce(typeScriptReady.promise)
+  const initializing = initialize('', true)
+  try {
+    // Allow the synchronous transport setup to finish while module loading is pending.
+    await Promise.resolve()
+    expect(initializeFiles).toHaveBeenCalledWith(client, fs)
+    expect(set).not.toHaveBeenCalled()
+  } finally {
+    typeScriptReady.resolve(ts)
+    await initializing
+  }
+})
+
 test('disposes old programs and cache handles before acquiring replacement handles', async () => {
   await initialize('', true)
   expect(resetLanguageServices).toHaveBeenCalledTimes(1)

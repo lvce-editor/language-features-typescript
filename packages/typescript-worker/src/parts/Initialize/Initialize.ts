@@ -13,14 +13,16 @@ export const initialize = async (typeScriptPath: string, crossOriginIsolated: bo
   const tsPath = getTypeScriptPath()
   // Warm the optional cache while TypeScript loads; reads can fall back until it is ready.
   void ReadLibFile.initialize()
-  const ts = await loadTypeScript(tsPath)
   const fs = createFileSystem()
-  const client = await createSyncRpcClient({
+  const clientReady = createSyncRpcClient({
     crossOriginIsolated,
     maxDelay: 30_000,
     syncId: 1,
   })
+  // Open the independent source journals while the TypeScript module loads.
+  // Serializing these operations delays the first diagnostics on cold startup.
+  const cachedClientReady = clientReady.then((client) => CachedFileClient.initialize(client, fs))
+  const [ts, cachedClient] = await Promise.all([loadTypeScript(tsPath), cachedClientReady])
   const id = 1
-  const cachedClient = await CachedFileClient.initialize(client, fs)
   LanguageServices.set(id, fs, cachedClient, ts)
 }
