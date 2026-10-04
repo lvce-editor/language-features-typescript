@@ -22,7 +22,13 @@ export const initialize = async (typeScriptPath: string, crossOriginIsolated: bo
   // Open the independent source journals while the TypeScript module loads.
   // Serializing these operations delays the first diagnostics on cold startup.
   const cachedClientReady = clientReady.then((client) => CachedFileClient.initialize(client, fs))
-  const [ts, cachedClient] = await Promise.all([loadTypeScript(tsPath), cachedClientReady])
-  const id = 1
-  LanguageServices.set(id, fs, cachedClient, ts)
+  try {
+    const [ts, cachedClient] = await Promise.all([loadTypeScript(tsPath), cachedClientReady])
+    const id = 1
+    LanguageServices.set(id, fs, cachedClient, ts)
+  } catch (error) {
+    const cachedClient = await cachedClientReady.catch(() => undefined)
+    cachedClient?.dispose?.()
+    throw error
+  }
 }

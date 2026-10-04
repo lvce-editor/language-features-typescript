@@ -88,3 +88,18 @@ test('disposes old programs and cache handles before acquiring replacement handl
   expect(initializeFiles).toHaveBeenCalledWith(client, fs)
   expect(dispose.mock.invocationCallOrder[0]).toBeLessThan(initializeFiles.mock.invocationCallOrder[0])
 })
+
+test('closes source caches when TypeScript fails to load', async () => {
+  const close = jest.fn()
+  initializeFiles.mockResolvedValueOnce({ dispose: close })
+  loadTypeScript.mockRejectedValueOnce(new Error('Module unavailable'))
+  await expect(initialize('', true)).rejects.toThrow('Module unavailable')
+  expect(close).toHaveBeenCalledTimes(1)
+  expect(set).not.toHaveBeenCalled()
+})
+
+test('preserves transport setup errors when source caches cannot open', async () => {
+  initializeFiles.mockRejectedValueOnce(new Error('Transport unavailable'))
+  await expect(initialize('', true)).rejects.toThrow('Transport unavailable')
+  expect(set).not.toHaveBeenCalled()
+})
