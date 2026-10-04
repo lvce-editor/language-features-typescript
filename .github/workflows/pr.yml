@@ -10,7 +10,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-15, windows-2025]
+        os: [windows-2025]
+        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -61,35 +62,10 @@ jobs:
         run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run WebKit headless tests
-        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
-        if: runner.os != 'Windows'
-        run: npm run e2e:webkit:headless
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection headless tests
-        run: npm run e2e:smart-selection
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection Firefox headless tests
-        run: npm run e2e:smart-selection:firefox
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection WebKit headless tests
-        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
-        if: runner.os != 'Windows'
-        run: npm run e2e:smart-selection:webkit
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run Firefox performance trace regression
-        if: matrix.os == 'ubuntu-24.04'
-        run: node packages/build/src/run-e2e.ts stable-e2e --headless --browser=firefox --filter=typescript.performance-trace
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Upload failing test traces
-        if: failure()
+      - name: Upload test traces
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: renderer-worker-traces-${{ matrix.os }}
+          name: renderer-worker-traces-${{ matrix.os }}-attempt-${{ matrix.attempt }}
           path: '**/renderer-worker-traces/**'
           include-hidden-files: true
