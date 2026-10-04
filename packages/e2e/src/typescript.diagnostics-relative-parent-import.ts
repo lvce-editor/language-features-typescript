@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-relative-parent-import'
 
-export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
+export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics-relative-parent-import')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
@@ -12,6 +12,7 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Se
   // act
   const uri = `${workspaceUrl}/packages/editor-worker/test/test.ts`
   await Main.openUri(uri)
+  await Command.execute('Editor.waitForDiagnostics')
 
   // assert
   const expectedDiagnostics = [

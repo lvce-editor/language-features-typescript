@@ -2,7 +2,18 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.diagnostics-problems-panel-message-chain'
 
-export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Panel, Problems, Settings, Workspace }) => {
+export const test: Test = async ({
+  Command,
+  Editor,
+  expect,
+  FileSystem,
+  Locator,
+  Main,
+  Panel,
+  Problems,
+  Settings,
+  Workspace,
+}) => {
   const fixtureUrl = import.meta.resolve('../fixtures/diagnostics-message-chain')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
   await Workspace.setPath(workspaceUrl)
@@ -10,6 +21,7 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
 
   const uri = `${workspaceUrl}/src/index.ts`
   await Main.openUri(uri)
+  await Command.execute('Editor.waitForDiagnostics')
   const message =
     "Element implicitly has an 'any' type because expression of type 'number' can't be used to index type '{ extensions: never[]; }'.\n  No index signature with a parameter of type 'number' was found on type '{ extensions: never[]; }'."
   const expectedDiagnostics = [
