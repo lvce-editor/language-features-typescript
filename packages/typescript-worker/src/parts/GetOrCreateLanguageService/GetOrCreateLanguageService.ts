@@ -1,4 +1,5 @@
 import type { LanguageService } from 'typescript'
+import { createCachedSyncRpcClient } from '../CreateCachedSyncRpcClient/CreateCachedSyncRpcClient.ts'
 import { createTypeScriptLanguageService } from '../CreateTypeScriptLanguageService/CreateTypeScriptLanguageService.ts'
 import { getTsConfigPath } from '../GetTsconfigPath/GetTsconfigPath.ts'
 import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
@@ -48,7 +49,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
       languageService,
     }
   }
-  const tracedClient = trace ? createTracedClient(client, trace) : client
+  const tracedClient = createCachedSyncRpcClient(trace ? createTracedClient(client, trace) : client)
   const exists = (uri: string) => tracedClient.invokeSync('SyncApi.exists', uri)
   const readFile = (uri: string) => tracedClient.invokeSync('SyncApi.readFileSync', uri)
   const readDir = (uri: string) => tracedClient.invokeSync('SyncApi.readDirSync', uri)

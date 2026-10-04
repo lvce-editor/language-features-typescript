@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noLib": true,
+    "strict": true,
+    "types": []
+  },
+  "files": [
+    "src/main.ts",
+    "src/module0.ts",
+    "src/module1.ts",
+    "src/module2.ts",
+    "src/module3.ts",
+    "src/module4.ts",
+    "src/module5.ts",
+    "src/module6.ts",
+    "src/module7.ts",
+    "src/module8.ts",
+    "src/module9.ts",
+    "src/module10.ts",
+    "src/module11.ts",
+    "src/module12.ts",
+    "src/module13.ts",
+    "src/module14.ts",
+    "src/module15.ts",
+    "src/module16.ts",
+    "src/module17.ts",
+    "src/module18.ts",
+    "src/module19.ts"
+  ]
+}
