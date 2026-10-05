@@ -187,3 +187,12 @@ test('encoded URI names remain exact and provider roots stay separate', () => {
   expect(client.invokeSync('SyncApi.exists', 'memfs:///missing.ts')).toBe(false)
   expect(client.invokeSync('SyncApi.exists', 'memfs://other/missing.ts')).toBe(true)
 })
+
+test('relative empty and drive listings cannot seed absolute root snapshots', () => {
+  const invokeSync = jest.fn((method: string, _path: string) => (method === 'SyncApi.readDirSync' ? [] : true))
+  const client = createCachedSyncRpcClient({ invokeSync })
+  client.invokeSync('SyncApi.readDirSync', '')
+  expect(client.invokeSync('SyncApi.exists', '/main.ts')).toBe(true)
+  client.invokeSync('SyncApi.readDirSync', 'C:')
+  expect(client.invokeSync('SyncApi.exists', 'C:/main.ts')).toBe(true)
+})

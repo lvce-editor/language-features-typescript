@@ -33,6 +33,8 @@ export const createCachedSyncRpcClient = (client: SyncRpc): SyncRpc => {
     })
   }
   const rememberDirectory = (directory: string, entries: unknown): void => {
+    // Empty paths and drive-relative C: listings are not absolute roots.
+    if (!directory || /^[a-zA-Z]:$/.test(directory)) return
     scheduleClear()
     // Unknown names/large directories use ordinary existence queries. Unicode
     // normalization and case rules are provider-specific, so do not guess.
