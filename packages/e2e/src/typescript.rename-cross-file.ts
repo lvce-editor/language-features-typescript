@@ -52,17 +52,26 @@ export const test: Test = async ({
   await Command.execute('Editor.waitForDiagnostics')
   await Editor.shouldHaveDiagnostics([])
 
+  // Persist a changed name so reopening checks the saved rename, too.
+  await Editor.setCursor(2, 6)
+  await Editor.openRename()
+  await EditorRename.handleInput('gain')
+  await EditorRename.accept()
+  await expect(importerGroup).toContainText('Main.gain()')
+  await expect(exporterGroup).toContainText('export const gain = () => 1')
+
   await Command.execute('Editor.save')
   await Main.selectTab(1, 1)
   await Command.execute('Editor.save')
   await Main.selectTab(0, 0)
   await Main.closeAllEditors()
   await Main.openUri(`${workspaceUrl}/src/aboutWorkerMain.ts`)
+  await Editor.shouldHaveText("import * as Main from './parts/Main/Main'\n\nMain.gain()\n")
   await Command.execute('Editor.waitForDiagnostics')
   await Editor.shouldHaveDiagnostics([])
 
   // An actual disagreement must still produce a diagnostic.
-  await Editor.setText("import * as Main from './parts/Main/Main'\n\nMain.gain()\n")
+  await Editor.setText("import * as Main from './parts/Main/Main'\n\nMain.main()\n")
   await Command.execute('Editor.waitForDiagnostics')
   await expect(diagnostics).toHaveCount(1)
 }
