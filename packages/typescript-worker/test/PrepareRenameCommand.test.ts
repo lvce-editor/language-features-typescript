@@ -4,19 +4,19 @@ const writeFile = jest.fn()
 const getRenameInfo = jest.fn((_uri: string, _offset: number, _options: any): any => ({
   canRename: true,
   displayName: 'alpha',
-  triggerSpan: { start: 6, length: 5 },
+  triggerSpan: { length: 5, start: 6 },
 }))
 
 jest.unstable_mockModule('../src/parts/GetOrCreateLanguageService/GetOrCreateLanguageService.ts', () => ({
-  resetLanguageServices: jest.fn(),
   getOrCreateLanguageService() {
     return { fs: { writeFile }, languageService: { getRenameInfo } }
   },
+  resetLanguageServices: jest.fn(),
 }))
 
 const { commandMap } = await import('../src/parts/CommandMap/CommandMap.ts')
 const prepareRename = commandMap['Rename.prepareRename']
-const textDocument = { uri: 'memfs:///workspace/main.ts', text: 'const alpha = 1\n' }
+const textDocument = { text: 'const alpha = 1\n', uri: 'memfs:///workspace/main.ts' }
 
 beforeEach(() => {
   writeFile.mockClear()
@@ -26,7 +26,7 @@ beforeEach(() => {
 test('preparation command passes the document and offset through the worker wrapper', async () => {
   await expect(prepareRename(textDocument, 8)).resolves.toEqual({
     placeholder: 'alpha',
-    range: { start: 6, length: 5 },
+    range: { length: 5, start: 6 },
   })
   expect(writeFile).toHaveBeenCalledWith(textDocument.uri, textDocument.text)
   expect(getRenameInfo).toHaveBeenCalledWith(textDocument.uri, 8, {})
