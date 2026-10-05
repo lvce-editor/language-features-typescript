@@ -7,6 +7,7 @@ import * as Definition from '../Definition/Definition.ts'
 import * as Diagnostics from '../Diagnostics/Diagnostics.ts'
 import * as DocumentSymbols from '../DocumentSymbols/DocumentSymbols.ts'
 import * as Hover from '../Hover/Hover.ts'
+import * as Implementation from '../Implementation/Implementation.ts'
 import * as Initialize from '../Initialize/Initialize.ts'
 import * as OrganizeImports from '../OrganizeImports/OrganizeImports.ts'
 import * as References from '../References/References.ts'
@@ -29,6 +30,7 @@ export const commandMap = {
   'Diagnostic.getPerformanceTrace': WrapCommand.wrapCommand(Diagnostics.getPerformanceTrace),
   'DocumentSymbols.getDocumentSymbols': WrapCommand.wrapCommand(DocumentSymbols.getDocumentSymbols),
   'Hover.getHover': WrapCommand.wrapCommand(Hover.getHover),
+  'Implementation.getImplementations': Implementation.getImplementations,
   'Initialize.initialize': Initialize.initialize,
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
   'References.provideFileReferences': References.provideFileReferences,

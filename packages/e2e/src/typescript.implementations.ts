@@ -2,15 +2,13 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.implementations'
 
-export const skip = true
-
 export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Workspace }) => {
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/implementations')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
-  await Workspace.setPath(workspaceUrl)
+  await Workspace.setUri(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
-  await Editor.setCursor(0, 3)
+  await Editor.setCursor(0, 9)
 
   // act
   await Editor.findAllImplementations()
@@ -20,10 +18,10 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   await expect(viewletLocations).toBeVisible()
   const viewletImplementationsMessage = Locator('.LocationsMessage')
   await expect(viewletImplementationsMessage).toHaveText('1 result in 1 file')
-  const referenceItems = viewletLocations.locator('.TreeItem')
-  await expect(referenceItems).toHaveCount(2)
-  const implementationItemOne = referenceItems.nth(0)
-  await expect(implementationItemOne).toHaveText('add.js')
-  const implementationItemTwo = referenceItems.nth(1)
+  const implementationItems = viewletLocations.locator('.TreeItem')
+  await expect(implementationItems).toHaveCount(2)
+  const implementationItemOne = implementationItems.nth(0)
+  await expect(implementationItemOne).toHaveText('add.ts')
+  const implementationItemTwo = implementationItems.nth(1)
   await expect(implementationItemTwo).toHaveText(`export const add = () => {}`)
 }
