@@ -6,14 +6,10 @@ const getProbe = (path: string): { directory: string; name: string } | undefined
   if (/[\\?#]/.test(path)) return undefined
   const end = path.lastIndexOf('/')
   if (end < 0 || end === path.length - 1) return undefined
-  let name = path.slice(end + 1)
-  if (path.includes('://')) {
-    try {
-      name = decodeURIComponent(name)
-    } catch {
-      return undefined
-    }
-  }
+  const name = path.slice(end + 1)
+  // Provider directory entries may use raw or escaped names. Keep escaped
+  // URI probes exact rather than assuming a provider's decoding policy.
+  if (path.includes('://') && name.includes('%')) return undefined
   if (name === '.' || name === '..' || /[^\x20-\x7e]|[/\\~:]|[. ]$/.test(name)) return undefined
   // Retain the separator, including for POSIX, drive and URI roots.
   return { directory: path.slice(0, end + 1), name: name.toLowerCase() }

@@ -176,7 +176,7 @@ test('ambiguous URI and non-hierarchical spellings bypass directory inference', 
   }
 })
 
-test('encoded URI names, roots and provider authorities remain separate', () => {
+test('encoded URI names remain exact and provider roots stay separate', () => {
   const invokeSync = jest.fn((method: string, _path: string) =>
     method === 'SyncApi.readDirSync' ? ['space name.ts', 'percent%20.ts'] : true,
   )
