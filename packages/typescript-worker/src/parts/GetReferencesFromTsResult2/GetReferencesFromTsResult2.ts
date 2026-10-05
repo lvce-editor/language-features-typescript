@@ -13,7 +13,7 @@ const formatLibFileMaybe = (uri: string): string => {
 }
 
 const getReferenceFromTsResult = async (
-  reference: ts.ReferenceEntry,
+  reference: ts.ReferenceEntry | ts.ImplementationLocation,
   fs: IFileSystem,
   readFile: (uri: string) => Promise<string>,
 ) => {
@@ -32,7 +32,7 @@ const getReferenceFromTsResult = async (
 }
 
 export const getReferencesFromTsResult2 = async (
-  tsResult: readonly ts.ReferenceEntry[] | undefined,
+  tsResult: readonly (ts.ReferenceEntry | ts.ImplementationLocation)[] | undefined,
   fs: IFileSystem,
   readFile: (uri: string) => Promise<string>,
 ) => {
