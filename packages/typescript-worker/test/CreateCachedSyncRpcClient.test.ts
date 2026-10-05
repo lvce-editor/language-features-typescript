@@ -87,3 +87,97 @@ test('deduplicates repeated TypeScript package lookups across project files', as
     ts.resolveModuleName('library', '/workspace/src/main.ts', options, host).resolvedModule?.resolvedFileName,
   ).toBe('/workspace/node_modules/library/updated.d.ts')
 })
+
+test('directory snapshot eliminates different missing extension probes', () => {
+  const invokeSync = jest.fn((method: string) => (method === 'SyncApi.readDirSync' ? ['main.ts', 'link.ts'] : false))
+  const client = createCachedSyncRpcClient({ invokeSync })
+  expect(client.invokeSync('SyncApi.exists', '/project/missing.ts')).toBe(false)
+  expect(client.invokeSync('SyncApi.exists', '/project/missing.tsx')).toBe(false)
+  expect(client.invokeSync('SyncApi.exists', '/project/missing.d.ts')).toBe(false)
+  expect(invokeSync.mock.calls).toEqual([
+    ['SyncApi.exists', '/project/missing.ts'],
+    ['SyncApi.readDirSync', '/project/'],
+  ])
+  // A listed symlink can be dangling; listing alone must not return true.
+  expect(client.invokeSync('SyncApi.exists', '/project/link.ts')).toBe(false)
+  expect(invokeSync).toHaveBeenLastCalledWith('SyncApi.exists', '/project/link.ts')
+})
+
+test('existing config enumeration seeds negative probes and expires before changes', async () => {
+  let entries = ['main.ts']
+  const invokeSync = jest.fn((method: string, path: string) =>
+    method === 'SyncApi.readDirSync' ? entries : entries.includes(path.slice(path.lastIndexOf('/') + 1)),
+  )
+  const client = createCachedSyncRpcClient({ invokeSync })
+  client.invokeSync('SyncApi.readDirSync', 'memfs:///project')
+  expect(client.invokeSync('SyncApi.exists', 'memfs:///project/new.ts')).toBe(false)
+  expect(invokeSync).toHaveBeenCalledTimes(1)
+  await Promise.resolve()
+  entries = ['new.ts']
+  expect(client.invokeSync('SyncApi.exists', 'memfs:///project/new.ts')).toBe(true)
+  expect(client.invokeSync('SyncApi.exists', 'memfs:///project/main.ts')).toBe(false)
+  expect(invokeSync).toHaveBeenCalledTimes(3)
+})
+
+test('listing failure falls back once and preserves exact queries', () => {
+  const invokeSync = jest.fn((method: string) => {
+    if (method === 'SyncApi.readDirSync') throw new Error('denied')
+    return true
+  })
+  const client = createCachedSyncRpcClient({ invokeSync })
+  for (const name of ['a.ts', 'b.ts', 'c.ts'])
+    expect(client.invokeSync('SyncApi.exists', `/project/${name}`)).toBe(true)
+  expect(invokeSync).toHaveBeenCalledTimes(4)
+})
+
+test('case variants and Unicode do not introduce false negatives', () => {
+  const invokeSync = jest.fn((method: string) => (method === 'SyncApi.readDirSync' ? ['Main.ts'] : true))
+  const client = createCachedSyncRpcClient({ invokeSync })
+  client.invokeSync('SyncApi.readDirSync', 'C:/project/')
+  expect(client.invokeSync('SyncApi.exists', 'C:/project/main.ts')).toBe(true)
+  expect(invokeSync).toHaveBeenLastCalledWith('SyncApi.exists', 'C:/project/main.ts')
+  client.invokeSync('SyncApi.readDirSync', 'html://host/project')
+  expect(client.invokeSync('SyncApi.exists', 'html://host/project/caf%C3%A9.ts')).toBe(true)
+  expect(invokeSync).toHaveBeenLastCalledWith('SyncApi.exists', 'html://host/project/caf%C3%A9.ts')
+})
+
+test('unsafe names and oversized listings use exact existence checks', () => {
+  for (const entries of [['café.ts'], ['bad/name'], [123], Array.from({ length: 1025 }, (_, i) => `${i}.ts`)]) {
+    const invokeSync = jest.fn((method: string) => (method === 'SyncApi.readDirSync' ? entries : true))
+    const client = createCachedSyncRpcClient({ invokeSync })
+    client.invokeSync('SyncApi.readDirSync', '/project')
+    expect(client.invokeSync('SyncApi.exists', '/project/absent.ts')).toBe(true)
+    expect(invokeSync).toHaveBeenLastCalledWith('SyncApi.exists', '/project/absent.ts')
+  }
+})
+
+test('ambiguous URI and non-hierarchical spellings bypass directory inference', () => {
+  const invokeSync = jest.fn(() => true)
+  const client = createCachedSyncRpcClient({ invokeSync })
+  for (const path of [
+    'bare',
+    '/project/',
+    '/project/.',
+    '/project/..',
+    'C:\\project\\file.ts',
+    'html://host/a.ts?version=1',
+    'memfs:///a#b.ts',
+    'memfs:///bad%name.ts',
+    'memfs:///a%2Fb.ts',
+  ]) {
+    expect(client.invokeSync('SyncApi.exists', path)).toBe(true)
+    expect(invokeSync).toHaveBeenLastCalledWith('SyncApi.exists', path)
+  }
+})
+
+test('encoded URI names, roots and provider authorities remain separate', () => {
+  const invokeSync = jest.fn((method: string) =>
+    method === 'SyncApi.readDirSync' ? ['space name.ts', 'percent%20.ts'] : true,
+  )
+  const client = createCachedSyncRpcClient({ invokeSync })
+  client.invokeSync('SyncApi.readDirSync', 'memfs:///')
+  expect(client.invokeSync('SyncApi.exists', 'memfs:///space%20name.ts')).toBe(true)
+  expect(client.invokeSync('SyncApi.exists', 'memfs:///percent%2520.ts')).toBe(true)
+  expect(client.invokeSync('SyncApi.exists', 'memfs:///missing.ts')).toBe(false)
+  expect(client.invokeSync('SyncApi.exists', 'memfs://other/missing.ts')).toBe(true)
+})
