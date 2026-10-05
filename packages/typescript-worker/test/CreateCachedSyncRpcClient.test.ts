@@ -166,6 +166,10 @@ test('ambiguous URI and non-hierarchical spellings bypass directory inference', 
     'memfs:///a#b.ts',
     'memfs:///bad%name.ts',
     'memfs:///a%2Fb.ts',
+    'C:/project/LONGNA~1.TS',
+    'C:/project/value.ts:stream',
+    'C:/project/value.ts.',
+    'C:/project/value.ts ',
   ]) {
     expect(client.invokeSync('SyncApi.exists', path)).toBe(true)
     expect(invokeSync).toHaveBeenLastCalledWith('SyncApi.exists', path)

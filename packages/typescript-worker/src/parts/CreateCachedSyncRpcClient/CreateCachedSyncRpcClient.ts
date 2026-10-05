@@ -14,7 +14,7 @@ const getProbe = (path: string): { directory: string; name: string } | undefined
       return undefined
     }
   }
-  if (name === '.' || name === '..' || /[^\x20-\x7e]|[/\\]/.test(name)) return undefined
+  if (name === '.' || name === '..' || /[^\x20-\x7e]|[/\\~:]|[. ]$/.test(name)) return undefined
   // Retain the separator, including for POSIX, drive and URI roots.
   return { directory: path.slice(0, end + 1), name: name.toLowerCase() }
 }
