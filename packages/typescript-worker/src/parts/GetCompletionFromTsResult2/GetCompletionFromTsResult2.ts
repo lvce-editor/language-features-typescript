@@ -10,6 +10,12 @@ export const getCompletionFromTsResult2 = (tsResult: ts.CompletionInfo | undefin
       flags: 0,
       kind: 0,
       label: item.name,
+      ...(item.replacementSpan && {
+        replacementRange: {
+          endOffset: item.replacementSpan.start + item.replacementSpan.length,
+          startOffset: item.replacementSpan.start,
+        },
+      }),
       snippet: item.name,
       source: 'ts',
     }
