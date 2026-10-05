@@ -9,8 +9,8 @@ test('returns no completions when TypeScript returns no result', () => {
 test('converts useful completion entries to worker completion items', () => {
   const result = {
     entries: [
-      { name: 'value', kind: 'const', kindModifiers: '', sortText: '0' },
-      { name: 'X509Certificate', kind: 'warning', kindModifiers: '', sortText: '1' },
+      { kind: 'const', kindModifiers: '', name: 'value', sortText: '0' },
+      { kind: 'warning', kindModifiers: '', name: 'X509Certificate', sortText: '1' },
     ],
     isGlobalCompletion: false,
     isMemberCompletion: false,
@@ -19,5 +19,33 @@ test('converts useful completion entries to worker completion items', () => {
 
   expect(getCompletionFromTsResult2(result)).toEqual([
     { flags: 0, kind: 0, label: 'value', snippet: 'value', source: 'ts' },
+  ])
+})
+
+test('preserves a TypeScript replacement span for the completion worker', () => {
+  const result = {
+    entries: [
+      {
+        kind: 'method',
+        kindModifiers: '',
+        name: 'closeAllEditors',
+        replacementSpan: { length: 20, start: 5 },
+        sortText: '0',
+      },
+    ],
+    isGlobalCompletion: false,
+    isMemberCompletion: true,
+    isNewIdentifierLocation: false,
+  } as ts.CompletionInfo
+
+  expect(getCompletionFromTsResult2(result)).toEqual([
+    {
+      flags: 0,
+      kind: 0,
+      label: 'closeAllEditors',
+      replacementRange: { endOffset: 25, startOffset: 5 },
+      snippet: 'closeAllEditors',
+      source: 'ts',
+    },
   ])
 })
