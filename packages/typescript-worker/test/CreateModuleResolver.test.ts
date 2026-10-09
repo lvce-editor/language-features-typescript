@@ -136,6 +136,120 @@ test('createModuleResolver should preserve remote workspace identity when resolv
   expect(invokeSync).toHaveBeenCalledWith('SyncApi.exists', resolvedUri)
 })
 
+test('createModuleResolver should resolve remote package exports from ancestor node_modules', () => {
+  const packageJsonUri = 'remote-ssh://simon@host/workspace/node_modules/eslint/package.json'
+  const declarationUri = 'remote-ssh://simon@host/workspace/node_modules/eslint/lib/types/config-api.d.ts'
+  const existingUris = new Set([
+    packageJsonUri,
+    declarationUri,
+    'remote-ssh://simon@host/workspace/packages/about-view/src',
+    'remote-ssh://simon@host/workspace/packages/about-view',
+    'remote-ssh://simon@host/workspace/packages',
+    'remote-ssh://simon@host/workspace',
+    'remote-ssh://simon@host/workspace/packages/about-view/src/node_modules',
+    'remote-ssh://simon@host/workspace/packages/about-view/node_modules',
+    'remote-ssh://simon@host/workspace/packages/node_modules',
+    'remote-ssh://simon@host/workspace/node_modules',
+    'remote-ssh://simon@host/workspace/node_modules/eslint',
+    'remote-ssh://simon@host/workspace/node_modules/eslint/lib',
+    'remote-ssh://simon@host/workspace/node_modules/eslint/lib/types',
+  ])
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists') {
+      return existingUris.has(uri)
+    }
+    if (method === 'SyncApi.readFileSync' && uri === packageJsonUri) {
+      return JSON.stringify(
+        JSON.parse('{"exports":{"./config":{"types":"./lib/types/config-api.d.ts","default":"./lib/config-api.js"}}}'),
+      )
+    }
+    return undefined
+  })
+  const resolver = createModuleResolver({ invokeSync }, TypeScript)
+
+  const result = resolver('eslint/config', 'remote-ssh://simon@host/workspace/packages/about-view/src/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe(declarationUri)
+  expect(invokeSync).toHaveBeenCalledWith('SyncApi.exists', packageJsonUri)
+  expect(invokeSync).toHaveBeenCalledWith('SyncApi.readFileSync', packageJsonUri)
+})
+
+test('createModuleResolver should resolve remote scoped packages with types metadata', () => {
+  const packageJsonUri = 'remote-ssh://simon@host/workspace/node_modules/@lvce-editor/eslint-config/package.json'
+  const declarationUri = 'remote-ssh://simon@host/workspace/node_modules/@lvce-editor/eslint-config/index.d.ts'
+  const existingUris = new Set([
+    packageJsonUri,
+    declarationUri,
+    'remote-ssh://simon@host/workspace/src',
+    'remote-ssh://simon@host/workspace',
+    'remote-ssh://simon@host/workspace/node_modules',
+    'remote-ssh://simon@host/workspace/node_modules/@lvce-editor',
+    'remote-ssh://simon@host/workspace/node_modules/@lvce-editor/eslint-config',
+  ])
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists') {
+      return existingUris.has(uri)
+    }
+    if (method === 'SyncApi.readFileSync' && uri === packageJsonUri) {
+      return JSON.stringify({ main: 'index.js', types: 'index.d.ts' })
+    }
+    return undefined
+  })
+  const resolver = createModuleResolver({ invokeSync }, TypeScript)
+
+  const result = resolver('@lvce-editor/eslint-config', 'remote-ssh://simon@host/workspace/src/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+
+  expect(result.resolvedModule?.resolvedFileName).toBe(declarationUri)
+  expect(invokeSync).toHaveBeenCalledWith('SyncApi.exists', packageJsonUri)
+})
+
+test('createModuleResolver should leave missing remote packages unresolved', () => {
+  const invokeSync = jest.fn((_method: string, _uri: string) => false)
+  const resolver = createModuleResolver({ invokeSync }, TypeScript)
+
+  const result = resolver('missing-package', 'remote-ssh://simon@host/workspace/src/main.ts', {
+    module: TypeScript.ModuleKind.NodeNext,
+    moduleResolution: TypeScript.ModuleResolutionKind.NodeNext,
+  })
+
+  expect(result.resolvedModule).toBeUndefined()
+  expect(invokeSync).toHaveBeenCalledWith(
+    'SyncApi.exists',
+    'remote-ssh://simon@host/workspace/node_modules/missing-package/package.json',
+  )
+})
+
+test('createModuleResolver fallback should resolve remote packages from ancestor node_modules', () => {
+  const packageJsonUri = 'remote-ssh://simon@host/workspace/node_modules/@lvce-editor/eslint-config/package.json'
+  const invokeSync = jest.fn((method: string, uri: string) => {
+    if (method === 'SyncApi.exists' && uri === packageJsonUri) {
+      return true
+    }
+    if (method === 'SyncApi.readFileSync' && uri === packageJsonUri) {
+      return JSON.stringify({ types: 'index.d.ts' })
+    }
+    return false
+  })
+  const resolver = createModuleResolver({ invokeSync })
+
+  const result = resolver(
+    '@lvce-editor/eslint-config',
+    'remote-ssh://simon@host/workspace/packages/about-view/src/main.ts',
+    {},
+  )
+
+  expect(result.resolvedModule?.resolvedFileName).toBe(
+    'remote-ssh://simon@host/workspace/node_modules/@lvce-editor/eslint-config/index.d.ts',
+  )
+  expect(invokeSync).toHaveBeenCalledWith('SyncApi.exists', packageJsonUri)
+})
+
 test('createModuleResolver should resolve JavaScript imports from file uris to TypeScript source', () => {
   const invokeSync = jest.fn((method: string, path: string) => {
     if (method === 'SyncApi.exists') {
