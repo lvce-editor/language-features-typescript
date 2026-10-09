@@ -49,6 +49,26 @@ const toFilePath = (uri: string): string => {
   return /^\/[a-zA-Z]:\//.test(path) ? path.slice(1) : path
 }
 
+const getRemoteUriBase = (uri: string): string | undefined => {
+  if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(uri) || uri.startsWith('file://')) {
+    return undefined
+  }
+  const parsed = new URL(uri)
+  let credentials = ''
+  if (parsed.username) {
+    credentials = parsed.username
+    if (parsed.password) {
+      credentials += `:${parsed.password}`
+    }
+    credentials += '@'
+  }
+  return `${parsed.protocol}//${credentials}${parsed.host}`
+}
+
+const toRemoteUri = (path: string, remoteUriBase: string): string => {
+  return new URL(path, `${remoteUriBase}/`).href
+}
+
 const resolveRelativePath = (containingFile: string, text: string): string => {
   const normalizedContainingFile = containingFile.replaceAll('\\', '/')
   const containingFileUri = toFileUri(containingFile)
@@ -183,23 +203,27 @@ const resolveModuleNodeModules = (
   text: string,
 ): ResolvedModuleWithFailedLookupLocations => {
   const nodeModulesLocation = getNodeModulesLocation(text)
-  const searchPaths = getNodeModulesSearchPaths(containingFile)
+  const remoteUriBase = getRemoteUriBase(containingFile)
+  const containingFilePath = remoteUriBase ? decodeURIComponent(new URL(containingFile).pathname) : containingFile
+  const searchPaths = getNodeModulesSearchPaths(containingFilePath)
   for (const searchPath of searchPaths) {
     const nodeModulesDir = joinPath(searchPath, 'node_modules', nodeModulesLocation)
     const packageJsonPath = joinPath(nodeModulesDir, 'package.json')
+    const nodeModulesUri = remoteUriBase ? toRemoteUri(nodeModulesDir, remoteUriBase) : nodeModulesDir
+    const packageJsonUri = remoteUriBase ? toRemoteUri(packageJsonPath, remoteUriBase) : packageJsonPath
     try {
-      const packageJsonExists = syncRpc.invokeSync('SyncApi.exists', packageJsonPath)
+      const packageJsonExists = syncRpc.invokeSync('SyncApi.exists', packageJsonUri)
       if (!packageJsonExists) {
         continue
       }
-      const content = syncRpc.invokeSync('SyncApi.readFileSync', packageJsonPath)
+      const content = syncRpc.invokeSync('SyncApi.readFileSync', packageJsonUri)
       const parsed = JSON.parse(content)
 
       // TODO handle case when package JSON is null
       // TODO check types property
       const tsMain = parsed.types || parsed.main
       if (tsMain) {
-        const absoluteMain = joinPath(nodeModulesDir, tsMain)
+        const absoluteMain = joinPath(nodeModulesUri, tsMain)
         return {
           resolvedModule: {
             extension: '.d.ts',
@@ -218,17 +242,21 @@ const resolveModuleNodeModules = (
   }
 }
 
-const createModuleResolutionHost = (syncRpc: Readonly<SyncRpc>): TypeScript.ModuleResolutionHost => {
+const createModuleResolutionHost = (
+  syncRpc: Readonly<SyncRpc>,
+  remoteUriBase?: string,
+): TypeScript.ModuleResolutionHost => {
+  const toSyncPath = (path: string): string => (remoteUriBase ? toRemoteUri(path, remoteUriBase) : path)
   const exists = (path: string): boolean => {
     try {
-      return Boolean(syncRpc.invokeSync('SyncApi.exists', path))
+      return Boolean(syncRpc.invokeSync('SyncApi.exists', toSyncPath(path)))
     } catch {
       return false
     }
   }
   const fileExists = (path: string): boolean => {
     try {
-      return syncRpc.invokeSync('SyncApi.exists', path)
+      return syncRpc.invokeSync('SyncApi.exists', toSyncPath(path))
     } catch {
       return false
     }
@@ -238,7 +266,7 @@ const createModuleResolutionHost = (syncRpc: Readonly<SyncRpc>): TypeScript.Modu
     fileExists,
     readFile(path) {
       try {
-        return syncRpc.invokeSync('SyncApi.readFileSync', path)
+        return syncRpc.invokeSync('SyncApi.readFileSync', toSyncPath(path))
       } catch {
         return undefined
       }
@@ -251,35 +279,48 @@ const createModuleResolutionHost = (syncRpc: Readonly<SyncRpc>): TypeScript.Modu
 
 const resolveModuleNameWithTypeScript = (
   ts: typeof TypeScript,
-  host: TypeScript.ModuleResolutionHost,
+  syncRpc: Readonly<SyncRpc>,
   text: string,
   containingFile: string,
   compilerOptions: CompilerOptions,
 ): ResolvedModuleWithFailedLookupLocations => {
   const containingFileIsUri = containingFile.startsWith('file://')
-  const containingFilePath = containingFileIsUri ? toFilePath(containingFile) : containingFile
-  const result = ts.resolveModuleName(text, containingFilePath, compilerOptions, host)
-  if (!containingFileIsUri || !result.resolvedModule) {
+  const remoteUriBase = getRemoteUriBase(containingFile)
+  let containingFilePath = containingFile
+  if (containingFileIsUri) {
+    containingFilePath = toFilePath(containingFile)
+  } else if (remoteUriBase) {
+    containingFilePath = decodeURIComponent(new URL(containingFile).pathname)
+  }
+  const resolutionHost = createModuleResolutionHost(syncRpc, remoteUriBase)
+  const result = ts.resolveModuleName(text, containingFilePath, compilerOptions, resolutionHost)
+  if ((!containingFileIsUri && !remoteUriBase) || !result.resolvedModule) {
     return result
+  }
+  const { resolvedFileName: resolvedModulePath } = result.resolvedModule
+  let resolvedFileName = resolvedModulePath
+  if (remoteUriBase) {
+    resolvedFileName = toRemoteUri(resolvedFileName, remoteUriBase)
+  } else {
+    resolvedFileName = toFileUri(resolvedFileName)
   }
   return {
     ...result,
     resolvedModule: {
       ...result.resolvedModule,
-      resolvedFileName: toFileUri(result.resolvedModule.resolvedFileName),
+      resolvedFileName,
     },
   }
 }
 
 export const createModuleResolver = (syncRpc: Readonly<SyncRpc>, ts?: typeof TypeScript): ModuleResolver => {
-  const moduleResolutionHost = ts ? createModuleResolutionHost(syncRpc) : undefined
   const resolveModuleName = (
     text: string,
     containingFile: string,
     compilerOptions: CompilerOptions,
   ): ResolvedModuleWithFailedLookupLocations => {
-    if (ts && moduleResolutionHost) {
-      const result = resolveModuleNameWithTypeScript(ts, moduleResolutionHost, text, containingFile, compilerOptions)
+    if (ts) {
+      const result = resolveModuleNameWithTypeScript(ts, syncRpc, text, containingFile, compilerOptions)
       if (result.resolvedModule) {
         return result
       }
