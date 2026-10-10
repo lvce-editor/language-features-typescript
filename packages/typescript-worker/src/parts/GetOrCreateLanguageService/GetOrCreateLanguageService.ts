@@ -58,6 +58,9 @@ const createTracedClient = (
 
 const refreshProjects = (client: SyncRpc, fs: IFileSystem): void => {
   if (client.refresh?.()) {
+    // Retired services may still hold snapshots until the active request ends.
+    // New services must not acquire stale disk versions from that registry.
+    LanguageServices.resetDocumentRegistry(1)
     const changed = client.getChangedFiles?.()
     if (changed) {
       const paths = new Set(changed.map(normalizeUri))

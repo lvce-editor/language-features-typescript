@@ -3,6 +3,7 @@ import * as ts from 'typescript'
 import { createCachedClient } from '../src/parts/CachedFileClient/CachedFileClient.ts'
 import { createFileSystem } from '../src/parts/CreateFileSystem/CreateFileSystem.ts'
 import * as LanguageServices from '../src/parts/LanguageServices/LanguageServices.ts'
+import { wrapRequest } from '../src/parts/RequestActivity/RequestActivity.ts'
 
 jest.unstable_mockModule('../src/parts/ReadLibFile/ReadLibFile.ts', () => ({ readLibFile: () => undefined }))
 const { collectIdleProjects, getOrCreateLanguageService, getProjectCount, resetLanguageServices } =
@@ -155,6 +156,22 @@ test('external dependencies invalidate only consumers and unchanged project iden
   const updatedSecond = await service(b)
   expect(updatedSecond).not.toBe(second)
   expect(updatedSecond.getSemanticDiagnostics(b).map((item) => item.code)).toContain(2322)
+})
+
+test('external refresh sees current snapshots while old services are awaiting disposal', async () => {
+  const { disk, service } = fixture()
+  disk.set(a, 'import { shared } from "../../shared.ts"; export const value: number = shared')
+  const first = await service(a)
+  expect(first.getSemanticDiagnostics(a)).toEqual([])
+  const unrelated = await service(b)
+  const before = unrelated.getProgram()
+  disk.set('/workspace/shared.ts', 'export const shared = "changed"')
+  await wrapRequest(async () => {
+    const updated = await service(a)
+    expect(updated.getSemanticDiagnostics(a).map((item) => item.code)).toContain(2322)
+    expect(await service(b)).toBe(unrelated)
+    expect(unrelated.getProgram()).toBe(before)
+  })()
 })
 
 test('configuration changes retain references, explicit rootDir and user JavaScript settings', async () => {
