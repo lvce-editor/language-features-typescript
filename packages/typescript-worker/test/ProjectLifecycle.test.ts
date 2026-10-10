@@ -52,7 +52,7 @@ test('keeps projects with open shared documents and respects idle age and bounde
   setup()
   const first = getOrCreateLanguageService('/a.ts').languageService
   // Force another project with overlapping membership.
-  getOrCreateLanguageService('/outside.ts')
+  getOrCreateLanguageService('/other/outside.ts')
   expect(getProjectCount()).toBe(2)
   collectIdleProjects(['file:///shared.ts', 'file:///shared.ts'], 0, 0, Number.MAX_SAFE_INTEGER)
   expect(getProjectCount()).toBe(2)

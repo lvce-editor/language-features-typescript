@@ -1,4 +1,9 @@
-import { exists as existsApi, readDirWithFileTypes, readFile } from '@lvce-editor/api'
+import {
+  exists as existsApi,
+  getWorkspaceUri as getWorkspaceUriApi,
+  readDirWithFileTypes,
+  readFile,
+} from '@lvce-editor/api'
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 import { toFileUri } from '../ToFileUri/ToFileUri.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
@@ -66,4 +71,15 @@ export const exists = async (id: number, uri: string): Promise<void> => {
     }
   }
   await writeResult(id, resultGenerator)
+}
+
+export const getDirectoriesSync = async (id: number, uri: string): Promise<void> => {
+  await writeResult(id, async () => {
+    const entries = await readDirWithFileTypes(toFileUri(uri))
+    return entries.filter((entry) => entry.type === 3).map((entry) => entry.name)
+  })
+}
+
+export const getWorkspaceUri = async (id: number): Promise<void> => {
+  await writeResult(id, getWorkspaceUriApi)
 }

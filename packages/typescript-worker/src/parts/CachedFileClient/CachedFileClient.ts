@@ -27,11 +27,11 @@ export const createCachedClient = (
   general: FileContentCache | undefined,
   dependencies: FileContentCache | undefined,
 ): SyncRpc => {
-  if (!general && !dependencies) return client
   const identities = new Map<string, string | null | undefined>()
   const directories = new Map<string, string>()
   const missing = new Set<string>()
   let disposed = false
+  let changedFiles: readonly string[] | undefined = []
   const statistics = {
     dependenciesEnabled: !!dependencies,
     dependencyHits: 0,
@@ -97,6 +97,7 @@ export const createCachedClient = (
       }
     },
     getCacheStatistics: () => ({ ...statistics }),
+    getChangedFiles: () => changedFiles,
     invokeSync(method, ...params) {
       if (disposed) return client.invokeSync(method, ...params)
       const uri = params[0]
@@ -116,17 +117,31 @@ export const createCachedClient = (
           .filter((uri) => fs.readFile(uri) === undefined)
           .toArray()
         const hashes = uris.length > 0 ? getHashes(uris) : []
-        let changed = hashes.some((hash, index) => hash !== identities.get(uris[index]))
+        const changed = new Set<string>()
+        for (const [index, hash] of hashes.entries()) {
+          const uri = uris[index]
+          if (hash !== identities.get(uri)) changed.add(uri)
+          // Unverifiable readable files are checked again on every request.
+          if (identities.get(uri) !== undefined) identities.set(uri, hash)
+        }
         for (const uri of missing) {
-          if (client.invokeSync('SyncApi.exists', uri)) changed = true
+          if (!client.invokeSync('SyncApi.exists', uri)) {
+            continue
+          }
+
+          changed.add(uri)
+          missing.delete(uri)
         }
         for (const [uri, identity] of directories) {
-          const entries = client.invokeSync('SyncApi.readDirSync', uri)
-          if (directoryIdentity(entries) !== identity) changed = true
+          const entries = directoryIdentity(client.invokeSync('SyncApi.readDirSync', uri))
+          if (entries !== identity) changed.add(uri)
+          directories.set(uri, entries)
         }
-        if (!changed) return false
+        changedFiles = [...changed]
+        return changed.size > 0
       } catch {
-        // A failed identity lookup must not leave a stale program alive.
+        // Without trustworthy evidence, conservatively retire every service.
+        changedFiles = undefined
       }
       identities.clear()
       directories.clear()

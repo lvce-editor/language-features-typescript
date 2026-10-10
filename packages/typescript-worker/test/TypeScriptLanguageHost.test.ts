@@ -217,7 +217,7 @@ test('readDirectory should call syncRpc', () => {
   const mockSyncRpc = {
     invokeSync: (method: string, path: string) => {
       if (method === 'SyncApi.readDirSync') {
-        return ['file1.ts', 'file2.ts']
+        return path === '/some/path' ? ['file1.ts', 'file2.ts'] : []
       }
       return true
     },
@@ -228,7 +228,7 @@ test('readDirectory should call syncRpc', () => {
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
   const result = host.readDirectory?.('/some/path')
-  expect(result).toEqual(['file1.ts', 'file2.ts'])
+  expect(result).toEqual(['/some/path/file1.ts', '/some/path/file2.ts'])
 })
 
 test('getDirectories should handle @types paths', () => {
@@ -255,6 +255,24 @@ test('getDirectories should handle @types paths', () => {
   expect(host.getDirectories?.('/node_modules/@types')).toEqual([])
   expect(host.getDirectories?.('node_modules/@types')).toEqual([])
   expect(host.getDirectories?.('/other/path')).toEqual([])
+})
+
+test('getDirectories exposes import folders and handles missing directories', () => {
+  const host = create(
+    TypeScript,
+    createFileSystem(() => undefined),
+    {
+      invokeSync(method, path) {
+        if (path === '/missing') throw new Error('missing directory')
+        return method === 'SyncApi.getDirectoriesSync'
+          ? ['node_modules', 'empty']
+          : ['main.ts', 'node_modules', 'empty']
+      },
+    },
+    emptyTsconfig,
+  )
+  expect(host.getDirectories?.('/workspace')).toEqual(['node_modules', 'empty'])
+  expect(host.getDirectories?.('/missing')).toEqual([])
 })
 
 test('useCaseSensitiveFileNames should return true', () => {
@@ -302,10 +320,10 @@ test('getProjectVersion should return string version', () => {
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getProjectVersion?.()).toBe('42')
+  expect(host.getProjectVersion?.()).toBe('1')
 })
 
-test('getScriptFileNames should return configured and file system script names', () => {
+test('getScriptFileNames should return only project roots', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
   }
@@ -326,7 +344,7 @@ test('getScriptFileNames should return configured and file system script names',
 
   const host = create(TypeScript, mockFileSystem, mockSyncRpc, mockOptions)
 
-  expect(host.getScriptFileNames?.()).toEqual(['configured.ts', 'file1.ts', 'file2.ts'])
+  expect(host.getScriptFileNames?.()).toEqual(['configured.ts', 'file1.ts'])
 })
 
 test('missing file reads should return undefined', () => {
@@ -351,14 +369,19 @@ test('missing file reads should return undefined', () => {
 
 test('script snapshots fall back to synchronous reads when the in-memory file is absent', () => {
   const fileSystem = createFileSystem()
-  const host = create(TypeScript, fileSystem, {
-    invokeSync(method: string, uri: string) {
-      if (method === 'SyncApi.readFileSync' && uri === '/project/from-disk.ts') {
-        return 'export const value = 1'
-      }
-      throw new Error(`unexpected request ${method} ${uri}`)
+  const host = create(
+    TypeScript,
+    fileSystem,
+    {
+      invokeSync(method: string, uri: string) {
+        if (method === 'SyncApi.readFileSync' && uri === '/project/from-disk.ts') {
+          return 'export const value = 1'
+        }
+        throw new Error(`unexpected request ${method} ${uri}`)
+      },
     },
-  }, emptyTsconfig)
+    emptyTsconfig,
+  )
 
   expect(host.getScriptSnapshot?.('/project/from-disk.ts')?.getLength()).toBe('export const value = 1'.length)
 })
@@ -436,9 +459,9 @@ test('language service should discover and refresh in-memory files', () => {
       strict: true,
     },
   }
-  const host = create(TypeScript, fileSystem, mockSyncRpc, mockOptions)
-  const languageService = TypeScript.createLanguageService(host)
   const uri = 'fetch:///workspace/test.ts'
+  const host = create(TypeScript, fileSystem, mockSyncRpc, mockOptions, new Set([uri]))
+  const languageService = TypeScript.createLanguageService(host)
 
   fileSystem.writeFile(uri, "let value: number = ''")
   expect(languageService.getSemanticDiagnostics(uri).map((diagnostic) => diagnostic.code)).toEqual([2322])
@@ -463,15 +486,21 @@ test('default project should report JavaScript diagnostics', () => {
       throw new Error(`unexpected method ${method}`)
     },
   }
-  const host = create(TypeScript, fileSystem, mockSyncRpc, {
-    ...emptyTsconfig,
-    options: {
-      ...emptyTsconfig.options,
-      noLib: true,
-    },
-  })
-  const languageService = TypeScript.createLanguageService(host)
   const uri = 'fetch:///workspace/test.js'
+  const host = create(
+    TypeScript,
+    fileSystem,
+    mockSyncRpc,
+    {
+      ...emptyTsconfig,
+      options: {
+        ...emptyTsconfig.options,
+        noLib: true,
+      },
+    },
+    new Set([uri]),
+  )
+  const languageService = TypeScript.createLanguageService(host)
 
   fileSystem.writeFile(uri, "let value = ''\nvalue++")
 

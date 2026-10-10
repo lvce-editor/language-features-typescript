@@ -4,7 +4,15 @@ const refresh = jest.fn(() => false)
 const state = { documentRegistry: {} }
 
 const createTypeScriptLanguageService = jest.fn(
-  (_ts: unknown, _fs: unknown, _client: unknown, _config: unknown, _registry: unknown) => ({
+  (
+    _ts: unknown,
+    _fs: unknown,
+    _client: unknown,
+    _config: unknown,
+    _registry: unknown,
+    _roots: unknown,
+    _references: unknown,
+  ) => ({
     dispose: jest.fn(),
     getProgram: jest.fn(),
   }),
@@ -25,7 +33,7 @@ jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', ()
       refresh,
     },
     documentRegistry: state.documentRegistry,
-    fs: {},
+    fs: { getScriptVersion: () => '0', readFile: () => undefined },
     ts: {},
   })),
   resetDocumentRegistry: jest.fn(() => {
@@ -56,10 +64,12 @@ test('reuses a language service for files in the same configured project', () =>
   expect(createTypeScriptLanguageService).toHaveBeenCalledTimes(1)
   expect(createTypeScriptLanguageService).toHaveBeenCalledWith(
     {},
-    {},
+    expect.anything(),
     expect.anything(),
     expect.anything(),
     state.documentRegistry,
+    expect.any(Set),
+    expect.any(Set),
   )
 })
 
@@ -92,10 +102,12 @@ test('rebuilds and disposes project state when external file identities change',
   expect(state.documentRegistry).not.toBe(previousRegistry)
   expect(createTypeScriptLanguageService).toHaveBeenLastCalledWith(
     {},
-    {},
+    expect.anything(),
     expect.anything(),
     expect.anything(),
     state.documentRegistry,
+    expect.any(Set),
+    expect.any(Set),
   )
   expect(getOrCreateLanguageService('/workspace/src/App.tsx').languageService).toBe(next.languageService)
 })

@@ -1,6 +1,7 @@
-import { cp, mkdir, readdir, readFile, realpath, rm } from 'node:fs/promises'
+import { cp, mkdir, readdir, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import ts from 'typescript'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const owner = resolve(here, '../..')
@@ -15,6 +16,18 @@ for (const name of await readdir(join(tests, 'src'))) {
   if (name !== '_all.js') await rm(join(tests, 'src', name), { recursive: true })
 }
 await cp(join(here, 'src'), join(tests, 'src'), { recursive: true })
+// The application's web test loader imports JavaScript modules. Compile the
+// owned inventory without leaving duplicate TypeScript entries in the runner.
+for (const name of await readdir(join(tests, 'src'))) {
+  if (!name.endsWith('.ts')) continue
+  const source = join(tests, 'src', name)
+  const compiled = ts.transpileModule(await readFile(source, 'utf8'), {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ESNext },
+    fileName: name,
+  })
+  await writeFile(source.replace(/\.ts$/, '.js'), compiled.outputText)
+  await rm(source)
+}
 await rm(join(tests, 'fixtures'), { recursive: true, force: true })
 await mkdir(join(tests, 'fixtures'), { recursive: true })
 try {

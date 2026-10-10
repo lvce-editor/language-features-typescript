@@ -9,8 +9,17 @@ export const createTypeScriptLanguageService = (
   client: SyncRpc,
   config: TypeScript.ParsedCommandLine,
   documentRegistry: TypeScript.DocumentRegistry,
+  roots?: ReadonlySet<string>,
+  references?: ReadonlySet<string>,
 ): TypeScript.LanguageService => {
-  const languageServiceHost: TypeScript.LanguageServiceHost = TypeScriptLanguageHost.create(ts, fs, client, config)
+  const languageServiceHost: TypeScript.LanguageServiceHost = TypeScriptLanguageHost.create(
+    ts,
+    fs,
+    client,
+    config,
+    roots,
+    references,
+  )
   const languageService = ts.createLanguageService(languageServiceHost, documentRegistry)
   return languageService
 }

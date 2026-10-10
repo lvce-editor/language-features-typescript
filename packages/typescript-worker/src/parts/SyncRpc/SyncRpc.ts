@@ -13,6 +13,7 @@ export interface SyncRpc {
   readonly dispose?: () => void
   readonly forgetReferences?: (uris: readonly string[]) => void
   readonly getCacheStatistics?: () => FileCacheStatistics
+  readonly getChangedFiles?: () => readonly string[] | undefined
   readonly invokeSync: (method: string, ...params: readonly any[]) => any
   readonly refresh?: () => boolean
 }
