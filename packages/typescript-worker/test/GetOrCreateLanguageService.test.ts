@@ -38,7 +38,7 @@ jest.unstable_mockModule('../src/parts/ResolveTsconfig/ResolveTsconfig.ts', () =
   })),
 }))
 
-const { getOrCreateLanguageService } =
+const { getOrCreateLanguageService, resetLanguageServices } =
   await import('../src/parts/GetOrCreateLanguageService/GetOrCreateLanguageService.ts')
 
 test('reuses a language service for files in the same configured project', () => {
@@ -50,6 +50,7 @@ test('reuses a language service for files in the same configured project', () =>
 })
 
 test('records newly created and reused project details in a performance trace', async () => {
+  resetLanguageServices()
   const PerformanceTrace = await import('../src/parts/PerformanceTrace/PerformanceTrace.ts')
   const trace = PerformanceTrace.createPerformanceTrace('/workspace/trace-main.tsx')
   const first = getOrCreateLanguageService('/workspace/trace-main.tsx', trace)
@@ -74,4 +75,10 @@ test('rebuilds and disposes project state when external file identities change',
   expect(next.languageService).not.toBe(previous.languageService)
   expect(previous.languageService.dispose).toHaveBeenCalledTimes(1)
   expect(getOrCreateLanguageService('/workspace/src/App.tsx').languageService).toBe(next.languageService)
+})
+
+test('unlisted documents share the configured project service instead of creating duplicate programs', () => {
+  const first = getOrCreateLanguageService('/workspace/src/main.tsx')
+  const newDocument = getOrCreateLanguageService('/workspace/src/new-file.tsx')
+  expect(newDocument.languageService).toBe(first.languageService)
 })

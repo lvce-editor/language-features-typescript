@@ -161,3 +161,21 @@ test('a previously missing directory becoming available invalidates resolution e
   state.missing = false
   expect(cached.refresh?.()).toBe(true)
 })
+
+test('retiring project references stops polling their identities without closing journals', () => {
+  const { client, fs, state } = fixture()
+  const cached = createCachedClient(client, fs, cache(), cache())
+  cached.invokeSync('SyncApi.readFileSync', '/project/file.ts')
+  cached.invokeSync('SyncApi.readDirSync', '/project')
+  state.missing = true
+  cached.invokeSync('SyncApi.exists', '/project/missing.ts')
+  cached.forgetReferences?.(['/project/file.ts', '/project', '/project/missing.ts'])
+  state.failedHash = true
+  expect(cached.refresh?.()).toBe(false)
+  state.failedHash = false
+  state.missing = false
+  cached.invokeSync('SyncApi.readFileSync', '/project/file.ts')
+  cached.clearReferences?.()
+  state.failedHash = true
+  expect(cached.refresh?.()).toBe(false)
+})

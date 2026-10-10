@@ -9,7 +9,9 @@ export interface FileCacheStatistics {
 }
 
 export interface SyncRpc {
+  readonly clearReferences?: () => void
   readonly dispose?: () => void
+  readonly forgetReferences?: (uris: readonly string[]) => void
   readonly getCacheStatistics?: () => FileCacheStatistics
   readonly invokeSync: (method: string, ...params: readonly any[]) => any
   readonly refresh?: () => boolean

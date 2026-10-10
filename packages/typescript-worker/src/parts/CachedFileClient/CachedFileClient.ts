@@ -75,6 +75,11 @@ export const createCachedClient = (
     return content
   }
   return {
+    clearReferences() {
+      identities.clear()
+      directories.clear()
+      missing.clear()
+    },
     dispose() {
       if (disposed) return
       disposed = true
@@ -83,6 +88,13 @@ export const createCachedClient = (
       identities.clear()
       directories.clear()
       missing.clear()
+    },
+    forgetReferences(uris) {
+      for (const uri of uris) {
+        identities.delete(uri)
+        directories.delete(uri)
+        missing.delete(uri)
+      }
     },
     getCacheStatistics: () => ({ ...statistics }),
     invokeSync(method, ...params) {

@@ -6,19 +6,22 @@ import * as Completion from '../Completion/Completion.ts'
 import * as Definition from '../Definition/Definition.ts'
 import * as Diagnostics from '../Diagnostics/Diagnostics.ts'
 import * as DocumentSymbols from '../DocumentSymbols/DocumentSymbols.ts'
+import * as GetOrCreateLanguageService from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 import * as Hover from '../Hover/Hover.ts'
 import * as Implementation from '../Implementation/Implementation.ts'
 import * as Initialize from '../Initialize/Initialize.ts'
 import * as OrganizeImports from '../OrganizeImports/OrganizeImports.ts'
 import * as PrepareRename from '../PrepareRename/PrepareRename.ts'
+import * as ProjectLifecycle from '../ProjectLifecycle/ProjectLifecycle.ts'
 import * as References from '../References/References.ts'
 import * as Rename from '../Rename/Rename.ts'
+import * as RequestActivity from '../RequestActivity/RequestActivity.ts'
 import * as ResolveCompletion from '../ResolveCompletion/ResolveCompletion.ts'
 import * as Selection from '../Selection/Selection.ts'
 import * as SignatureHelp from '../SignatureHelp/SignatureHelp.ts'
 import * as WrapCommand from '../WrapCommand/WrapCommand.ts'
 
-export const commandMap = {
+const requests = {
   'AddMissingImports.addMissingImports': WrapCommand.wrapCommand(AddMissingImports.addMissingImports),
   'BraceCompletion.provide': WrapCommand.wrapCommand(BraceCompletion.provide),
   'CodeActions.getCodeActions': WrapCommand.wrapCommand(CodeActions.getCodeActions),
@@ -32,7 +35,6 @@ export const commandMap = {
   'DocumentSymbols.getDocumentSymbols': WrapCommand.wrapCommand(DocumentSymbols.getDocumentSymbols),
   'Hover.getHover': WrapCommand.wrapCommand(Hover.getHover),
   'Implementation.getImplementations': Implementation.getImplementations,
-  'Initialize.initialize': Initialize.initialize,
   'OrganizeImports.organizeImports': WrapCommand.wrapCommand(OrganizeImports.organizeImports),
   'References.provideFileReferences': References.provideFileReferences,
   'References.provideReferences': References.provideReferences,
@@ -41,4 +43,13 @@ export const commandMap = {
   'Rename.rename': WrapCommand.wrapCommand(Rename.rename),
   'Selection.expandSelections': WrapCommand.wrapCommand(Selection.expandSelection),
   'SignatureHelp.getSignatureHelp': WrapCommand.wrapCommand(SignatureHelp.getSignatureHelp),
+}
+
+export const commandMap = {
+  ...Object.fromEntries(Object.entries(requests).map(([name, fn]) => [name, RequestActivity.wrapRequest(fn)])),
+  'Initialize.initialize': Initialize.initialize,
+  'ProjectLifecycle.collect': ProjectLifecycle.collect,
+  'ProjectLifecycle.configure': ProjectLifecycle.configure,
+  'ProjectLifecycle.getStatistics': GetOrCreateLanguageService.getStatistics,
+  'ProjectLifecycle.waitForIdle': ProjectLifecycle.waitForIdle,
 }
