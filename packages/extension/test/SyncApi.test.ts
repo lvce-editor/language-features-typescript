@@ -5,6 +5,7 @@ const writeResultValue = jest.fn()
 
 jest.unstable_mockModule('@lvce-editor/api', () => ({
   exists: existsApi,
+  getWorkspaceUri: jest.fn(async () => 'file:///workspace'),
   readDirWithFileTypes: jest.fn(),
   readFile: jest.fn(),
 }))

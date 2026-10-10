@@ -21,7 +21,7 @@ jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', ()
       invokeSync: jest.fn(),
       refresh,
     },
-    fs: {},
+    fs: { readFile: () => undefined, getScriptVersion: () => '0' },
     ts: {},
   })),
 }))

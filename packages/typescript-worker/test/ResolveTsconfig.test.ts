@@ -65,8 +65,8 @@ test('resolveTsconfig should parse valid tsconfig', () => {
   expect(result.options.target).toBe(TypeScript.ScriptTarget.ES2020)
   expect(result.options.module).toBe(TypeScript.ModuleKind.ESNext)
   expect(result.options.strict).toBe(true)
-  expect(result.options.allowJs).toBe(true)
-  expect(result.options.checkJs).toBe(true)
+  expect(result.options.allowJs).toBeUndefined()
+  expect(result.options.checkJs).toBeUndefined()
   expect(result.errors).toEqual([])
   expect(Array.isArray(result.fileNames)).toBe(true)
 })
@@ -119,7 +119,7 @@ test('resolveTsconfig should handle include patterns', () => {
   expect(Array.isArray(result.fileNames)).toBe(true)
 })
 
-test('resolveTsconfig should set rootDir from tsconfig path', () => {
+test('resolveTsconfig does not invent a rootDir constraint', () => {
   const mockTsconfig = {
     compilerOptions: {
       target: 'es2020',
@@ -158,7 +158,7 @@ test('resolveTsconfig should set rootDir from tsconfig path', () => {
   )
 
   expect(result).toBeDefined()
-  expect(result.options.rootDir).toBe('/project')
+  expect(result.options.rootDir).toBeUndefined()
 })
 
 test('resolveTsconfig should handle missing include property', () => {
@@ -204,7 +204,7 @@ test('resolveTsconfig should handle missing include property', () => {
   expect(Array.isArray(result.fileNames)).toBe(true)
 })
 
-test('resolveTsconfig should return empty tsconfig on error', () => {
+test('resolveTsconfig reports invalid compiler options', () => {
   const mockTsconfig = {
     compilerOptions: {
       target: 'invalid-target',
@@ -234,7 +234,7 @@ test('resolveTsconfig should return empty tsconfig on error', () => {
 
   expect(result).toBeDefined()
   expect(result.options).toBeDefined()
-  expect(result.errors).toEqual([])
+  expect(result.errors.map((error) => error.code)).toContain(6046)
   expect(result.fileNames).toEqual([])
 })
 
@@ -250,7 +250,7 @@ test('explicit files take precedence over automatic discovery unless include is 
     '/project/tsconfig.json',
     { ...parsed, include: ['src/**/*.ts'] },
     () => '',
-    (uri) => (uri === '/project/src' ? ['discovered.ts'] : []),
+    (uri) => (uri === '/project' ? ['src'] : uri === '/project/src' ? ['discovered.ts'] : []),
     fileExists,
     TypeScript,
   )
@@ -267,6 +267,7 @@ test('resolveTsconfig should include nested files from configured source directo
     include: ['src', 'test'],
   }
   const mockReadDir = (uri: string): readonly string[] => {
+    if (uri === '/project') return ['src', 'test']
     if (uri === '/project/src') {
       return ['parts']
     }

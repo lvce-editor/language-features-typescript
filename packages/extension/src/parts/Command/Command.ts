@@ -38,6 +38,7 @@ export const commandMap = {
   'Position.getOffset': getOffset,
   'Position.getPosition': getPosition,
   'ResolveCompletion.resolveCompletion': rpcInvoke,
+  'SyncApi.getWorkspaceUri': SyncApi.getWorkspaceUri,
   'SyncApi.exists': SyncApi.exists,
   'SyncApi.readDirSync': SyncApi.readDirSync,
   'SyncApi.readFileSync': SyncApi.readFileSync,

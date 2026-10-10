@@ -124,7 +124,9 @@ test('failed identity requests fall back to source reads and invalidate old prog
 
 test('unavailable OPFS leaves the original read path intact', () => {
   const { client, fs } = fixture()
-  expect(createCachedClient(client, fs, undefined, undefined)).toBe(client)
+  const cached = createCachedClient(client, fs, undefined, undefined)
+  expect(cached.invokeSync('SyncApi.readFileSync', '/file.ts')).toBe('original')
+  expect(cached.refresh?.()).toBe(false)
 })
 
 test('readable files with unavailable identities cannot retain stale program snapshots', () => {
