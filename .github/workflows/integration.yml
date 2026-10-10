@@ -24,14 +24,16 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: lvce-editor/lvce-editor
-          ref: e5cccd876c705250d8f3a28aa81d0e330a516d81
+          ref: 236de223cab8f9eeb72dc68a260b63f0db3b4ef9
           path: .tmp/lvce-integration
       - uses: actions/setup-node@v6
         with:
           node-version-file: .tmp/lvce-integration/.nvmrc
       - name: Install application dependencies
         working-directory: .tmp/lvce-integration
-        run: npm ci
+        run: |
+          npm install --package-lock-only --ignore-scripts --save-exact --workspace packages/renderer-worker @lvce-editor/completion-worker@4.25.3
+          npm ci
       - name: Install Chromium
         working-directory: .tmp/lvce-integration/packages/extension-host-worker-tests
         run: npx playwright install --with-deps chromium
