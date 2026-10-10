@@ -27,6 +27,11 @@ jest.unstable_mockModule('../src/parts/CachedFileClient/CachedFileClient.ts', ()
 jest.unstable_mockModule('../src/parts/LoadTypeScript/LoadTypeScript.ts', () => ({ loadTypeScript }))
 jest.unstable_mockModule('../src/parts/ReadLibFile/ReadLibFile.ts', () => ({ initialize: initializeCache }))
 
+jest.unstable_mockModule('../src/parts/ProjectLifecycle/ProjectLifecycle.ts', () => ({
+  start: jest.fn(),
+  stop: jest.fn(),
+}))
+
 const { initialize } = await import('../src/parts/Initialize/Initialize.ts')
 
 afterEach(() => {

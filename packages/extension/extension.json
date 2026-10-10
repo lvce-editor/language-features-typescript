@@ -6,6 +6,20 @@
   "browser": "dist/languageFeaturesTypeScriptMain.js",
   "isolated": true,
   "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self'"],
+  "configuration": {
+    "typescript.projectIdleTimeout": {
+      "type": "number",
+      "default": 30000,
+      "minimum": 0,
+      "description": "Milliseconds before retiring TypeScript projects with no open documents. Applied when the TypeScript worker starts."
+    },
+    "typescript.maxIdleProjects": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "description": "Maximum number of idle TypeScript projects to keep warm. Applied when the TypeScript worker starts."
+    }
+  },
   "rpc": [
     {
       "id": "builtin.language-features-typescript.typescript-worker",
@@ -35,6 +49,7 @@
     "onLanguage:typescriptreact",
     "onLanguage:javascriptreact",
     "onCommand:typescript.showPerformanceTrace",
+    "onCommand:typescript.getProjectCacheStatistics",
     "onRename:javascript",
     "onRename:typescript",
     "onReferences:javascript",
@@ -68,6 +83,10 @@
     {
       "id": "typescript.showPerformanceTrace",
       "label": "TypeScript: Show Performance Trace"
+    },
+    {
+      "id": "typescript.getProjectCacheStatistics",
+      "label": "TypeScript: Get Project Cache Statistics"
     }
   ],
   "hoverProviders": [

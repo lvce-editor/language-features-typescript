@@ -8,9 +8,12 @@ const getRenameInfo = jest.fn((_uri: string, _offset: number, _options: any): an
 }))
 
 jest.unstable_mockModule('../src/parts/GetOrCreateLanguageService/GetOrCreateLanguageService.ts', () => ({
+  collectIdleProjects: jest.fn(),
   getOrCreateLanguageService() {
     return { fs: { writeFile }, languageService: { getRenameInfo } }
   },
+  getProjectCount: () => 0,
+  getStatistics: () => ({ documentOverrides: 0, projects: 0 }),
   resetLanguageServices: jest.fn(),
 }))
 

@@ -164,3 +164,46 @@ test('createFileSystem should maintain separate instances', () => {
   expect(fileSystem1.getScriptFileNames()).toEqual(['file.ts'])
   expect(fileSystem2.getScriptFileNames()).toEqual(['file.ts'])
 })
+
+test('releases saved overrides and observes disk changes without retaining version tombstones', () => {
+  let disk = 'saved'
+  const fs = createFileSystem(() => disk)
+  fs.writeFile('/file.ts', disk)
+  const previousVersion = fs.getScriptVersion('/file.ts')
+  disk = 'changed after closure'
+  expect(fs.releaseFile?.('/file.ts')).toBe(true)
+  expect(fs.readFile('/file.ts')).toBeUndefined()
+  expect(fs.getScriptFileNames()).toEqual([])
+  expect(fs.getScriptVersion('/file.ts')).not.toBe(previousVersion)
+  fs.writeFile('/file.ts', disk)
+  expect(fs.getScriptVersion('/file.ts')).not.toBe(previousVersion)
+  expect(fs.releaseFile?.('/missing.ts')).toBe(false)
+})
+
+test('preserves unsaved and unreadable buffers, and releases them after saving', () => {
+  let disk: string | undefined = 'on disk'
+  const fs = createFileSystem(() => disk)
+  fs.writeFile('/file.ts', 'unsaved')
+  expect(fs.releaseFile?.('/file.ts')).toBe(false)
+  disk = undefined
+  expect(fs.releaseFile?.('/file.ts')).toBe(false)
+  expect(fs.readFile('/file.ts')).toBe('unsaved')
+  disk = 'unsaved'
+  expect(fs.releaseFile?.('/file.ts')).toBe(true)
+  const inaccessible = createFileSystem(() => {
+    throw new Error('unavailable')
+  })
+  inaccessible.writeFile('/file.ts', 'unsaved')
+  expect(inaccessible.releaseFile?.('/file.ts')).toBe(false)
+  const unknown = createFileSystem()
+  unknown.writeFile('/file.ts', 'unknown')
+  expect(unknown.releaseFile?.('/file.ts')).toBe(false)
+})
+
+test('editing an override does not invalidate unchanged disk files on every keystroke', () => {
+  const fs = createFileSystem(() => 'disk')
+  const initial = fs.getScriptVersion('/dependency.ts')
+  fs.writeFile('/main.ts', 'unsaved first edit')
+  fs.writeFile('/main.ts', 'unsaved second edit')
+  expect(fs.getScriptVersion('/dependency.ts')).toBe(initial)
+})
