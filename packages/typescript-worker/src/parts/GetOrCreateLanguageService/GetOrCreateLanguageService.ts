@@ -46,7 +46,7 @@ const createTracedClient = (
 
 export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace.MutablePerformanceTrace) => {
   const id = 1
-  const { client, fs, ts } = LanguageServices.get(id)
+  const { client, documentRegistry, fs, ts } = LanguageServices.get(id)
   if (client.refresh?.()) {
     resetLanguageServices()
   }
@@ -91,7 +91,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
     resolveTsconfig(tsConfigPath, parsed, readFile, readDir, exists, ts),
   )
   const languageService = PerformanceTrace.measure(trace, 'languageServiceCreation', () =>
-    createTypeScriptLanguageService(ts, fs, tracedClient, resolved),
+    createTypeScriptLanguageService(ts, fs, tracedClient, resolved, documentRegistry),
   )
   if (trace) {
     trace.languageService.configPath = tsConfigPath || undefined
