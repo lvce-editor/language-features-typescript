@@ -204,7 +204,12 @@ try {
   }
   const holder = await run('hold')
   const concurrent = await run('cache')
-  assert.equal(concurrent.cache, undefined)
+  // An OPFS-denied client still tracks disk identities for project invalidation.
+  // Both content caches must remain disabled and use the source transport.
+  assert.equal(concurrent.cache.generalEnabled, false)
+  assert.equal(concurrent.cache.dependenciesEnabled, false)
+  assert.equal(concurrent.cache.generalHits, 0)
+  assert.equal(concurrent.cache.dependencyHits, 0)
   assert.ok(concurrent.counters.sourceReads > 0)
   await page.evaluate(() => globalThis.heldWorker.terminate())
   const afterTermination = await run('cache')
