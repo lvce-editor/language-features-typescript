@@ -2,10 +2,13 @@ import type * as TypeScript from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
+import { createReadDirectory } from '../CreateReadDirectory/CreateReadDirectory.ts'
+import { getParentPath } from '../GetParentPath/GetParentPath.ts'
 import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
 
-export type ILanguageServiceHost = TypeScript.LanguageServiceHost
+export type ILanguageServiceHost = TypeScript.LanguageServiceHost &
+  Pick<TypeScript.CompilerHost, 'hasInvalidatedResolutions'>
 
 const doesSurelyNotExist = (path: string): boolean => {
   if (!path) {
@@ -42,8 +45,17 @@ export const create = (
   fileSystem: IFileSystem,
   syncRpc: SyncRpc,
   options: TypeScript.ParsedCommandLine,
+  roots: ReadonlySet<string> = new Set(options.fileNames),
+  references: ReadonlySet<string> = roots,
 ): ILanguageServiceHost => {
   const resolveModuleName = createModuleResolver(syncRpc, ts)
+  const versions = new Map<string, string>()
+  let projectVersion = 0
+  let rootNames = ''
+  // Disk identity changes retire affected services. Override removal must only
+  // change the version of that document, not every disk-backed dependency.
+  const scriptVersion = (uri: string): string =>
+    fileSystem.readFile(uri) === undefined ? 'disk' : fileSystem.getScriptVersion(uri)
   const languageServiceHost: ILanguageServiceHost = {
     directoryExists(directoryName) {
       if (doesSurelyNotExist(directoryName)) {
@@ -56,6 +68,7 @@ export const create = (
       if (doesSurelyNotExist(path)) {
         return false
       }
+      versions.set(path, scriptVersion(path))
       const result = syncRpc.invokeSync('SyncApi.exists', path)
       return result
     },
@@ -63,7 +76,8 @@ export const create = (
       return options.options
     },
     getCurrentDirectory() {
-      return options.options.rootDir || ''
+      const configPath = options.options.configFilePath
+      return typeof configPath === 'string' ? getParentPath(configPath) : options.options.rootDir || ''
     },
     getCustomTransformers() {
       throw new Error('not implemented')
@@ -76,29 +90,43 @@ export const create = (
       if (relativePath === '/node_modules/@types' || relativePath === 'node_modules/@types') {
         return []
       }
-      const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      if (result) {
+      try {
+        // Retain directory identity tracking for newly created import targets.
+        syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
+        const result = syncRpc.invokeSync('SyncApi.getDirectoriesSync', relativePath)
+        return Array.isArray(result) ? result : []
+      } catch {
         return []
       }
-      return []
     },
     getNewLine() {
       return '\n'
     },
     getProjectReferences() {
-      return []
+      return options.projectReferences || []
     },
     getProjectVersion() {
-      return fileSystem.getVersion()
+      const names = JSON.stringify([...roots])
+      if (names !== rootNames) {
+        rootNames = names
+        projectVersion++
+      }
+      const observedFiles = new Set([...roots, ...references, ...versions.keys()])
+      for (const uri of observedFiles) {
+        const current = scriptVersion(uri)
+        if (versions.has(uri) && versions.get(uri) !== current) projectVersion++
+        versions.set(uri, current)
+      }
+      return projectVersion.toString()
     },
     getScriptFileNames() {
-      const files = fileSystem.getScriptFileNames() as string[]
-      return [...new Set([...options.fileNames, ...files])]
+      return [...roots]
     },
     getScriptKind(fileName) {
       return getScriptKind(ts, fileName)
     },
     getScriptSnapshot(fileName) {
+      versions.set(fileName, scriptVersion(fileName))
       if (isLibFile(fileName)) {
         const content = readLibFile(fileName)
         if (!content) {
@@ -121,12 +149,18 @@ export const create = (
       return snapshot
     },
     getScriptVersion(fileName) {
-      return fileSystem.getScriptVersion(fileName)
+      return scriptVersion(fileName)
     },
-    readDirectory(path, extensions, exclude, include, depth) {
-      const dirents = syncRpc.invokeSync('SyncApi.readDirSync', path)
-      return dirents
+    // A project version change can make a failed lookup succeed even when the
+    // importing source text is unchanged. Recheck resolution on that rebuild.
+    hasInvalidatedResolutions() {
+      return true
     },
+    readDirectory: createReadDirectory(
+      ts,
+      (path) => syncRpc.invokeSync('SyncApi.readDirSync', path),
+      typeof options.options.configFilePath === 'string' ? getParentPath(options.options.configFilePath) : '',
+    ),
     readFile(path) {
       try {
         return syncRpc.invokeSync('SyncApi.readFileSync', path)
@@ -145,6 +179,9 @@ export const create = (
       const resolved = moduleLiterals.map((moduleLiteral) => {
         return resolveModuleName(moduleLiteral.text, containingFile, options)
       })
+      for (const uri of references) {
+        if (!versions.has(uri)) versions.set(uri, scriptVersion(uri))
+      }
       return resolved
     },
     useCaseSensitiveFileNames() {

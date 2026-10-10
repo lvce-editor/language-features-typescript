@@ -43,6 +43,7 @@ test('denied handles and concurrent exclusive owners preserve the original sourc
   })
   const client = { invokeSync: () => 'source content' }
   const cached = await initialize(client, createFileSystem())
-  expect(cached).toBe(client)
+  expect(cached.getCacheStatistics?.()).toMatchObject({ dependenciesEnabled: false, generalEnabled: false })
+  expect(cached.refresh?.()).toBe(false)
   expect(cached.invokeSync('SyncApi.readFileSync', '/file.ts')).toBe('source content')
 })
