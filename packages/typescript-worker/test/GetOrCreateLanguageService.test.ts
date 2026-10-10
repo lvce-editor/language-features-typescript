@@ -1,11 +1,14 @@
 import { expect, jest, test } from '@jest/globals'
 
 const refresh = jest.fn(() => false)
+const state = { documentRegistry: {} }
 
-const createTypeScriptLanguageService = jest.fn(() => ({
-  dispose: jest.fn(),
-  getProgram: jest.fn(),
-}))
+const createTypeScriptLanguageService = jest.fn(
+  (_ts: unknown, _fs: unknown, _client: unknown, _config: unknown, _registry: unknown) => ({
+    dispose: jest.fn(),
+    getProgram: jest.fn(),
+  }),
+)
 
 jest.unstable_mockModule('../src/parts/CreateTypeScriptLanguageService/CreateTypeScriptLanguageService.ts', () => ({
   createTypeScriptLanguageService,
@@ -21,9 +24,13 @@ jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', ()
       invokeSync: jest.fn(),
       refresh,
     },
+    documentRegistry: state.documentRegistry,
     fs: {},
     ts: {},
   })),
+  resetDocumentRegistry: jest.fn(() => {
+    state.documentRegistry = {}
+  }),
 }))
 
 jest.unstable_mockModule('../src/parts/ParseTsconfig/ParseTsconfig.ts', () => ({
@@ -47,6 +54,13 @@ test('reuses a language service for files in the same configured project', () =>
 
   expect(second.languageService).toBe(first.languageService)
   expect(createTypeScriptLanguageService).toHaveBeenCalledTimes(1)
+  expect(createTypeScriptLanguageService).toHaveBeenCalledWith(
+    {},
+    {},
+    expect.anything(),
+    expect.anything(),
+    state.documentRegistry,
+  )
 })
 
 test('records newly created and reused project details in a performance trace', async () => {
@@ -69,11 +83,20 @@ test('records newly created and reused project details in a performance trace', 
 })
 
 test('rebuilds and disposes project state when external file identities change', () => {
+  const previousRegistry = state.documentRegistry
   const previous = getOrCreateLanguageService('/workspace/src/main.tsx')
   refresh.mockReturnValueOnce(true)
   const next = getOrCreateLanguageService('/workspace/src/main.tsx')
   expect(next.languageService).not.toBe(previous.languageService)
   expect(previous.languageService.dispose).toHaveBeenCalledTimes(1)
+  expect(state.documentRegistry).not.toBe(previousRegistry)
+  expect(createTypeScriptLanguageService).toHaveBeenLastCalledWith(
+    {},
+    {},
+    expect.anything(),
+    expect.anything(),
+    state.documentRegistry,
+  )
   expect(getOrCreateLanguageService('/workspace/src/App.tsx').languageService).toBe(next.languageService)
 })
 

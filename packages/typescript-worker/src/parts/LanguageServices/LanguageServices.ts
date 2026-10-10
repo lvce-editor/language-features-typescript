@@ -4,6 +4,7 @@ import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 
 interface LanguageServiceItem {
   readonly client: SyncRpc
+  documentRegistry: TypeScript.DocumentRegistry
   readonly fs: IFileSystem
   readonly ts: typeof TypeScript
 }
@@ -17,7 +18,14 @@ export const get = (id: number): LanguageServiceItem => {
 export const set = (id: number, fs: IFileSystem, client: SyncRpc, ts: typeof TypeScript) => {
   languageServices[id] = {
     client,
+    documentRegistry: ts.createDocumentRegistry(true, ''),
     fs,
     ts,
   }
+}
+
+export const resetDocumentRegistry = (id: number): void => {
+  const languageService = languageServices[id]
+  if (!languageService) return
+  languageService.documentRegistry = languageService.ts.createDocumentRegistry(true, '')
 }

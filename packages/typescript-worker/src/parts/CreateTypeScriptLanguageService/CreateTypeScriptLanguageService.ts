@@ -8,8 +8,9 @@ export const createTypeScriptLanguageService = (
   fs: IFileSystem,
   client: SyncRpc,
   config: TypeScript.ParsedCommandLine,
+  documentRegistry: TypeScript.DocumentRegistry,
 ): TypeScript.LanguageService => {
   const languageServiceHost: TypeScript.LanguageServiceHost = TypeScriptLanguageHost.create(ts, fs, client, config)
-  const languageService = ts.createLanguageService(languageServiceHost)
+  const languageService = ts.createLanguageService(languageServiceHost, documentRegistry)
   return languageService
 }
