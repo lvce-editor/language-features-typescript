@@ -28,6 +28,7 @@ export const resetLanguageServices = (): void => {
   for (const key of Object.keys(projectCache)) delete projectCache[key]
   for (const key of Object.keys(projectIdCache)) delete projectIdCache[key]
   for (const key of Object.keys(projectConfigCache)) delete projectConfigCache[key]
+  LanguageServices.resetDocumentRegistry(1)
 }
 
 const createTracedClient = (
@@ -46,10 +47,11 @@ const createTracedClient = (
 
 export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace.MutablePerformanceTrace) => {
   const id = 1
-  const { client, documentRegistry, fs, ts } = LanguageServices.get(id)
+  const { client } = LanguageServices.get(id)
   if (client.refresh?.()) {
     resetLanguageServices()
   }
+  const { documentRegistry, fs, ts } = LanguageServices.get(id)
   if (uri in projectIdCache) {
     const projectId = projectIdCache[uri]
     const project = projectCache[projectId]
