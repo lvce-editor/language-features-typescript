@@ -1,8 +1,8 @@
 import type * as TypeScript from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
-import { createReadDirectory } from '../CreateReadDirectory/CreateReadDirectory.ts'
 import { createModuleResolver } from '../CreateModuleResolver/CreateModuleResolver.ts'
+import { createReadDirectory } from '../CreateReadDirectory/CreateReadDirectory.ts'
 import { getParentPath } from '../GetParentPath/GetParentPath.ts'
 import { isLibFile } from '../IsLibFile/IsLibFile.ts'
 import { readLibFile } from '../ReadLibFile/ReadLibFile.ts'
@@ -96,11 +96,6 @@ export const create = (
       }
       return []
     },
-    // A project version change can make a failed lookup succeed even when the
-    // importing source text is unchanged. Recheck resolution on that rebuild.
-    hasInvalidatedResolutions() {
-      return true
-    },
     getNewLine() {
       return '\n'
     },
@@ -113,7 +108,8 @@ export const create = (
         rootNames = names
         projectVersion++
       }
-      for (const uri of new Set([...roots, ...references, ...versions.keys()])) {
+      const observedFiles = new Set([...roots, ...references, ...versions.keys()])
+      for (const uri of observedFiles) {
         const current = scriptVersion(uri)
         if (versions.has(uri) && versions.get(uri) !== current) projectVersion++
         versions.set(uri, current)
@@ -151,6 +147,11 @@ export const create = (
     },
     getScriptVersion(fileName) {
       return scriptVersion(fileName)
+    },
+    // A project version change can make a failed lookup succeed even when the
+    // importing source text is unchanged. Recheck resolution on that rebuild.
+    hasInvalidatedResolutions() {
+      return true
     },
     readDirectory: createReadDirectory(
       ts,

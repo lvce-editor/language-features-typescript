@@ -5,16 +5,16 @@ import { createFileSystem } from '../src/parts/CreateFileSystem/CreateFileSystem
 import * as LanguageServices from '../src/parts/LanguageServices/LanguageServices.ts'
 
 jest.unstable_mockModule('../src/parts/ReadLibFile/ReadLibFile.ts', () => ({ readLibFile: () => undefined }))
-const { getOrCreateLanguageService, resetLanguageServices, getProjectCount, collectIdleProjects } =
+const { collectIdleProjects, getOrCreateLanguageService, getProjectCount, resetLanguageServices } =
   await import('../src/parts/GetOrCreateLanguageService/GetOrCreateLanguageService.ts')
 
 afterEach(resetLanguageServices)
 
 const fixture = () => {
   const config = JSON.stringify({
-    compilerOptions: { noLib: true, strict: true, types: [], allowImportingTsExtensions: true, noEmit: true },
-    include: ['src/**/*.ts', 'test/**/*.ts', 'types/**/*.d.ts'],
+    compilerOptions: { allowImportingTsExtensions: true, noEmit: true, noLib: true, strict: true, types: [] },
     exclude: ['src/excluded.ts'],
+    include: ['src/**/*.ts', 'test/**/*.ts', 'types/**/*.d.ts'],
   })
   const disk = new Map<string, string>([
     ['/workspace/a/tsconfig.json', config],
@@ -47,23 +47,23 @@ const fixture = () => {
           })
         if (method === 'SyncApi.getWorkspaceUri') return 'file:///workspace'
         const path = uri.replace(/^file:\/\//, '').replace(/\/$/, '')
-        if (method === 'SyncApi.exists')
-          return disk.has(path) || [...disk.keys()].some((key) => key.startsWith(path + '/'))
+        if (method === 'SyncApi.exists') return disk.has(path) || disk.keys().some((key) => key.startsWith(path + '/'))
         if (method === 'SyncApi.readFileSync') {
-          if (!disk.has(path)) throw Error('missing file')
+          if (!disk.has(path)) throw new Error('missing file')
           return disk.get(path)
         }
         if (method === 'SyncApi.readDirSync') {
-          if (disk.has(path)) throw Error('not a directory')
+          if (disk.has(path)) throw new Error('not a directory')
           return [
             ...new Set(
-              [...disk.keys()]
+              disk
+                .keys()
                 .filter((key) => key.startsWith(path + '/'))
-                .map((key) => key.slice(path.length + 1).split('/')[0]),
+                .map((key) => key.slice(path.length + 1).split('/', 1)[0]),
             ),
           ]
         }
-        throw Error(method)
+        throw new Error(method)
       },
     },
     fs,
@@ -163,7 +163,7 @@ test('configuration changes retain references, explicit rootDir and user JavaScr
   fs.writeFile(
     '/workspace/a/tsconfig.json',
     JSON.stringify({
-      compilerOptions: { noLib: true, types: [], rootDir: 'src', allowJs: false, checkJs: false },
+      compilerOptions: { allowJs: false, checkJs: false, noLib: true, rootDir: 'src', types: [] },
       files: ['src/main.ts'],
       references: [{ path: '../b' }],
     }),
@@ -219,7 +219,8 @@ test('external root creation and deletion reparse only the owning configuration'
   expect(await service(b)).toBe(second)
   expect(second.getProgram()).toBe(before)
   disk.delete(created)
-  expect((await service(a)).getProgram()?.getRootFileNames()).not.toContain(created)
+  const afterRemoval = await service(a)
+  expect(afterRemoval.getProgram()?.getRootFileNames()).not.toContain(created)
 })
 
 test('native and file URI configuration identities reuse one service', async () => {
@@ -234,9 +235,9 @@ test('extends preserves compiler file matching, declarations and excluded direct
   disk.set(
     '/workspace/a/base.json',
     JSON.stringify({
-      compilerOptions: { noLib: true, types: [], allowJs: false },
-      include: ['src/**/*.ts', 'types/**/*.d.ts'],
+      compilerOptions: { allowJs: false, noLib: true, types: [] },
       exclude: ['src/excluded.ts'],
+      include: ['src/**/*.ts', 'types/**/*.d.ts'],
     }),
   )
   disk.set('/workspace/a/tsconfig.json', JSON.stringify({ extends: './base.json' }))
@@ -245,7 +246,7 @@ test('extends preserves compiler file matching, declarations and excluded direct
   disk.set(
     '/workspace/a/base.json',
     JSON.stringify({
-      compilerOptions: { noLib: true, types: [], allowJs: false },
+      compilerOptions: { allowJs: false, noLib: true, types: [] },
       files: ['src/main.ts', 'test/check.ts'],
     }),
   )
@@ -259,7 +260,7 @@ test('referenced composite projects retain declaration output diagnostics', asyn
   disk.set(
     '/workspace/a/tsconfig.json',
     JSON.stringify({
-      compilerOptions: { noLib: true, types: [], allowImportingTsExtensions: true, noEmit: true },
+      compilerOptions: { allowImportingTsExtensions: true, noEmit: true, noLib: true, types: [] },
       files: ['src/main.ts'],
       references: [{ path: '../b' }],
     }),
@@ -267,7 +268,7 @@ test('referenced composite projects retain declaration output diagnostics', asyn
   disk.set(
     '/workspace/b/tsconfig.json',
     JSON.stringify({
-      compilerOptions: { composite: true, noLib: true, types: [], rootDir: 'src', outDir: 'dist' },
+      compilerOptions: { composite: true, noLib: true, outDir: 'dist', rootDir: 'src', types: [] },
       files: ['src/main.ts'],
     }),
   )
@@ -294,4 +295,34 @@ test('closing an excluded saved document drops its extra root while configured r
   collectIdleProjects([a], 0, 0)
   expect(first.getProgram()?.getRootFileNames()).not.toContain(excluded)
   expect(first.getProgram()?.getRootFileNames()).toContain('/workspace/a/test/check.ts')
+})
+
+test('JavaScript outside a JS-disabled config receives an inferred service without changing config semantics', async () => {
+  const { fs, service } = fixture()
+  const configured = await service(a)
+  const js = '/workspace/a/src/loose.js'
+  fs.writeFile(js, "let value = ''\nvalue++")
+  const inferred = await service(js)
+  expect(inferred).not.toBe(configured)
+  expect(inferred.getSemanticDiagnostics(js).map((item) => item.code)).toContain(2356)
+  expect(configured.getProgram()?.getCompilerOptions().allowJs).toBeUndefined()
+  expect(configured.getProgram()?.getRootFileNames()).not.toContain(js)
+  expect(await service('/workspace/a/src/other.js')).toBe(inferred)
+})
+
+test('a JavaScript-enabled config serves its JavaScript documents in the same service', async () => {
+  const { disk, fs, service } = fixture()
+  disk.set(
+    '/workspace/a/tsconfig.json',
+    JSON.stringify({
+      compilerOptions: { allowJs: true, checkJs: true, noLib: true, types: [] },
+      files: ['src/main.ts'],
+    }),
+  )
+  const configured = await service(a)
+  const js = '/workspace/a/src/allowed.js'
+  fs.writeFile(js, "let value = ''\nvalue++")
+  expect(await service(js)).toBe(configured)
+  expect(configured.getSemanticDiagnostics(js).map((item) => item.code)).toContain(2356)
+  expect(getProjectCount()).toBe(1)
 })

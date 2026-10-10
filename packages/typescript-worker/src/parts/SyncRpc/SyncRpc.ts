@@ -12,8 +12,8 @@ export interface SyncRpc {
   readonly clearReferences?: () => void
   readonly dispose?: () => void
   readonly forgetReferences?: (uris: readonly string[]) => void
-  readonly getChangedFiles?: () => readonly string[] | undefined
   readonly getCacheStatistics?: () => FileCacheStatistics
+  readonly getChangedFiles?: () => readonly string[] | undefined
   readonly invokeSync: (method: string, ...params: readonly any[]) => any
   readonly refresh?: () => boolean
 }

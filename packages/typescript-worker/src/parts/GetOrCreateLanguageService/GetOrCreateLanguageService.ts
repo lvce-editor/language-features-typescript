@@ -1,5 +1,6 @@
-import type { LanguageService } from 'typescript'
+import type { LanguageService, ParsedCommandLine } from 'typescript'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
+import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { createCachedSyncRpcClient } from '../CreateCachedSyncRpcClient/CreateCachedSyncRpcClient.ts'
 import { createTypeScriptLanguageService } from '../CreateTypeScriptLanguageService/CreateTypeScriptLanguageService.ts'
 import { getParentPath } from '../GetParentPath/GetParentPath.ts'
@@ -11,9 +12,9 @@ import * as RequestActivity from '../RequestActivity/RequestActivity.ts'
 import { resolveTsconfig } from '../ResolveTsconfig/ResolveTsconfig.ts'
 
 interface Project {
-  readonly key: string
   readonly configuredRoots: ReadonlySet<string>
   readonly configVersions: ReadonlyMap<string, string>
+  readonly key: string
   lastUsed: number
   readonly references: Set<string>
   readonly service: LanguageService
@@ -54,19 +55,18 @@ const createTracedClient = (
   },
 })
 
-export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace.MutablePerformanceTrace) => {
-  const id = 1
-  const { client, fs, ts } = LanguageServices.get(id)
+const refreshProjects = (client: SyncRpc, fs: IFileSystem): void => {
   if (client.refresh?.()) {
     const changed = client.getChangedFiles?.()
-    if (!changed) resetLanguageServices()
-    else {
+    if (changed) {
       const paths = new Set(changed.map(normalizeUri))
       for (const [id, project] of Object.entries(projectCache)) {
         if ([...project.references].some((reference) => paths.has(normalizeUri(reference)))) {
           retireProject(Number(id), project)
         }
       }
+    } else {
+      resetLanguageServices()
     }
   }
   for (const [id, project] of Object.entries(projectCache)) {
@@ -74,6 +74,29 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
       retireProject(Number(id), project)
     }
   }
+}
+
+const getProjectKey = (uri: string, tsConfigPath: string, client: SyncRpc): string => {
+  if (tsConfigPath) return normalizeUri(tsConfigPath)
+  let inferredRoot = getParentPath(uri)
+  try {
+    const workspace = client.invokeSync('SyncApi.getWorkspaceUri')
+    if (
+      typeof workspace === 'string' &&
+      normalizeUri(uri).startsWith(`${normalizeUri(workspace).replace(/\/$/, '')}/`)
+    ) {
+      inferredRoot = workspace
+    }
+  } catch {
+    // Standalone transports without workspace metadata use directory identity.
+  }
+  return `inferred:${normalizeUri(inferredRoot)}`
+}
+
+export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace.MutablePerformanceTrace) => {
+  const id = 1
+  const { client, fs, ts } = LanguageServices.get(id)
+  refreshProjects(client, fs)
   const references = new Set<string>()
   const configFiles = new Set<string>()
   const source = trace ? createTracedClient(client, trace) : client
@@ -94,22 +117,19 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
   const exists = (uri: string) => tracedClient.invokeSync('SyncApi.exists', uri)
   const readFile = (uri: string) => tracedClient.invokeSync('SyncApi.readFileSync', uri)
   const readDir = (uri: string) => tracedClient.invokeSync('SyncApi.readDirSync', uri)
-  const tsConfigPath = PerformanceTrace.measure(trace, 'configDiscovery', () => getTsConfigPath(uri, exists))
-  let inferredRoot = getParentPath(uri)
-  if (!tsConfigPath) {
-    try {
-      const workspace = tracedClient.invokeSync('SyncApi.getWorkspaceUri')
-      if (
-        typeof workspace === 'string' &&
-        normalizeUri(uri).startsWith(`${normalizeUri(workspace).replace(/\/$/, '')}/`)
-      ) {
-        inferredRoot = workspace
-      }
-    } catch {
-      // Standalone transports without workspace metadata use directory identity.
+  let tsConfigPath = PerformanceTrace.measure(trace, 'configDiscovery', () => getTsConfigPath(uri, exists))
+  let javascriptConfig: ParsedCommandLine | undefined
+  if (tsConfigPath && /\.(?:[cm]?js|jsx)$/i.test(uri)) {
+    const parsed = parseTsconfig(tsConfigPath, readFile, ts)
+    javascriptConfig = resolveTsconfig(tsConfigPath, parsed, readFile, readDir, exists, ts)
+    // A config that disallows JS cannot supply that document's program. Keep its
+    // options intact and serve the document from the inferred workspace instead.
+    if (!javascriptConfig.options.allowJs) {
+      tsConfigPath = ''
+      javascriptConfig = undefined
     }
   }
-  const key = tsConfigPath ? normalizeUri(tsConfigPath) : `inferred:${normalizeUri(inferredRoot)}`
+  const key = getProjectKey(uri, tsConfigPath, tracedClient)
   if (key in projectConfigCache) {
     const projectId = projectConfigCache[key]
     const project = projectCache[projectId]
@@ -120,10 +140,12 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
     return { fs, getCacheStatistics: client.getCacheStatistics, languageService: project.service }
   }
   const parsed = PerformanceTrace.measure(trace, 'configParsing', () => parseTsconfig(tsConfigPath, readFile, ts))
-  const resolved = PerformanceTrace.measure(trace, 'configResolution', () =>
-    resolveTsconfig(tsConfigPath, parsed, readFile, readDir, exists, ts),
-  )
-  const configVersions = new Map([...configFiles].map((path) => [path, documentVersion(fs, path)]))
+  const resolved =
+    javascriptConfig ||
+    PerformanceTrace.measure(trace, 'configResolution', () =>
+      resolveTsconfig(tsConfigPath, parsed, readFile, readDir, exists, ts),
+    )
+  const configVersions = new Map(Array.from(configFiles, (path) => [path, documentVersion(fs, path)]))
   const uris = new Set([...resolved.fileNames, uri])
   const languageService = PerformanceTrace.measure(trace, 'languageServiceCreation', () =>
     createTypeScriptLanguageService(ts, fs, tracedClient, resolved, uris, references),
@@ -134,9 +156,9 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
   }
   const projectId = projectIds.next++
   projectCache[projectId] = {
-    key,
-    configVersions,
     configuredRoots: new Set(resolved.fileNames),
+    configVersions,
+    key,
     lastUsed: performance.now(),
     references,
     service: languageService,
@@ -163,6 +185,13 @@ const releaseClosedFiles = (fs: IFileSystem, references: ReadonlyMap<string, num
   for (const uri of fs.getScriptFileNames()) {
     if (!references.has(normalizeUri(uri))) fs.releaseFile?.(uri)
   }
+  for (const project of Object.values(projectCache)) {
+    for (const uri of project.uris) {
+      if (!project.configuredRoots.has(uri) && !references.has(normalizeUri(uri)) && fs.readFile(uri) === undefined) {
+        project.uris.delete(uri)
+      }
+    }
+  }
 }
 
 export const getProjectCount = (): number => Object.keys(projectCache).length
@@ -187,13 +216,6 @@ export const collectIdleProjects = (
   }
   const { client, fs } = LanguageServices.get(1)
   releaseClosedFiles(fs, references)
-  for (const project of Object.values(projectCache)) {
-    for (const uri of project.uris) {
-      if (!project.configuredRoots.has(uri) && !references.has(normalizeUri(uri)) && fs.readFile(uri) === undefined) {
-        project.uris.delete(uri)
-      }
-    }
-  }
   const idle = Object.entries(projectCache)
     .filter(([, project]) => [...project.uris].every((uri) => !references.has(normalizeUri(uri))))
     .toSorted(([, left], [, right]) => right.lastUsed - left.lastUsed)

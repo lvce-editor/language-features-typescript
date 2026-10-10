@@ -96,8 +96,8 @@ export const createCachedClient = (
         missing.delete(uri)
       }
     },
-    getChangedFiles: () => changedFiles,
     getCacheStatistics: () => ({ ...statistics }),
+    getChangedFiles: () => changedFiles,
     invokeSync(method, ...params) {
       if (disposed) return client.invokeSync(method, ...params)
       const uri = params[0]
@@ -125,10 +125,12 @@ export const createCachedClient = (
           if (identities.get(uri) !== undefined) identities.set(uri, hash)
         }
         for (const uri of missing) {
-          if (client.invokeSync('SyncApi.exists', uri)) {
-            changed.add(uri)
-            missing.delete(uri)
+          if (!client.invokeSync('SyncApi.exists', uri)) {
+            continue
           }
+
+          changed.add(uri)
+          missing.delete(uri)
         }
         for (const [uri, identity] of directories) {
           const entries = directoryIdentity(client.invokeSync('SyncApi.readDirSync', uri))

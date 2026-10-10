@@ -250,7 +250,11 @@ test('explicit files take precedence over automatic discovery unless include is 
     '/project/tsconfig.json',
     { ...parsed, include: ['src/**/*.ts'] },
     () => '',
-    (uri) => (uri === '/project' ? ['src'] : uri === '/project/src' ? ['discovered.ts'] : []),
+    (uri) => {
+      if (uri === '/project') return ['src']
+      if (uri === '/project/src') return ['discovered.ts']
+      return []
+    },
     fileExists,
     TypeScript,
   )

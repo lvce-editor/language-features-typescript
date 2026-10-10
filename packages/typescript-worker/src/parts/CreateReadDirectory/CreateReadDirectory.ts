@@ -36,9 +36,9 @@ export const createReadDirectory =
           const entries = readDir(directory)
           // Name-only transports cannot classify entries. Probing a file as a
           // directory returns no entries; the compiler still filters all names.
-          return { files: entries, directories: entries }
+          return { directories: entries, files: entries }
         } catch {
-          return { files: [], directories: [] }
+          return { directories: [], files: [] }
         }
       },
       (path) => path,
