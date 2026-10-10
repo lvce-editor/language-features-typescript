@@ -2,11 +2,12 @@ import { beforeEach, expect, jest, test } from '@jest/globals'
 
 const existsApi = jest.fn<(uri: string) => Promise<boolean>>()
 const writeResultValue = jest.fn()
+const readDirApi = jest.fn<() => Promise<readonly { name: string; type: number }[]>>()
 
 jest.unstable_mockModule('@lvce-editor/api', () => ({
   exists: existsApi,
   getWorkspaceUri: jest.fn(async () => 'file:///workspace'),
-  readDirWithFileTypes: jest.fn(),
+  readDirWithFileTypes: readDirApi,
   readFile: jest.fn(),
 }))
 
@@ -20,6 +21,16 @@ const SyncApi = await import('../src/parts/SyncApi/SyncApi.ts')
 
 beforeEach(() => {
   jest.clearAllMocks()
+})
+
+test('directory enumeration excludes files and preserves empty directories', async () => {
+  readDirApi.mockResolvedValue([
+    { name: 'main.ts', type: 1 },
+    { name: 'node_modules', type: 3 },
+    { name: 'empty', type: 3 },
+  ])
+  await SyncApi.getDirectoriesSync(1, '/workspace')
+  expect(writeResultValue).toHaveBeenCalledWith(['node_modules', 'empty'])
 })
 
 test('exists writes false when checking a missing file throws', async () => {

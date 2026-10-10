@@ -90,11 +90,14 @@ export const create = (
       if (relativePath === '/node_modules/@types' || relativePath === 'node_modules/@types') {
         return []
       }
-      const result = syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
-      if (result) {
+      try {
+        // Retain directory identity tracking for newly created import targets.
+        syncRpc.invokeSync('SyncApi.readDirSync', relativePath)
+        const result = syncRpc.invokeSync('SyncApi.getDirectoriesSync', relativePath)
+        return Array.isArray(result) ? result : []
+      } catch {
         return []
       }
-      return []
     },
     getNewLine() {
       return '\n'

@@ -33,7 +33,7 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main }) 
   const completionItems = completions.locator('.EditorCompletionItem')
   await expect(completionItems).toHaveCount(2)
   const firstCompletionItem = completionItems.nth(0)
-  await expect(firstCompletionItem).toHaveText('tsconfig.json')
+  await expect(firstCompletionItem).toHaveText('add.js') // TODO should be ts
   const secondCompletionItem = completionItems.nth(1)
-  await expect(secondCompletionItem).toHaveText('add.js') // TODO should be ts
+  await expect(secondCompletionItem).toHaveText('tsconfig.json')
 }

@@ -257,6 +257,24 @@ test('getDirectories should handle @types paths', () => {
   expect(host.getDirectories?.('/other/path')).toEqual([])
 })
 
+test('getDirectories exposes import folders and handles missing directories', () => {
+  const host = create(
+    TypeScript,
+    createFileSystem(() => undefined),
+    {
+      invokeSync(method, path) {
+        if (path === '/missing') throw new Error('missing directory')
+        return method === 'SyncApi.getDirectoriesSync'
+          ? ['node_modules', 'empty']
+          : ['main.ts', 'node_modules', 'empty']
+      },
+    },
+    emptyTsconfig,
+  )
+  expect(host.getDirectories?.('/workspace')).toEqual(['node_modules', 'empty'])
+  expect(host.getDirectories?.('/missing')).toEqual([])
+})
+
 test('useCaseSensitiveFileNames should return true', () => {
   globalThis.rpc = {
     invoke: jest.fn(() => Promise.resolve()),
