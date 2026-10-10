@@ -8,6 +8,7 @@ export const createTypeScriptLanguageService = (
   fs: IFileSystem,
   client: SyncRpc,
   config: TypeScript.ParsedCommandLine,
+  documentRegistry: TypeScript.DocumentRegistry,
   roots?: ReadonlySet<string>,
   references?: ReadonlySet<string>,
 ): TypeScript.LanguageService => {
@@ -19,6 +20,6 @@ export const createTypeScriptLanguageService = (
     roots,
     references,
   )
-  const languageService = ts.createLanguageService(languageServiceHost)
+  const languageService = ts.createLanguageService(languageServiceHost, documentRegistry)
   return languageService
 }

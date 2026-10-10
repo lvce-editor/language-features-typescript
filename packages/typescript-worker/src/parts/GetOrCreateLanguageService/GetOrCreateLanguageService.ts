@@ -30,6 +30,7 @@ export const resetLanguageServices = (): void => {
   for (const project of Object.values(projectCache)) RequestActivity.retire(() => project.service.dispose())
   for (const key of Object.keys(projectCache)) delete projectCache[key]
   for (const key of Object.keys(projectConfigCache)) delete projectConfigCache[key]
+  LanguageServices.resetDocumentRegistry(1)
 }
 
 const documentVersion = (fs: IFileSystem, uri: string): string =>
@@ -97,6 +98,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
   const id = 1
   const { client, fs, ts } = LanguageServices.get(id)
   refreshProjects(client, fs)
+  const { documentRegistry } = LanguageServices.get(id)
   const references = new Set<string>()
   const configFiles = new Set<string>()
   const source = trace ? createTracedClient(client, trace) : client
@@ -148,7 +150,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
   const configVersions = new Map(Array.from(configFiles, (path) => [path, documentVersion(fs, path)]))
   const uris = new Set([...resolved.fileNames, uri])
   const languageService = PerformanceTrace.measure(trace, 'languageServiceCreation', () =>
-    createTypeScriptLanguageService(ts, fs, tracedClient, resolved, uris, references),
+    createTypeScriptLanguageService(ts, fs, tracedClient, resolved, documentRegistry, uris, references),
   )
   if (trace) {
     trace.languageService.configPath = tsConfigPath || undefined
