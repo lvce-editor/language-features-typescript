@@ -34,6 +34,10 @@ jobs:
       - run: npm test
       - name: Test shared synchronous response transport
         run: node --test scripts/test-shared-sync-rpc.mjs
+      - name: Test Three.js repeated edits
+        run: node scripts/benchmark-threejs.mjs
+        env:
+          THREEJS_ENFORCE_REUSE: 1
       - name: Build
         run: npm run build
       - name: Build static site
