@@ -33,6 +33,13 @@ browser coverage uses the same pinned Three.js graph, checks repeated-edit reads
 then opens actual editor completions. Disk and memory file-cache cases separately
 exercise external edits, deletion/recreation and unsaved text.
 
+Run `npm run e2e:threejs --workspace=packages/e2e` for the large-fixture browser
+scenario. CI runs its separate `threejs-e2e` manifest in Chromium, Firefox and
+supported WebKit platforms. Fixture loading alone took 28.5 seconds in Windows
+Firefox because each file write generates workbench notifications. This scenario
+has a 60-second setup/analysis limit; the existing suites retain their 30-second
+limit, and the dependency-read and completion assertions remain unchanged.
+
 Linux, Node 24.15.0, TypeScript 6.0.3, @types/three 0.186.0, 2026-10-11.
 Three cold runs and fifteen warm edits per case. Baseline commit 2be65b4dbf96.
 The representative graph contains 498 source/library files.
