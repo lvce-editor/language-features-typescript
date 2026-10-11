@@ -37,6 +37,15 @@ const run = async ({ Command, FileSystem, Main, Settings }: Parameters<Test>[0],
       return result
     }
     const initial = await trace(0)
+    // Repeated unsaved edits reuse dependency snapshots after validation.
+    let previous = initial
+    for (let i = 0; i < 5; i++) {
+      const edited = await trace(0, text.replace('const a:', `const a${i}:`))
+      if (edited.fileCache.sourceReads !== previous.fileCache.sourceReads) {
+        throw new Error(`Unchanged files reread after an edit: ${JSON.stringify({ previous, edited })}`)
+      }
+      previous = edited
+    }
     await FileSystem.writeFile(source, 'export const value = "changed";')
     const changed = await trace(1)
     if (

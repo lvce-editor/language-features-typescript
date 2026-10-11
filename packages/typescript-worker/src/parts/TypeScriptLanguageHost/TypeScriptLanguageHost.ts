@@ -50,8 +50,17 @@ export const create = (
 ): ILanguageServiceHost => {
   const resolveModuleName = createModuleResolver(syncRpc, ts)
   const versions = new Map<string, string>()
+  const snapshots = new Map<string, { version: string; snapshot: WeakRef<TypeScript.IScriptSnapshot> }>()
+  // The program/registry owns live snapshots. Do not retain removed imports or
+  // closed roots just to accelerate a future read, and bound historical keys.
+  const rememberSnapshot = (uri: string, version: string, snapshot: TypeScript.IScriptSnapshot): void => {
+    snapshots.delete(uri)
+    if (snapshots.size >= 4096) snapshots.delete(snapshots.keys().next().value!)
+    snapshots.set(uri, { snapshot: new WeakRef(snapshot), version })
+  }
   let projectVersion = 0
   let rootNames = ''
+  let resolutionsInvalidated = true
   // Disk identity changes retire affected services. Override removal must only
   // change the version of that document, not every disk-backed dependency.
   const scriptVersion = (uri: string): string =>
@@ -106,15 +115,22 @@ export const create = (
       return options.projectReferences || []
     },
     getProjectVersion() {
+      resolutionsInvalidated = false
       const names = JSON.stringify([...roots])
       if (names !== rootNames) {
         rootNames = names
         projectVersion++
+        resolutionsInvalidated = true
       }
       const observedFiles = new Set([...roots, ...references, ...versions.keys()])
       for (const uri of observedFiles) {
         const current = scriptVersion(uri)
-        if (versions.has(uri) && versions.get(uri) !== current) projectVersion++
+        if (versions.has(uri) && versions.get(uri) !== current) {
+          projectVersion++
+          // Creating/removing an unsaved override can satisfy a failed lookup.
+          // Text edits are handled by TypeScript's per-source resolution reuse.
+          if (versions.get(uri) === 'disk' || current === 'disk') resolutionsInvalidated = true
+        }
         versions.set(uri, current)
       }
       return projectVersion.toString()
@@ -126,13 +142,19 @@ export const create = (
       return getScriptKind(ts, fileName)
     },
     getScriptSnapshot(fileName) {
-      versions.set(fileName, scriptVersion(fileName))
+      const version = scriptVersion(fileName)
+      versions.set(fileName, version)
+      const cached = snapshots.get(fileName)
+      const cachedSnapshot = cached?.version === version ? cached.snapshot.deref() : undefined
+      if (cachedSnapshot) return cachedSnapshot
       if (isLibFile(fileName)) {
         const content = readLibFile(fileName)
         if (!content) {
           return undefined
         }
-        return ts.ScriptSnapshot.fromString(content)
+        const snapshot = ts.ScriptSnapshot.fromString(content)
+        rememberSnapshot(fileName, version, snapshot)
+        return snapshot
       }
       let content = fileSystem.readFile(fileName)
       if (content === undefined) {
@@ -146,15 +168,16 @@ export const create = (
         return undefined
       }
       const snapshot = ts.ScriptSnapshot.fromString(content)
+      rememberSnapshot(fileName, version, snapshot)
       return snapshot
     },
     getScriptVersion(fileName) {
       return scriptVersion(fileName)
     },
-    // A project version change can make a failed lookup succeed even when the
-    // importing source text is unchanged. Recheck resolution on that rebuild.
+    // Disk changes retire the service; override availability changes invalidate
+    // failed lookups. Ordinary typing keeps unchanged dependencies reusable.
     hasInvalidatedResolutions() {
-      return true
+      return resolutionsInvalidated
     },
     readDirectory: createReadDirectory(
       ts,

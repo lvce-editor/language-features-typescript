@@ -1,6 +1,7 @@
 import type { FileContentCache, SyncHandle } from '../FileContentCache/FileContentCache.ts'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { createCachedSyncRpcClient } from '../CreateCachedSyncRpcClient/CreateCachedSyncRpcClient.ts'
 import { createFileContentCache } from '../FileContentCache/FileContentCache.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 
@@ -124,18 +125,20 @@ export const createCachedClient = (
           // Unverifiable readable files are checked again on every request.
           if (identities.get(uri) !== undefined) identities.set(uri, hash)
         }
-        for (const uri of missing) {
-          if (!client.invokeSync('SyncApi.exists', uri)) {
-            continue
-          }
-
-          changed.add(uri)
-          missing.delete(uri)
-        }
+        // Validate directory snapshots first so their absent names can disprove
+        // missing paths without a separate synchronous existence RPC per probe.
+        // This cache lasts only for this refresh and retains the same conservative
+        // URI, Unicode, symlink and inaccessible-directory fallbacks as resolution.
+        const validationClient = createCachedSyncRpcClient(client)
         for (const [uri, identity] of directories) {
-          const entries = directoryIdentity(client.invokeSync('SyncApi.readDirSync', uri))
+          const entries = directoryIdentity(validationClient.invokeSync('SyncApi.readDirSync', uri))
           if (entries !== identity) changed.add(uri)
           directories.set(uri, entries)
+        }
+        for (const uri of missing) {
+          if (!validationClient.invokeSync('SyncApi.exists', uri)) continue
+          changed.add(uri)
+          missing.delete(uri)
         }
         changedFiles = [...changed]
         return changed.size > 0

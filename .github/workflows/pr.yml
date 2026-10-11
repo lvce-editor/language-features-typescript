@@ -34,6 +34,10 @@ jobs:
       - run: npm test
       - name: Test shared synchronous response transport
         run: node --test scripts/test-shared-sync-rpc.mjs
+      - name: Test Three.js repeated edits
+        run: node scripts/benchmark-threejs.mjs
+        env:
+          THREEJS_ENFORCE_REUSE: 1
       - name: Build
         run: npm run build
       - name: Build static site
@@ -65,6 +69,22 @@ jobs:
         # Windows WebKit lacks OffscreenCanvas, which the editor requires.
         if: runner.os != 'Windows'
         run: npm run e2e:webkit:headless
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      # Loading the real declaration fixture emits hundreds of file notifications.
+      # Windows Firefox setup alone took 28.5s; keep the usual suite at 30s and
+      # give this large-fixture scenario its own bounded setup/analysis allowance.
+      - name: Run Three.js Chromium regression
+        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --timeout=60000 --trace-renderer-worker
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run Three.js Firefox regression
+        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --browser=firefox --timeout=60000 --trace-renderer-worker
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run Three.js WebKit regression
+        if: runner.os != 'Windows'
+        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --browser=webkit --no-reuse-page --timeout=60000
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Run smart selection headless tests
