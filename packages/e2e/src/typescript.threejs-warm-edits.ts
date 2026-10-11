@@ -28,10 +28,11 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
     }
     previous = next
   }
+  await Main.openUri(uri)
   await Settings.update({ 'editor.diagnostics': true })
   await Command.execute('Editor.waitForDiagnostics')
   await Editor.shouldHaveDiagnostics([])
-  await Editor.setCursor(2, 'material.color.'.length)
+  await Editor.setCursor(2, 'material.color.set'.length)
   await Editor.openCompletion()
   const completions = Locator('#Completions')
   await expect(completions).toBeVisible()
