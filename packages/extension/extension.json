@@ -18,6 +18,11 @@
       "default": 0,
       "minimum": 0,
       "description": "Maximum number of idle TypeScript projects to keep warm. Applied when the TypeScript worker starts."
+    },
+    "typescript.verifiedDiagnostics": {
+      "type": "array",
+      "default": [],
+      "description": "Prevalidated documents for static demos. Each entry must match the exact document URI, SHA-256 text hash, compiler configuration URI and SHA-256 configuration hash. Only use with fixed, validated project dependencies. Edits and missing evidence resume diagnostics; other language features are unaffected."
     }
   },
   "rpc": [
@@ -70,14 +75,32 @@
     "onTabCompletion:typescript"
   ],
   "completionProviders": [
-    { "id": "typescript.provideCompletions.javascript", "languageId": "javascript" },
-    { "id": "typescript.provideCompletions.typescript", "languageId": "typescript" },
-    { "id": "typescript.provideCompletions.typescriptreact", "languageId": "typescriptreact" }
+    {
+      "id": "typescript.provideCompletions.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideCompletions.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideCompletions.typescriptreact",
+      "languageId": "typescriptreact"
+    }
   ],
   "diagnosticProviders": [
-    { "id": "typescript.provideDiagnostics.javascript", "languageId": "javascript" },
-    { "id": "typescript.provideDiagnostics.typescript", "languageId": "typescript" },
-    { "id": "typescript.provideDiagnostics.typescriptreact", "languageId": "typescriptreact" }
+    {
+      "id": "typescript.provideDiagnostics.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideDiagnostics.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideDiagnostics.typescriptreact",
+      "languageId": "typescriptreact"
+    }
   ],
   "commands": [
     {
@@ -90,14 +113,32 @@
     }
   ],
   "hoverProviders": [
-    { "id": "typescript.provideHover.javascript", "languageId": "javascript" },
-    { "id": "typescript.provideHover.typescript", "languageId": "typescript" },
-    { "id": "typescript.provideHover.typescriptreact", "languageId": "typescriptreact" }
+    {
+      "id": "typescript.provideHover.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideHover.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideHover.typescriptreact",
+      "languageId": "typescriptreact"
+    }
   ],
   "signatureHelpProviders": [
-    { "id": "typescript.provideSignatureHelp.javascript", "languageId": "javascript" },
-    { "id": "typescript.provideSignatureHelp.typescript", "languageId": "typescript" },
-    { "id": "typescript.provideSignatureHelp.typescriptreact", "languageId": "typescriptreact" }
+    {
+      "id": "typescript.provideSignatureHelp.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.typescriptreact",
+      "languageId": "typescriptreact"
+    }
   ],
   "languages": [
     {
