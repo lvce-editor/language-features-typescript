@@ -14,7 +14,13 @@ export const launchTypeScriptWorker = async (): Promise<any> => {
   })
   const typeScriptPath = ''
   const { crossOriginIsolated } = globalThis
-  await worker.invoke('Initialize.initialize', typeScriptPath, crossOriginIsolated)
+  let cacheNodeModules = true
+  try {
+    cacheNodeModules = (await getPreference('typescript.cacheNodeModules')) !== false
+  } catch {
+    // Older hosts keep the default cache behavior.
+  }
+  await worker.invoke('Initialize.initialize', typeScriptPath, crossOriginIsolated, cacheNodeModules)
   try {
     const idleMs = await getPreference('typescript.projectIdleTimeout')
     const warmProjects = await getPreference('typescript.maxIdleProjects')

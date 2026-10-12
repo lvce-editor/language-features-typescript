@@ -1,22 +1,36 @@
 import type { FileContentCache, SyncHandle } from '../FileContentCache/FileContentCache.ts'
+import type { FileMetadataCache } from '../FileMetadataCache/FileMetadataCache.ts'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { createCachedSyncRpcClient } from '../CreateCachedSyncRpcClient/CreateCachedSyncRpcClient.ts'
 import { createFileContentCache } from '../FileContentCache/FileContentCache.ts'
+import { createFileMetadataCache } from '../FileMetadataCache/FileMetadataCache.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 
 interface CacheFileHandle {
   createSyncAccessHandle(): Promise<SyncHandle>
 }
 
-const open = async (name: string): Promise<FileContentCache | undefined> => {
+interface DependencyGeneration {
+  directories: Record<string, string[]>
+  exists: Record<string, boolean>
+  hashes: Record<string, string>
+  lockHash: string
+}
+
+const openHandle = async (name: string): Promise<SyncHandle | undefined> => {
   try {
     const file: CacheFileHandle = await Rpc.invoke('FileCache.getHandle', name)
-    return createFileContentCache(await file.createSyncAccessHandle())
+    return await file.createSyncAccessHandle()
   } catch {
     // Another worker may own the exclusive lock, or OPFS may be unavailable.
     return undefined
   }
+}
+
+const open = async (name: string): Promise<FileContentCache | undefined> => {
+  const handle = await openHandle(name)
+  return handle ? createFileContentCache(handle) : undefined
 }
 
 const directoryIdentity = (value: readonly string[]): string =>
@@ -27,10 +41,15 @@ export const createCachedClient = (
   fs: IFileSystem,
   general: FileContentCache | undefined,
   dependencies: FileContentCache | undefined,
+  metadata: FileMetadataCache | undefined = undefined,
+  cacheNodeModules = true,
 ): SyncRpc => {
   const identities = new Map<string, string | null | undefined>()
   const directories = new Map<string, string>()
   const missing = new Set<string>()
+  const resolutionRoots = new Map<string, string>()
+  const dependencyGenerations = new Map<string, DependencyGeneration>()
+  const dependencyLocks = new Map<string, string | null>()
   let disposed = false
   let changedFiles: readonly string[] | undefined = []
   const statistics = {
@@ -49,25 +68,188 @@ export const createCachedClient = (
     if (!Array.isArray(result) || result.length !== uris.length) throw new Error('Invalid file identities')
     return result.map((hash) => (typeof hash === 'string' && /^[a-f0-9]{64}$/.test(hash) ? hash : null))
   }
+  const dependencyRoot = (uri: string): string | undefined => {
+    const marker = '/node_modules/'
+    const index = uri.lastIndexOf(marker)
+    if (index === -1) return undefined
+    return uri.slice(0, index)
+  }
+  const dependencyRootForPath = (uri: string): string | undefined => {
+    return dependencyRoot(uri) ?? (uri.endsWith('/node_modules') ? uri.slice(0, -'/node_modules'.length) : undefined)
+  }
+  const isTrustedDependencyPath = (uri: string): boolean => {
+    const root = dependencyRootForPath(uri)
+    return root !== undefined && !!getDependencyLockHash(root) && !!dependencyGenerations.get(root)
+  }
+  const loadDependencyGeneration = (root: string, hash: string): DependencyGeneration => {
+    try {
+      const saved = JSON.parse(metadata?.get(root) || 'null')
+      if (saved?.lockHash !== hash || !saved?.hashes || typeof saved.hashes !== 'object') {
+        return { directories: {}, exists: {}, hashes: {}, lockHash: hash }
+      }
+      const directories = Object.fromEntries(
+        Object.entries(saved.directories || {}).filter(
+          ([, value]) => Array.isArray(value) && value.every((entry) => typeof entry === 'string'),
+        ),
+      ) as Record<string, string[]>
+      const exists = Object.fromEntries(
+        Object.entries(saved.exists || {}).filter(([, value]) => typeof value === 'boolean'),
+      ) as Record<string, boolean>
+      const hashes = Object.fromEntries(
+        Object.entries(saved.hashes).filter(([, value]) => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)),
+      ) as Record<string, string>
+      return {
+        directories,
+        exists,
+        hashes,
+        lockHash: hash,
+      }
+    } catch {
+      return { directories: {}, exists: {}, hashes: {}, lockHash: hash }
+    }
+  }
+  const getDependencyLockHash = (root: string): string | null => {
+    if (!root.startsWith('file://')) return null
+    if (dependencyLocks.has(root)) return dependencyLocks.get(root) ?? null
+    let hash: string | null = null
+    try {
+      hash = getHashes([`${root}/node_modules/.package-lock.json`])[0]
+    } catch {
+      // A missing, unreadable or unsupported lockfile keeps per-file validation.
+    }
+    dependencyLocks.set(root, hash)
+    if (hash) {
+      const generation = loadDependencyGeneration(root, hash)
+      dependencyGenerations.set(root, generation)
+      metadata?.set(root, JSON.stringify(generation))
+    }
+    return hash
+  }
+  const refreshDependencyLockHash = (root: string): string | null => {
+    if (!root.startsWith('file://')) return null
+    let hash: string | null = null
+    try {
+      hash = getHashes([`${root}/node_modules/.package-lock.json`])[0]
+    } catch {
+      // Keep conservative per-file validation when lockfile identity is unavailable.
+    }
+    const previousHash = dependencyLocks.get(root)
+    dependencyLocks.set(root, hash)
+    if (hash !== previousHash) {
+      const previous = dependencyGenerations.get(root)
+      if (previous) for (const uri of Object.keys(previous.hashes)) identities.set(uri, undefined)
+      dependencyGenerations.delete(root)
+      if (hash) {
+        const generation = { directories: {}, exists: {}, hashes: {}, lockHash: hash }
+        dependencyGenerations.set(root, generation)
+        metadata?.set(root, JSON.stringify(generation))
+      }
+    }
+    return hash
+  }
+  const persistDependencyHash = (root: string, uri: string, hash: string): void => {
+    const generation = dependencyGenerations.get(root)
+    if (!generation) return
+    generation.hashes[uri] = hash
+    try {
+      metadata?.set(root, JSON.stringify(generation))
+    } catch {
+      // Persistent mappings are an optional optimization.
+    }
+  }
+  const persistDependencyResolution = (root: string, uri: string, value: string[] | boolean): void => {
+    const generation = dependencyGenerations.get(root)
+    if (!generation) return
+    if (typeof value === 'boolean') generation.exists[uri] = value
+    else generation.directories[uri] = value
+    metadata?.set(root, JSON.stringify(generation))
+  }
+  const getCachedResolution = (method: string, uri: string, root: string | undefined): any => {
+    if (!root) return undefined
+    const generation = getDependencyLockHash(root) ? dependencyGenerations.get(root) : undefined
+    if (!generation) return undefined
+    if (method === 'SyncApi.readDirSync' && uri in generation.directories) {
+      const entries = [...generation.directories[uri]]
+      directories.set(uri, directoryIdentity(entries))
+      return entries
+    }
+    if (method === 'SyncApi.exists' && uri in generation.exists) {
+      const exists = generation.exists[uri]
+      if (!exists) missing.add(uri)
+      return exists
+    }
+    return undefined
+  }
+  const recordObservedResolution = (method: string, uri: unknown, value: any): void => {
+    if (typeof uri !== 'string') return
+    if (method === 'SyncApi.exists' && !value) missing.add(uri)
+    if (method === 'SyncApi.readDirSync') directories.set(uri, directoryIdentity(value))
+  }
+  const storeResolution = (
+    method: string,
+    uri: unknown,
+    root: string | undefined,
+    lockHash: string | null,
+    value: unknown,
+  ): void => {
+    if (!root || !lockHash || typeof uri !== 'string') return
+    if (method === 'SyncApi.readDirSync' && Array.isArray(value) && value.every((entry) => typeof entry === 'string')) {
+      persistDependencyResolution(root, uri, value)
+    }
+    if (method === 'SyncApi.exists') persistDependencyResolution(root, uri, !!value)
+  }
+  const invokeFileSystem = (method: string, params: readonly any[], uri: unknown): any => {
+    const root = cacheNodeModules && typeof uri === 'string' ? dependencyRootForPath(uri) : undefined
+    const lockHash = root ? getDependencyLockHash(root) : null
+    if (root && lockHash && typeof uri === 'string') resolutionRoots.set(uri, root)
+    if (typeof uri === 'string') {
+      const cached = getCachedResolution(method, uri, root)
+      if (cached !== undefined) return cached
+    }
+    const value = client.invokeSync(method, ...params)
+    recordObservedResolution(method, uri, value)
+    storeResolution(method, uri, root, lockHash, value)
+    return value
+  }
+  const getDependencyCacheHit = (uri: string, root: string | undefined): string | undefined => {
+    if (root === undefined) return undefined
+    const lockHash = getDependencyLockHash(root)
+    const hash = lockHash ? dependencyGenerations.get(root)?.hashes[uri] : undefined
+    if (!hash) return undefined
+    identities.set(uri, hash)
+    const content = dependencies?.get(hash)
+    if (content !== undefined) statistics.dependencyHits++
+    return content
+  }
+  const getFileHash = (uri: string): string | null => {
+    try {
+      return getHashes([uri])[0]
+    } catch {
+      // Source reads remain available when the optional hashing API fails.
+      return null
+    }
+  }
+  const getCachedFileContent = (hash: string | null, cache: FileContentCache | undefined): string | undefined => {
+    if (!hash) return undefined
+    const content = cache?.get(hash)
+    if (content === undefined) return undefined
+    if (cache === dependencies) statistics.dependencyHits++
+    else statistics.generalHits++
+    return content
+  }
   const readFile = (uri: string) => {
     const live = fs.readFile(uri)
     if (live !== undefined) return live
-    const cache = /(^|[/\\])node_modules[/\\]/.test(uri) ? dependencies : general
-    let hash: string | null = null
-    try {
-      hash = getHashes([uri])[0]
-    } catch {
-      // Source reads remain available when the optional hashing API fails.
-    }
+    const root = cacheNodeModules ? dependencyRoot(uri) : undefined
+    const isDependency = root !== undefined
+    const cache = isDependency ? dependencies : general
+    const dependencyContent = getDependencyCacheHit(uri, root)
+    if (dependencyContent !== undefined) return dependencyContent
+    const hash = getFileHash(uri)
     identities.set(uri, hash)
-    if (hash) {
-      const cached = cache?.get(hash)
-      if (cached !== undefined) {
-        if (cache === dependencies) statistics.dependencyHits++
-        else statistics.generalHits++
-        return cached
-      }
-    }
+    if (root !== undefined && hash) persistDependencyHash(root, uri, hash)
+    const cached = getCachedFileContent(hash, cache)
+    if (cached !== undefined) return cached
     statistics.sourceReads++
     const content = client.invokeSync('SyncApi.readFileSync', uri)
     // A readable file without a trustworthy identity cannot retain a program snapshot.
@@ -75,26 +257,127 @@ export const createCachedClient = (
     if (hash && typeof content === 'string') cache?.set(hash, content)
     return content
   }
+  const getUrisToValidate = (uris: readonly string[]): string[] => {
+    const validateUris: string[] = []
+    for (const uri of uris) {
+      const root = cacheNodeModules ? dependencyRoot(uri) : undefined
+      if (root === undefined) {
+        validateUris.push(uri)
+        continue
+      }
+      const lockHash = dependencyLocks.get(root)
+      if (!lockHash || !dependencyGenerations.get(root)?.hashes[uri]) validateUris.push(uri)
+    }
+    return validateUris
+  }
+  const getChangedIdentities = (uris: readonly string[]): Set<string> => {
+    const hashes = uris.length > 0 ? getHashes(uris) : []
+    const changed = new Set<string>()
+    for (const [index, hash] of hashes.entries()) {
+      const uri = uris[index]
+      if (hash !== identities.get(uri)) changed.add(uri)
+      if (identities.get(uri) !== undefined) identities.set(uri, hash)
+    }
+    return changed
+  }
+  const addDependencyRoots = (
+    roots: Set<string>,
+    uris: Iterable<string>,
+    getRoot: (uri: string) => string | undefined,
+  ): void => {
+    for (const uri of uris) {
+      const root = cacheNodeModules ? getRoot(uri) : undefined
+      if (root !== undefined) roots.add(root)
+    }
+  }
+  const getTrackedDependencyRoots = (uris: readonly string[]): Set<string> => {
+    const roots = new Set<string>()
+    addDependencyRoots(roots, uris, dependencyRoot)
+    addDependencyRoots(roots, directories.keys(), dependencyRootForPath)
+    addDependencyRoots(roots, missing, dependencyRootForPath)
+    for (const root of resolutionRoots.values()) roots.add(root)
+    return roots
+  }
+  const refreshDependencyRoots = (roots: ReadonlySet<string>): Set<string> => {
+    const changedRoots = new Set<string>()
+    for (const root of roots) {
+      const previousHash = dependencyLocks.get(root)
+      const hadPreviousHash = dependencyLocks.has(root)
+      const lockHash = refreshDependencyLockHash(root)
+      if (hadPreviousHash && previousHash !== lockHash) changedRoots.add(root)
+    }
+    return changedRoots
+  }
+  const refreshFileIdentities = (): { changed: Set<string>; changedRoots: Set<string> } => {
+    const uris = identities
+      .keys()
+      .filter((uri) => fs.readFile(uri) === undefined)
+      .toArray()
+    const changedRoots = refreshDependencyRoots(getTrackedDependencyRoots(uris))
+    const validateUris = getUrisToValidate(uris)
+    const changed = getChangedIdentities(validateUris)
+    if (changedRoots.size > 0) {
+      for (const uri of [...uris, ...directories.keys(), ...missing, ...resolutionRoots.keys()]) {
+        if (changedRoots.has(dependencyRootForPath(uri) ?? '')) changed.add(uri)
+      }
+    }
+    return { changed, changedRoots }
+  }
+  const refreshDirectories = (changed: Set<string>, changedRoots: Set<string>): void => {
+    const validationClient = createCachedSyncRpcClient(client)
+    for (const [uri, previousIdentity] of directories) {
+      const root = dependencyRootForPath(uri)
+      if (cacheNodeModules && isTrustedDependencyPath(uri) && !changedRoots.has(root!)) continue
+      const value = validationClient.invokeSync('SyncApi.readDirSync', uri)
+      const identity = directoryIdentity(value)
+      if (identity !== previousIdentity) changed.add(uri)
+      directories.set(uri, identity)
+      if (
+        root &&
+        dependencyLocks.get(root) &&
+        Array.isArray(value) &&
+        value.every((entry) => typeof entry === 'string')
+      ) {
+        persistDependencyResolution(root, uri, value)
+      }
+    }
+  }
+  const refreshMissing = (changed: Set<string>, changedRoots: Set<string>): void => {
+    const validationClient = createCachedSyncRpcClient(client)
+    for (const uri of missing) {
+      const root = dependencyRootForPath(uri)
+      if (cacheNodeModules && isTrustedDependencyPath(uri) && !changedRoots.has(root!)) continue
+      const exists = validationClient.invokeSync('SyncApi.exists', uri)
+      if (root && dependencyLocks.get(root)) persistDependencyResolution(root, uri, !!exists)
+      if (!exists) continue
+      changed.add(uri)
+      missing.delete(uri)
+    }
+  }
   return {
     clearReferences() {
       identities.clear()
       directories.clear()
       missing.clear()
+      resolutionRoots.clear()
     },
     dispose() {
       if (disposed) return
       disposed = true
       general?.close()
       dependencies?.close()
+      metadata?.close()
       identities.clear()
       directories.clear()
       missing.clear()
+      resolutionRoots.clear()
     },
     forgetReferences(uris) {
       for (const uri of uris) {
         identities.delete(uri)
         directories.delete(uri)
         missing.delete(uri)
+        resolutionRoots.delete(uri)
       }
     },
     getCacheStatistics: () => ({ ...statistics }),
@@ -103,43 +386,17 @@ export const createCachedClient = (
       if (disposed) return client.invokeSync(method, ...params)
       const uri = params[0]
       if (method !== 'SyncApi.readFileSync') {
-        const value = client.invokeSync(method, ...params)
-        if (method === 'SyncApi.exists' && !value) missing.add(uri)
-        if (method === 'SyncApi.readDirSync') directories.set(uri, directoryIdentity(value))
-        return value
+        return invokeFileSystem(method, params, uri)
       }
       return readFile(uri)
     },
     refresh() {
       if (disposed) return false
       try {
-        const uris = identities
-          .keys()
-          .filter((uri) => fs.readFile(uri) === undefined)
-          .toArray()
-        const hashes = uris.length > 0 ? getHashes(uris) : []
-        const changed = new Set<string>()
-        for (const [index, hash] of hashes.entries()) {
-          const uri = uris[index]
-          if (hash !== identities.get(uri)) changed.add(uri)
-          // Unverifiable readable files are checked again on every request.
-          if (identities.get(uri) !== undefined) identities.set(uri, hash)
-        }
-        // Validate directory snapshots first so their absent names can disprove
-        // missing paths without a separate synchronous existence RPC per probe.
-        // This cache lasts only for this refresh and retains the same conservative
-        // URI, Unicode, symlink and inaccessible-directory fallbacks as resolution.
-        const validationClient = createCachedSyncRpcClient(client)
-        for (const [uri, identity] of directories) {
-          const entries = directoryIdentity(validationClient.invokeSync('SyncApi.readDirSync', uri))
-          if (entries !== identity) changed.add(uri)
-          directories.set(uri, entries)
-        }
-        for (const uri of missing) {
-          if (!validationClient.invokeSync('SyncApi.exists', uri)) continue
-          changed.add(uri)
-          missing.delete(uri)
-        }
+        const { changed, changedRoots } = refreshFileIdentities()
+        // Validate non-dependency resolution state conservatively on every request.
+        refreshDirectories(changed, changedRoots)
+        refreshMissing(changed, changedRoots)
         changedFiles = [...changed]
         return changed.size > 0
       } catch {
@@ -154,7 +411,16 @@ export const createCachedClient = (
   }
 }
 
-export const initialize = async (client: SyncRpc, fs: IFileSystem): Promise<SyncRpc> => {
-  const [general, dependencies] = await Promise.all([open('files-v1'), open('node-modules-v1')])
-  return createCachedClient(client, fs, general, dependencies)
+const openMetadata = async (): Promise<FileMetadataCache | undefined> => {
+  const handle = await openHandle('node-modules-metadata-v1')
+  return handle ? createFileMetadataCache(handle) : undefined
+}
+
+export const initialize = async (client: SyncRpc, fs: IFileSystem, cacheNodeModules = true): Promise<SyncRpc> => {
+  const [general, dependencies, metadata] = await Promise.all([
+    open('files-v1'),
+    open('node-modules-v1'),
+    openMetadata(),
+  ])
+  return createCachedClient(client, fs, general, dependencies, metadata, cacheNodeModules)
 }

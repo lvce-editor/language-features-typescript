@@ -181,3 +181,163 @@ test('retiring project references stops polling their identities without closing
   state.failedHash = true
   expect(cached.refresh?.()).toBe(false)
 })
+
+test('the default node_modules cache reuses persisted dependency content while the lockfile identity is stable', () => {
+  const entries = new Map<string, string>()
+  const contentCache: FileContentCache = {
+    close: () => entries.clear(),
+    get: (key) => entries.get(key),
+    set: (key, value) => entries.set(key, value),
+  }
+  const saved = new Map<string, string>()
+  const metadata = {
+    close: () => saved.clear(),
+    get: (key: string) => saved.get(key),
+    set: (key: string, value: string) => saved.set(key, value),
+  }
+  const state = { dependencyHash: firstHash, lockHash: secondHash, reads: 0 }
+  const client = {
+    invokeSync(method: string, uris: readonly string[]) {
+      if (method === 'FileCache.getHashes')
+        return uris.map((uri) => (uri.includes('.package-lock.json') ? state.lockHash : state.dependencyHash))
+      if (method === 'SyncApi.readFileSync') {
+        state.reads++
+        return 'cached dependency'
+      }
+      throw new Error(`Unexpected method ${method}`)
+    },
+  }
+  const uri = 'file:///project/node_modules/pkg/index.d.ts'
+  const fs = createFileSystem()
+  createCachedClient(client, fs, cache(), contentCache, metadata).invokeSync('SyncApi.readFileSync', uri)
+  expect(saved.get('file:///project')).toContain(uri)
+  expect(entries.has(firstHash)).toBe(true)
+  state.dependencyHash = 'c'.repeat(64) // Simulate an unusual direct edit with an unchanged lockfile.
+  const resumed = createCachedClient(client, fs, cache(), contentCache, metadata)
+  expect(resumed.invokeSync('SyncApi.readFileSync', uri)).toBe('cached dependency')
+  expect(state.reads).toBe(1)
+})
+
+test('disabling node_modules reuse keeps per-file identity validation', () => {
+  const entries = new Map<string, string>()
+  const contentCache: FileContentCache = {
+    close: () => entries.clear(),
+    get: (key) => entries.get(key),
+    set: (key, value) => entries.set(key, value),
+  }
+  const saved = new Map<string, string>()
+  const metadata = {
+    close: () => saved.clear(),
+    get: (key: string) => saved.get(key),
+    set: (key: string, value: string) => saved.set(key, value),
+  }
+  const state = { hash: firstHash, reads: 0 }
+  const client = {
+    invokeSync(method: string, uri: string) {
+      if (method === 'FileCache.getHashes') return [uri.includes('.package-lock.json') ? secondHash : state.hash]
+      if (method === 'SyncApi.readFileSync') return `dependency ${++state.reads}`
+      throw new Error(`Unexpected method ${method}`)
+    },
+  }
+  const uri = 'file:///project/node_modules/pkg/index.d.ts'
+  const fs = createFileSystem()
+  const first = createCachedClient(client, fs, cache(), contentCache, metadata, false)
+  expect(first.invokeSync('SyncApi.readFileSync', uri)).toBe('dependency 1')
+  state.hash = 'c'.repeat(64)
+  const resumed = createCachedClient(client, fs, cache(), contentCache, metadata, false)
+  expect(resumed.invokeSync('SyncApi.readFileSync', uri)).toBe('dependency 2')
+  expect(state.reads).toBe(2)
+})
+
+test('the default node_modules cache reuses dependency directory snapshots after a worker restart', () => {
+  const saved = new Map<string, string>()
+  const metadata = {
+    close: () => saved.clear(),
+    get: (key: string) => saved.get(key),
+    set: (key: string, value: string) => saved.set(key, value),
+  }
+  let directoryReads = 0
+  let lockHash = firstHash
+  const client = {
+    invokeSync(method: string, uris: readonly string[]) {
+      if (method === 'FileCache.getHashes')
+        return uris.map((uri) => (uri.includes('.package-lock.json') ? lockHash : firstHash))
+      if (method === 'SyncApi.readDirSync') {
+        directoryReads++
+        return ['pkg']
+      }
+      throw new Error(`Unexpected method ${method}`)
+    },
+  }
+  const root = 'file:///project'
+  const directory = `${root}/node_modules`
+  saved.set(root, JSON.stringify({ hashes: {}, lockHash: firstHash }))
+  createCachedClient(client, createFileSystem(), cache(), cache(), metadata).invokeSync(
+    'SyncApi.readDirSync',
+    directory,
+  )
+  const resumed = createCachedClient(client, createFileSystem(), cache(), cache(), metadata)
+  expect(resumed.invokeSync('SyncApi.readDirSync', directory)).toEqual(['pkg'])
+  expect(directoryReads).toBe(1)
+  expect(resumed.refresh?.()).toBe(false)
+  lockHash = secondHash
+  expect(resumed.refresh?.()).toBe(true)
+  expect(resumed.invokeSync('SyncApi.readDirSync', directory)).toEqual(['pkg'])
+  expect(directoryReads).toBe(2)
+})
+
+test('caches dependency existence probes while the package lockfile is unchanged', () => {
+  const saved = new Map<string, string>()
+  const metadata = {
+    close: () => saved.clear(),
+    get: (key: string) => saved.get(key),
+    set: (key: string, value: string) => saved.set(key, value),
+  }
+  let existsCalls = 0
+  const client = {
+    invokeSync(method: string, uris: readonly string[] | string) {
+      if (method === 'FileCache.getHashes') return (uris as readonly string[]).map(() => firstHash)
+      if (method === 'SyncApi.exists') {
+        existsCalls++
+        return false
+      }
+      throw new Error(`Unexpected method ${method}`)
+    },
+  }
+  const missing = 'file:///project/node_modules/pkg/index.d.ts'
+  createCachedClient(client, createFileSystem(), cache(), cache(), metadata).invokeSync('SyncApi.exists', missing)
+  const resumed = createCachedClient(client, createFileSystem(), cache(), cache(), metadata)
+  expect(resumed.invokeSync('SyncApi.exists', missing)).toBe(false)
+  expect(resumed.refresh?.()).toBe(false)
+  expect(existsCalls).toBe(1)
+})
+
+test('falls back to per-file identities when the npm lockfile cannot be read', () => {
+  const entries = new Map<string, string>()
+  const contentCache: FileContentCache = {
+    close: () => entries.clear(),
+    get: (key) => entries.get(key),
+    set: (key, value) => entries.set(key, value),
+  }
+  const state = { hashes: 0, reads: 0 }
+  const client = {
+    invokeSync(method: string, uris: readonly string[]) {
+      if (method === 'FileCache.getHashes') {
+        state.hashes++
+        return uris.map((uri) => (uri.includes('.package-lock.json') ? null : firstHash))
+      }
+      if (method === 'SyncApi.readFileSync') {
+        state.reads++
+        return 'dependency'
+      }
+      throw new Error(`Unexpected method ${method}`)
+    },
+  }
+  const uri = 'file:///project/node_modules/pkg/index.d.ts'
+  const cached = createCachedClient(client, createFileSystem(), cache(), contentCache)
+  expect(cached.invokeSync('SyncApi.readFileSync', uri)).toBe('dependency')
+  expect(cached.invokeSync('SyncApi.readFileSync', uri)).toBe('dependency')
+  expect(cached.refresh?.()).toBe(false)
+  expect(state.reads).toBe(1)
+  expect(state.hashes).toBe(5)
+})

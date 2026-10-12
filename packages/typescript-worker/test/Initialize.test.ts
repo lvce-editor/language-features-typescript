@@ -8,7 +8,7 @@ const ts = {}
 const set = jest.fn()
 const dispose = jest.fn()
 const resetLanguageServices = jest.fn()
-const initializeFiles = jest.fn(async (_client: unknown, _fs: unknown) => client)
+const initializeFiles = jest.fn(async (_client: unknown, _fs: unknown, _cacheNodeModules: boolean) => client)
 const loadTypeScript = jest.fn(async () => ts)
 
 jest.unstable_mockModule('../src/parts/CreateFileSystem/CreateFileSystem.ts', () => ({ createFileSystem: () => fs }))
@@ -78,7 +78,7 @@ test('opens source caches before the TypeScript module finishes loading', async 
   try {
     // Allow the synchronous transport setup to finish while module loading is pending.
     await Promise.resolve()
-    expect(initializeFiles).toHaveBeenCalledWith(client, fs)
+    expect(initializeFiles).toHaveBeenCalledWith(client, fs, true)
     expect(set).not.toHaveBeenCalled()
   } finally {
     typeScriptReady.resolve(ts)
@@ -90,7 +90,7 @@ test('disposes old programs and cache handles before acquiring replacement handl
   await initialize('', true)
   expect(resetLanguageServices).toHaveBeenCalledTimes(1)
   expect(dispose).toHaveBeenCalledTimes(1)
-  expect(initializeFiles).toHaveBeenCalledWith(client, fs)
+  expect(initializeFiles).toHaveBeenCalledWith(client, fs, true)
   expect(dispose.mock.invocationCallOrder[0]).toBeLessThan(initializeFiles.mock.invocationCallOrder[0])
 })
 

@@ -1,7 +1,7 @@
 # TypeScript source-content cache experiment
 
 The TypeScript worker opens two exclusive synchronous OPFS journals, `files-v1` and
-`node-modules-v1`, through the extension `getCacheFileHandle` API. Cache-worker owns
+`node-modules-v1`, plus the bounded `node-modules-metadata-v1` mapping store, through the extension `getCacheFileHandle` API. Cache-worker owns
 the directory layout; extension-management-worker derives the extension namespace
 from the owning extension ID. Each TypeScript worker owns and closes its access
 handles. A competing worker falls back to its source transport while the lock is
@@ -16,7 +16,7 @@ quota errors, short writes and unavailable storage fall back to source reads.
 Contents read after a concurrent source change cannot be stored under the earlier
 hash.
 
-Every persistent read first asks `getFileHashes` for the current source identity.
+Persistent source and configuration reads first ask `getFileHashes` for the current source identity.
 The disk provider caches SHA256 by device/inode/size/mtime/ctime, checking metadata
 around the initial content read. Subsequent unchanged identities use stat calls.
 Non-disk URIs are hashed through their owning read provider because the legacy
@@ -25,6 +25,18 @@ TypeScript source RPCs do not imply fewer provider reads in those environments.
 In-memory documents take precedence over saved contents. Before reusing a project,
 the client refreshes read identities, missing-path existence and directory listings;
 changes or failed validation discard its language services and resolution state.
+
+The `typescript.cacheNodeModules` setting defaults to `true`. For dependency files
+under a project with `node_modules/.package-lock.json`, the worker persists URI to
+content-hash mappings. It checks the lockfile identity and reuses those mappings
+without per-file dependency stats or dependency-directory refresh probes while the
+lockfile is unchanged. `npm install` updates this lockfile and invalidates the
+generation. Direct edits, manually added or removed dependency files, and linked
+package changes that do not update the lockfile can remain hidden while this setting
+is enabled. Disable it to validate dependency file identities and directory state
+on each refresh. Projects without a readable lockfile and unsupported providers use
+the conservative per-file path. Corrupt metadata is discarded and the optional
+cache falls back to the source provider.
 
 Diagnostic performance traces include `fileCache`: cumulative counters for the
 current worker (`generalHits`, `dependencyHits`, `sourceReads`, `identityRequests`,

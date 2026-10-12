@@ -8,7 +8,7 @@ import { loadTypeScript } from '../LoadTypeScript/LoadTypeScript.ts'
 import * as ProjectLifecycle from '../ProjectLifecycle/ProjectLifecycle.ts'
 import * as ReadLibFile from '../ReadLibFile/ReadLibFile.ts'
 
-export const initialize = async (typeScriptPath: string, crossOriginIsolated: boolean) => {
+export const initialize = async (typeScriptPath: string, crossOriginIsolated: boolean, cacheNodeModules = true) => {
   ProjectLifecycle.stop()
   resetLanguageServices()
   LanguageServices.get(1)?.client.dispose?.()
@@ -26,7 +26,7 @@ export const initialize = async (typeScriptPath: string, crossOriginIsolated: bo
   // Serializing these operations delays the first diagnostics on cold startup.
   const cachedClientReady = (async () => {
     sourceClient = await clientReady
-    return CachedFileClient.initialize(sourceClient, fs)
+    return CachedFileClient.initialize(sourceClient, fs, cacheNodeModules)
   })()
   try {
     const [ts, cachedClient] = await Promise.all([loadTypeScript(tsPath), cachedClientReady])

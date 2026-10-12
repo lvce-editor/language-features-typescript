@@ -30,5 +30,5 @@ test('creates the declared worker RPC and initializes it', async () => {
     commandMap: Command.commandMap,
     id: 'builtin.language-features-typescript.typescript-worker',
   })
-  expect(invoke).toHaveBeenCalledWith('Initialize.initialize', '', true)
+  expect(invoke).toHaveBeenCalledWith('Initialize.initialize', '', true, true)
 })
