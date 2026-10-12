@@ -195,7 +195,7 @@ test('writes a pretty-printed trace to a named document', async () => {
   const refreshedUri = writeFile.mock.calls[1][0]
   expect(refreshedUri).not.toBe(uri)
   expect(closeUri).toHaveBeenCalledWith(uri)
-  expect(remove).toHaveBeenCalledWith(uri)
+  expect(remove).not.toHaveBeenCalled()
   expect(writeFile).toHaveBeenNthCalledWith(2, refreshedUri, JSON.stringify(refreshedTrace, null, 2))
   expect(openUri).toHaveBeenCalledWith(refreshedUri)
 })
@@ -261,4 +261,26 @@ test('falls back to memory when writing the disk trace fails', async () => {
   expect(writeFile).toHaveBeenNthCalledWith(1, diskUri, JSON.stringify(trace, null, 2))
   expect(writeFile).toHaveBeenNthCalledWith(2, fallbackUri, JSON.stringify(trace, null, 2))
   expect(openUri).toHaveBeenCalledWith(fallbackUri)
+})
+
+test('removes the previous memory trace after opening fresh output', async () => {
+  const closeUri = jest.fn(async (_uri: string) => {})
+  const openUri = jest.fn(async (_uri: string) => {})
+  const remove = jest.fn(async (_uri: string) => {})
+  const writeFile = jest.fn(async (_uri: string, _content: string) => {})
+  const dependencies = {
+    closeUri,
+    getUserDataDir: async () => {
+      throw new Error('No disk access')
+    },
+    openUri,
+    remove,
+    writeFile,
+  }
+  await ShowPerformanceTrace.openPerformanceTraceWithDependencies({ status: 'loading' }, dependencies)
+  const previousUri = openUri.mock.calls[0][0]
+  await ShowPerformanceTrace.openPerformanceTraceWithDependencies({ status: 'loading' }, dependencies)
+  expect(remove).toHaveBeenCalledWith(previousUri)
+  expect(closeUri).toHaveBeenCalledWith(previousUri)
+  expect(openUri.mock.calls[1][0]).not.toBe(previousUri)
 })

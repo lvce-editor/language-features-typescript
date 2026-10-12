@@ -105,7 +105,11 @@ export const openPerformanceTraceWithDependencies = async (
   if (previousOutputUri) {
     await dependencies.closeUri(previousOutputUri)
     try {
-      await dependencies.remove(previousOutputUri)
+      // Disk removal uses the desktop trash service, which may be unavailable.
+      // Keep saved traces on disk and only clean up memory-backed output.
+      if (previousOutputUri.startsWith('memfs://')) {
+        await dependencies.remove(previousOutputUri)
+      }
     } catch {
       // Removing an older trace is best effort; the new output is already open.
     }
