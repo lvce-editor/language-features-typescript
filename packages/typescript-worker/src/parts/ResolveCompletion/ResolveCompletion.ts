@@ -9,8 +9,8 @@ const getEntryNames = (name, completionItem) => {
     return [
       {
         data: completionItem.data,
-        name,
-        source: completionItem.source,
+        name: completionItem.completionName || name,
+        source: completionItem.completionSource ?? completionItem.source,
       },
     ]
   }

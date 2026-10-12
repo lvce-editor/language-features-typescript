@@ -55,3 +55,41 @@ test('resolveCompletion - no item', async () => {
     await ResolveCompletion.resolveCompletion(typeScriptRpc, Position, textDocument, offset, name, completionItem),
   ).toBeUndefined()
 })
+
+test('resolveCompletion uses the original TypeScript name, source, and data', async () => {
+  const typeScriptRpc: CommonRpc = {
+    invoke: jest.fn(async () => [{ kind: 'class', name: 'PositionalAudio' }] as any),
+  }
+  const Position = {
+    getTsPosition() {
+      return { column: 0, line: 0, offset: 0 }
+    },
+  }
+  const completionItem = {
+    completionName: 'PositionalAudio',
+    completionSource: 'three/addons/audio/PositionalAudio.js',
+    data: { exportName: 'PositionalAudio' },
+  }
+
+  await ResolveCompletion.resolveCompletion(
+    typeScriptRpc,
+    Position,
+    { uri: '' },
+    0,
+    'PositionalAudio (three/addons/audio/PositionalAudio.js)',
+    completionItem,
+  )
+
+  expect(typeScriptRpc.invoke).toHaveBeenLastCalledWith('ResolveCompletion.resolveCompletion', {
+    entryNames: [
+      {
+        data: { exportName: 'PositionalAudio' },
+        name: 'PositionalAudio',
+        source: 'three/addons/audio/PositionalAudio.js',
+      },
+    ],
+    file: '',
+    line: 0,
+    offset: 0,
+  })
+})
