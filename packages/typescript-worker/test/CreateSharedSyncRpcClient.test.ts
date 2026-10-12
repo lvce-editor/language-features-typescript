@@ -1,7 +1,22 @@
-import { afterEach, expect, jest, test } from '@jest/globals'
+import { afterEach, beforeEach, expect, jest, test } from '@jest/globals'
 import { createSharedSyncRpcClient } from '../src/parts/CreateSharedSyncRpcClient/CreateSharedSyncRpcClient.ts'
 
 const state: { shared: SharedArrayBuffer } = { shared: new SharedArrayBuffer(8) }
+const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
+const defaultTextAccessHandle = {
+  flush: jest.fn(),
+  getSize: () => 0,
+  read: jest.fn(),
+  truncate: jest.fn(),
+  write: jest.fn(),
+}
+const defaultTextHandle = { createSyncAccessHandle: async () => defaultTextAccessHandle }
+beforeEach(() => {
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: { storage: { getDirectory: async () => ({ getFileHandle: async () => defaultTextHandle }) } },
+  })
+})
 const configure = (respond: () => void) => {
   globalThis.rpc = {
     invoke: jest.fn(async (method: string, _id: number, buffer: SharedArrayBuffer) => {
@@ -23,6 +38,56 @@ const respond = (content: string, status = 2) => {
 
 afterEach(() => {
   jest.restoreAllMocks()
+  if (originalNavigator) {
+    Object.defineProperty(globalThis, 'navigator', originalNavigator)
+  } else {
+    Reflect.deleteProperty(globalThis, 'navigator')
+  }
+})
+
+test('reads large Unicode file text from OPFS without putting it in the shared response', async () => {
+  let fileBytes = new Uint8Array()
+  const textAccessHandle = {
+    flush: jest.fn(),
+    getSize: () => fileBytes.length,
+    read: jest.fn((target: Uint8Array) => {
+      target.set(fileBytes)
+      return fileBytes.length
+    }),
+    truncate: (size: number) => {
+      fileBytes = fileBytes.slice(0, size)
+    },
+    write: (source: Uint8Array) => {
+      fileBytes = source.slice()
+      return source.length
+    },
+  }
+  const textHandle = { createSyncAccessHandle: async () => textAccessHandle }
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: { storage: { getDirectory: async () => ({ getFileHandle: async () => textHandle }) } },
+  })
+  globalThis.rpc = {
+    invoke: jest.fn(async (method: string, _id: number, shared: SharedArrayBuffer) => {
+      if (method === 'SyncApi.setupShared') {
+        state.shared = shared
+        return
+      }
+      fileBytes = new TextEncoder().encode(text)
+      respond(JSON.stringify({ text: true }))
+    }),
+  }
+  const text = 'const greeting = "héllo 😀"\n'.repeat(10_000)
+  try {
+    const client = await createSharedSyncRpcClient(7, 100)
+    expect(client.invokeSync('SyncApi.readFileSync', '/large.ts')).toBe(text)
+    expect(textAccessHandle.read).toHaveBeenCalled()
+  } finally {
+    Object.defineProperty(globalThis, 'navigator', {
+      configurable: true,
+      value: { storage: { getDirectory: async () => ({ getFileHandle: async () => defaultTextHandle }) } },
+    })
+  }
 })
 
 test('returns a response published before the synchronous wait begins', async () => {

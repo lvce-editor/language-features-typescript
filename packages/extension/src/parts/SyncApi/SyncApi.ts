@@ -8,8 +8,15 @@ import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 import { toFileUri } from '../ToFileUri/ToFileUri.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
 
-export const syncSetupShared = (id: number, shared: SharedArrayBuffer, maxDelay: number): void => {
-  SyncSetupState.set(id, { maxDelay, shared })
+export const syncSetupShared = async (
+  id: number,
+  shared: SharedArrayBuffer,
+  maxDelay: number,
+  textHandle: FileSystemFileHandle,
+): Promise<void> => {
+  // @ts-ignore
+  const textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })
+  SyncSetupState.set(id, { maxDelay, shared, textAccessHandle })
 }
 
 export const syncSetup = async (
@@ -21,8 +28,9 @@ export const syncSetup = async (
   draftHandle: FileSystemFileHandle,
   resultHandle: FileSystemFileHandle,
   errorHandle: FileSystemFileHandle,
+  textHandle: FileSystemFileHandle,
 ): Promise<void> => {
-  const [accessHandle, resultAccessHandle, errorAccessHandle] = await Promise.all([
+  const [accessHandle, resultAccessHandle, errorAccessHandle, textAccessHandle] = await Promise.all([
     // @ts-ignore
     draftHandle.createSyncAccessHandle({
       mode: 'readwrite-unsafe',
@@ -35,6 +43,8 @@ export const syncSetup = async (
     errorHandle.createSyncAccessHandle({
       mode: 'readwrite-unsafe',
     }),
+    // @ts-ignore
+    textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' }),
   ])
 
   SyncSetupState.set(id, {
@@ -42,6 +52,7 @@ export const syncSetup = async (
     buffer,
     errorAccessHandle,
     resultAccessHandle,
+    textAccessHandle,
   })
 }
 
@@ -49,7 +60,7 @@ export const readFileSync = async (id: number, uri: string): Promise<void> => {
   const resultGenerator = () => {
     return readFile(toFileUri(uri))
   }
-  await writeResult(id, resultGenerator)
+  await writeResult(id, resultGenerator, true)
 }
 
 export const readDirSync = async (id: number, uri: string): Promise<void> => {

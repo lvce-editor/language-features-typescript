@@ -7,7 +7,11 @@ export const createSharedSyncRpcClient = async (syncId: number, maxDelay: number
   const shared = new SharedArrayBuffer(8 + 64 * 1024)
   const header = new Int32Array(shared, 0, 2)
   const bytes = new Uint8Array(shared, 8)
-  await Rpc.invoke('SyncApi.setupShared', syncId, shared, maxDelay)
+  const root = await navigator.storage.getDirectory()
+  const textHandle = await root.getFileHandle(`file-content-${syncId}.txt`, { create: true })
+  // @ts-ignore
+  const textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })
+  await Rpc.invoke('SyncApi.setupShared', syncId, shared, maxDelay, textHandle)
   let failed = false
   return {
     invokeSync(method, ...params) {
@@ -33,6 +37,12 @@ export const createSharedSyncRpcClient = async (syncId: number, maxDelay: number
           const response = JSON.parse(content)
           if (response.error) {
             throw new Error(response.error.message)
+          }
+          if (response.text) {
+            const textSize = textAccessHandle.getSize()
+            const text = new Uint8Array(textSize)
+            textAccessHandle.read(text, { at: 0 })
+            return new TextDecoder().decode(text)
           }
           return response.result
         }

@@ -1,12 +1,24 @@
 export interface SharedSetup {
   readonly maxDelay: number
   readonly shared: SharedArrayBuffer
+  readonly textAccessHandle: FileSystemSyncAccessHandle
 }
 
-export const writeSharedResult = async (setup: SharedSetup, result: unknown, error: any): Promise<void> => {
+export const writeSharedResult = async (
+  setup: SharedSetup,
+  result: unknown,
+  error: any,
+  isText: boolean,
+): Promise<void> => {
   const header = new Int32Array(setup.shared, 0, 2)
   const bytes = new Uint8Array(setup.shared, 8)
-  const response = error ? { error: { message: String(error.message ?? error) } } : { result }
+  const response = error ? { error: { message: String(error.message ?? error) } } : isText ? { text: true } : { result }
+  if (isText && !error) {
+    const encodedText = new TextEncoder().encode(result as string)
+    setup.textAccessHandle.truncate(encodedText.length)
+    setup.textAccessHandle.write(encodedText, { at: 0 })
+    setup.textAccessHandle.flush()
+  }
   const encoded = new TextEncoder().encode(JSON.stringify(response))
   for (let offset = 0; offset < encoded.length; offset += bytes.length) {
     if (Atomics.load(header, 0) === 3) {
