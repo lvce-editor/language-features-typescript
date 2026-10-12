@@ -2,7 +2,8 @@ import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 import { writeSharedResult } from '../WriteSharedResult/WriteSharedResult.ts'
 
 const successCode = 123
-const errorCode = 123
+const errorCode = 124
+const textCode = 125
 
 const getResponse = async (resultGenerator) => {
   let _error
@@ -64,22 +65,31 @@ const writeResultError = async (errorAccessHandle: FileSystemSyncAccessHandle, e
   })
 }
 
-const writeResultContent = async (resultAccessHandle: FileSystemSyncAccessHandle, result: any, error: any) => {
+const writeResultContent = async (
+  resultAccessHandle: FileSystemSyncAccessHandle,
+  result: any,
+  error: any,
+  isText: boolean,
+) => {
   if (error) {
+    return
+  }
+  if (isText) {
+    await writeText(resultAccessHandle, result)
     return
   }
   await writeJson(resultAccessHandle, result)
 }
 
-export const writeResult = async (id: any, resultGenerator: () => Promise<any>) => {
+export const writeResult = async (id: any, resultGenerator: () => Promise<any>, isText = false) => {
   const setup = SyncSetupState.get(id)
   const { code, error, result } = await getResponse(resultGenerator)
   if ('shared' in setup) {
-    await writeSharedResult(setup, result, error)
+    await writeSharedResult(setup, result, error, isText)
     return
   }
   const { accessHandle, buffer, errorAccessHandle, resultAccessHandle } = setup
   await writeResultError(errorAccessHandle, error)
-  await writeResultContent(resultAccessHandle, result, error)
-  await writeResultStatus(buffer, accessHandle, code)
+  await writeResultContent(resultAccessHandle, result, error, isText)
+  await writeResultStatus(buffer, accessHandle, isText && !error ? textCode : code)
 }
