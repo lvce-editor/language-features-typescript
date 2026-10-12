@@ -1,4 +1,4 @@
-import { closeUri, executeCommand, openUri, writeFile } from '@lvce-editor/api'
+import { closeUri, executeCommand, getUserDataDir, openUri, remove, writeFile } from '@lvce-editor/api'
 import * as Rpc from '../Rpc/Rpc.ts'
 
 interface TextDocument {
@@ -39,11 +39,13 @@ interface Dependencies {
 
 interface OutputDependencies {
   readonly closeUri: typeof closeUri
+  readonly getUserDataDir: typeof getUserDataDir
   readonly openUri: typeof openUri
+  readonly remove: typeof remove
   readonly writeFile: typeof writeFile
 }
 
-const traceUri = 'memfs://typescript-performance-trace.json'
+const traceFileName = 'typescript-performance-trace'
 
 const traceOutputState = {
   currentOutputUri: '',
@@ -80,15 +82,33 @@ export const openPerformanceTraceWithDependencies = async (
   dependencies: OutputDependencies,
 ): Promise<void> => {
   const previousOutputUri = traceOutputState.currentOutputUri
-  const isLoading = 'status' in trace
-  const nextOutputUri = isLoading ? traceUri : `${traceUri}?result=${++traceOutputState.outputGeneration}`
-  if (isLoading && previousOutputUri) {
-    await dependencies.closeUri(previousOutputUri)
+  const generation = ++traceOutputState.outputGeneration
+  const memoryTraceUri = `memfs://${traceFileName}-${generation}.json`
+  let nextOutputUri = memoryTraceUri
+  try {
+    const userDataDir = await dependencies.getUserDataDir()
+    nextOutputUri = `${userDataDir.replace(/\/$/, '')}/${traceFileName}-${generation}.json`
+  } catch {
+    // Browser runtimes do not expose a user data directory.
   }
-  await dependencies.writeFile(nextOutputUri, JSON.stringify(trace, null, 2))
+  const content = JSON.stringify(trace, null, 2)
+  try {
+    await dependencies.writeFile(nextOutputUri, content)
+  } catch (error) {
+    if (nextOutputUri === memoryTraceUri) {
+      throw error
+    }
+    nextOutputUri = memoryTraceUri
+    await dependencies.writeFile(nextOutputUri, content)
+  }
   await dependencies.openUri(nextOutputUri)
-  if (!isLoading && previousOutputUri) {
+  if (previousOutputUri) {
     await dependencies.closeUri(previousOutputUri)
+    try {
+      await dependencies.remove(previousOutputUri)
+    } catch {
+      // Removing an older trace is best effort; the new output is already open.
+    }
   }
   traceOutputState.currentOutputUri = nextOutputUri
 }
@@ -96,7 +116,9 @@ export const openPerformanceTraceWithDependencies = async (
 const openTrace = (trace: TraceDocument): Promise<void> => {
   return openPerformanceTraceWithDependencies(trace, {
     closeUri,
+    getUserDataDir,
     openUri,
+    remove,
     writeFile,
   })
 }

@@ -26,6 +26,13 @@ export const test: Test = async ({ Command, Editor, FileSystem, Main, Settings, 
   if (trace.commandDurationMs < trace.totalDurationMs) {
     throw new Error(`Unexpected command duration: ${JSON.stringify(trace)}`)
   }
+  const outputDocument = await Command.execute('GetActiveEditor.getTextDocument')
+  if (!/typescript-performance-trace-\d+\.json$/.test(outputDocument.uri) || outputDocument.uri.includes('?')) {
+    throw new Error(`Expected a query-free JSON trace URI, received ${outputDocument.uri}`)
+  }
+  if ((await FileSystem.readFile(outputDocument.uri)) !== JSON.stringify(trace, null, 2)) {
+    throw new Error('Expected the trace document to contain the pretty-printed performance trace')
+  }
   await Editor.shouldHaveText(JSON.stringify(trace, null, 2))
   const warmTrace = (await Command.executeExtensionCommand('typescript.showPerformanceTrace', {
     text: await FileSystem.readFile(uri),
@@ -33,5 +40,13 @@ export const test: Test = async ({ Command, Editor, FileSystem, Main, Settings, 
   })) as any
   if (warmTrace.languageService?.cache !== 'reused') {
     throw new Error(`Expected warm trace, received ${JSON.stringify(warmTrace)}`)
+  }
+  const latestOutputDocument = await Command.execute('GetActiveEditor.getTextDocument')
+  if (latestOutputDocument.uri === outputDocument.uri || latestOutputDocument.uri.includes('?')) {
+    throw new Error(`Expected a fresh query-free trace URI, received ${latestOutputDocument.uri}`)
+  }
+  await Editor.shouldHaveText(JSON.stringify(warmTrace, null, 2))
+  if ((await FileSystem.readFile(latestOutputDocument.uri)) !== JSON.stringify(warmTrace, null, 2)) {
+    throw new Error('Expected the trace document to refresh with the latest performance trace')
   }
 }
