@@ -19,12 +19,17 @@ const handle = () =>
 test('opens both cache names asynchronously and releases exclusively owned handles once', async () => {
   const general = handle()
   const dependency = handle()
-  invoke.mockImplementation(async (_method, name) => ({
-    createSyncAccessHandle: async () => (name === 'files-v1' ? general : dependency),
-  }))
+  const metadata = handle()
+  invoke.mockImplementation(async (_method, name) => {
+    let selectedHandle = metadata
+    if (name === 'files-v1') selectedHandle = general
+    else if (name === 'node-modules-v1') selectedHandle = dependency
+    return { createSyncAccessHandle: async () => selectedHandle }
+  })
   const cached = await initialize({ invokeSync: () => undefined }, createFileSystem())
   expect(invoke).toHaveBeenCalledWith('FileCache.getHandle', 'files-v1')
   expect(invoke).toHaveBeenCalledWith('FileCache.getHandle', 'node-modules-v1')
+  expect(invoke).toHaveBeenCalledWith('FileCache.getHandle', 'node-modules-metadata-v1')
   expect(cached.getCacheStatistics?.()).toMatchObject({ dependenciesEnabled: true, generalEnabled: true })
   cached.dispose?.()
   cached.dispose?.()
