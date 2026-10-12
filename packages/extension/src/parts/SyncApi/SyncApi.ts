@@ -12,10 +12,17 @@ export const syncSetupShared = async (
   id: number,
   shared: SharedArrayBuffer,
   maxDelay: number,
-  textHandle: FileSystemFileHandle,
+  textHandle?: FileSystemFileHandle,
 ): Promise<void> => {
-  // @ts-ignore
-  const textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })
+  let textAccessHandle: FileSystemSyncAccessHandle | undefined
+  if (textHandle && typeof textHandle.createSyncAccessHandle === 'function') {
+    try {
+      // @ts-ignore
+      textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })
+    } catch {
+      // The shared-array-buffer transport can carry raw text chunks when OPFS sync handles are unavailable.
+    }
+  }
   SyncSetupState.set(id, { maxDelay, shared, textAccessHandle })
 }
 

@@ -5,7 +5,7 @@ interface SyncSetup {
   readonly buffer: Int32Array<ArrayBufferLike>
   readonly errorAccessHandle: FileSystemSyncAccessHandle
   readonly resultAccessHandle: FileSystemSyncAccessHandle
-  readonly textAccessHandle: FileSystemSyncAccessHandle
+  readonly textAccessHandle?: FileSystemSyncAccessHandle
 }
 
 const syncSetups = Object.create(null)
