@@ -20,23 +20,45 @@ jest.unstable_mockModule('../src/parts/WaitForSyncRpcResult/WaitForSyncRpcResult
 
 const { createSyncRpcClient } = await import('../src/parts/CreateSyncRpcClient/CreateSyncRpcClient.ts')
 
-const createHandle = (size = 0) => ({
-  createSyncAccessHandle: jest.fn(async (_options: { mode: string }) => ({
-    flush: jest.fn(),
-    getSize: jest.fn(() => size),
-    truncate: jest.fn(),
-    write: jest.fn(),
-  })),
-})
+const createHandle = (size = 0) => {
+  let contents: Uint8Array<ArrayBufferLike> = new Uint8Array(size)
+  return {
+    createSyncAccessHandle: jest.fn(async (_options: { mode: string }) => ({
+      flush: jest.fn(),
+      getSize: jest.fn(() => contents.length),
+      read: jest.fn((target: Uint8Array, options: { at: number }) => {
+        target.set(contents.subarray(options.at, options.at + target.length))
+        return Math.min(target.length, contents.length - options.at)
+      }),
+      truncate: jest.fn((length: number) => {
+        contents = contents.slice(0, length)
+      }),
+      write: jest.fn((source: Uint8Array, options: { at: number }) => {
+        if (options.at + source.length > contents.length) {
+          const expanded = new Uint8Array(options.at + source.length)
+          expanded.set(contents)
+          contents = expanded
+        }
+        contents.set(source, options.at)
+        return source.length
+      }),
+    })),
+    setContents: (value: Uint8Array) => {
+      contents = value
+    },
+  }
+}
 
 const setupClient = async () => {
   const draft = createHandle()
   const resultFile = createHandle(5)
   const errorFile = createHandle(errorSize)
+  const textFile = createHandle()
   const handles: Record<string, ReturnType<typeof createHandle>> = {
     'draft.txt': draft,
     'result.txt': resultFile,
     'error.txt': errorFile,
+    'file-content-7.txt': textFile,
   }
   Object.defineProperty(globalThis, 'navigator', {
     configurable: true,
@@ -49,7 +71,7 @@ const setupClient = async () => {
     },
   })
   const client = await createSyncRpcClient({ crossOriginIsolated: false, maxDelay: 20, syncId: 7 })
-  return { client, draft, errorFile, resultFile }
+  return { client, draft, errorFile, resultFile, textFile }
 }
 
 const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
@@ -79,10 +101,11 @@ test('sets up the shared handles and returns parsed synchronous results', async 
     expect.any(Object),
     expect.any(Object),
     expect.any(Object),
+    expect.any(Object),
   )
   expect(waitForSyncRpcResult).toHaveBeenCalledWith(expect.any(Object), 20, bufferResult)
   expect(draft.createSyncAccessHandle).toHaveBeenCalledWith({ mode: 'readwrite-unsafe' })
-  expect(readJsonFromHandle).toHaveBeenCalledWith(expect.any(Object), 5)
+  expect(readJsonFromHandle).toHaveBeenCalledWith(expect.any(Object), 0)
 })
 
 test.each([
@@ -100,10 +123,25 @@ test('throws the remote error message when the error file has content', async ()
   errorSize = 4
   readJsonFromHandle.mockReturnValueOnce(parsedError)
   const { client, errorFile } = await setupClient()
+  invoke.mockImplementationOnce(async () => {
+    errorFile.setContents(new Uint8Array([1, 2, 3, 4]))
+  })
 
   expect(() => client.invokeSync('SyncApi.readFileSync')).toThrow('remote error')
   expect(errorFile).toBeDefined()
   expect(readJsonFromHandle).toHaveBeenCalledWith(expect.any(Object), 4)
+})
+
+test('reads Unicode file text from OPFS when shared buffers are unavailable', async () => {
+  const { client, textFile } = await setupClient()
+  const text = 'const greeting = "héllo 😀"\n'.repeat(100)
+  waitForSyncRpcResult.mockImplementationOnce(() => {
+    textFile.setContents(new TextEncoder().encode(text))
+    bufferResult![0] = 125
+    return resultType
+  })
+
+  expect(client.invokeSync('SyncApi.readFileSync', '/large.ts')).toBe(text)
 })
 
 test('supports browsers where shared atomic buffers are unavailable', async () => {
