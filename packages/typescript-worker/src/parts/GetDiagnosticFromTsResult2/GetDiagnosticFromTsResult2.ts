@@ -1,3 +1,4 @@
+import { DiagnosticTag } from '@lvce-editor/api'
 import * as GetDiagnosticSeverity from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 
@@ -13,6 +14,7 @@ interface TypeScriptDiagnostic {
   readonly length: number | undefined
   readonly messageText: string | TypeScriptDiagnosticMessageChain
   readonly relatedInformation?: readonly TypeScriptDiagnostic[]
+  readonly reportsUnnecessary?: object
   readonly start: number | undefined
 }
 
@@ -31,6 +33,7 @@ interface ConvertedDiagnostic {
   readonly relatedInformation?: readonly ConvertedRelatedInformation[]
   readonly rowIndex: number
   readonly source: 'ts'
+  readonly tags?: readonly number[]
   readonly type: 'error' | 'warning'
   readonly uri: string
 }
@@ -98,7 +101,11 @@ const convertTsDiagnostic = (text: string, diagnostic: TypeScriptDiagnosticWithL
     const convertedItem = convertRelatedInformation(item)
     return convertedItem ? [convertedItem] : []
   })
-  return relatedInformation && relatedInformation.length > 0 ? { ...converted, relatedInformation } : converted
+  const withRelatedInformation =
+    relatedInformation && relatedInformation.length > 0 ? { ...converted, relatedInformation } : converted
+  return diagnostic.reportsUnnecessary
+    ? { ...withRelatedInformation, tags: [DiagnosticTag.Unnecessary] }
+    : withRelatedInformation
 }
 
 const hasLocation = (diagnostic: TypeScriptDiagnostic): diagnostic is TypeScriptDiagnosticWithLocation => {

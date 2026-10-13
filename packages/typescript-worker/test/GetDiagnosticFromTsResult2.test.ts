@@ -46,6 +46,37 @@ test('converts diagnostics with a source location', () => {
   ])
 })
 
+test('preserves unnecessary tags from TypeScript diagnostics', () => {
+  const diagnostics = [
+    {
+      category: 1,
+      code: 6133,
+      file: {
+        fileName: '/test.ts',
+      } as ts.SourceFile,
+      length: 6,
+      messageText: "'unused' is declared but its value is never read.",
+      reportsUnnecessary: {},
+      start: 6,
+    },
+  ] as const
+
+  expect(getDiagnosticsFromTsResult2('const unused = 1', diagnostics)).toEqual([
+    {
+      code: 6133,
+      columnIndex: 6,
+      endColumnIndex: 12,
+      endRowIndex: 0,
+      message: "'unused' is declared but its value is never read.",
+      rowIndex: 0,
+      source: 'ts',
+      tags: [1],
+      type: 'warning',
+      uri: '/test.ts',
+    },
+  ])
+})
+
 test('flattens diagnostic message chains', () => {
   const diagnostics = [
     {
