@@ -37,7 +37,7 @@ const fixture = () => {
   }
   const client = createCachedClient(
     {
-      invokeSync(method, uri) {
+      invokeSync(method, uri, missingUris) {
         if (method === 'FileCache.getHashes')
           return uri.map((path: string) => {
             const content = disk.get(path)
@@ -46,6 +46,30 @@ const fixture = () => {
               contentHashes.set(content, (contentHashes.size + 1).toString(16).padStart(64, '0'))
             return contentHashes.get(content)
           })
+        if (method === 'FileCache.getValidation') {
+          const directories = uri as readonly string[]
+          const missing = missingUris as readonly string[]
+          const toPath = (value: string) => value.replace(/^file:\/\//, '').replace(/\/$/, '')
+          const getEntries = (path: string) =>
+            new Set(
+              disk
+                .keys()
+                .filter((key) => key.startsWith(path + '/'))
+                .map((key) => key.slice(path.length + 1).split('/', 1)[0]),
+            )
+              .values()
+              .toArray()
+          return {
+            available: missing.map((target) => {
+              const path = toPath(target)
+              return disk.has(path) || disk.keys().some((key) => key.startsWith(path + '/'))
+            }),
+            entries: directories.map((directory) => {
+              const path = toPath(directory)
+              return getEntries(path)
+            }),
+          }
+        }
         if (method === 'SyncApi.getWorkspaceUri') return 'file:///workspace'
         const path = uri.replace(/^file:\/\//, '').replace(/\/$/, '')
         if (method === 'SyncApi.exists') return disk.has(path) || disk.keys().some((key) => key.startsWith(path + '/'))

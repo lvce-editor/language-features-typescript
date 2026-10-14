@@ -50,6 +50,13 @@ const createTracedClient = (
     const start = performance.now()
     try {
       return client.invokeSync(method, ...params)
+    } catch (error) {
+      trace.syncRpc.failure ??= {
+        message: error instanceof Error ? error.message : String(error),
+        method,
+        ...(typeof params[0] === 'string' && { uri: params[0] }),
+      }
+      throw error
     } finally {
       PerformanceTrace.recordSyncRpc(trace, method, performance.now() - start)
     }
