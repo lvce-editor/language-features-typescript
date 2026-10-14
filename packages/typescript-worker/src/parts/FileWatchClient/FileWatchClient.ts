@@ -13,7 +13,7 @@ const normalize = (uri: string): string => {
   if (path.startsWith('//')) path = `file:${path}`
   else if (path.startsWith('/')) path = `file://${path}`
   else if (/^[a-zA-Z]:\//.test(path)) path = `file:///${path}`
-  return path.startsWith('file://') ? new URL(path).href : path
+  return path.startsWith('file://') ? decodeURI(new URL(path).href) : path
 }
 
 const copy = (value: any): any => (Array.isArray(value) ? [...value] : value)

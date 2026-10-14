@@ -32,7 +32,8 @@ const counters = { nextId: 0 }
 
 const normalizeDiskUri = (uri: string): string => {
   const url = new URL(uri)
-  return url.hostname || /^\/[a-zA-Z]:\//.test(url.pathname) ? url.href.toLowerCase() : url.href
+  const normalized = decodeURI(url.href)
+  return url.hostname || /^\/[a-zA-Z]:\//.test(url.pathname) ? normalized.toLowerCase() : normalized
 }
 
 const metadataKey = (uri: string): string => {

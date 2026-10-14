@@ -198,3 +198,25 @@ test('transport evidence includes direct source reads outside the cache and fail
   expect(snapshot?.['SyncApi.readFileSync']).toBe(2)
   expect(watched.getTransportStatistics?.()['SyncApi.readFileSync']).toBe(3)
 })
+
+test('watch coverage normalizes URI escapes without merging distinct filenames or case', () => {
+  const methods: string[] = []
+  const watched = createWatchClient(
+    {
+      invokeSync: (method, uri) => {
+        methods.push(method)
+        return uri
+      },
+    },
+    { active: true, files: [], id: 1, revision: 0, roots: ['file:///C:/Users/RUNNER%7E1/project/'] },
+    () => {},
+  )
+  expect(watched.isWatchedPath?.('file:///C:/Users/RUNNER~1/project/value.ts')).toBe(true)
+  expect(watched.isWatchedPath?.('file:///C:/Users/RUNNER%257E1/project/value.ts')).toBe(false)
+  const uri = 'file:///C:/Users/RUNNER~1/project/value.ts'
+  watched.invokeSync('SyncApi.readFileSync', uri)
+  watched.invokeSync('SyncApi.readFileSync', uri.replace('~', '%7E'))
+  expect(methods).toHaveLength(1)
+  watched.invokeSync('SyncApi.readFileSync', uri.replace('value', 'Value'))
+  expect(methods).toHaveLength(2)
+})

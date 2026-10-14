@@ -142,3 +142,21 @@ test('Windows and UNC metadata events use filesystem casing semantics', async ()
     revision: 2,
   })
 })
+
+test('escaped unreserved event paths match Windows short-name roots and parent metadata', async () => {
+  state.workspaceUri = 'file:///C:/Users/RUNNER~1/project'
+  const descriptor = await Watch.startWatching()
+  handlers[0]({ eventName: 'add', uri: 'file:///C:/Users/RUNNER%7E1/project/value.ts' })
+  handlers[1]({ eventName: 'add', uri: 'file:///C:/Users/RUNNER%7E1/tsconfig.json' })
+  await Watch.getWatchState(1, descriptor.id)
+  expect(state.result).toEqual({
+    active: true,
+    eventCount: 2,
+    lastEvent: { eventName: 'add', uri: 'file:///C:/Users/RUNNER%7E1/tsconfig.json' },
+    revision: 2,
+  })
+  // A literal percent-escape in a filename is a distinct directory.
+  handlers[0]({ eventName: 'add', uri: 'file:///C:/Users/RUNNER%257E1/project/value.ts' })
+  await Watch.getWatchState(1, descriptor.id)
+  expect(state.result.revision).toBe(2)
+})
