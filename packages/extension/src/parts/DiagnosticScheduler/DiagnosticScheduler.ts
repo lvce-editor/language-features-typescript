@@ -33,6 +33,11 @@ export const createDiagnosticScheduler = <T>(
       entry.running = true
       try {
         const result = await execute(request.document)
+        if (entry.pending?.document.text === request.document.text) {
+          throw new Error(
+            `E2E identical active diagnostics discarded: ${JSON.stringify({ uri: request.document.uri, documentId: request.document.documentId })}`,
+          )
+        }
         request.resolve(entry.pending ? [] : result)
       } catch (error) {
         request.reject(error)
@@ -47,7 +52,15 @@ export const createDiagnosticScheduler = <T>(
     const key = JSON.stringify([document.uri, document.documentId])
     const entry = entries.get(key) || { running: false }
     entries.set(key, entry)
-    entry.pending?.resolve([])
+    if (entry.pending?.document.text === document.text) {
+      entry.pending.reject(
+        new Error(
+          `E2E identical pending diagnostics discarded: ${JSON.stringify({ uri: document.uri, documentId: document.documentId })}`,
+        ),
+      )
+    } else {
+      entry.pending?.resolve([])
+    }
     return new Promise((resolve, reject) => {
       entry.pending = { document, reject, resolve }
       schedule(key, entry)
