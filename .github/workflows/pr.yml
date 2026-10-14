@@ -133,7 +133,6 @@ jobs:
         id: nodeModulesCacheKey
         run: echo "value=$(node packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
         shell: bash
-      # Never save the test-only patched bundle into the shared cache.
       - uses: actions/cache/restore@v4
         id: npm-cache
         with:
@@ -153,8 +152,6 @@ jobs:
         run: npx playwright install firefox
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Capture missing diagnostic readiness
-        run: node scripts/diagnose-empty-problems.mjs
       - name: Run Firefox headless tests
         run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
         env:
