@@ -6,6 +6,51 @@ on:
       - main
 
 jobs:
+  # Temporary differential probe for the Ubuntu-only cold WebKit failure.
+  webkit-comparison:
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, candidate]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Restore baseline implementation while retaining diagnostic capture
+        if: matrix.variant == 'baseline'
+        run: >-
+          git restore --source=0f3ebaa77ad6afba6d32fbeca40d48f63bbfcab7 --
+          packages/extension/src/parts/Command/Command.ts
+          packages/extension/src/parts/FileCacheApi/FileCacheApi.ts
+          packages/typescript-worker/src/parts/CachedFileClient/CachedFileClient.ts
+      - name: Compute node modules cache key
+        id: nodeModulesCacheKey
+        run: echo "value=$(node packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
+      - run: npm ci
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+      - run: npm run build
+      - run: npm run build:static
+        env:
+          PATH_PREFIX: auto
+      - name: Install WebKit
+        working-directory: ./packages/e2e
+        run: npx playwright install --with-deps webkit
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Compare cold and warm Three.js diagnostics
+        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --browser=webkit --no-reuse-page --timeout=60000
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
   pr:
     strategy:
       fail-fast: false

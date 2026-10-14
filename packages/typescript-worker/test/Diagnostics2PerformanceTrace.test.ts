@@ -45,7 +45,7 @@ test('records diagnostic stages and result count', async () => {
   const diagnostics = await Diagnostics2.getDiagnostics2(document, trace)
 
   expect(diagnostics).toHaveLength(1)
-  expect(trace.diagnostics).toEqual({ count: 1 })
+  expect(trace.diagnostics).toEqual({ count: 1, items: diagnostics })
   expect(trace.loadedFiles).toEqual([
     { fileName: '/workspace/main.ts', sizeBytes: 20 },
     { fileName: '/typescript/lib.d.ts', sizeBytes: 14 },
@@ -75,7 +75,7 @@ test('captures and returns the first ordinary diagnostic trace for its document'
   expect(trace).toBe(laterTrace)
   expect(trace.file.uri).toBe(document.uri)
   expect(trace.totalDurationMs).toBeGreaterThanOrEqual(0)
-  expect(trace.diagnostics).toEqual({ count: 1 })
+  expect(trace.diagnostics).toEqual({ count: 1, items: [expect.objectContaining({ code: 2304 })] })
   expect(trace.loadedFiles).toHaveLength(3)
   expect(getOrCreateLanguageService).toHaveBeenLastCalledWith(
     document.uri,

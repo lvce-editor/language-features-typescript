@@ -1,3 +1,4 @@
+import type { Diagnostic } from '../Diagnostic/Diagnostic.ts'
 import type { FileCacheStatistics } from '../SyncRpc/SyncRpc.ts'
 
 export interface PerformanceTraceStage {
@@ -18,6 +19,7 @@ export interface PerformanceTrace {
   readonly diagnostics:
     | {
         readonly count: number
+        readonly items?: readonly Diagnostic[]
       }
     | undefined
   readonly error?: {
@@ -54,6 +56,7 @@ export interface MutablePerformanceTrace {
   diagnostics:
     | {
         count: number
+        items?: readonly Diagnostic[]
       }
     | undefined
   error: PerformanceTrace['error']
