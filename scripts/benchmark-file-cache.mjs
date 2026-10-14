@@ -118,6 +118,21 @@ const server = createServer(async (request, response) => {
         counters.identityRequests++
         counters.identitiesChecked += args[0].length
         value = await Promise.all(args[0].map(identity))
+      } else if (method === 'FileCache.getValidation') {
+        const [directories, missing] = args
+        const entries = await Promise.all(
+          directories.map(async (uri) => {
+            const path = pathFor(uri)
+            return path ? await readdir(path).catch(() => []) : []
+          }),
+        )
+        const available = await Promise.all(
+          missing.map(async (uri) => {
+            const path = pathFor(uri)
+            return path ? await stat(path).then(() => true, () => false) : false
+          }),
+        )
+        value = { available, entries }
       } else {
         const path = pathFor(args[0])
         if (method === 'SyncApi.exists')

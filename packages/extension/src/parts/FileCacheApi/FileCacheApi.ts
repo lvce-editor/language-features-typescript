@@ -1,4 +1,4 @@
-import { getCacheFileHandle, getFileHashes, readFile } from '@lvce-editor/api'
+import { exists, getCacheFileHandle, getFileHashes, readDirWithFileTypes, readFile } from '@lvce-editor/api'
 import { toFileUri } from '../ToFileUri/ToFileUri.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
 
@@ -34,4 +34,30 @@ export const getIdentities = async (uris: readonly string[]): Promise<readonly (
 
 export const getHashes = async (id: number, uris: readonly string[]): Promise<void> => {
   await writeResult(id, () => getIdentities(uris))
+}
+
+export const getValidation = async (
+  id: number,
+  directories: readonly string[],
+  missing: readonly string[],
+): Promise<void> => {
+  await writeResult(id, async () => {
+    const entries: string[][] = Array.from({ length: directories.length })
+    const available: boolean[] = Array.from({ length: missing.length })
+    let next = 0
+    const check = async (): Promise<void> => {
+      while (next < directories.length + missing.length) {
+        const index = next++
+        if (index < directories.length) {
+          const contents = await readDirWithFileTypes(toFileUri(directories[index]))
+          entries[index] = contents.map((item) => item.name)
+        } else {
+          const missingIndex = index - directories.length
+          available[missingIndex] = await exists(toFileUri(missing[missingIndex]))
+        }
+      }
+    }
+    await Promise.all(Array.from({ length: Math.min(16, directories.length + missing.length) }, check))
+    return { available, entries }
+  })
 }

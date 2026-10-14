@@ -65,6 +65,19 @@ try {
             }
           })
         if (method === 'SyncApi.getWorkspaceUri') return root.replaceAll('\\', '/')
+        if (method === 'FileCache.getValidation') {
+          const [directories, missing] = args
+          return {
+            available: missing.map((path) => existsSync(path)),
+            entries: directories.map((path) => {
+              try {
+                return readdirSync(path)
+              } catch {
+                return []
+              }
+            }),
+          }
+        }
         if (method === 'SyncApi.exists') return uri === configPath || existsSync(uri)
         if (method === 'SyncApi.readFileSync') return uri === configPath ? config : readFileSync(uri, 'utf8')
         if (method === 'SyncApi.readDirSync') {
