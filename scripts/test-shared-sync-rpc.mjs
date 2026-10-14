@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { Worker } from 'node:worker_threads'
 import { writeSharedResult } from '../packages/extension/src/parts/WriteSharedResult/WriteSharedResult.ts'
 
-const run = async (values, { maxDelay = 2000, respond = true } = {}) => {
+const run = async (values, { isText = false, maxDelay = 2000, respond = true } = {}) => {
   const worker = new Worker(new URL('./fixtures/shared-sync-rpc-worker.mjs', import.meta.url), {
     workerData: { calls: values.length, maxDelay },
   })
@@ -20,7 +20,7 @@ const run = async (values, { maxDelay = 2000, respond = true } = {}) => {
         } else if (message.method === 'test.read') {
           if (respond) {
             const value = values[message.params[1]]
-            writes.push(writeSharedResult(setup, value.result, value.error))
+            writes.push(writeSharedResult(setup, value.result, value.error, isText))
           }
         } else {
           results.push(message)
@@ -44,6 +44,14 @@ test('shared response bridge preserves large Unicode results, errors and subsequ
   ]
   const { results } = await run(values)
   assert.deepEqual(results, [values[0], values[1], { error: 'read failed' }, values[3], values[4]])
+})
+
+test('raw shared text preserves empty, multichunk Unicode and consecutive source reads', async () => {
+  const values = Array.from({ length: 100 }, (_, index) => ({
+    result: index % 3 === 0 ? '' : 'é😀'.repeat(index % 3 === 1 ? 100_000 : 10),
+  }))
+  const { results } = await run(values, { isText: true })
+  assert.deepEqual(results, values)
 })
 
 test('timeout cancels the producer and prevents reuse of an unfinished request', async () => {

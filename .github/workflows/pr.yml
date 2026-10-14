@@ -13,7 +13,7 @@ jobs:
       matrix:
         variant: [baseline, candidate]
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,9 +42,20 @@ jobs:
       - run: npm run build:static
         env:
           PATH_PREFIX: auto
-      - name: Install WebKit
+      - name: Install browsers
         working-directory: ./packages/e2e
-        run: npx playwright install --with-deps webkit
+        run: npx playwright install --with-deps chromium firefox webkit
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Match full-job browser preconditions
+        shell: bash
+        run: |
+          node scripts/benchmark-file-cache.mjs
+          npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker
+          npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
+          npm run e2e:webkit:headless
+          node packages/build/src/run-e2e.ts threejs-e2e --headless --timeout=60000 --trace-renderer-worker
+          node packages/build/src/run-e2e.ts threejs-e2e --headless --browser=firefox --timeout=60000 --trace-renderer-worker
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Compare cold and warm Three.js diagnostics

@@ -47,6 +47,7 @@ export interface PerformanceTrace {
   readonly syncRpc: {
     readonly callCount: number
     readonly durationMs: number
+    readonly failure?: { readonly method: string; readonly uri?: string; readonly message: string }
     readonly methods: Record<string, PerformanceTraceRpcMethod>
   }
   readonly totalDurationMs: number
@@ -77,6 +78,7 @@ export interface MutablePerformanceTrace {
   readonly syncRpc: {
     callCount: number
     durationMs: number
+    failure?: { readonly method: string; readonly uri?: string; readonly message: string }
     methods: Record<string, PerformanceTraceRpcMethod>
   }
   totalDurationMs: number
