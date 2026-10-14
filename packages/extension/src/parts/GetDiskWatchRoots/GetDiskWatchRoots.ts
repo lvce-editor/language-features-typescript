@@ -11,6 +11,8 @@ export const getDiskWatchRoots = (workspaceUri: string): DiskWatchRoots => {
   const parents: string[] = []
   const files: string[] = []
   while (true) {
+    // A UNC share is the filesystem root; its server is not a directory to watch.
+    if (folder.hostname && /^\/[^/]+\/$/.test(folder.pathname)) break
     const parent = new URL('../', folder)
     if (parent.href === folder.href) break
     parents.push(parent.href)

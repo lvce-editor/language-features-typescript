@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals'
 import { createCachedClient } from '../src/parts/CachedFileClient/CachedFileClient.ts'
 import { createFileSystem } from '../src/parts/CreateFileSystem/CreateFileSystem.ts'
-import { createWatchClient } from '../src/parts/FileWatchClient/FileWatchClient.ts'
+import { createWatchClient, trackTransport } from '../src/parts/FileWatchClient/FileWatchClient.ts'
 
 const fixture = () => {
   const state = { active: true, failHashes: false, revision: 0 }
@@ -174,4 +174,27 @@ test.each([
   watched.clearReferences?.()
   watched.invokeSync('SyncApi.readFileSync', uri)
   expect(reads).toBe(2)
+})
+
+test('transport evidence includes direct source reads outside the cache and failed calls', () => {
+  const source = trackTransport({
+    invokeSync: (method) => {
+      if (method === 'failing') throw new Error('failed')
+      return 'contents'
+    },
+  })
+  const watched = createWatchClient(
+    source,
+    { active: true, files: [], id: 1, revision: 0, roots: ['file:///project/'] },
+    () => {},
+  )
+  watched.invokeSync('SyncApi.readFileSync', 'file:///project/main.ts')
+  watched.invokeSync('SyncApi.readFileSync', 'file:///project/main.ts')
+  source.invokeSync('SyncApi.readFileSync', 'file:///project/main.ts')
+  expect(() => source.invokeSync('failing')).toThrow('failed')
+  expect(watched.getTransportStatistics?.()).toEqual({ failing: 1, 'SyncApi.readFileSync': 2 })
+  const snapshot = watched.getTransportStatistics?.()
+  source.invokeSync('SyncApi.readFileSync', 'file:///project/main.ts')
+  expect(snapshot?.['SyncApi.readFileSync']).toBe(2)
+  expect(watched.getTransportStatistics?.()['SyncApi.readFileSync']).toBe(3)
 })

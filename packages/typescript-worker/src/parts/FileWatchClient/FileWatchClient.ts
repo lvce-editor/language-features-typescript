@@ -18,6 +18,18 @@ const normalize = (uri: string): string => {
 
 const copy = (value: any): any => (Array.isArray(value) ? [...value] : value)
 
+export const trackTransport = (client: SyncRpc): SyncRpc => {
+  const counts: Record<string, number> = Object.create(null)
+  return {
+    ...client,
+    getTransportStatistics: () => ({ ...counts }),
+    invokeSync(method, ...params) {
+      counts[method] = (counts[method] || 0) + 1
+      return client.invokeSync(method, ...params)
+    },
+  }
+}
+
 export const createWatchClient = (
   client: SyncRpc,
   descriptor: WatchDescriptor | null,
@@ -88,7 +100,7 @@ export const createWatchClient = (
       }
       client.forgetReferences?.(uris)
     },
-    getTransportStatistics: () => ({ ...transport }),
+    getTransportStatistics: () => client.getTransportStatistics?.() || { ...transport },
     invokeSync(method, ...params) {
       if (method === 'FileCache.getHashes') return getHashes(params[0])
       const uri = params[0]

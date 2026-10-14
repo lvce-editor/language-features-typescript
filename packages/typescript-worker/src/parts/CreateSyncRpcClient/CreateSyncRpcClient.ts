@@ -2,6 +2,7 @@ import type { SyncClientOptions } from '../SyncClientOptions/SyncClientOptions.t
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { createBuffer } from '../CreateBuffer/CreateBuffer.ts'
 import { createSharedSyncRpcClient } from '../CreateSharedSyncRpcClient/CreateSharedSyncRpcClient.ts'
+import { trackTransport } from '../FileWatchClient/FileWatchClient.ts'
 import { readJsonFromHandle } from '../ReadJsonFromHandle/ReadJsonFromHandle.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as WaitForSyncBufferResultType from '../WaitForSyncBufferResultType/WaitForSyncBufferResultType.ts'
@@ -13,7 +14,7 @@ export const createSyncRpcClient = async ({
   syncId,
 }: SyncClientOptions): Promise<SyncRpc> => {
   if (crossOriginIsolated) {
-    return createSharedSyncRpcClient(syncId, maxDelay)
+    return trackTransport(await createSharedSyncRpcClient(syncId, maxDelay))
   }
   const buffer = createBuffer(crossOriginIsolated)
   const statusFileName = 'draft.txt'
@@ -57,7 +58,7 @@ export const createSyncRpcClient = async ({
     textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' }),
   ])
 
-  return {
+  return trackTransport({
     invokeSync(method, ...params) {
       if (buffer) {
         buffer[0] = 0
@@ -103,5 +104,5 @@ export const createSyncRpcClient = async ({
       const parsed = readJsonFromHandle(resultAccessHandle, size)
       return parsed
     },
-  }
+  })
 }

@@ -22,7 +22,7 @@
     "typescript.cacheNodeModules": {
       "type": "boolean",
       "default": true,
-      "description": "Reuse cached node_modules data while node_modules/.package-lock.json is unchanged. Applied when the TypeScript worker starts. Disable this to detect dependency files edited outside npm."
+      "description": "Use a separate cache for dependency contents. Ready filesystem watches detect disk changes; unavailable watches use per-file validation. Applied when the TypeScript worker starts."
     },
     "typescript.verifiedDiagnostics": {
       "type": "array",

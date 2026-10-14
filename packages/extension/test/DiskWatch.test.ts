@@ -38,6 +38,10 @@ test('root planning uses recursive dependencies and shallow config parents on Un
   const windows = getDiskWatchRoots('file:///C:/project/workspace')
   expect(windows.parents).toEqual(['file:///C:/project/', 'file:///C:/'])
   expect(windows.files).toContain('file:///C:/tsconfig.json')
+  const unc = getDiskWatchRoots('file://server/share/project')
+  expect(unc.roots).toEqual(['file://server/share/project/', 'file://server/share/node_modules/'])
+  expect(unc.parents).toEqual(['file://server/share/'])
+  expect(unc.files).toContain('file://server/share/tsconfig.json')
 })
 
 test('disk watches include dependencies and filter unrelated shallow-parent events', async () => {
