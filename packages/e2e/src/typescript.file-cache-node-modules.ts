@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.file-cache-node-modules'
 
-export const test: Test = async ({ Command, FileSystem, Main, Settings }) => {
+export const test: Test = async ({ Command, FileSystem, Main, Settings, Workspace }) => {
   const root = await FileSystem.getTmpDir({ scheme: 'file' })
   const uri = `${root}/main.ts`
   const dependency = `${root}/node_modules/cache-test/index.d.ts`
@@ -21,10 +21,15 @@ export const test: Test = async ({ Command, FileSystem, Main, Settings }) => {
   await FileSystem.writeFile(dependency, 'export declare const dependency: number;')
   await FileSystem.writeFile(uri, text)
   await Settings.update({ 'editor.diagnostics': false, 'typescript.cacheNodeModules': true })
+  await Workspace.setUri(root)
   await Main.openUri(uri)
 
   const trace = async (expected: number) => {
-    const result = (await Command.executeExtensionCommand('typescript.showPerformanceTrace', { text, uri })) as any
+    const deadline = Date.now() + 5000
+    let result: any
+    do {
+      result = await Command.executeExtensionCommand('typescript.showPerformanceTrace', { text, uri })
+    } while (!result.error && result.diagnostics?.count !== expected && Date.now() < deadline)
     if (result.error || result.diagnostics?.count !== expected) {
       throw new Error(`Expected ${expected} diagnostics: ${JSON.stringify(result)}`)
     }
@@ -41,13 +46,20 @@ export const test: Test = async ({ Command, FileSystem, Main, Settings }) => {
     throw new Error(`Unchanged dependencies were revalidated: ${JSON.stringify({ initial, warm })}`)
   }
 
-  await FileSystem.writeFile(dependency, 'export declare const dependency: string;')
-  await FileSystem.writeFile(lock, '{"lockfileVersion":3,"packages":{"cache-test":{"version":"2"}}}')
+  await Command.execute(
+    'WebView.compatSharedProcessInvoke',
+    'FileSystemDisk.writeFile',
+    dependency,
+    'export declare const dependency: string;',
+  )
+  // The dependency watcher must invalidate content even when package locks stay unchanged.
   const refreshed = await trace(1)
   if (
     refreshed.fileCache.sourceReads <= warm.fileCache.sourceReads &&
     refreshed.fileCache.dependencyHits <= warm.fileCache.dependencyHits
   ) {
-    throw new Error(`Lockfile change did not reload dependency content: ${JSON.stringify({ refreshed, warm })}`)
+    throw new Error(
+      `Dependency change did not reload content without a lockfile edit: ${JSON.stringify({ refreshed, warm })}`,
+    )
   }
 }

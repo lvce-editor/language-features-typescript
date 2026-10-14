@@ -2,7 +2,10 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.file-cache'
 
-const run = async ({ Command, FileSystem, Main, Settings }: Parameters<Test>[0], scheme: 'file' | 'memfs') => {
+const run = async (
+  { Command, FileSystem, Main, Settings, Workspace }: Parameters<Test>[0],
+  scheme: 'file' | 'memfs',
+) => {
   const root = await FileSystem.getTmpDir({ scheme })
   try {
     await FileSystem.mkdir(`${root}/node_modules/cache-test`)
@@ -22,12 +25,14 @@ const run = async ({ Command, FileSystem, Main, Settings }: Parameters<Test>[0],
     await FileSystem.writeFile(source, 'export const value = 1;')
     await FileSystem.writeFile(uri, text)
     await Settings.update({ 'editor.diagnostics': false })
+    if (scheme === 'file') await Workspace.setUri(root)
     await Main.openUri(uri)
     const trace = async (count: number, documentText = text) => {
-      const result = (await Command.executeExtensionCommand('typescript.showPerformanceTrace', {
-        text: documentText,
-        uri,
-      })) as any
+      const deadline = Date.now() + 5000
+      let result: any
+      do {
+        result = await Command.executeExtensionCommand('typescript.showPerformanceTrace', { text: documentText, uri })
+      } while (scheme === 'file' && !result.error && result.diagnostics?.count !== count && Date.now() < deadline)
       if (result.error || result.diagnostics?.count !== count) {
         throw new Error(`Expected ${count} diagnostics: ${JSON.stringify(result)}`)
       }
@@ -40,9 +45,12 @@ const run = async ({ Command, FileSystem, Main, Settings }: Parameters<Test>[0],
     // Repeated unsaved edits reuse dependency snapshots after validation.
     let previous = initial
     for (let i = 0; i < 5; i++) {
-      const edited = await trace(0, text.replace('const a:', `const a${i}:`))
+      const edited = await trace(
+        0,
+        text.replace('const a:', () => `const a${i}:`),
+      )
       if (edited.fileCache.sourceReads !== previous.fileCache.sourceReads) {
-        throw new Error(`Unchanged files reread after an edit: ${JSON.stringify({ previous, edited })}`)
+        throw new Error(`Unchanged files reread after an edit: ${JSON.stringify({ edited, previous })}`)
       }
       previous = edited
     }
@@ -68,7 +76,10 @@ const run = async ({ Command, FileSystem, Main, Settings }: Parameters<Test>[0],
     const warm = await trace(0)
     if (
       warm.fileCache.sourceReads !== restored.fileCache.sourceReads ||
-      warm.fileCache.identitiesChecked <= restored.fileCache.identitiesChecked
+      (scheme === 'memfs' && warm.fileCache.identitiesChecked <= restored.fileCache.identitiesChecked) ||
+      (scheme === 'file' &&
+        (warm.fileCache.transport?.['FileCache.getHashes'] || 0) !==
+          (restored.fileCache.transport?.['FileCache.getHashes'] || 0))
     ) {
       throw new Error(`Expected identity checks without source reads: ${JSON.stringify({ restored, warm })}`)
     }

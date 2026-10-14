@@ -2,7 +2,7 @@ import { expect, jest, test } from '@jest/globals'
 import type { SyncHandle } from '../src/parts/FileContentCache/FileContentCache.ts'
 import { createFileSystem } from '../src/parts/CreateFileSystem/CreateFileSystem.ts'
 
-const invoke = jest.fn<(method: string, name: string) => Promise<unknown>>()
+const invoke = jest.fn<(method: string, name?: string | number) => Promise<unknown>>()
 jest.unstable_mockModule('../src/parts/Rpc/Rpc.ts', () => ({ invoke }))
 const { initialize } = await import('../src/parts/CachedFileClient/CachedFileClient.ts')
 
@@ -20,7 +20,8 @@ test('opens both cache names asynchronously and releases exclusively owned handl
   const general = handle()
   const dependency = handle()
   const metadata = handle()
-  invoke.mockImplementation(async (_method, name) => {
+  invoke.mockImplementation(async (method, name) => {
+    if (method === 'FileCache.startWatching') return null
     let selectedHandle = metadata
     if (name === 'files-v1') selectedHandle = general
     else if (name === 'node-modules-v1') selectedHandle = dependency
@@ -38,7 +39,8 @@ test('opens both cache names asynchronously and releases exclusively owned handl
 })
 
 test('denied handles and concurrent exclusive owners preserve the original source transport', async () => {
-  invoke.mockImplementation(async (_method, name) => {
+  invoke.mockImplementation(async (method, name) => {
+    if (method === 'FileCache.startWatching') return null
     if (name === 'files-v1') throw new Error('Storage denied')
     return {
       createSyncAccessHandle: async () => {
@@ -51,4 +53,48 @@ test('denied handles and concurrent exclusive owners preserve the original sourc
   expect(cached.getCacheStatistics?.()).toMatchObject({ dependenciesEnabled: false, generalEnabled: false })
   expect(cached.refresh?.()).toBe(false)
   expect(cached.invokeSync('SyncApi.readFileSync', '/file.ts')).toBe('source content')
+})
+
+test('waits for watch readiness before trusting disk contents and stops the session on disposal', async () => {
+  invoke.mockClear()
+  const { promise, resolve } = Promise.withResolvers<unknown>()
+  invoke.mockImplementation(async (method) => {
+    if (method === 'FileCache.startWatching') return promise
+    if (method === 'FileCache.getHandle') throw new Error('Storage denied')
+    return undefined
+  })
+  let ready = false
+  const pending = (async () => {
+    const client = await initialize({ invokeSync: () => 'contents' }, createFileSystem())
+    ready = true
+    return client
+  })()
+  await Promise.resolve()
+  expect(ready).toBe(false)
+  resolve({ active: true, files: [], id: 42, revision: 0, roots: ['file:///project'] })
+  const client = await pending
+  client.dispose?.()
+  client.dispose?.()
+  expect(invoke.mock.calls.filter(([method]) => method === 'FileCache.stopWatching')).toEqual([
+    ['FileCache.stopWatching', 42],
+  ])
+})
+
+test('failed watcher setup keeps conservative disk identity validation', async () => {
+  invoke.mockImplementation(async () => {
+    throw new Error('Unavailable')
+  })
+  let content = 'first'
+  const client = await initialize(
+    {
+      invokeSync: (method) =>
+        method === 'FileCache.getHashes' ? [content === 'first' ? 'a'.repeat(64) : 'b'.repeat(64)] : content,
+    },
+    createFileSystem(),
+  )
+  expect(client.invokeSync('SyncApi.readFileSync', 'file:///project/main.ts')).toBe('first')
+  content = 'changed'
+  expect(client.refresh?.()).toBe(true)
+  expect(client.invokeSync('SyncApi.readFileSync', 'file:///project/main.ts')).toBe('changed')
+  client.dispose?.()
 })

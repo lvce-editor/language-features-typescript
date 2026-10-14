@@ -1,4 +1,5 @@
 import { activate as activateExtensionApi, registerCommand } from '@lvce-editor/api'
+import * as DiskWatch from '../DiskWatch/DiskWatch.ts'
 import * as Providers from '../Providers/Providers.ts'
 import * as RegisterProviders from '../RegisterProviders/RegisterProviders.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
@@ -26,4 +27,6 @@ export const activate = async (): Promise<void> => {
   RegisterProviders.registerProviders(Object.values(Providers))
 }
 
-export const deactivate = (): void => {}
+export const deactivate = async (): Promise<void> => {
+  await DiskWatch.stopAll()
+}

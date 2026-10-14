@@ -5,6 +5,7 @@ import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
 import { createCachedSyncRpcClient } from '../CreateCachedSyncRpcClient/CreateCachedSyncRpcClient.ts'
 import { createFileContentCache } from '../FileContentCache/FileContentCache.ts'
 import { createFileMetadataCache } from '../FileMetadataCache/FileMetadataCache.ts'
+import { createWatchClient, type WatchDescriptor } from '../FileWatchClient/FileWatchClient.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 
 interface CacheFileHandle {
@@ -82,6 +83,8 @@ export const createCachedClient = (
     return root !== undefined && !!getDependencyLockHash(root) && !!dependencyGenerations.get(root)
   }
   const loadDependencyGeneration = (root: string, hash: string): DependencyGeneration => {
+    if (client.isWatchedPath?.(`${root}/node_modules`))
+      return { directories: {}, exists: {}, hashes: {}, lockHash: hash }
     try {
       const saved = JSON.parse(metadata?.get(root) || 'null')
       if (saved?.lockHash !== hash || !saved?.hashes || typeof saved.hashes !== 'object') {
@@ -109,7 +112,8 @@ export const createCachedClient = (
     }
   }
   const getDependencyLockHash = (root: string): string | null => {
-    if (!root.startsWith('file://')) return null
+    if (!root.startsWith('file://') || (client.isWatchedPath && !client.isWatchedPath(`${root}/node_modules`)))
+      return null
     if (dependencyLocks.has(root)) return dependencyLocks.get(root) ?? null
     let hash: string | null = null
     try {
@@ -126,7 +130,8 @@ export const createCachedClient = (
     return hash
   }
   const refreshDependencyLockHash = (root: string): string | null => {
-    if (!root.startsWith('file://')) return null
+    if (!root.startsWith('file://') || (client.isWatchedPath && !client.isWatchedPath(`${root}/node_modules`)))
+      return null
     let hash: string | null = null
     try {
       hash = getHashes([`${root}/node_modules/.package-lock.json`])[0]
@@ -260,6 +265,7 @@ export const createCachedClient = (
   const getUrisToValidate = (uris: readonly string[]): string[] => {
     const validateUris: string[] = []
     for (const uri of uris) {
+      if (client.isWatchedPath?.(uri)) continue
       const root = cacheNodeModules ? dependencyRoot(uri) : undefined
       if (root === undefined) {
         validateUris.push(uri)
@@ -301,6 +307,7 @@ export const createCachedClient = (
   const refreshDependencyRoots = (roots: ReadonlySet<string>): Set<string> => {
     const changedRoots = new Set<string>()
     for (const root of roots) {
+      if (client.isWatchedPath?.(`${root}/node_modules`)) continue
       const previousHash = dependencyLocks.get(root)
       const hadPreviousHash = dependencyLocks.has(root)
       const lockHash = refreshDependencyLockHash(root)
@@ -326,6 +333,7 @@ export const createCachedClient = (
   const refreshDirectories = (changed: Set<string>, changedRoots: Set<string>): void => {
     const validationClient = createCachedSyncRpcClient(client)
     for (const [uri, previousIdentity] of directories) {
+      if (client.isWatchedPath?.(uri)) continue
       const root = dependencyRootForPath(uri)
       if (cacheNodeModules && isTrustedDependencyPath(uri) && !changedRoots.has(root!)) continue
       const value = validationClient.invokeSync('SyncApi.readDirSync', uri)
@@ -345,6 +353,7 @@ export const createCachedClient = (
   const refreshMissing = (changed: Set<string>, changedRoots: Set<string>): void => {
     const validationClient = createCachedSyncRpcClient(client)
     for (const uri of missing) {
+      if (client.isWatchedPath?.(uri)) continue
       const root = dependencyRootForPath(uri)
       if (cacheNodeModules && isTrustedDependencyPath(uri) && !changedRoots.has(root!)) continue
       const exists = validationClient.invokeSync('SyncApi.exists', uri)
@@ -356,6 +365,7 @@ export const createCachedClient = (
   }
   return {
     clearReferences() {
+      client.clearReferences?.()
       identities.clear()
       directories.clear()
       missing.clear()
@@ -364,6 +374,7 @@ export const createCachedClient = (
     dispose() {
       if (disposed) return
       disposed = true
+      client.dispose?.()
       general?.close()
       dependencies?.close()
       metadata?.close()
@@ -373,6 +384,7 @@ export const createCachedClient = (
       resolutionRoots.clear()
     },
     forgetReferences(uris) {
+      client.forgetReferences?.(uris)
       for (const uri of uris) {
         identities.delete(uri)
         directories.delete(uri)
@@ -380,7 +392,10 @@ export const createCachedClient = (
         resolutionRoots.delete(uri)
       }
     },
-    getCacheStatistics: () => ({ ...statistics }),
+    getCacheStatistics: () => ({
+      ...statistics,
+      ...(client.getTransportStatistics && { transport: client.getTransportStatistics() }),
+    }),
     getChangedFiles: () => changedFiles,
     invokeSync(method, ...params) {
       if (disposed) return client.invokeSync(method, ...params)
@@ -392,6 +407,17 @@ export const createCachedClient = (
     },
     refresh() {
       if (disposed) return false
+      if (client.refreshWatch?.()) {
+        // Creations can change project membership without an existing reference.
+        changedFiles = undefined
+        identities.clear()
+        directories.clear()
+        missing.clear()
+        resolutionRoots.clear()
+        dependencyLocks.clear()
+        dependencyGenerations.clear()
+        return true
+      }
       try {
         const { changed, changedRoots } = refreshFileIdentities()
         // Validate non-dependency resolution state conservatively on every request.
@@ -416,11 +442,25 @@ const openMetadata = async (): Promise<FileMetadataCache | undefined> => {
   return handle ? createFileMetadataCache(handle) : undefined
 }
 
+const startWatching = async (): Promise<WatchDescriptor | null> => {
+  try {
+    return await Rpc.invoke('FileCache.startWatching')
+  } catch {
+    return null
+  }
+}
+
 export const initialize = async (client: SyncRpc, fs: IFileSystem, cacheNodeModules = true): Promise<SyncRpc> => {
-  const [general, dependencies, metadata] = await Promise.all([
+  const watchReady = startWatching()
+  const [general, dependencies, metadata, descriptor] = await Promise.all([
     open('files-v1'),
     open('node-modules-v1'),
     openMetadata(),
+    watchReady,
   ])
-  return createCachedClient(client, fs, general, dependencies, metadata, cacheNodeModules)
+  const watch = descriptor
+  const watchedClient = createWatchClient(client, watch, () => {
+    if (watch) void Rpc.invoke('FileCache.stopWatching', watch.id).catch(() => {})
+  })
+  return createCachedClient(watchedClient, fs, general, dependencies, metadata, cacheNodeModules)
 }
