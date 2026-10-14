@@ -6,7 +6,7 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   // arrange
   const fixtureUrl = import.meta.resolve('../fixtures/auto-import-no-suggestions')
   const workspaceUrl = await FileSystem.loadFixture(fixtureUrl)
-  await Workspace.setPath(workspaceUrl)
+  await Workspace.setUri(workspaceUrl)
   await Main.openUri(`${workspaceUrl}/src/test.ts`)
   await Editor.setCursor(0, 11)
 
@@ -16,5 +16,5 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   // assert
   const suggest = Locator('[aria-label="Suggest"]')
   await expect(suggest).toBeVisible()
-  await expect(suggest).toHaveText('No Suggestions')
+  await expect(suggest).toHaveText('No completions')
 }

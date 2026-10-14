@@ -1,4 +1,5 @@
 import { readDirWithFileTypes, readFile as readFileApi } from '@lvce-editor/api'
+import * as DiskWatch from '../DiskWatch/DiskWatch.ts'
 import * as DocumentLifecycle from '../DocumentLifecycle/DocumentLifecycle.ts'
 import * as FileCacheApi from '../FileCacheApi/FileCacheApi.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
@@ -34,6 +35,9 @@ export const commandMap = {
   'FileCache.getHandle': FileCacheApi.getHandle,
   'FileCache.getHashes': FileCacheApi.getHashes,
   'FileCache.getValidation': FileCacheApi.getValidation,
+  'FileCache.getWatchState': DiskWatch.getWatchState,
+  'FileCache.startWatching': DiskWatch.startWatching,
+  'FileCache.stopWatching': DiskWatch.stopWatching,
   'FileSystem.readDir': readDir,
   'FileSystem.readFile': readFile,
   'Position.getOffset': getOffset,
