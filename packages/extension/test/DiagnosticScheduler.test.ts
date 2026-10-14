@@ -4,6 +4,74 @@ import { createDiagnosticScheduler } from '../src/parts/DiagnosticScheduler/Diag
 afterEach(() => jest.useRealTimers())
 const document = (text: string, uri = '/main.ts', documentId = 1) => ({ documentId, text, uri })
 
+test('identical pending snapshots share diagnostics when a background request arrives after an awaited request', async () => {
+  jest.useFakeTimers()
+  const execute = jest.fn(async () => ['fixture error'])
+  const schedule = createDiagnosticScheduler(execute)
+  const awaited = schedule(document('same text'))
+  const background = schedule(document('same text'))
+
+  await jest.advanceTimersByTimeAsync(150)
+
+  expect(await awaited).toEqual(['fixture error'])
+  expect(await background).toEqual(['fixture error'])
+  expect(execute).toHaveBeenCalledTimes(1)
+})
+
+test('identical snapshots share an active analysis without suppressing its result', async () => {
+  jest.useFakeTimers()
+  const active = Promise.withResolvers<readonly string[]>()
+  const execute = jest.fn(() => active.promise)
+  const schedule = createDiagnosticScheduler(execute)
+  const awaited = schedule(document('same text'))
+  await jest.advanceTimersByTimeAsync(150)
+  const background = schedule(document('same text'))
+  active.resolve(['fixture error'])
+  await jest.advanceTimersByTimeAsync(150)
+
+  expect(await awaited).toEqual(['fixture error'])
+  expect(await background).toEqual(['fixture error'])
+  expect(execute).toHaveBeenCalledTimes(1)
+})
+
+test('returning to the active snapshot discards queued edits and leaves the next analysis independent', async () => {
+  jest.useFakeTimers()
+  const active = Promise.withResolvers<readonly string[]>()
+  const seen: string[] = []
+  const schedule = createDiagnosticScheduler(async (doc) => {
+    seen.push(doc.text)
+    return doc.text === 'first' ? active.promise : [doc.text]
+  })
+  const first = schedule(document('first'))
+  await jest.advanceTimersByTimeAsync(150)
+  const obsolete = schedule(document('edit'))
+  const restored = schedule(document('first'))
+  active.resolve(['first'])
+  await jest.advanceTimersByTimeAsync(150)
+
+  expect(await first).toEqual(['first'])
+  expect(await obsolete).toEqual([])
+  expect(await restored).toEqual(['first'])
+  expect(seen).toEqual(['first'])
+
+  const next = schedule(document('next'))
+  await jest.advanceTimersByTimeAsync(150)
+  expect(await next).toEqual(['next'])
+  expect(seen).toEqual(['first', 'next'])
+})
+
+test('identical text in a changed language mode requires a new analysis', async () => {
+  jest.useFakeTimers()
+  const schedule = createDiagnosticScheduler(async (doc) => [doc.languageId])
+  const first = schedule({ ...document('same text'), languageId: 'typescript' })
+  const latest = schedule({ ...document('same text'), languageId: 'javascript' })
+
+  await jest.advanceTimersByTimeAsync(150)
+
+  expect(await first).toEqual([])
+  expect(await latest).toEqual(['javascript'])
+})
+
 test('rapid edits dispatch only the latest document and leave other documents independent', async () => {
   jest.useFakeTimers()
   const seen: string[] = []
