@@ -34,6 +34,7 @@ export const commandMap = {
   'DocumentLifecycle.getOpenUris': DocumentLifecycle.getOpenUris,
   'FileCache.getHandle': FileCacheApi.getHandle,
   'FileCache.getHashes': FileCacheApi.getHashes,
+  'FileCache.getValidation': FileCacheApi.getValidation,
   'FileCache.getWatchState': DiskWatch.getWatchState,
   'FileCache.startWatching': DiskWatch.startWatching,
   'FileCache.stopWatching': DiskWatch.stopWatching,

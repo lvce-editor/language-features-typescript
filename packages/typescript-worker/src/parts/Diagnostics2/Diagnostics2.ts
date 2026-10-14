@@ -47,6 +47,7 @@ export const getDiagnostics2 = async (
       actualTrace.loadedFiles = getLoadedFiles(languageService)
       actualTrace.diagnostics = {
         count: diagnostics.length,
+        ...(diagnostics.length > 0 && { items: diagnostics.slice(0, 10) }),
       }
     }
     return diagnostics

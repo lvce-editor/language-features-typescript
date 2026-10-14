@@ -4,6 +4,7 @@ export const name = 'typescript.disk-watching'
 
 const diskMethods = [
   'FileCache.getHashes',
+  'FileCache.getValidation',
   'SyncApi.exists',
   'SyncApi.readDirSync',
   'SyncApi.readFileSync',

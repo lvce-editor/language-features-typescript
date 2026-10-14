@@ -21,18 +21,31 @@ const fixture = () => {
     content: 'original',
     entries: ['file.ts'],
     failedHash: false,
+    failedValidation: false,
     hash: firstHash as string | null,
     hashes: 0,
+    invalidValidation: false,
     missing: false,
     reads: 0,
+    validations: 0,
   }
   const client = {
-    invokeSync(method: string) {
+    invokeSync(method: string, ...params: readonly unknown[]) {
       switch (method) {
         case 'FileCache.getHashes':
           state.hashes++
           if (state.failedHash) throw new Error('Hash unavailable')
           return [state.hash]
+        case 'FileCache.getValidation': {
+          state.validations++
+          if (state.failedValidation) throw new Error('Validation unavailable')
+          if (state.invalidValidation) return { available: [], entries: [] }
+          const [directories, missing] = params as [readonly string[], readonly string[]]
+          return {
+            available: missing.map(() => !state.missing),
+            entries: directories.map(() => state.entries),
+          }
+        }
         case 'SyncApi.exists':
           return !state.missing
         case 'SyncApi.readDirSync':
@@ -108,6 +121,35 @@ test('newly available missing modules and changed directory listings invalidate 
   cached.invokeSync('SyncApi.readDirSync', '/')
   state.entries = ['file.ts', 'added.ts']
   expect(cached.refresh?.()).toBe(true)
+})
+
+test('batches directory and missing-target validation into one request and retires on failures', () => {
+  const { client, fs, state } = fixture()
+  const cached = createCachedClient(client, fs, cache(), cache())
+  state.missing = true
+  cached.invokeSync('SyncApi.readDirSync', '/project')
+  cached.invokeSync('SyncApi.readDirSync', '/project/src')
+  cached.invokeSync('SyncApi.exists', '/project/missing.ts')
+  expect(cached.refresh?.()).toBe(false)
+  expect(state.validations).toBe(1)
+  expect(state.hashes).toBe(0)
+  state.entries = ['file.ts', 'added.ts']
+  expect(cached.refresh?.()).toBe(true)
+  expect(state.validations).toBe(2)
+  state.failedValidation = true
+  expect(cached.refresh?.()).toBe(true)
+  expect(cached.getChangedFiles?.()).toBeUndefined()
+})
+
+test('empty resolution state skips transport and malformed responses retire the program', () => {
+  const { client, fs, state } = fixture()
+  const cached = createCachedClient(client, fs, cache(), cache())
+  expect(cached.refresh?.()).toBe(false)
+  expect(state.validations).toBe(0)
+  cached.invokeSync('SyncApi.readDirSync', '/project')
+  state.invalidValidation = true
+  expect(cached.refresh?.()).toBe(true)
+  expect(cached.getChangedFiles?.()).toBeUndefined()
 })
 
 test('failed identity requests fall back to source reads and invalidate old programs', () => {

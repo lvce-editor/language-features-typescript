@@ -2,7 +2,6 @@ import type { FileContentCache, SyncHandle } from '../FileContentCache/FileConte
 import type { FileMetadataCache } from '../FileMetadataCache/FileMetadataCache.ts'
 import type { IFileSystem } from '../IFileSystem/IFileSystem.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
-import { createCachedSyncRpcClient } from '../CreateCachedSyncRpcClient/CreateCachedSyncRpcClient.ts'
 import { createFileContentCache } from '../FileContentCache/FileContentCache.ts'
 import { createFileMetadataCache } from '../FileMetadataCache/FileMetadataCache.ts'
 import { createWatchClient, type WatchDescriptor } from '../FileWatchClient/FileWatchClient.ts'
@@ -330,34 +329,40 @@ export const createCachedClient = (
     }
     return { changed, changedRoots }
   }
-  const refreshDirectories = (changed: Set<string>, changedRoots: Set<string>): void => {
-    const validationClient = createCachedSyncRpcClient(client)
-    for (const [uri, previousIdentity] of directories) {
-      if (client.isWatchedPath?.(uri)) continue
+  const refreshResolution = (changed: Set<string>, changedRoots: Set<string>): void => {
+    const shouldValidate = (uri: string): boolean => {
+      if (client.isWatchedPath?.(uri)) return false
       const root = dependencyRootForPath(uri)
-      if (cacheNodeModules && isTrustedDependencyPath(uri) && !changedRoots.has(root!)) continue
-      const value = validationClient.invokeSync('SyncApi.readDirSync', uri)
-      const identity = directoryIdentity(value)
-      if (identity !== previousIdentity) changed.add(uri)
-      directories.set(uri, identity)
-      if (
-        root &&
-        dependencyLocks.get(root) &&
-        Array.isArray(value) &&
-        value.every((entry) => typeof entry === 'string')
-      ) {
-        persistDependencyResolution(root, uri, value)
-      }
+      return !cacheNodeModules || !isTrustedDependencyPath(uri) || changedRoots.has(root!)
     }
-  }
-  const refreshMissing = (changed: Set<string>, changedRoots: Set<string>): void => {
-    const validationClient = createCachedSyncRpcClient(client)
-    for (const uri of missing) {
-      if (client.isWatchedPath?.(uri)) continue
+    const directoryUris = directories.keys().filter(shouldValidate).toArray()
+    const missingUris = missing.values().filter(shouldValidate).toArray()
+    if (directoryUris.length === 0 && missingUris.length === 0) return
+    const state = client.invokeSync('FileCache.getValidation', directoryUris, missingUris)
+    if (
+      !state ||
+      !Array.isArray(state.entries) ||
+      state.entries.length !== directoryUris.length ||
+      state.entries.some(
+        (entries: unknown) => !(Array.isArray(entries) && entries.every((entry: unknown) => typeof entry === 'string')),
+      ) ||
+      !Array.isArray(state.available) ||
+      state.available.length !== missingUris.length ||
+      state.available.some((entry: unknown) => typeof entry !== 'boolean')
+    )
+      throw new Error('Invalid resolution validation')
+    for (const [index, uri] of directoryUris.entries()) {
+      const value = state.entries[index]
+      const identity = directoryIdentity(value)
+      if (identity !== directories.get(uri)) changed.add(uri)
+      directories.set(uri, identity)
       const root = dependencyRootForPath(uri)
-      if (cacheNodeModules && isTrustedDependencyPath(uri) && !changedRoots.has(root!)) continue
-      const exists = validationClient.invokeSync('SyncApi.exists', uri)
-      if (root && dependencyLocks.get(root)) persistDependencyResolution(root, uri, !!exists)
+      if (root && dependencyLocks.get(root)) persistDependencyResolution(root, uri, value)
+    }
+    for (const [index, uri] of missingUris.entries()) {
+      const exists = state.available[index]
+      const root = dependencyRootForPath(uri)
+      if (root && dependencyLocks.get(root)) persistDependencyResolution(root, uri, exists)
       if (!exists) continue
       changed.add(uri)
       missing.delete(uri)
@@ -421,8 +426,7 @@ export const createCachedClient = (
       try {
         const { changed, changedRoots } = refreshFileIdentities()
         // Validate non-dependency resolution state conservatively on every request.
-        refreshDirectories(changed, changedRoots)
-        refreshMissing(changed, changedRoots)
+        refreshResolution(changed, changedRoots)
         changedFiles = [...changed]
         return changed.size > 0
       } catch {
