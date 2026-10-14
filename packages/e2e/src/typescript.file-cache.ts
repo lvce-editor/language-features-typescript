@@ -25,7 +25,7 @@ const run = async (
     await FileSystem.writeFile(source, 'export const value = 1;')
     await FileSystem.writeFile(uri, text)
     await Settings.update({ 'editor.diagnostics': false })
-    if (scheme === 'file') await Workspace.setUri(root)
+    await Workspace.setUri(root)
     await Main.openUri(uri)
     const trace = async (count: number, documentText = text) => {
       const deadline = Date.now() + 5000
