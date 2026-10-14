@@ -1,6 +1,7 @@
 import { expect, jest, test } from '@jest/globals'
 
 const refresh = jest.fn(() => false)
+const invokeSync = jest.fn((_method: string, ..._params: readonly unknown[]): unknown => undefined)
 const state = { documentRegistry: {} }
 
 const createTypeScriptLanguageService = jest.fn(
@@ -29,7 +30,7 @@ jest.unstable_mockModule('../src/parts/GetTsconfigPath/GetTsconfigPath.ts', () =
 jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', () => ({
   get: jest.fn(() => ({
     client: {
-      invokeSync: jest.fn(),
+      invokeSync,
       refresh,
     },
     documentRegistry: state.documentRegistry,
@@ -90,6 +91,26 @@ test('records newly created and reused project details in a performance trace', 
   const second = getOrCreateLanguageService('/workspace/trace-main.tsx', reusedTrace)
   expect(second.languageService).toBe(first.languageService)
   expect(reusedTrace.languageService.cache).toBe('reused')
+})
+
+test.each([new Error('read timed out'), 'read timed out'])('retains the first failed RPC in its trace: %s', async (error) => {
+  resetLanguageServices()
+  const PerformanceTrace = await import('../src/parts/PerformanceTrace/PerformanceTrace.ts')
+  const trace = PerformanceTrace.createPerformanceTrace('/workspace/failure-main.tsx')
+  getOrCreateLanguageService(trace.file.uri, trace)
+  const client = createTypeScriptLanguageService.mock.calls.at(-1)![2] as {
+    invokeSync(method: string, ...params: readonly unknown[]): unknown
+  }
+  invokeSync.mockImplementationOnce(() => { throw error })
+  expect(() => client.invokeSync('SyncApi.readFileSync', '/workspace/missing.ts')).toThrow()
+  expect(trace.syncRpc.failure).toEqual({
+    message: 'read timed out',
+    method: 'SyncApi.readFileSync',
+    uri: '/workspace/missing.ts',
+  })
+  invokeSync.mockImplementationOnce(() => { throw new Error('later failure') })
+  expect(() => client.invokeSync('SyncApi.getWorkspaceUri')).toThrow('later failure')
+  expect(trace.syncRpc.failure?.message).toBe('read timed out')
 })
 
 test('rebuilds and disposes project state when external file identities change', () => {

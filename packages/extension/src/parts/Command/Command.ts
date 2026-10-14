@@ -33,6 +33,7 @@ export const commandMap = {
   'DocumentLifecycle.getOpenUris': DocumentLifecycle.getOpenUris,
   'FileCache.getHandle': FileCacheApi.getHandle,
   'FileCache.getHashes': FileCacheApi.getHashes,
+  'FileCache.getValidation': FileCacheApi.getValidation,
   'FileSystem.readDir': readDir,
   'FileSystem.readFile': readFile,
   'Position.getOffset': getOffset,
