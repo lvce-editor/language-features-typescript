@@ -28,9 +28,21 @@ interface Session {
 const sessions = new Map<number, Session>()
 const counters = { nextId: 0 }
 
+const normalizeDiskUri = (uri: string): string => {
+  const url = new URL(uri)
+  return url.hostname || /^\/[a-zA-Z]:\//.test(url.pathname) ? url.href.toLowerCase() : url.href
+}
+
+const metadataKey = (uri: string): string => {
+  const path = normalizeDiskUri(uri)
+  const offset = path.lastIndexOf('/') + 1
+  return path.slice(0, offset) + path.slice(offset).toLowerCase()
+}
+
 const within = (uri: string, root: string): boolean => {
-  const path = root.replace(/\/$/, '')
-  return uri === path || uri.startsWith(`${path}/`)
+  const path = normalizeDiskUri(root).replace(/\/$/, '')
+  const candidate = normalizeDiskUri(uri)
+  return candidate === path || candidate.startsWith(`${path}/`)
 }
 
 export const stopWatching = async (id: number): Promise<void> => {
@@ -54,7 +66,7 @@ export const startWatching = async (): Promise<WatchDescriptor | null> => {
   const id = ++counters.nextId
   const session: Session = {
     active: true,
-    files: new Set(files),
+    files: new Set(files.map(metadataKey)),
     revision: 0,
     roots,
     starting: true,
@@ -66,7 +78,7 @@ export const startWatching = async (): Promise<WatchDescriptor | null> => {
     if (!session.active) return
     if (event.eventName === 'error') {
       session.active = false
-    } else if (session.files.has(event.uri) || session.roots.some((root) => within(event.uri, root))) {
+    } else if (session.files.has(metadataKey(event.uri)) || session.roots.some((root) => within(event.uri, root))) {
       session.revision++
     }
   }
@@ -74,7 +86,12 @@ export const startWatching = async (): Promise<WatchDescriptor | null> => {
     session.watchers.push(await createFileSystemWatcher({ exclude: ['.git'], roots }, handleEvent))
     if (!session.active) throw new Error('TypeScript disk watch was cancelled')
     if (parents.length > 0) {
-      const options = { exclude: ['.git'], recursive: false, roots: parents }
+      const options = {
+        childNames: ['tsconfig.json', 'jsconfig.json', 'package.json'],
+        exclude: ['.git'],
+        recursive: false,
+        roots: parents,
+      }
       session.watchers.push(await createFileSystemWatcher(options, handleEvent))
     }
     if (!session.active || workspaceUri !== (await getWorkspaceUri()))

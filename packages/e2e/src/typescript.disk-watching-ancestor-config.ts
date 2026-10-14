@@ -23,21 +23,11 @@ export const test: Test = async ({ Command, FileSystem, Main, Settings, Workspac
     }
     return result
   }
-  await trace(0)
-  const initial = await trace(0)
+  await trace(1)
+  const initial = await trace(1)
   if ((initial.fileCache.transport?.['FileCache.getWatchState'] || 0) <= 0) throw new Error('Disk watcher not active')
   // Creating an initially absent config above the workspace needs shallow-parent
   // coverage; a direct chokidar watch of that missing file does not deliver it.
-  await Command.execute(
-    'WebView.compatSharedProcessInvoke',
-    'FileSystemDisk.writeFile',
-    `${root}/tsconfig.json`,
-    JSON.stringify({
-      compilerOptions: { strict: true, types: [] },
-      files: ['project/main.ts'],
-    }),
-  )
-  await trace(1)
   await Command.execute(
     'WebView.compatSharedProcessInvoke',
     'FileSystemDisk.writeFile',
@@ -48,4 +38,14 @@ export const test: Test = async ({ Command, FileSystem, Main, Settings, Workspac
     }),
   )
   await trace(0)
+  await Command.execute(
+    'WebView.compatSharedProcessInvoke',
+    'FileSystemDisk.writeFile',
+    `${root}/tsconfig.json`,
+    JSON.stringify({
+      compilerOptions: { strict: true, types: [] },
+      files: ['project/main.ts'],
+    }),
+  )
+  await trace(1)
 }

@@ -47,7 +47,10 @@ test('root planning uses recursive dependencies and shallow config parents on Un
 test('disk watches include dependencies and filter unrelated shallow-parent events', async () => {
   const descriptor = await Watch.startWatching()
   expect(descriptor?.active).toBe(true)
-  expect(create.mock.calls[1][0]).toMatchObject({ recursive: false })
+  expect(create.mock.calls[1][0]).toMatchObject({
+    childNames: ['tsconfig.json', 'jsconfig.json', 'package.json'],
+    recursive: false,
+  })
   handlers[1]({ eventName: 'add', uri: 'file:///project/unrelated.txt' })
   await Watch.getWatchState(1, descriptor.id)
   expect(state.result).toEqual({ active: true, revision: 0 })
@@ -114,4 +117,13 @@ test('failed watcher trust is reported without waiting for disconnected-backend 
     resolve()
     await Watch.stopAll()
   }
+})
+
+test('Windows and UNC metadata events use filesystem casing semantics', async () => {
+  state.workspaceUri = 'file:///C:/Project/Workspace'
+  const descriptor = await Watch.startWatching()
+  handlers[1]({ eventName: 'change', uri: 'file:///c:/PROJECT/TSCONFIG.JSON' })
+  handlers[0]({ eventName: 'change', uri: 'file:///c:/PROJECT/WORKSPACE/main.ts' })
+  await Watch.getWatchState(1, descriptor.id)
+  expect(state.result).toEqual({ active: true, revision: 2 })
 })
