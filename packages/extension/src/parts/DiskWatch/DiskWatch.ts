@@ -17,7 +17,9 @@ export interface WatchDescriptor {
 
 interface Session {
   active: boolean
+  eventCount: number
   readonly files: ReadonlySet<string>
+  lastEvent?: { readonly eventName: string; readonly uri: string }
   revision: number
   readonly roots: readonly string[]
   starting: boolean
@@ -66,6 +68,7 @@ export const startWatching = async (): Promise<WatchDescriptor | null> => {
   const id = ++counters.nextId
   const session: Session = {
     active: true,
+    eventCount: 0,
     files: new Set(files.map(metadataKey)),
     revision: 0,
     roots,
@@ -76,6 +79,8 @@ export const startWatching = async (): Promise<WatchDescriptor | null> => {
   sessions.set(id, session)
   const handleEvent = (event: FileSystemWatchEvent): void => {
     if (!session.active) return
+    session.eventCount++
+    session.lastEvent = { eventName: event.eventName, uri: event.uri }
     if (event.eventName === 'error') {
       session.active = false
     } else if (session.files.has(metadataKey(event.uri)) || session.roots.some((root) => within(event.uri, root))) {
@@ -123,8 +128,13 @@ export const getWatchState = async (syncId: number, id: number): Promise<void> =
     if (!session.active || session.workspaceUri !== (await getWorkspaceUri())) {
       // A disconnected backend may leave disposal pending; cache fallback must not wait for it.
       void stopWatching(id).catch(() => {})
-      return { active: false, revision: session.revision }
+      return { active: false, eventCount: session.eventCount, lastEvent: session.lastEvent, revision: session.revision }
     }
-    return { active: session.active, revision: session.revision }
+    return {
+      active: session.active,
+      eventCount: session.eventCount,
+      lastEvent: session.lastEvent,
+      revision: session.revision,
+    }
   })
 }

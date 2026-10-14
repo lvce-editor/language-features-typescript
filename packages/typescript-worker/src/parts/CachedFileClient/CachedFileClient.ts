@@ -399,6 +399,7 @@ export const createCachedClient = (
     },
     getCacheStatistics: () => ({
       ...statistics,
+      ...(client.getWatchStatistics && { watch: client.getWatchStatistics() }),
       ...(client.getTransportStatistics && { transport: client.getTransportStatistics() }),
     }),
     getChangedFiles: () => changedFiles,

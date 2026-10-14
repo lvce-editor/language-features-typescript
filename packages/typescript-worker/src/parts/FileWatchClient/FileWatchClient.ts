@@ -1,4 +1,4 @@
-import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import type { SyncRpc, WatchStatistics } from '../SyncRpc/SyncRpc.ts'
 
 export interface WatchDescriptor {
   readonly active: boolean
@@ -37,6 +37,7 @@ export const createWatchClient = (
 ): SyncRpc => {
   let active = descriptor?.active === true
   let revision = descriptor?.revision || 0
+  let watchState: WatchStatistics = { active, revision }
   const roots = descriptor?.roots.map((uri) => normalize(uri).replace(/\/$/, '')) || []
   const files = new Set(descriptor?.files.map(normalize))
   const transport: Record<string, number> = Object.create(null)
@@ -101,6 +102,7 @@ export const createWatchClient = (
       client.forgetReferences?.(uris)
     },
     getTransportStatistics: () => client.getTransportStatistics?.() || { ...transport },
+    getWatchStatistics: () => ({ ...watchState }),
     invokeSync(method, ...params) {
       if (method === 'FileCache.getHashes') return getHashes(params[0])
       const uri = params[0]
@@ -126,6 +128,7 @@ export const createWatchClient = (
       if (!active || !descriptor) return undefined
       try {
         const state = invoke('FileCache.getWatchState', descriptor.id)
+        watchState = state ? { ...state } : { active: false, revision }
         if (state?.active !== true || !Number.isSafeInteger(state.revision)) {
           throw new Error('File watching is unavailable')
         }
@@ -135,6 +138,7 @@ export const createWatchClient = (
         clear()
         return 'changed'
       } catch {
+        watchState = { ...watchState, active: false }
         active = false
         clear()
         return 'failed'

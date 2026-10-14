@@ -53,11 +53,21 @@ test('disk watches include dependencies and filter unrelated shallow-parent even
   })
   handlers[1]({ eventName: 'add', uri: 'file:///project/unrelated.txt' })
   await Watch.getWatchState(1, descriptor.id)
-  expect(state.result).toEqual({ active: true, revision: 0 })
+  expect(state.result).toEqual({
+    active: true,
+    eventCount: 1,
+    lastEvent: { eventName: 'add', uri: 'file:///project/unrelated.txt' },
+    revision: 0,
+  })
   handlers[1]({ eventName: 'add', uri: 'file:///project/tsconfig.json' })
   handlers[0]({ eventName: 'change', uri: 'file:///project/node_modules/example/index.d.ts' })
   await Watch.getWatchState(1, descriptor.id)
-  expect(state.result).toEqual({ active: true, revision: 2 })
+  expect(state.result).toEqual({
+    active: true,
+    eventCount: 3,
+    lastEvent: { eventName: 'change', uri: 'file:///project/node_modules/example/index.d.ts' },
+    revision: 2,
+  })
   await Watch.stopWatching(descriptor.id)
   expect(dispose).toHaveBeenCalledTimes(2)
 })
@@ -125,5 +135,10 @@ test('Windows and UNC metadata events use filesystem casing semantics', async ()
   handlers[1]({ eventName: 'change', uri: 'file:///c:/PROJECT/TSCONFIG.JSON' })
   handlers[0]({ eventName: 'change', uri: 'file:///c:/PROJECT/WORKSPACE/main.ts' })
   await Watch.getWatchState(1, descriptor.id)
-  expect(state.result).toEqual({ active: true, revision: 2 })
+  expect(state.result).toEqual({
+    active: true,
+    eventCount: 2,
+    lastEvent: { eventName: 'change', uri: 'file:///c:/PROJECT/WORKSPACE/main.ts' },
+    revision: 2,
+  })
 })
