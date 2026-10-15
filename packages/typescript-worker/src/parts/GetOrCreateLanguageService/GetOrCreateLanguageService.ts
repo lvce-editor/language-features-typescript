@@ -219,11 +219,15 @@ const releaseClosedFiles = (fs: IFileSystem, references: ReadonlyMap<string, num
     if (!references.has(normalizeUri(uri))) fs.releaseFile?.(uri)
   }
   for (const project of Object.values(projectCache)) {
-    for (const uri of project.uris) {
-      if (!project.configuredRoots.has(uri) && !references.has(normalizeUri(uri)) && fs.readFile(uri) === undefined) {
-        project.uris.delete(uri)
-        documentProjects.delete(uri)
-      }
+    const closed = project.uris
+      .values()
+      .filter(
+        (uri) =>
+          !project.configuredRoots.has(uri) && !references.has(normalizeUri(uri)) && fs.readFile(uri) === undefined,
+      )
+    for (const uri of closed) {
+      project.uris.delete(uri)
+      documentProjects.delete(uri)
     }
   }
 }
