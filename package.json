@@ -42,5 +42,8 @@
     "jest": "^30.4.2",
     "prettier": "^3.9.9",
     "ts-jest": "^29.4.14"
+  },
+  "overrides": {
+    "@lvce-editor/file-watcher-process": "4.16.1"
   }
 }
