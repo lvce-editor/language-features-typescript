@@ -6,8 +6,10 @@ export const getDefinition2 = async (textDocument: any, offset: number) => {
   const { fs, languageService } = getOrCreateLanguageService(textDocument.uri)
   fs.writeFile(textDocument.uri, textDocument.text)
   const tsResult = languageService.getDefinitionAtPosition(textDocument.uri, offset)
-  const definition = await getDefinitionFromTsResult2(tsResult || [], fs, (uri) =>
-    Rpc.invoke('FileSystem.readFile', uri),
+  const definition = await getDefinitionFromTsResult2(
+    tsResult || [],
+    fs,
+    async (uri) => languageService.getProgram()?.getSourceFile(uri)?.text ?? Rpc.invoke('FileSystem.readFile', uri),
   )
   return definition
 }

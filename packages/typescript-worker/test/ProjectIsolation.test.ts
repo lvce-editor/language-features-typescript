@@ -367,3 +367,15 @@ test('a JavaScript-enabled config serves its JavaScript documents in the same se
   expect(configured.getSemanticDiagnostics(js).map((item) => item.code)).toContain(2356)
   expect(getProjectCount()).toBe(1)
 })
+
+test('a newly opened unsaved nested config changes the cached document project', async () => {
+  const { fs, service } = fixture()
+  const previous = await service(a)
+  fs.writeFile(
+    '/workspace/a/src/tsconfig.json',
+    JSON.stringify({ compilerOptions: { noLib: true, strict: false, types: [] }, files: ['main.ts'] }),
+  )
+  const next = await service(a)
+  expect(next).not.toBe(previous)
+  expect(next.getProgram()?.getCompilerOptions().strict).toBe(false)
+})
