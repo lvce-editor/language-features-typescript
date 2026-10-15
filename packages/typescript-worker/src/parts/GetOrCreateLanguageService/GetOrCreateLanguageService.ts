@@ -22,6 +22,7 @@ interface Project {
 }
 
 const projectConfigCache: Record<string, number> = Object.create(null)
+const documentProjects = new Map<string, { readonly configPath: string; readonly id: number }>()
 
 const projectIds = { next: 1 }
 const projectCache: Record<number, Project> = Object.create(null)
@@ -30,6 +31,7 @@ export const resetLanguageServices = (): void => {
   for (const project of Object.values(projectCache)) RequestActivity.retire(() => project.service.dispose())
   for (const key of Object.keys(projectCache)) delete projectCache[key]
   for (const key of Object.keys(projectConfigCache)) delete projectConfigCache[key]
+  documentProjects.clear()
   LanguageServices.resetDocumentRegistry(1)
 }
 
@@ -40,6 +42,9 @@ const retireProject = (id: number, project: Project): void => {
   RequestActivity.retire(() => project.service.dispose())
   delete projectCache[id]
   delete projectConfigCache[project.key]
+  for (const [uri, project] of documentProjects) {
+    if (project.id === id) documentProjects.delete(uri)
+  }
 }
 
 const createTracedClient = (
@@ -104,6 +109,11 @@ const getProjectKey = (uri: string, tsConfigPath: string, client: SyncRpc): stri
   return `inferred:${normalizeUri(inferredRoot)}`
 }
 
+const getDocumentProject = (uri: string, configPath: string): Project | undefined => {
+  const cached = documentProjects.get(uri)
+  return cached?.configPath === configPath ? projectCache[cached.id] : undefined
+}
+
 export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace.MutablePerformanceTrace) => {
   const id = 1
   const { client, fs, ts } = LanguageServices.get(id)
@@ -130,6 +140,15 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
   const readFile = (uri: string) => tracedClient.invokeSync('SyncApi.readFileSync', uri)
   const readDir = (uri: string) => tracedClient.invokeSync('SyncApi.readDirSync', uri)
   let tsConfigPath = PerformanceTrace.measure(trace, 'configDiscovery', () => getTsConfigPath(uri, exists))
+  const discoveredConfigPath = tsConfigPath
+  const cachedProject = getDocumentProject(uri, discoveredConfigPath)
+  if (cachedProject) {
+    cachedProject.uris.add(uri)
+    cachedProject.lastUsed = performance.now()
+    references.forEach((reference) => cachedProject.references.add(reference))
+    if (trace) trace.languageService.cache = 'reused'
+    return { fs, getCacheStatistics: client.getCacheStatistics, languageService: cachedProject.service }
+  }
   let javascriptConfig: ParsedCommandLine | undefined
   if (tsConfigPath && /\.(?:[cm]?js|jsx)$/i.test(uri)) {
     const parsed = parseTsconfig(tsConfigPath, readFile, ts)
@@ -145,6 +164,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
   if (key in projectConfigCache) {
     const projectId = projectConfigCache[key]
     const project = projectCache[projectId]
+    documentProjects.set(uri, { configPath: discoveredConfigPath, id: projectId })
     project.uris.add(uri)
     project.lastUsed = performance.now()
     for (const reference of references) project.references.add(reference)
@@ -177,6 +197,7 @@ export const getOrCreateLanguageService = (uri: string, trace?: PerformanceTrace
     uris,
   }
   projectConfigCache[key] = projectId
+  documentProjects.set(uri, { configPath: discoveredConfigPath, id: projectId })
 
   return {
     fs,
@@ -201,6 +222,7 @@ const releaseClosedFiles = (fs: IFileSystem, references: ReadonlyMap<string, num
     for (const uri of project.uris) {
       if (!project.configuredRoots.has(uri) && !references.has(normalizeUri(uri)) && fs.readFile(uri) === undefined) {
         project.uris.delete(uri)
+        documentProjects.delete(uri)
       }
     }
   }
@@ -235,9 +257,7 @@ export const collectIdleProjects = (
   for (const [index, [id, project]] of idle.entries()) {
     if (now - project.lastUsed < idleMs || index < maxIdleProjects) continue
     for (const uri of project.references) retiredReferences.add(uri)
-    project.service.dispose()
-    delete projectCache[Number(id)]
-    delete projectConfigCache[project.key]
+    retireProject(Number(id), project)
   }
   for (const project of Object.values(projectCache)) {
     for (const uri of project.references) retiredReferences.delete(uri)

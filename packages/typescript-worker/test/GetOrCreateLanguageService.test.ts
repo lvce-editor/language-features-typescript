@@ -57,6 +57,23 @@ jest.unstable_mockModule('../src/parts/ResolveTsconfig/ResolveTsconfig.ts', () =
 const { getOrCreateLanguageService, resetLanguageServices } =
   await import('../src/parts/GetOrCreateLanguageService/GetOrCreateLanguageService.ts')
 
+test('warm JavaScript requests skip repeated config resolution and refresh after disk changes', async () => {
+  resetLanguageServices()
+  const { resolveTsconfig } = await import('../src/parts/ResolveTsconfig/ResolveTsconfig.ts')
+  const resolve = jest.mocked(resolveTsconfig)
+  const first = getOrCreateLanguageService('/workspace/main.js')
+  const coldCalls = resolve.mock.calls.length
+  for (let index = 0; index < 10; index++) {
+    expect(getOrCreateLanguageService('/workspace/main.js').languageService).toBe(first.languageService)
+  }
+  expect(resolve).toHaveBeenCalledTimes(coldCalls)
+  refresh.mockReturnValueOnce(true)
+  expect(getOrCreateLanguageService('/workspace/main.js').languageService).not.toBe(first.languageService)
+  expect(resolve.mock.calls.length).toBeGreaterThan(coldCalls)
+  resetLanguageServices()
+  createTypeScriptLanguageService.mockClear()
+})
+
 test('reuses a language service for files in the same configured project', () => {
   const first = getOrCreateLanguageService('/workspace/src/main.tsx')
   const second = getOrCreateLanguageService('/workspace/src/App.tsx')
@@ -93,25 +110,32 @@ test('records newly created and reused project details in a performance trace', 
   expect(reusedTrace.languageService.cache).toBe('reused')
 })
 
-test.each([new Error('read timed out'), 'read timed out'])('retains the first failed RPC in its trace: %s', async (error) => {
-  resetLanguageServices()
-  const PerformanceTrace = await import('../src/parts/PerformanceTrace/PerformanceTrace.ts')
-  const trace = PerformanceTrace.createPerformanceTrace('/workspace/failure-main.tsx')
-  getOrCreateLanguageService(trace.file.uri, trace)
-  const client = createTypeScriptLanguageService.mock.calls.at(-1)![2] as {
-    invokeSync(method: string, ...params: readonly unknown[]): unknown
-  }
-  invokeSync.mockImplementationOnce(() => { throw error })
-  expect(() => client.invokeSync('SyncApi.readFileSync', '/workspace/missing.ts')).toThrow()
-  expect(trace.syncRpc.failure).toEqual({
-    message: 'read timed out',
-    method: 'SyncApi.readFileSync',
-    uri: '/workspace/missing.ts',
-  })
-  invokeSync.mockImplementationOnce(() => { throw new Error('later failure') })
-  expect(() => client.invokeSync('SyncApi.getWorkspaceUri')).toThrow('later failure')
-  expect(trace.syncRpc.failure?.message).toBe('read timed out')
-})
+test.each([new Error('read timed out'), 'read timed out'])(
+  'retains the first failed RPC in its trace: %s',
+  async (error) => {
+    resetLanguageServices()
+    const PerformanceTrace = await import('../src/parts/PerformanceTrace/PerformanceTrace.ts')
+    const trace = PerformanceTrace.createPerformanceTrace('/workspace/failure-main.tsx')
+    getOrCreateLanguageService(trace.file.uri, trace)
+    const client = createTypeScriptLanguageService.mock.calls.at(-1)![2] as {
+      invokeSync(method: string, ...params: readonly unknown[]): unknown
+    }
+    invokeSync.mockImplementationOnce(() => {
+      throw error
+    })
+    expect(() => client.invokeSync('SyncApi.readFileSync', '/workspace/missing.ts')).toThrow()
+    expect(trace.syncRpc.failure).toEqual({
+      message: 'read timed out',
+      method: 'SyncApi.readFileSync',
+      uri: '/workspace/missing.ts',
+    })
+    invokeSync.mockImplementationOnce(() => {
+      throw new Error('later failure')
+    })
+    expect(() => client.invokeSync('SyncApi.getWorkspaceUri')).toThrow('later failure')
+    expect(trace.syncRpc.failure?.message).toBe('read timed out')
+  },
+)
 
 test('rebuilds and disposes project state when external file identities change', () => {
   const previousRegistry = state.documentRegistry
