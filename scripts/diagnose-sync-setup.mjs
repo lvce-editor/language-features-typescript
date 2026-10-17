@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, readdir, rm, writeFile } from 'node:fs/promises'
 
 const replaceOnce = async (path, before, after) => {
   const source = await readFile(path, 'utf8')
@@ -36,6 +36,23 @@ await replaceOnce(chunks, 'Atomics.notify(header, 0)',
   "console.error('[sync-setup] publish chunk', state, chunk.length)\nAtomics.notify(header, 0)")
 await replaceOnce(chunks, "const acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value",
   "console.error('[sync-setup] ack begin')\nconst acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value\nconsole.error('[sync-setup] ack end', acknowledged)")
+
+const cache = 'packages/typescript-worker/src/parts/CachedFileClient/CachedFileClient.ts'
+for (const [stage, statement] of [
+  ['cache-file', "const file: CacheFileHandle = await Rpc.invoke('FileCache.getHandle', name)"],
+]) await replaceOnce(cache, statement,
+  `console.error('[sync-setup] ${stage} begin', name)\n${statement}\nconsole.error('[sync-setup] ${stage} end', name)`)
+await replaceOnce(cache, 'return await file.createSyncAccessHandle()',
+  "console.error('[sync-setup] cache-access begin', name)\nconst handle = await file.createSyncAccessHandle()\nconsole.error('[sync-setup] cache-access end', name)\nreturn handle")
+await replaceOnce(cache, "return await Rpc.invoke('FileCache.startWatching')",
+  "console.error('[sync-setup] watch begin')\nconst result = await Rpc.invoke('FileCache.startWatching')\nconsole.error('[sync-setup] watch end')\nreturn result")
+
+// Keep the original predecessor and target in their existing alphabetical order.
+for (const file of await readdir('packages/e2e/src')) {
+  if (file.endsWith('.ts') && !['typescript.add-missing-imports.ts', 'typescript.alt-hover-backlog.ts'].includes(file)) {
+    await rm(`packages/e2e/src/${file}`)
+  }
+}
 
 const runner = 'node_modules/@lvce-editor/test-with-playwright-worker/dist/workerMain.js'
 await replaceOnce(runner, "import { fork } from 'node:child_process';",
