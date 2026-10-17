@@ -13,39 +13,53 @@ for (const [stage, statement] of [
   ['worker-access', "textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })"],
   ['setup-rpc', "await Rpc.invoke('SyncApi.setupShared', syncId, shared, maxDelay, textAccessHandle ? textHandle : undefined)"],
 ]) {
-  await replaceOnce(client, statement, `console.error('[sync-setup] ${stage} begin', syncId)\n${statement}\nconsole.error('[sync-setup] ${stage} end', syncId)`)
+  await replaceOnce(client, statement, `recordSyncDiagnostic('[sync-setup] ${stage} begin', syncId)\n${statement}\nrecordSyncDiagnostic('[sync-setup] ${stage} end', syncId)`)
 }
 const extension = 'packages/extension/src/parts/SyncApi/SyncApi.ts'
 await replaceOnce(extension,
   "textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })",
-  "console.error('[sync-setup] extension-access begin', id)\ntextAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })\nconsole.error('[sync-setup] extension-access end', id)")
+  "recordSyncDiagnostic('[sync-setup] extension-access begin', id)\ntextAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })\nrecordSyncDiagnostic('[sync-setup] extension-access end', id)")
 await replaceOnce(extension, 'SyncSetupState.set(id, { maxDelay, shared, textAccessHandle })',
-  "console.error('[sync-setup] extension-ready', id)\nSyncSetupState.set(id, { maxDelay, shared, textAccessHandle })")
+  "recordSyncDiagnostic('[sync-setup] extension-ready', id)\nSyncSetupState.set(id, { maxDelay, shared, textAccessHandle })")
 
 await replaceOnce(client, 'void Rpc.invoke(method, syncId, ...params)',
-  "console.error('[sync-setup] invoke begin', method)\nvoid Rpc.invoke(method, syncId, ...params)")
+  "recordSyncDiagnostic('[sync-setup] invoke begin', method)\nvoid Rpc.invoke(method, syncId, ...params)")
 await replaceOnce(client, 'const state = Atomics.load(header, 0)',
-  "const state = Atomics.load(header, 0)\nconsole.error('[sync-setup] received state', method, state)")
+  "const state = Atomics.load(header, 0)\nrecordSyncDiagnostic('[sync-setup] received state', method, state)")
 await replaceOnce(client, "failed = true",
-  "console.error('[sync-setup] invoke timeout', method)\nfailed = true")
+  "recordSyncDiagnostic('[sync-setup] invoke timeout', method)\nfailed = true")
 const writer = 'packages/extension/src/parts/WriteResult/WriteResult.ts'
 await replaceOnce(writer, 'const { code, error, result } = await getResponse(resultGenerator)',
-  "console.error('[sync-setup] response begin', id)\nconst { code, error, result } = await getResponse(resultGenerator)\nconsole.error('[sync-setup] response ready', id)")
+  "recordSyncDiagnostic('[sync-setup] response begin', id)\nconst { code, error, result } = await getResponse(resultGenerator)\nrecordSyncDiagnostic('[sync-setup] response ready', id)")
 const chunks = 'packages/extension/src/parts/WriteSharedResult/WriteSharedResult.ts'
 await replaceOnce(chunks, 'Atomics.notify(header, 0)',
-  "console.error('[sync-setup] publish chunk', state, chunk.length)\nAtomics.notify(header, 0)")
+  "recordSyncDiagnostic('[sync-setup] publish chunk', state, chunk.length)\nAtomics.notify(header, 0)")
 await replaceOnce(chunks, "const acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value",
-  "console.error('[sync-setup] ack begin')\nconst acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value\nconsole.error('[sync-setup] ack end', acknowledged)")
+  "recordSyncDiagnostic('[sync-setup] ack begin')\nconst acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value\nrecordSyncDiagnostic('[sync-setup] ack end', acknowledged)")
 
 const cache = 'packages/typescript-worker/src/parts/CachedFileClient/CachedFileClient.ts'
 for (const [stage, statement] of [
   ['cache-file', "const file: CacheFileHandle = await Rpc.invoke('FileCache.getHandle', name)"],
 ]) await replaceOnce(cache, statement,
-  `console.error('[sync-setup] ${stage} begin', name)\n${statement}\nconsole.error('[sync-setup] ${stage} end', name)`)
+  `recordSyncDiagnostic('[sync-setup] ${stage} begin', name)\n${statement}\nrecordSyncDiagnostic('[sync-setup] ${stage} end', name)`)
 await replaceOnce(cache, 'return await file.createSyncAccessHandle()',
-  "console.error('[sync-setup] cache-access begin', name)\nconst handle = await file.createSyncAccessHandle()\nconsole.error('[sync-setup] cache-access end', name)\nreturn handle")
+  "recordSyncDiagnostic('[sync-setup] cache-access begin', name)\nconst handle = await file.createSyncAccessHandle()\nrecordSyncDiagnostic('[sync-setup] cache-access end', name)\nreturn handle")
 await replaceOnce(cache, "return await Rpc.invoke('FileCache.startWatching')",
-  "console.error('[sync-setup] watch begin')\nconst result = await Rpc.invoke('FileCache.startWatching')\nconsole.error('[sync-setup] watch end')\nreturn result")
+  "recordSyncDiagnostic('[sync-setup] watch begin')\nconst result = await Rpc.invoke('FileCache.startWatching')\nrecordSyncDiagnostic('[sync-setup] watch end')\nreturn result")
+
+// Buffer synchronous events; emit only after the normal scenario would finish.
+// Console I/O around Atomics.notify can otherwise suppress the observed race.
+for (const path of [client, extension, writer, chunks, cache]) {
+  const source = await readFile(path, 'utf8')
+  const recorder = `const recordSyncDiagnostic = (() => {
+    const entries: any[] = []
+    setInterval(() => {
+      if (entries.length) console.error('[sync-setup]', JSON.stringify(entries.splice(0)))
+    }, 10000)
+    return (...args: any[]) => { entries.push({ time: performance.now(), args }) }
+  })()\n`
+  await writeFile(path, recorder + source)
+}
 
 // Keep the original predecessor and target in their existing alphabetical order.
 for (const file of await readdir('packages/e2e/src')) {
