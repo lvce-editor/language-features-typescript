@@ -22,6 +22,21 @@ await replaceOnce(extension,
 await replaceOnce(extension, 'SyncSetupState.set(id, { maxDelay, shared, textAccessHandle })',
   "console.error('[sync-setup] extension-ready', id)\nSyncSetupState.set(id, { maxDelay, shared, textAccessHandle })")
 
+await replaceOnce(client, 'void Rpc.invoke(method, syncId, ...params)',
+  "console.error('[sync-setup] invoke begin', method)\nvoid Rpc.invoke(method, syncId, ...params)")
+await replaceOnce(client, 'const state = Atomics.load(header, 0)',
+  "const state = Atomics.load(header, 0)\nconsole.error('[sync-setup] received state', method, state)")
+await replaceOnce(client, "failed = true",
+  "console.error('[sync-setup] invoke timeout', method)\nfailed = true")
+const writer = 'packages/extension/src/parts/WriteResult/WriteResult.ts'
+await replaceOnce(writer, 'const { code, error, result } = await getResponse(resultGenerator)',
+  "console.error('[sync-setup] response begin', id)\nconst { code, error, result } = await getResponse(resultGenerator)\nconsole.error('[sync-setup] response ready', id)")
+const chunks = 'packages/extension/src/parts/WriteSharedResult/WriteSharedResult.ts'
+await replaceOnce(chunks, 'Atomics.notify(header, 0)',
+  "console.error('[sync-setup] publish chunk', state, chunk.length)\nAtomics.notify(header, 0)")
+await replaceOnce(chunks, "const acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value",
+  "console.error('[sync-setup] ack begin')\nconst acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value\nconsole.error('[sync-setup] ack end', acknowledged)")
+
 const runner = 'node_modules/@lvce-editor/test-with-playwright-worker/dist/workerMain.js'
 await replaceOnce(runner, "import { fork } from 'node:child_process';",
   "import { fork } from 'node:child_process';\nimport { appendFileSync, mkdirSync } from 'node:fs';")
