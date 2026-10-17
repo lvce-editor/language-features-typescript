@@ -13,38 +13,24 @@ for (const [stage, statement] of [
   ['worker-access', "textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })"],
   ['setup-rpc', "await Rpc.invoke('SyncApi.setupShared', syncId, shared, maxDelay, textAccessHandle ? textHandle : undefined)"],
 ]) {
-  await replaceOnce(client, statement, `recordSyncDiagnostic('[sync-setup] ${stage} begin', syncId)\n${statement}\nrecordSyncDiagnostic('[sync-setup] ${stage} end', syncId)`)
+  await replaceOnce(client, statement, `console.error('[sync-setup] ${stage} begin', syncId)\n${statement}\nconsole.error('[sync-setup] ${stage} end', syncId)`)
 }
 const extension = 'packages/extension/src/parts/SyncApi/SyncApi.ts'
 await replaceOnce(extension,
   "textAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })",
-  "recordSyncDiagnostic('[sync-setup] extension-access begin', id)\ntextAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })\nrecordSyncDiagnostic('[sync-setup] extension-access end', id)")
+  "console.error('[sync-setup] extension-access begin', id)\ntextAccessHandle = await textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' })\nconsole.error('[sync-setup] extension-access end', id)")
 await replaceOnce(extension, 'SyncSetupState.set(id, { maxDelay, shared, textAccessHandle })',
-  "recordSyncDiagnostic('[sync-setup] extension-ready', id)\nSyncSetupState.set(id, { maxDelay, shared, textAccessHandle })")
+  "console.error('[sync-setup] extension-ready', id)\nSyncSetupState.set(id, { maxDelay, shared, textAccessHandle })")
 
 const cache = 'packages/typescript-worker/src/parts/CachedFileClient/CachedFileClient.ts'
 for (const [stage, statement] of [
   ['cache-file', "const file: CacheFileHandle = await Rpc.invoke('FileCache.getHandle', name)"],
 ]) await replaceOnce(cache, statement,
-  `recordSyncDiagnostic('[sync-setup] ${stage} begin', name)\n${statement}\nrecordSyncDiagnostic('[sync-setup] ${stage} end', name)`)
+  `console.error('[sync-setup] ${stage} begin', name)\n${statement}\nconsole.error('[sync-setup] ${stage} end', name)`)
 await replaceOnce(cache, 'return await file.createSyncAccessHandle()',
-  "recordSyncDiagnostic('[sync-setup] cache-access begin', name)\nconst handle = await file.createSyncAccessHandle()\nrecordSyncDiagnostic('[sync-setup] cache-access end', name)\nreturn handle")
+  "console.error('[sync-setup] cache-access begin', name)\nconst handle = await file.createSyncAccessHandle()\nconsole.error('[sync-setup] cache-access end', name)\nreturn handle")
 await replaceOnce(cache, "return await Rpc.invoke('FileCache.startWatching')",
-  "recordSyncDiagnostic('[sync-setup] watch begin')\nconst result = await Rpc.invoke('FileCache.startWatching')\nrecordSyncDiagnostic('[sync-setup] watch end')\nreturn result")
-
-// Buffer synchronous events; emit only after the normal scenario would finish.
-// Console I/O around Atomics.notify can otherwise suppress the observed race.
-for (const path of [client, extension, cache]) {
-  const source = await readFile(path, 'utf8')
-  const recorder = `const recordSyncDiagnostic = (() => {
-    const entries: any[] = []
-    setInterval(() => {
-      if (entries.length) console.error('[sync-setup]', JSON.stringify(entries.splice(0)))
-    }, 10000)
-    return (...args: any[]) => { entries.push({ time: performance.now(), args }) }
-  })()\n`
-  await writeFile(path, recorder + source)
-}
+  "console.error('[sync-setup] watch begin')\nconst result = await Rpc.invoke('FileCache.startWatching')\nconsole.error('[sync-setup] watch end')\nreturn result")
 
 const runner = 'node_modules/@lvce-editor/test-with-playwright-worker/dist/workerMain.js'
 await replaceOnce(runner, "import { fork } from 'node:child_process';",
