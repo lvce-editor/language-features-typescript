@@ -22,21 +22,6 @@ await replaceOnce(extension,
 await replaceOnce(extension, 'SyncSetupState.set(id, { maxDelay, shared, textAccessHandle })',
   "recordSyncDiagnostic('[sync-setup] extension-ready', id)\nSyncSetupState.set(id, { maxDelay, shared, textAccessHandle })")
 
-await replaceOnce(client, 'void Rpc.invoke(method, syncId, ...params)',
-  "recordSyncDiagnostic('[sync-setup] invoke begin', method)\nvoid Rpc.invoke(method, syncId, ...params)")
-await replaceOnce(client, 'const state = Atomics.load(header, 0)',
-  "const state = Atomics.load(header, 0)\nrecordSyncDiagnostic('[sync-setup] received state', method, state)")
-await replaceOnce(client, "failed = true",
-  "recordSyncDiagnostic('[sync-setup] invoke timeout', method)\nfailed = true")
-const writer = 'packages/extension/src/parts/WriteResult/WriteResult.ts'
-await replaceOnce(writer, 'const { code, error, result } = await getResponse(resultGenerator)',
-  "recordSyncDiagnostic('[sync-setup] response begin', id)\nconst { code, error, result } = await getResponse(resultGenerator)\nrecordSyncDiagnostic('[sync-setup] response ready', id)")
-const chunks = 'packages/extension/src/parts/WriteSharedResult/WriteSharedResult.ts'
-await replaceOnce(chunks, 'Atomics.notify(header, 0)',
-  "recordSyncDiagnostic('[sync-setup] publish chunk', state, chunk.length)\nAtomics.notify(header, 0)")
-await replaceOnce(chunks, "const acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value",
-  "recordSyncDiagnostic('[sync-setup] ack begin')\nconst acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value\nrecordSyncDiagnostic('[sync-setup] ack end', acknowledged)")
-
 const cache = 'packages/typescript-worker/src/parts/CachedFileClient/CachedFileClient.ts'
 for (const [stage, statement] of [
   ['cache-file', "const file: CacheFileHandle = await Rpc.invoke('FileCache.getHandle', name)"],
@@ -49,7 +34,7 @@ await replaceOnce(cache, "return await Rpc.invoke('FileCache.startWatching')",
 
 // Buffer synchronous events; emit only after the normal scenario would finish.
 // Console I/O around Atomics.notify can otherwise suppress the observed race.
-for (const path of [client, extension, writer, chunks, cache]) {
+for (const path of [client, extension, cache]) {
   const source = await readFile(path, 'utf8')
   const recorder = `const recordSyncDiagnostic = (() => {
     const entries: any[] = []
