@@ -131,6 +131,8 @@ jobs:
           node-version-file: '.nvmrc'
       - name: npm ci
         run: npm ci
+      - name: Install synchronous RPC setup diagnostics
+        run: node scripts/diagnose-sync-setup.mjs
       - name: Build
         run: npm run build
       - name: Build static site
@@ -156,5 +158,6 @@ jobs:
           name: webkit-reproduction-${{ matrix.attempt }}
           path: |
             .e2e-artifacts/**
+            packages/e2e/.e2e-artifacts/**
             **/renderer-worker-traces/**
           include-hidden-files: true
