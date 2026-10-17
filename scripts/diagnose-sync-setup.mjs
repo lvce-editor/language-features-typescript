@@ -1,4 +1,4 @@
-import { readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 
 const replaceOnce = async (path, before, after) => {
   const source = await readFile(path, 'utf8')
@@ -59,13 +59,6 @@ for (const path of [client, extension, writer, chunks, cache]) {
     return (...args: any[]) => { entries.push({ time: performance.now(), args }) }
   })()\n`
   await writeFile(path, recorder + source)
-}
-
-// Keep the original predecessor and target in their existing alphabetical order.
-for (const file of await readdir('packages/e2e/src')) {
-  if (file.endsWith('.ts') && !['typescript.add-missing-imports.ts', 'typescript.alt-hover-backlog.ts'].includes(file)) {
-    await rm(`packages/e2e/src/${file}`)
-  }
 }
 
 const runner = 'node_modules/@lvce-editor/test-with-playwright-worker/dist/workerMain.js'
