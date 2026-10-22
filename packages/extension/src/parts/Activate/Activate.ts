@@ -49,21 +49,22 @@ export const activate = async (): Promise<void> => {
       id: 'typescript.getProjectCacheStatistics',
     }),
   ]
+  const workerProviders = RegisterProviders.registerProviders(Object.values(Providers), requireWorkerBackend)
+  const nativeServers = ['javascript', 'javascriptreact', 'typescript', 'typescriptreact'].map((languageId) =>
+    registerLanguageServer({
+      argv: ['--lsp', '--stdio'],
+      id: `typescript.ts7.${languageId}`,
+      languageId,
+      uri: 'lvce-language-server:typescript',
+    }),
+  )
   try {
     await activateExtensionApi()
     state.native = (await getPreference('typescript.useTs7')) === true
     if (state.native) {
-      for (const command of workerCommands) command.dispose()
-      for (const languageId of ['javascript', 'javascriptreact', 'typescript', 'typescriptreact']) {
-        registerLanguageServer({
-          argv: ['--lsp', '--stdio'],
-          id: `typescript.ts7.${languageId}`,
-          languageId,
-          uri: 'lvce-language-server:typescript',
-        })
-      }
+      for (const registration of [...workerCommands, ...workerProviders]) registration.dispose()
     } else {
-      RegisterProviders.registerProviders(Object.values(Providers))
+      for (const server of nativeServers) server.dispose()
     }
     activation.resolve()
   } catch (error) {

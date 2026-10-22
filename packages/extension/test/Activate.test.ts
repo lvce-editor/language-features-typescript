@@ -7,8 +7,10 @@ const registerCommand = jest.fn((command: { readonly id: string; readonly execut
   disposals.push({ dispose, id: command.id })
   return { dispose }
 })
-const registerLanguageServer = jest.fn()
-const registerProviders = jest.fn()
+const providerDispose = jest.fn()
+const serverDispose = jest.fn()
+const registerLanguageServer = jest.fn((_options: unknown) => ({ dispose: serverDispose }))
+const registerProviders = jest.fn(() => [{ dispose: providerDispose }])
 const activateApi = jest.fn<() => Promise<void>>()
 
 jest.unstable_mockModule('@lvce-editor/api', () => ({
@@ -38,16 +40,17 @@ test.each([undefined, false, 'true'])('preserves worker providers when useTs7 is
   await activate()
   expect(registerProviders).toHaveBeenCalledTimes(1)
   expect(registerCommand).toHaveBeenCalledTimes(3)
-  expect(registerLanguageServer).not.toHaveBeenCalled()
+  expect(serverDispose).toHaveBeenCalledTimes(4)
 })
 
-test('native mode registers four document languages without starting worker providers or commands', async () => {
+test('native mode disposes worker registrations and retains four native document languages', async () => {
   getPreference.mockResolvedValue(true)
   const { activate } = await import('../src/parts/Activate/Activate.ts')
   await activate()
   await activate()
   expect(getPreference).toHaveBeenCalledWith('typescript.useTs7')
-  expect(registerProviders).not.toHaveBeenCalled()
+  expect(providerDispose).toHaveBeenCalledTimes(1)
+  expect(serverDispose).not.toHaveBeenCalled()
   expect(
     disposals
       .filter((item) => item.id !== 'typescript.awaitActivation')
@@ -92,7 +95,7 @@ test('readiness waits for backend registration and native startup cannot execute
   const ready = registerCommand.mock.calls.find(([command]) => command.id === 'typescript.awaitActivation')[0].execute()
   const command = registerCommand.mock.calls.find(([item]) => item.id === 'typescript.getProjectCacheStatistics')[0]
   const commandResult = Promise.allSettled([Promise.resolve(command.execute())])
-  expect(registerLanguageServer).not.toHaveBeenCalled()
+  expect(providerDispose).not.toHaveBeenCalled()
   preference.resolve(true)
   await activating
   await Promise.resolve(ready)
@@ -103,4 +106,29 @@ test('readiness waits for backend registration and native startup cannot execute
     },
   ])
   expect(registerLanguageServer).toHaveBeenCalledTimes(4)
+})
+
+test('worker provider dispatch exists before the API snapshots its RPC command map', async () => {
+  getPreference.mockResolvedValue(false)
+  activateApi.mockImplementationOnce(async () => {
+    expect(registerProviders).toHaveBeenCalledTimes(1)
+  })
+  const { activate } = await import('../src/parts/Activate/Activate.ts')
+  await activate()
+  expect(providerDispose).not.toHaveBeenCalled()
+})
+
+test('worker providers are registered while the backend preference is unresolved', async () => {
+  const preference = Promise.withResolvers<unknown>()
+  getPreference.mockReturnValue(preference.promise)
+  const { activate } = await import('../src/parts/Activate/Activate.ts')
+  const activating = activate()
+  await Promise.resolve()
+  await Promise.resolve()
+  try {
+    expect(registerProviders).toHaveBeenCalledTimes(1)
+  } finally {
+    preference.resolve(false)
+    await activating
+  }
 })
