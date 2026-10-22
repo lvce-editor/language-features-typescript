@@ -18,85 +18,83 @@ import {
 } from '@lvce-editor/api'
 import * as LanguageId from '../LanguageId/LanguageId.ts'
 
-const registerSecondaryProvider = (provider: any): void => {
+const registerSecondaryProvider = (provider: any): { dispose(): void } => {
   if ('provideDocumentSymbols' in provider) {
-    registerDocumentSymbolProvider(provider)
-    return
+    return registerDocumentSymbolProvider(provider)
   }
   if ('provideReferences' in provider) {
-    registerReferenceProvider(provider)
-    return
+    return registerReferenceProvider(provider)
   }
   if ('provideImplementations' in provider) {
-    registerImplementationProvider(provider)
-    return
+    return registerImplementationProvider(provider)
   }
   if ('provideTypeDefinition' in provider) {
-    registerTypeDefinitionProvider(provider)
-    return
+    return registerTypeDefinitionProvider(provider)
   }
   if ('provideHover' in provider) {
-    registerHoverProvider(provider)
-    return
+    return registerHoverProvider(provider)
   }
   if ('provideSignatureHelp' in provider) {
-    registerSignatureHelpProvider(provider)
-    return
+    return registerSignatureHelpProvider(provider)
   }
   if ('provideTabCompletion' in provider) {
-    registerTabCompletionProvider(provider)
-    return
+    return registerTabCompletionProvider(provider)
   }
   if ('provideDiagnostics' in provider) {
-    registerDiagnosticProvider(provider)
-    return
+    return registerDiagnosticProvider(provider)
   }
   if ('provideCodeActions' in provider) {
-    registerCodeActionsProvider(provider)
-    return
+    return registerCodeActionsProvider(provider)
   }
   if ('provideSelections' in provider) {
-    registerSelectionProvider(provider)
-    return
+    return registerSelectionProvider(provider)
   }
   if ('provideRename' in provider) {
-    registerRenameProvider(provider)
-    return
+    return registerRenameProvider(provider)
   }
   if ('provideComment' in provider) {
-    registerCommentProvider(provider)
+    return registerCommentProvider(provider)
   }
+  throw new Error('Unknown TypeScript provider')
 }
 
-const registerProvider = (provider: any): void => {
+const registerProvider = (provider: any): { dispose(): void } => {
   if ('provideBraceCompletion' in provider) {
-    registerBraceCompletionProvider(provider)
-    return
+    return registerBraceCompletionProvider(provider)
   }
   if ('provideClosingTag' in provider) {
-    registerClosingTagProvider(provider)
-    return
+    return registerClosingTagProvider(provider)
   }
   if ('provideCompletions' in provider) {
-    registerCompletionProvider(provider)
-    return
+    return registerCompletionProvider(provider)
   }
   if ('provideDefinition' in provider) {
-    registerDefinitionProvider(provider)
-    return
+    return registerDefinitionProvider(provider)
   }
-  registerSecondaryProvider(provider)
+  return registerSecondaryProvider(provider)
 }
 
-export const registerProviders = (providers: any[]): void => {
+export const registerProviders = (providers: any[], beforeProvide: () => Promise<void>): { dispose(): void }[] => {
+  const registrations: { dispose(): void }[] = []
   for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript, LanguageId.TypeScriptReact]) {
     for (const provider of providers) {
       const actualProvider = {
-        ...provider,
+        ...Object.fromEntries(
+          Object.entries(provider).map(([key, value]) => [
+            key,
+            typeof value === 'function'
+              ? async (...args: any[]) => {
+                  await beforeProvide()
+                  return value(...args)
+                }
+              : value,
+          ]),
+        ),
         id: `typescript.${Object.keys(provider).find((key) => key.startsWith('provide') || key === 'prepareRename')}.${languageId}`,
         languageId,
       }
-      registerProvider(actualProvider)
+      registrations.push(registerProvider(actualProvider))
     }
   }
+  return registrations
 }

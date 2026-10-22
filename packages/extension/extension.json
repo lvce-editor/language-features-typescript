@@ -28,6 +28,11 @@
       "type": "array",
       "default": [],
       "description": "Prevalidated documents for static demos. Each entry must match the exact document URI, SHA-256 text hash, compiler configuration URI and SHA-256 configuration hash. Only use with fixed, validated project dependencies. Edits and missing evidence resume diagnostics; other language features are unaffected."
+    },
+    "typescript.useTs7": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use the application-bundled TypeScript 7 language server instead of the TypeScript web worker. Requires a native LVCE host. Reload the window after changing this setting."
     }
   },
   "rpc": [
@@ -91,6 +96,10 @@
     {
       "id": "typescript.provideCompletions.typescriptreact",
       "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideCompletions.javascriptreact",
+      "languageId": "javascriptreact"
     }
   ],
   "diagnosticProviders": [
@@ -105,6 +114,10 @@
     {
       "id": "typescript.provideDiagnostics.typescriptreact",
       "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideDiagnostics.javascriptreact",
+      "languageId": "javascriptreact"
     }
   ],
   "commands": [
@@ -129,6 +142,10 @@
     {
       "id": "typescript.provideHover.typescriptreact",
       "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideHover.javascriptreact",
+      "languageId": "javascriptreact"
     }
   ],
   "signatureHelpProviders": [
@@ -143,6 +160,10 @@
     {
       "id": "typescript.provideSignatureHelp.typescriptreact",
       "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.javascriptreact",
+      "languageId": "javascriptreact"
     }
   ],
   "languages": [
@@ -203,6 +224,32 @@
     {
       "fileMatch": "jsconfig.*.json",
       "url": "./schemas/jsconfig.schema.json"
+    }
+  ],
+  "optionalLanguageServers": [
+    {
+      "id": "typescript.ts7.javascript",
+      "connectionId": "typescript.ts7",
+      "languageId": "javascript",
+      "activationCommand": "typescript.awaitActivation"
+    },
+    {
+      "id": "typescript.ts7.javascriptreact",
+      "connectionId": "typescript.ts7",
+      "languageId": "javascriptreact",
+      "activationCommand": "typescript.awaitActivation"
+    },
+    {
+      "id": "typescript.ts7.typescript",
+      "connectionId": "typescript.ts7",
+      "languageId": "typescript",
+      "activationCommand": "typescript.awaitActivation"
+    },
+    {
+      "id": "typescript.ts7.typescriptreact",
+      "connectionId": "typescript.ts7",
+      "languageId": "typescriptreact",
+      "activationCommand": "typescript.awaitActivation"
     }
   ]
 }
