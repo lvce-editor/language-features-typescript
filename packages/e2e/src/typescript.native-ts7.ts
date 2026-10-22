@@ -18,19 +18,20 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
   await Workspace.setUri(root)
   await Main.openUri(uri)
   await Command.execute('Editor.waitForDiagnostics')
-  await Editor.shouldHaveDiagnostics([
+  const expectedDiagnostics = [
     {
-      message: "Type 'number' is not assignable to type 'string'.",
       code: 2322,
       columnIndex: 6,
       endColumnIndex: 11,
       endRowIndex: 0,
+      message: "Type 'number' is not assignable to type 'string'.",
       rowIndex: 0,
       source: 'ts',
       type: 'error',
       uri,
     },
-  ])
+  ] as const
+  await Editor.shouldHaveDiagnostics(expectedDiagnostics)
   await Editor.setText('const greeting = "hello";\ngreeting.')
   await Editor.setCursor(1, 9)
   await Editor.openCompletion()
