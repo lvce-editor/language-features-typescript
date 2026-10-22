@@ -40,6 +40,8 @@ jobs:
           THREEJS_ENFORCE_REUSE: 1
       - name: Build
         run: npm run build
+      - name: Verify extension archive excludes native servers
+        run: node scripts/test-extension-archive.mjs
       - name: Build static site
         run: npm run build:static
         env:
