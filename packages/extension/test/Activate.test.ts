@@ -1,6 +1,6 @@
 import { beforeEach, expect, jest, test } from '@jest/globals'
 
-const getPreference = jest.fn<() => Promise<unknown>>()
+const getPreference = jest.fn<(key: string) => Promise<unknown>>()
 const registerCommand = jest.fn()
 const registerLanguageServer = jest.fn()
 const registerProviders = jest.fn()
