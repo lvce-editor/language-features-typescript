@@ -230,22 +230,26 @@
     {
       "id": "typescript.ts7.javascript",
       "connectionId": "typescript.ts7",
-      "languageId": "javascript"
+      "languageId": "javascript",
+      "activationCommand": "typescript.awaitActivation"
     },
     {
       "id": "typescript.ts7.javascriptreact",
       "connectionId": "typescript.ts7",
-      "languageId": "javascriptreact"
+      "languageId": "javascriptreact",
+      "activationCommand": "typescript.awaitActivation"
     },
     {
       "id": "typescript.ts7.typescript",
       "connectionId": "typescript.ts7",
-      "languageId": "typescript"
+      "languageId": "typescript",
+      "activationCommand": "typescript.awaitActivation"
     },
     {
       "id": "typescript.ts7.typescriptreact",
       "connectionId": "typescript.ts7",
-      "languageId": "typescriptreact"
+      "languageId": "typescriptreact",
+      "activationCommand": "typescript.awaitActivation"
     }
   ]
 }
