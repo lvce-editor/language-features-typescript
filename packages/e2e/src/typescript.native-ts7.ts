@@ -2,10 +2,6 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'typescript.native-ts7'
 
-// Enable after the server dependency contains extension-management-worker#366 and
-// the application-owned TS7 executable from lvce-editor#16222.
-export const skip = 1
-
 export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   const root = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.writeFile(
@@ -32,9 +28,23 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
     },
   ] as const
   await Editor.shouldHaveDiagnostics(expectedDiagnostics)
-  await Editor.setText('const greeting = "hello";\ngreeting.')
-  await Editor.setCursor(1, 9)
+  let workerCommandError = ''
+  try {
+    await Command.executeExtensionCommand('typescript.getProjectCacheStatistics')
+  } catch (error) {
+    workerCommandError = String(error)
+  }
+  if (!workerCommandError.includes('command typescript.getProjectCacheStatistics not found')) {
+    throw new Error(
+      `Native mode must dispose worker-only commands: ${workerCommandError || 'worker command succeeded'}`,
+    )
+  }
+  await Editor.setText('const value: string = "valid";\n')
+  await Command.execute('Editor.waitForDiagnostics')
+  await Editor.shouldHaveDiagnostics([])
+  await Editor.setText('const greeting = "hello";\ngreeting.toU')
+  await Editor.setCursor(1, 12)
   await Editor.openCompletion()
-  const items = Locator('#Completions .EditorCompletionItem')
+  const items = Locator('#Completions')
   await expect(items).toContainText('toUpperCase')
 }

@@ -55,6 +55,12 @@ jobs:
         working-directory: ./packages/e2e
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
+      - name: Prepare native TypeScript test host
+        run: node scripts/prepare-native-test-host.mjs
+      - name: Run native TypeScript regression
+        run: npm run e2e:native --workspace=packages/e2e -- --trace-renderer-worker
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Test persistent file cache and measure diagnostics
         run: node scripts/benchmark-file-cache.mjs
         env:
