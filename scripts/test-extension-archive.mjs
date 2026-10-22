@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { brotliDecompressSync } from 'node:zlib'
 
 const archive = brotliDecompressSync(readFileSync('extension.tar.br'))
-const entries = execFileSync('tar', ['-tf', '-'], { input: archive, encoding: 'utf8' }).split('\n')
+const entries = execFileSync('tar', ['-tf', '-'], { input: archive, encoding: 'utf8' }).split(/\r?\n/)
 assert(entries.some((entry) => entry.endsWith('/extension.json') || entry === 'extension.json'))
 assert(
   !entries.some((entry) => /(?:^|\/)(?:tsc|tsgo|tsserver)(?:\.exe)?$/.test(entry)),
