@@ -226,30 +226,26 @@
       "url": "./schemas/jsconfig.schema.json"
     }
   ],
-  "languageServers": [
+  "optionalLanguageServers": [
     {
       "id": "typescript.ts7.javascript",
       "connectionId": "typescript.ts7",
-      "languageId": "javascript",
-      "optional": true
+      "languageId": "javascript"
     },
     {
       "id": "typescript.ts7.javascriptreact",
       "connectionId": "typescript.ts7",
-      "languageId": "javascriptreact",
-      "optional": true
+      "languageId": "javascriptreact"
     },
     {
       "id": "typescript.ts7.typescript",
       "connectionId": "typescript.ts7",
-      "languageId": "typescript",
-      "optional": true
+      "languageId": "typescript"
     },
     {
       "id": "typescript.ts7.typescriptreact",
       "connectionId": "typescript.ts7",
-      "languageId": "typescriptreact",
-      "optional": true
+      "languageId": "typescriptreact"
     }
   ]
 }
