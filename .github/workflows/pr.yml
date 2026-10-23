@@ -115,9 +115,57 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Upload failing test traces
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: renderer-worker-traces-${{ matrix.os }}
           path: '**/renderer-worker-traces/**'
+          include-hidden-files: true
+
+  webkit-reproduction:
+    name: WebKit reproduction (${{ matrix.attempt }})
+    strategy:
+      fail-fast: false
+      matrix:
+        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: npm ci
+        run: npm ci
+      - name: Install synchronous RPC setup diagnostics
+        run: node scripts/diagnose-sync-setup.mjs
+      - name: Build
+        run: npm run build
+      - name: Build static site
+        run: npm run build:static
+        env:
+          PATH_PREFIX: auto
+      - name: install playwright dependencies
+        working-directory: ./packages/e2e
+        run: npx playwright install webkit
+      - name: install playwright system dependencies
+        working-directory: ./packages/e2e
+        run: sudo npx playwright install-deps webkit
+      - name: Run WebKit headless tests
+        shell: bash
+        run: |
+          mkdir -p .e2e-artifacts
+          set -o pipefail
+          npm run e2e:webkit:headless --workspace=packages/e2e -- --trace-renderer-worker 2>&1 | tee .e2e-artifacts/webkit-${{ matrix.attempt }}.log
+      - name: Upload e2e diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: webkit-reproduction-${{ matrix.attempt }}
+          path: |
+            .e2e-artifacts/**
+            packages/e2e/.e2e-artifacts/**
+            **/renderer-worker-traces/**
           include-hidden-files: true
