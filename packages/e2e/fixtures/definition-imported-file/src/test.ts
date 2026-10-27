@@ -1,3 +1,5 @@
-import { add } from './add.ts'
+import { add, subtract } from './add.ts'
 
 add
+
+subtract
