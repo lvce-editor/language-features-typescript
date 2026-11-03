@@ -43,6 +43,7 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
   const libraryRoot = 'bundled:///libs/'
   const documents = new Map<string, string>()
   const savedDocuments = new Set<string>()
+  let lastEmptyCompletion: unknown
   // Cache only within a request. Changes on disk and failed lookups are rechecked
   // on the next request, without relying on a watcher being available on the web.
   const files = new Map<string, string | undefined>()
@@ -141,11 +142,29 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
       savedDocuments.clear()
       files.clear()
       directories.clear()
+      lastEmptyCompletion = undefined
     },
     completion(document: Document, offset: number, openUris: readonly string[]) {
       const { project, snapshot } = prepare(document, openUris)
       try {
         const result = project.languageService.getCompletionsAtPosition(documentURIToFileName(document.uri), offset)
+        if (!result?.entries.length) {
+          lastEmptyCompletion = {
+            configFileName: project.configFileName,
+            directoryReads: Array.from(directories, ([path, entries]) => ({
+              directories: entries?.directories.slice(0, 32),
+              files: entries?.files.slice(0, 32),
+              path,
+            })).slice(0, 32),
+            document: {
+              length: document.text.length,
+              nearbyText: document.text.slice(Math.max(0, offset - 40), offset + 40),
+              offset,
+              uri: document.uri,
+            },
+            fileReads: Array.from(files, ([path, text]) => ({ length: text?.length ?? null, path })).slice(0, 64),
+          }
+        }
         const prefix = identifierPrefix(document.text, offset)
         const rank = (name: string): number => {
           if (name.startsWith(prefix)) return 0
@@ -154,7 +173,9 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
         }
         const entries = (result?.entries ?? []).toSorted(
           (left, right) =>
-            (left.sortText ?? '').localeCompare(right.sortText ?? '') || rank(left.name) - rank(right.name),
+            (left.sortText ?? '').localeCompare(right.sortText ?? '') ||
+            rank(left.name) - rank(right.name) ||
+            left.name.localeCompare(right.name, 'en'),
         )
         return entries.map((entry) => ({
           completionName: entry.name,
@@ -220,6 +241,7 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
     },
     statistics() {
       return {
+        lastEmptyCompletion,
         openDocumentCount: documents.size,
         wasmMemoryBytes: (instance.exports as { memory: WebAssembly.Memory }).memory.buffer.byteLength,
       }

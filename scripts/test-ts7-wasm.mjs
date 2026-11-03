@@ -184,3 +184,22 @@ test('hoisted package-name completion works for a file excluded by its nearest c
     assert(session.completion(main, 20, [main.uri]).some((item) => item.label === 'lodash'))
   }
 })
+
+test('equally ranked import paths have a stable name order', async (t) => {
+  const { base, document, files, session } = await setup(t, 'memfs:///fixture')
+  files.clear()
+  files.set(
+    base + '/tsconfig.json',
+    JSON.stringify({ compilerOptions: { lib: ['esnext'], types: [] }, include: ['add.ts', 'test.ts'] }),
+  )
+  files.set(base + '/add.ts', 'export const add = (a, b) => a + b')
+  const text = "import { add } from './'"
+  files.set(base + '/test.ts', text)
+  const main = document(text, 'test.ts')
+  for (let attempt = 0; attempt < 3; attempt++) {
+    assert.deepEqual(
+      session.completion(main, text.length - 1, [main.uri]).map((item) => item.label),
+      ['add.js', 'tsconfig.json'],
+    )
+  }
+})
