@@ -88,8 +88,8 @@ export const writeResult = async (id: any, resultGenerator: () => Promise<any>, 
     await writeSharedResult(setup, result, error, isText)
     return
   }
-  const { accessHandle, buffer, errorAccessHandle, resultAccessHandle } = setup
+  const { accessHandle, buffer, errorAccessHandle, resultAccessHandle, textAccessHandle } = setup
   await writeResultError(errorAccessHandle, error)
-  await writeResultContent(resultAccessHandle, result, error, isText)
+  await writeResultContent(isText ? textAccessHandle : resultAccessHandle, result, error, isText)
   await writeResultStatus(buffer, accessHandle, isText && !error ? textCode : code)
 }

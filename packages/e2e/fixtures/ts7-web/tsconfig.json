@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "types": [],
+    "module": "esnext",
+    "moduleResolution": "bundler"
+  },
+  "include": ["*.ts"]
+}

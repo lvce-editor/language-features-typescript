@@ -1,11 +1,8 @@
 import { bundleJs, packageExtension, replace } from '@lvce-editor/package-extension'
-import { copyFile, cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path, { join } from 'path'
 import { bundleExtensionJs } from './bundleExtensionJs.ts'
 import { copyExtensionSchemas } from './copyExtensionSchemas.ts'
-import { getTypeScriptLibManifest } from './getTypeScriptLibManifest.ts'
-import { replaceTypeScriptLibManifest } from './replaceTypeScriptLibManifest.ts'
-import { removeUnusedTypeScriptFiles } from './removeUnusedTypeScriptFIles.ts'
 import { root } from './root.ts'
 
 const extension: string = path.join(root, 'packages', 'extension')
@@ -13,7 +10,7 @@ const dist: string = join(root, '.tmp', 'dist')
 
 const replaceTypeScriptWorkerAssetPaths = async (filePath: string, replacement: string): Promise<void> => {
   const content = await readFile(filePath, 'utf8')
-  const oldTypeScriptPath = '../../../node_modules/typescript/lib/'
+  const oldTypeScriptPath = '../../../.tmp/dist/typescript/'
   if (!content.includes(oldTypeScriptPath)) {
     throw new Error('Failed to find TypeScript asset paths in bundled worker')
   }
@@ -35,9 +32,19 @@ await mkdir(join(dist, 'media'), { recursive: true })
 await copyFile(join(extension, 'media', 'icon.png'), join(dist, 'media', 'icon.png'))
 await copyExtensionSchemas(extension, dist)
 
-await cp(join(root, 'node_modules', 'typescript'), join(dist, 'typescript'), {
-  recursive: true,
-})
+const wasmLib = join(root, 'node_modules', '@typescript', 'typescript-wasip1-wasm', 'lib')
+await mkdir(join(dist, 'typescript'), { recursive: true })
+await copyFile(join(wasmLib, 'tsc.wasm'), join(dist, 'typescript', 'tsc.wasm'))
+await copyFile(
+  join(root, 'node_modules', '@typescript', 'typescript-wasip1-wasm', 'LICENSE'),
+  join(dist, 'typescript', 'LICENSE'),
+)
+const libNames: string[] = JSON.parse(await readFile(join(wasmLib, 'libFiles.json'), 'utf8'))
+const libraries = Object.fromEntries(
+  await Promise.all(libNames.map(async (name) => [name, await readFile(join(wasmLib, name), 'utf8')])),
+)
+// One request loads the standard libraries, rather than issuing a request per declaration file.
+await writeFile(join(dist, 'typescript', 'libs.json'), JSON.stringify(libraries))
 
 await replace({
   path: join(dist, 'extension.json'),
@@ -63,16 +70,14 @@ await bundleJs(
 )
 
 const workerBundlePath = join(root, 'packages', 'typescript-worker', 'dist', 'typescriptWorkerMain.js')
-const typeScriptLibManifest = await getTypeScriptLibManifest(join(root, 'node_modules', 'typescript', 'lib'))
-await replaceTypeScriptLibManifest(workerBundlePath, typeScriptLibManifest)
 
 const developmentWorkerPath = join(root, 'typescriptWorkerMain.js')
 await copyFile(workerBundlePath, developmentWorkerPath)
-await replaceTypeScriptWorkerAssetPaths(developmentWorkerPath, 'node_modules/typescript/lib/')
+await replaceTypeScriptWorkerAssetPaths(developmentWorkerPath, '.tmp/dist/typescript/')
 
 const packagedWorkerPath = join(dist, 'typescriptWorkerMain.js')
 await copyFile(workerBundlePath, packagedWorkerPath)
-await replaceTypeScriptWorkerAssetPaths(packagedWorkerPath, 'typescript/lib/')
+await replaceTypeScriptWorkerAssetPaths(packagedWorkerPath, 'typescript/')
 
 await mkdir(join(dist, 'dist'), {
   recursive: true,
@@ -83,10 +88,10 @@ await copyFile(
 )
 await copyFile(join(root, 'LICENSE'), join(dist, 'LICENSE'))
 
-await removeUnusedTypeScriptFiles(join(dist, 'typescript'))
-
-await packageExtension({
-  highestCompression: true,
-  inDir: join(dist),
-  outFile: join(root, 'extension.tar.br'),
-})
+if (!process.argv.includes('--skip-package')) {
+  await packageExtension({
+    highestCompression: true,
+    inDir: join(dist),
+    outFile: join(root, 'extension.tar.br'),
+  })
+}

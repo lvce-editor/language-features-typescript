@@ -65,7 +65,8 @@ const setupClient = async () => {
     value: {
       storage: {
         getDirectory: async () => ({
-          getFileHandle: async (name: string) => handles[name],
+          getFileHandle: async (name: string) =>
+            handles[name.endsWith('-text.txt') ? 'file-content-7.txt' : name.slice(name.lastIndexOf('-') + 1)],
         }),
       },
     },
@@ -95,9 +96,9 @@ test('sets up the shared handles and returns parsed synchronous results', async 
     'SyncApi.setup',
     7,
     bufferResult,
-    'draft.txt',
-    'result.txt',
-    'error.txt',
+    expect.stringMatching(/-draft\.txt$/),
+    expect.stringMatching(/-result\.txt$/),
+    expect.stringMatching(/-error\.txt$/),
     expect.any(Object),
     expect.any(Object),
     expect.any(Object),

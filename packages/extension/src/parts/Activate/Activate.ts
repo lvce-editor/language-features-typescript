@@ -9,6 +9,7 @@ import * as Providers from '../Providers/Providers.ts'
 import * as RegisterProviders from '../RegisterProviders/RegisterProviders.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as ShowPerformanceTrace from '../ShowPerformanceTrace/ShowPerformanceTrace.ts'
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.ts'
 
 const state = {
   isActivated: false,
@@ -74,5 +75,6 @@ export const activate = async (): Promise<void> => {
 }
 
 export const deactivate = async (): Promise<void> => {
+  await TypeScriptWorker.dispose()
   await DiskWatch.stopAll()
 }

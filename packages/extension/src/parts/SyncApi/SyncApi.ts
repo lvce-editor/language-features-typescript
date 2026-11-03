@@ -8,6 +8,15 @@ import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 import { toFileUri } from '../ToFileUri/ToFileUri.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
 
+export const dispose = (id: number): void => {
+  const setup = SyncSetupState.get(id)
+  if (!setup) return
+  SyncSetupState.remove(id)
+  for (const handle of Object.values(setup)) {
+    if (handle && typeof handle.close === 'function') handle.close()
+  }
+}
+
 export const syncSetupShared = async (
   id: number,
   shared: SharedArrayBuffer,
@@ -77,6 +86,35 @@ export const readDirSync = async (id: number, uri: string): Promise<void> => {
     return baseNames
   }
   await writeResult(id, resultGenerator)
+}
+
+export const readDirectoryEntries = async (id: number, uri: string): Promise<void> => {
+  await writeResult(id, async () => {
+    try {
+      const entries = await readDirWithFileTypes(toFileUri(uri))
+      return {
+        directories: entries.filter((entry) => entry.type === 3).map((entry) => entry.name),
+        files: entries.filter((entry) => entry.type !== 3).map((entry) => entry.name),
+      }
+    } catch (error) {
+      if (isMissingPath(error)) return null
+      throw error
+    }
+  })
+}
+
+const isMissingPath = (error: unknown): boolean =>
+  error instanceof Error && /ENOENT|ENOTDIR|EISDIR|not found|no such file|not a directory/i.test(error.message)
+
+export const readFileOptional = async (id: number, uri: string): Promise<void> => {
+  await writeResult(id, async () => {
+    try {
+      return await readFile(toFileUri(uri))
+    } catch (error) {
+      if (isMissingPath(error)) return null
+      throw error
+    }
+  })
 }
 
 export const exists = async (id: number, uri: string): Promise<void> => {

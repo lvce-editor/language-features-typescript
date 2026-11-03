@@ -17,10 +17,11 @@ export const createSyncRpcClient = async ({
     return trackTransport(await createSharedSyncRpcClient(syncId, maxDelay))
   }
   const buffer = createBuffer(crossOriginIsolated)
-  const statusFileName = 'draft.txt'
-  const resultFileName = 'result.txt'
-  const errorFileName = 'error.txt'
-  const textFileName = `file-content-${syncId}.txt`
+  const namespace = crypto.randomUUID()
+  const statusFileName = `${namespace}-draft.txt`
+  const resultFileName = `${namespace}-result.txt`
+  const errorFileName = `${namespace}-error.txt`
+  const textFileName = `${namespace}-text.txt`
   const root = await navigator.storage.getDirectory()
   const [draftHandle, resultHandle, errorHandle, textHandle] = await Promise.all([
     root.getFileHandle(statusFileName, { create: true }),
@@ -59,6 +60,16 @@ export const createSyncRpcClient = async ({
   ])
 
   return trackTransport({
+    async dispose() {
+      try {
+        await Rpc.invoke('SyncApi.dispose', syncId)
+      } finally {
+        for (const handle of [accessHandle, resultAccessHandle, errorAccessHandle, textAccessHandle]) handle.close()
+        await Promise.all(
+          [statusFileName, resultFileName, errorFileName, textFileName].map((name) => root.removeEntry(name)),
+        )
+      }
+    },
     invokeSync(method, ...params) {
       if (buffer) {
         buffer[0] = 0
