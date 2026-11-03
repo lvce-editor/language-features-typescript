@@ -43,7 +43,7 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
   const libraryRoot = 'bundled:///libs/'
   const documents = new Map<string, string>()
   const savedDocuments = new Set<string>()
-  let lastEmptyCompletion: unknown
+  let lastCompletion: unknown
   // Cache only within a request. Changes on disk and failed lookups are rechecked
   // on the next request, without relying on a watcher being available on the web.
   const files = new Map<string, string | undefined>()
@@ -142,14 +142,14 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
       savedDocuments.clear()
       files.clear()
       directories.clear()
-      lastEmptyCompletion = undefined
+      lastCompletion = undefined
     },
     completion(document: Document, offset: number, openUris: readonly string[]) {
       const { project, snapshot } = prepare(document, openUris)
       try {
         const result = project.languageService.getCompletionsAtPosition(documentURIToFileName(document.uri), offset)
-        if (!result?.entries.length) {
-          lastEmptyCompletion = {
+        {
+          lastCompletion = {
             configFileName: project.configFileName,
             directoryReads: Array.from(directories, ([path, entries]) => ({
               directories: entries?.directories.slice(0, 32),
@@ -162,6 +162,14 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
               offset,
               uri: document.uri,
             },
+            entries: result?.entries.slice(0, 32).map(({ filterText, insertText, kind, name, sortText }) => ({
+              filterText,
+              insertText,
+              kind,
+              name,
+              sortText,
+            })),
+            entryCount: result?.entries.length,
             fileReads: Array.from(files, ([path, text]) => ({ length: text?.length ?? null, path })).slice(0, 64),
           }
         }
@@ -241,7 +249,7 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
     },
     statistics() {
       return {
-        lastEmptyCompletion,
+        lastCompletion,
         openDocumentCount: documents.size,
         wasmMemoryBytes: (instance.exports as { memory: WebAssembly.Memory }).memory.buffer.byteLength,
       }
