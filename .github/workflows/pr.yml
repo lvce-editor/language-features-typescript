@@ -7,6 +7,8 @@ on:
 
 jobs:
   pr:
+    # Avoid repeating the ordinary matrix during this diagnostic-only batch.
+    if: ${{ false }}
     strategy:
       fail-fast: false
       matrix:
@@ -114,10 +116,58 @@ jobs:
         run: node packages/build/src/run-e2e.ts stable-e2e --headless --browser=firefox --filter=typescript.performance-trace
         env:
           PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Upload failing test traces
-        if: failure()
+      - name: Upload test traces
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: renderer-worker-traces-${{ matrix.os }}
+          path: '**/renderer-worker-traces/**'
+          include-hidden-files: true
+
+  flaky-firefox:
+    name: Windows Firefox attempt ${{ matrix.attempt }}
+    strategy:
+      fail-fast: false
+      matrix:
+        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Compute node modules cache key
+        id: nodeModulesCacheKey
+        run: echo "value=$(node packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
+        shell: bash
+      - uses: actions/cache/restore@v4
+        id: npm-cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
+      - name: npm ci
+        run: npm ci
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+      - name: Build
+        run: npm run build
+      - name: Build static site
+        run: npm run build:static
+        env:
+          PATH_PREFIX: auto
+      - name: Install Firefox
+        working-directory: ./packages/e2e
+        run: npx playwright install firefox
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Run Firefox headless tests
+        run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
+      - name: Upload test traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: renderer-worker-traces-windows-attempt-${{ matrix.attempt }}
           path: '**/renderer-worker-traces/**'
           include-hidden-files: true
