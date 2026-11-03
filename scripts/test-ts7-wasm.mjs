@@ -162,3 +162,25 @@ test('completion prefers the typed case among otherwise equally ranked suggestio
   const { complete } = await setup(t)
   assert.equal(complete('win')[0], 'window')
 })
+
+test('hoisted package-name completion works for a file excluded by its nearest config', async (t) => {
+  const { base, document, files, session } = await setup(t, 'memfs:///fixture')
+  files.clear()
+  const paths = [
+    'package.json',
+    'packages/app/package.json',
+    'packages/app/tsconfig.json',
+    'packages/app/src/test.ts',
+    'node_modules/lodash/package.json',
+    'node_modules/lodash/index.js',
+  ]
+  for (const path of paths) {
+    const source = new URL('../packages/e2e/fixtures/completion-from-node-modules-monorepo/' + path, import.meta.url)
+    files.set(base + '/' + path, await readFile(source, 'utf8'))
+  }
+  const main = document(files.get(base + '/packages/app/src/test.ts'), 'packages/app/src/test.ts')
+  for (let attempt = 0; attempt < 3; attempt++) {
+    session.diagnostics(main, [main.uri])
+    assert(session.completion(main, 20, [main.uri]).some((item) => item.label === 'lodash'))
+  }
+})

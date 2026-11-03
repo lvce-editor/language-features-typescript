@@ -18,5 +18,19 @@ export const test: Test = async ({ Editor, expect, FileSystem, Locator, Main, Wo
   await expect(completions).toBeVisible()
   const completionItems = completions.locator('.EditorCompletionItem')
   const firstCompletionItem = completionItems.nth(0)
-  await expect(firstCompletionItem).toHaveText('lodash')
+  try {
+    await expect(firstCompletionItem).toHaveText('lodash')
+  } catch (error) {
+    const paths = ['package.json', 'packages/app/tsconfig.json', 'node_modules/lodash/package.json']
+    const files = await Promise.all(
+      paths.map(async (path) => [path, await FileSystem.readFile(`${workspaceUrl}/${path}`)]),
+    )
+    const directories = await Promise.all(
+      ['', '/packages/app/src', '/node_modules'].map(async (path) => [
+        path,
+        await FileSystem.readDir(workspaceUrl + path),
+      ]),
+    )
+    throw new Error(`${error}\nFixture inputs: ${JSON.stringify({ files, directories })}`, { cause: error })
+  }
 }
