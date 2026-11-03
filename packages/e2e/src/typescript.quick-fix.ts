@@ -4,7 +4,7 @@ export const name = 'typescript.quick-fix'
 
 export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator, Main, Settings, Workspace }) => {
   // arrange
-  const workspaceUrl = await FileSystem.getTmpDir({ scheme: 'memfs' })
+  const workspaceUrl = await FileSystem.getTmpDir({ scheme: 'file' })
   await FileSystem.mkdir(`${workspaceUrl}/src`)
   const uri = `${workspaceUrl}/src/test.ts`
   await FileSystem.writeFile(

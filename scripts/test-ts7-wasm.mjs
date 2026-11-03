@@ -442,3 +442,15 @@ test('TS7 navigation does not select an adjacent identifier on whitespace or a k
     undefined,
   )
 })
+
+test('TS7 diagnostics support Windows drive URIs and temporary paths', async (t) => {
+  const { document, session, files, base } = await setup(t, 'file:///c:/Users/RUNNER~1/AppData/Local/Temp/project')
+  files.delete(`${base}/tsconfig.json`)
+  const doc = document('interface Item { data: string }\nconst items: Item[] = [{}];')
+  doc.uri = doc.uri.replace('file:///c:/', 'file:///C:/')
+  const result = session.diagnostics(doc, [doc.uri])
+  assert(result.some((diagnostic) => diagnostic.code === 2741))
+  assert(result.every((diagnostic) => diagnostic.uri === doc.uri))
+  const rename = session.feature(doc, [doc.uri], (features) => features.rename(doc.text.indexOf('items'), 'renamed'))
+  assert.equal(rename.edits[0].uri, doc.uri)
+})

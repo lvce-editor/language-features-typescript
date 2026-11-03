@@ -52,6 +52,10 @@ jobs:
         env:
           TS_WEB_TEST: typescript.symbols
         run: node scripts/test-ts7-static.mjs
+      - name: Test quick fixes without cross-origin isolation
+        env:
+          TS_WEB_TEST: typescript.quick-fix-web
+        run: node scripts/test-ts7-static.mjs
       - name: Test TypeScript language features in the editor
         run: node packages/build/src/run-e2e.ts ts7-e2e --headless --trace-renderer-worker
       - uses: actions/upload-pages-artifact@v5

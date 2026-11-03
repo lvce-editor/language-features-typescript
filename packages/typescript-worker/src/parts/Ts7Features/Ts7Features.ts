@@ -55,7 +55,12 @@ const isNameToken = (node: Node): boolean =>
   node.kind === SyntaxKind.ThisKeyword ||
   node.kind === SyntaxKind.SuperKeyword
 
-export const createFeatures = (project: Project, source: SourceFile, libraryUri: (name: string) => string) => {
+export const createFeatures = (
+  project: Project,
+  source: SourceFile,
+  libraryUri: (name: string) => string,
+  documentUri: (path: string) => string = fileNameToDocumentURI,
+) => {
   const { checker, program } = project
   const actions = createActions(project, source)
   const tokenAt = (offset: number) => getTouchingPropertyName(source, Math.max(0, Math.min(offset, source.text.length)))
@@ -70,7 +75,7 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
   const uriOf = (file: SourceFile) =>
     file.fileName.startsWith('bundled:///libs/')
       ? libraryUri(file.fileName.slice('bundled:///libs/'.length))
-      : fileNameToDocumentURI(file.fileName)
+      : documentUri(file.fileName)
   const location = (node: Node) => {
     const file = node.getSourceFile()
     const startOffset = node.getStart(file)

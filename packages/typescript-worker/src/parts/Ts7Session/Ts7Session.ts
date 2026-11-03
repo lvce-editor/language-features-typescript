@@ -45,6 +45,9 @@ const identifierPrefix = (text: string, offset: number): string => {
   return text.slice(start, offset)
 }
 
+// TS7's file URI codec canonicalizes drive letters; snapshots must use the same path.
+const compilerPath = (uri: string): string => documentURIToFileName(fileNameToDocumentURI(documentURIToFileName(uri)))
+
 const hasDrive = (url: URL): boolean => /^\/[a-z](?::|%3a)\//i.test(url.pathname)
 export const getHostUri = (path: string, documentUrl: URL): string | undefined => {
   const uri = fileNameToDocumentURI(path)
@@ -67,6 +70,7 @@ export const createSession = (
   const libraryRoot = 'bundled:///libs/'
   const documents = new Map<string, string>()
   const savedDocuments = new Set<string>()
+  const documentUris = new Map<string, string>()
   let documentUrl = new URL('file:///')
   // Cache only within a request. Changes on disk and failed lookups are rechecked
   // on the next request, without relying on a watcher being available on the web.
@@ -115,7 +119,7 @@ export const createSession = (
     }
     while (true) {
       for (const name of ['tsconfig.json', 'jsconfig.json']) {
-        const path = documentURIToFileName(new URL(name, directory).href)
+        const path = compilerPath(new URL(name, directory).href)
         if (readFile(path) !== undefined) return path
       }
       const parent = new URL('../', directory)
@@ -123,35 +127,37 @@ export const createSession = (
       directory = parent
     }
   }
+  const retireOverrides = (document: Document, openUris: readonly string[]) => {
+    for (const uri of documents.keys()) {
+      // Preview tabs and older hosts can omit dirty documents from their tab
+      // snapshot. Retire only overrides known to have reached the filesystem.
+      const savedAndClosed =
+        !openUris.includes(uri) &&
+        uri !== document.uri &&
+        (savedDocuments.has(uri) || host.readFile(uri) === documents.get(uri))
+      const replacedAlias = uri !== document.uri && compilerPath(uri) === compilerPath(document.uri)
+      if (!savedAndClosed && !replacedAlias) continue
+      documents.delete(uri)
+      savedDocuments.delete(uri)
+    }
+  }
   const prepare = (document: Document, openUris: readonly string[], autoImports = false) => {
     if (typeof document.text !== 'string') throw new TypeError('TypeScript requests require the current document text')
     documentUrl = new URL(document.uri)
     files.clear()
     directories.clear()
-    for (const uri of documents.keys()) {
-      // Preview tabs and older hosts can omit dirty documents from their tab
-      // snapshot. Retire only overrides known to have reached the filesystem.
-      if (!(
-        !openUris.includes(uri) &&
-        uri !== document.uri &&
-        (savedDocuments.has(uri) || host.readFile(uri) === documents.get(uri))
-      )) {
-        continue
-      }
-
-      documents.delete(uri)
-      savedDocuments.delete(uri)
-    }
+    retireOverrides(document, openUris)
     if (documents.get(document.uri) !== document.text) savedDocuments.delete(document.uri)
     documents.set(document.uri, document.text)
+    documentUris.clear()
+    for (const uri of [...openUris, ...documents.keys()]) documentUris.set(compilerPath(uri), uri)
+    documentUris.set(compilerPath(document.uri), document.uri)
     if (host.readFile(document.uri) === document.text) savedDocuments.add(document.uri)
     const config = findProject(document.uri)
     const snapshot = api.createSnapshot({
-      fileSystem: createFileSystemLayer(
-        Array.from(documents, ([uri, text]) => [documentURIToFileName(uri), text] as const),
-      ),
-      openFiles: [documentURIToFileName(document.uri)],
-      ...(autoImports && { prepareAutoImports: documentURIToFileName(document.uri) }),
+      fileSystem: createFileSystemLayer(Array.from(documents, ([uri, text]) => [compilerPath(uri), text] as const)),
+      openFiles: [compilerPath(document.uri)],
+      ...(autoImports && { prepareAutoImports: compilerPath(document.uri) }),
       ...(config && { openProjects: [config] }),
       userPreferences: {
         importModuleSpecifierEnding: 'js',
@@ -160,7 +166,7 @@ export const createSession = (
       },
     })
     try {
-      const path = documentURIToFileName(document.uri)
+      const path = compilerPath(document.uri)
       const configured = config ? snapshot.getConfiguredProject(config) : undefined
       // Native auto-selection treats virtual URIs as inferred files. Use the
       // explicitly opened config only when its program contains this document.
@@ -172,18 +178,21 @@ export const createSession = (
       throw error
     }
   }
+  const featuresFor = (project: Parameters<typeof createFeatures>[0], source: Parameters<typeof createFeatures>[1]) =>
+    createFeatures(project, source, libraryUri, (path) => documentUris.get(path) ?? fileNameToDocumentURI(path))
   return {
     close() {
       api.close()
       documents.clear()
       savedDocuments.clear()
+      documentUris.clear()
       files.clear()
       directories.clear()
     },
     completion(document: Document, offset: number, openUris: readonly string[]) {
       const { project, snapshot } = prepare(document, openUris, true)
       try {
-        const result = project.languageService.getCompletionsAtPosition(documentURIToFileName(document.uri), offset)
+        const result = project.languageService.getCompletionsAtPosition(compilerPath(document.uri), offset)
         const prefix = identifierPrefix(document.text, offset)
         const rank = (name: string): number => {
           if (name.startsWith(prefix)) return 0
@@ -191,13 +200,13 @@ export const createSession = (
           return 2
         }
         const nativeEntries = result?.entries ?? []
-        const source = project.program.getSourceFile(documentURIToFileName(document.uri))
+        const source = project.program.getSourceFile(compilerPath(document.uri))
         const names = new Set(nativeEntries.map((entry) => entry.name))
         // The upstream auto-import index only follows default projects for virtual
         // URIs. Keep configured-project exports visible through the checker API.
         const exports =
           result && source
-            ? createFeatures(project, source, libraryUri)
+            ? featuresFor(project, source)
                 .exportCompletions(offset, prefix)
                 .filter((entry) => !names.has(entry.name))
             : []
@@ -228,7 +237,7 @@ export const createSession = (
     diagnostics(document: Document, openUris: readonly string[]) {
       const { project, snapshot } = prepare(document, openUris)
       try {
-        const path = documentURIToFileName(document.uri)
+        const path = compilerPath(document.uri)
         const result = [
           ...project.program.getSyntacticDiagnostics(path),
           ...project.program.getSemanticDiagnostics(path),
@@ -280,9 +289,9 @@ export const createSession = (
     ): T {
       const { project, snapshot } = prepare(document, openUris, autoImports)
       try {
-        const source = project.program.getSourceFile(documentURIToFileName(document.uri))
+        const source = project.program.getSourceFile(compilerPath(document.uri))
         if (!source) throw new Error(`TypeScript 7 could not load ${document.uri}`)
-        return execute(createFeatures(project, source, libraryUri))
+        return execute(featuresFor(project, source))
       } finally {
         snapshot.dispose()
       }

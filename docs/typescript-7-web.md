@@ -15,7 +15,9 @@ configuration, imported files, and dependency declarations through LVCE's
 filesystem. Virtual URI files explicitly select their containing configured project
 when included, preserving options such as `lib`, `strict`, and `noUnusedLocals`.
 Synthetic WASM root probes stay outside the host filesystem for virtual projects;
-Windows file projects reject probes without a drive or network host. Current document contents take precedence over stored files. The
+Windows file projects reject probes without a drive or network host. Compiler paths
+use the drive-letter spelling expected by the official URI codec, while editor
+locations and rename edits retain the original open-document URI. Current document contents take precedence over stored files. The
 optional application-bundled native TS7 server remains available on native hosts.
 
 The adapter uses the official AST, type checker, semantic reference API, and import
