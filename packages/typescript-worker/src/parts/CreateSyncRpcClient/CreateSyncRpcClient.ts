@@ -59,8 +59,11 @@ export const createSyncRpcClient = async ({
     textHandle.createSyncAccessHandle({ mode: 'readwrite-unsafe' }),
   ])
 
+  let disposed = false
   return trackTransport({
     async dispose() {
+      if (disposed) return
+      disposed = true
       try {
         await Rpc.invoke('SyncApi.dispose', syncId)
       } finally {
@@ -71,6 +74,7 @@ export const createSyncRpcClient = async ({
       }
     },
     invokeSync(method, ...params) {
+      if (disposed) throw new Error('Synchronous RPC client has been disposed')
       if (buffer) {
         buffer[0] = 0
       }

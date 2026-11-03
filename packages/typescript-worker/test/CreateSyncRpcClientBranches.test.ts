@@ -24,6 +24,7 @@ const createHandle = (size = 0) => {
   let contents: Uint8Array<ArrayBufferLike> = new Uint8Array(size)
   return {
     createSyncAccessHandle: jest.fn(async (_options: { mode: string }) => ({
+      close: jest.fn(),
       flush: jest.fn(),
       getSize: jest.fn(() => contents.length),
       read: jest.fn((target: Uint8Array, options: { at: number }) => {
@@ -50,6 +51,7 @@ const createHandle = (size = 0) => {
 }
 
 const setupClient = async () => {
+  const removeEntry = jest.fn(async (_name: string) => {})
   const draft = createHandle()
   const resultFile = createHandle(5)
   const errorFile = createHandle(errorSize)
@@ -65,6 +67,7 @@ const setupClient = async () => {
     value: {
       storage: {
         getDirectory: async () => ({
+          removeEntry,
           getFileHandle: async (name: string) =>
             handles[name.endsWith('-text.txt') ? 'file-content-7.txt' : name.slice(name.lastIndexOf('-') + 1)],
         }),
@@ -72,7 +75,7 @@ const setupClient = async () => {
     },
   })
   const client = await createSyncRpcClient({ crossOriginIsolated: false, maxDelay: 20, syncId: 7 })
-  return { client, draft, errorFile, resultFile, textFile }
+  return { client, draft, errorFile, removeEntry, resultFile, textFile }
 }
 
 const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
@@ -151,4 +154,31 @@ test('supports browsers where shared atomic buffers are unavailable', async () =
 
   expect(await client.invokeSync('SyncApi.readDirSync')).toEqual(result)
   expect(waitForSyncRpcResult).toHaveBeenCalledWith(expect.any(Object), 20, undefined)
+})
+
+test("disposal closes both endpoints, removes only this client's files, and is idempotent", async () => {
+  const first = await setupClient()
+  const firstNames = invoke.mock.calls[0].slice(3, 6) as string[]
+  const second = await setupClient()
+  const secondNames = invoke.mock.calls[1].slice(3, 6) as string[]
+  expect(firstNames.every((name) => !secondNames.includes(name))).toBe(true)
+  await first.client.dispose?.()
+  expect(invoke).toHaveBeenCalledWith('SyncApi.dispose', 7)
+  expect(first.removeEntry).toHaveBeenCalledTimes(4)
+  expect(second.removeEntry).not.toHaveBeenCalled()
+  for (const file of [first.draft, first.errorFile, first.resultFile, first.textFile]) {
+    const access = await file.createSyncAccessHandle.mock.results[0].value
+    expect(access.close).toHaveBeenCalledTimes(1)
+  }
+  await first.client.dispose?.()
+  expect(first.removeEntry).toHaveBeenCalledTimes(4)
+  expect(() => first.client.invokeSync('SyncApi.exists')).toThrow('disposed')
+})
+
+test('local resources are closed even when remote disposal fails', async () => {
+  const { client, draft, removeEntry } = await setupClient()
+  invoke.mockRejectedValueOnce(new Error('worker disconnected'))
+  await expect(client.dispose?.()).rejects.toThrow('worker disconnected')
+  expect((await draft.createSyncAccessHandle.mock.results[0].value).close).toHaveBeenCalledTimes(1)
+  expect(removeEntry).toHaveBeenCalledTimes(4)
 })
