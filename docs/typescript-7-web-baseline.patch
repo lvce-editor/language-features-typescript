@@ -1,0 +1,41 @@
+diff --git a/packages/extension/src/parts/WriteResult/WriteResult.ts b/packages/extension/src/parts/WriteResult/WriteResult.ts
+index 67ab07129388..d33d45067911 100644
+--- a/packages/extension/src/parts/WriteResult/WriteResult.ts
++++ b/packages/extension/src/parts/WriteResult/WriteResult.ts
+@@ -88,8 +88,8 @@ export const writeResult = async (id: any, resultGenerator: () => Promise<any>,
+     await writeSharedResult(setup, result, error, isText)
+     return
+   }
+-  const { accessHandle, buffer, errorAccessHandle, resultAccessHandle } = setup
++  const { accessHandle, buffer, errorAccessHandle, resultAccessHandle, textAccessHandle } = setup
+   await writeResultError(errorAccessHandle, error)
+-  await writeResultContent(resultAccessHandle, result, error, isText)
++  await writeResultContent(isText ? textAccessHandle : resultAccessHandle, result, error, isText)
+   await writeResultStatus(buffer, accessHandle, isText && !error ? textCode : code)
+ }
+diff --git a/packages/typescript-worker/src/parts/CommandMap/CommandMap.ts b/packages/typescript-worker/src/parts/CommandMap/CommandMap.ts
+index d6e46e436b22..0a713d29522e 100644
+--- a/packages/typescript-worker/src/parts/CommandMap/CommandMap.ts
++++ b/packages/typescript-worker/src/parts/CommandMap/CommandMap.ts
+@@ -53,3 +53,21 @@ export const commandMap = {
+   'ProjectLifecycle.getStatistics': GetOrCreateLanguageService.getStatistics,
+   'ProjectLifecycle.waitForIdle': ProjectLifecycle.waitForIdle,
+ }
++
++// Local comparison instrumentation only; not a production change.
++const samples = { completionMs: [] as number[], diagnosticMs: [] as number[], startupMs: 0 }
++for (const [name, key] of [['Completion.getCompletions', 'completionMs'], ['Diagnostic.getDiagnostics', 'diagnosticMs']] as const) {
++  const original = commandMap[name]
++  commandMap[name] = (async (...args: any[]) => {
++    const started = performance.now()
++    try { return await (original as any)(...args) }
++    finally { samples[key].push(performance.now() - started) }
++  }) as any
++}
++const originalInitialize = commandMap['Initialize.initialize']
++commandMap['Initialize.initialize'] = (async (...args: any[]) => {
++  const started = performance.now()
++  try { return await (originalInitialize as any)(...args) }
++  finally { samples.startupMs = performance.now() - started }
++}) as any
++commandMap['ProjectLifecycle.getStatistics'] = (() => ({ compilerVersion: '6.0.3', crossOriginIsolated: globalThis.crossOriginIsolated, ...samples })) as any

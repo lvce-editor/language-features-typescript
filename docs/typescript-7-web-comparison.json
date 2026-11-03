@@ -1,0 +1,129 @@
+{
+  "baselineCommit": "24963d316ef4",
+  "candidateCommit": "f37cc3dc906754b713d5b46cdad130c0787fd6d3",
+  "baselineChanges": "OPFS text handle fix and timing instrumentation; compiler unchanged",
+  "browser": "Chrome 151.0.7922.34",
+  "hosting": "plain static server; crossOriginIsolated=false",
+  "trials": [
+    {
+      "compilerVersion": "6.0.3",
+      "crossOriginIsolated": false,
+      "durationMs": 4297.913605000001,
+      "failedRequests": [],
+      "memory": {
+        "usedJSHeapSize": 3939318
+      },
+      "test": "typescript.ts-web-benchmark",
+      "worker": {
+        "compilerVersion": "6.0.3",
+        "crossOriginIsolated": false,
+        "completionMs": [40.79999999701977, 149.29999999701977, 32.899999998509884],
+        "diagnosticMs": [1197, 30.900000005960464, 155.69999999552965, 116.70000000298023, 59.599999994039536],
+        "startupMs": 296.20000000298023
+      },
+      "engine": "ts6",
+      "trial": 0
+    },
+    {
+      "compilerVersion": "7.1.0-dev.20261030.1",
+      "crossOriginIsolated": false,
+      "durationMs": 5796.269177,
+      "failedRequests": [],
+      "memory": {
+        "usedJSHeapSize": 4011686
+      },
+      "test": "typescript.ts-web-benchmark",
+      "worker": {
+        "compilerVersion": "7.1.0-dev.20261030.1",
+        "completionMs": [383.59999999403954, 230, 212.60000000149012],
+        "crossOriginIsolated": false,
+        "diagnosticMs": [1340.5, 300.69999999552965, 251, 199, 174.20000000298023],
+        "startupMs": 672.0999999940395,
+        "openDocumentCount": 2,
+        "wasmMemoryBytes": 93323264
+      },
+      "engine": "ts7",
+      "trial": 0
+    },
+    {
+      "compilerVersion": "7.1.0-dev.20261030.1",
+      "crossOriginIsolated": false,
+      "durationMs": 5777.865412,
+      "failedRequests": [],
+      "memory": {
+        "usedJSHeapSize": 3985738
+      },
+      "test": "typescript.ts-web-benchmark",
+      "worker": {
+        "compilerVersion": "7.1.0-dev.20261030.1",
+        "completionMs": [334.79999999701977, 253.70000000298023, 195.89999999850988],
+        "crossOriginIsolated": false,
+        "diagnosticMs": [1430.3999999985099, 329.59999999403954, 264.70000000298023, 189, 236.09999999403954],
+        "startupMs": 565.7000000029802,
+        "openDocumentCount": 2,
+        "wasmMemoryBytes": 93847552
+      },
+      "engine": "ts7",
+      "trial": 1
+    },
+    {
+      "compilerVersion": "6.0.3",
+      "crossOriginIsolated": false,
+      "durationMs": 4232.931828999999,
+      "failedRequests": [],
+      "memory": {
+        "usedJSHeapSize": 3964778
+      },
+      "test": "typescript.ts-web-benchmark",
+      "worker": {
+        "compilerVersion": "6.0.3",
+        "crossOriginIsolated": false,
+        "completionMs": [31.30000000447035, 138.10000000149012, 23.69999999552965],
+        "diagnosticMs": [1233.5999999940395, 24.100000001490116, 170.59999999403954, 92.60000000149012, 53],
+        "startupMs": 365.59999999403954
+      },
+      "engine": "ts6",
+      "trial": 1
+    },
+    {
+      "compilerVersion": "6.0.3",
+      "crossOriginIsolated": false,
+      "durationMs": 4292.852578,
+      "failedRequests": [],
+      "memory": {
+        "usedJSHeapSize": 3964770
+      },
+      "test": "typescript.ts-web-benchmark",
+      "worker": {
+        "compilerVersion": "6.0.3",
+        "crossOriginIsolated": false,
+        "completionMs": [35, 120.10000000149012, 27.30000000447035],
+        "diagnosticMs": [1233.8000000044703, 31.69999999552965, 128.89999999850988, 83.5, 55.70000000298023],
+        "startupMs": 299.20000000298023
+      },
+      "engine": "ts6",
+      "trial": 2
+    },
+    {
+      "compilerVersion": "7.1.0-dev.20261030.1",
+      "crossOriginIsolated": false,
+      "durationMs": 5800.645941999999,
+      "failedRequests": [],
+      "memory": {
+        "usedJSHeapSize": 4014850
+      },
+      "test": "typescript.ts-web-benchmark",
+      "worker": {
+        "compilerVersion": "7.1.0-dev.20261030.1",
+        "completionMs": [391.1000000014901, 300, 161.10000000149012],
+        "crossOriginIsolated": false,
+        "diagnosticMs": [1374.2999999970198, 324.5, 249.60000000149012, 216.19999999552965, 224.20000000298023],
+        "startupMs": 595.6000000014901,
+        "openDocumentCount": 2,
+        "wasmMemoryBytes": 96468992
+      },
+      "engine": "ts7",
+      "trial": 2
+    }
+  ]
+}

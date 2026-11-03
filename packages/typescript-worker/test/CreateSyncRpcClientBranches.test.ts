@@ -22,9 +22,11 @@ const { createSyncRpcClient } = await import('../src/parts/CreateSyncRpcClient/C
 
 const createHandle = (size = 0) => {
   let contents: Uint8Array<ArrayBufferLike> = new Uint8Array(size)
+  const close = jest.fn()
   return {
+    close,
     createSyncAccessHandle: jest.fn(async (_options: { mode: string }) => ({
-      close: jest.fn(),
+      close,
       flush: jest.fn(),
       getSize: jest.fn(() => contents.length),
       read: jest.fn((target: Uint8Array, options: { at: number }) => {
@@ -167,8 +169,7 @@ test("disposal closes both endpoints, removes only this client's files, and is i
   expect(first.removeEntry).toHaveBeenCalledTimes(4)
   expect(second.removeEntry).not.toHaveBeenCalled()
   for (const file of [first.draft, first.errorFile, first.resultFile, first.textFile]) {
-    const access = await file.createSyncAccessHandle.mock.results[0].value
-    expect(access.close).toHaveBeenCalledTimes(1)
+    expect(file.close).toHaveBeenCalledTimes(1)
   }
   await first.client.dispose?.()
   expect(first.removeEntry).toHaveBeenCalledTimes(4)
@@ -179,6 +180,6 @@ test('local resources are closed even when remote disposal fails', async () => {
   const { client, draft, removeEntry } = await setupClient()
   invoke.mockRejectedValueOnce(new Error('worker disconnected'))
   await expect(client.dispose?.()).rejects.toThrow('worker disconnected')
-  expect((await draft.createSyncAccessHandle.mock.results[0].value).close).toHaveBeenCalledTimes(1)
+  expect(draft.close).toHaveBeenCalledTimes(1)
   expect(removeEntry).toHaveBeenCalledTimes(4)
 })

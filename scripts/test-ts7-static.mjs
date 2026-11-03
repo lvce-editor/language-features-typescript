@@ -8,6 +8,7 @@ import { chromium } from 'playwright'
 // service-worker workaround. This exercises the editor and its OPFS RPC path.
 const root = resolve('dist')
 const prefix = '/language-features-typescript'
+const testName = process.env.TS_WEB_TEST ?? 'typescript.ts7-web'
 const types = {
   '.html': 'text/html',
   '.js': 'text/javascript',
@@ -51,24 +52,25 @@ try {
   page.on('response', (response) => {
     if (response.status() >= 400) failedRequests.push({ status: response.status(), url: response.url() })
   })
-  const url = `http://127.0.0.1:${server.address().port}${prefix}/tests/typescript.ts7-web.html`
+  const url = `http://127.0.0.1:${server.address().port}${prefix}/tests/${testName}.html`
   await page.goto(url)
   assert.equal(await page.evaluate(() => crossOriginIsolated), false)
   const overlay = page.locator('#TestOverlay')
   await overlay.waitFor({ state: 'visible', timeout: 120_000 })
   assert.equal(await overlay.getAttribute('data-state'), 'pass', await overlay.textContent())
+  const worker = JSON.parse(
+    messages.find((message) => message.includes('TS7_METRICS '))?.split('TS7_METRICS ')[1] ?? 'null',
+  )
   const result = {
-    compilerVersion: '7.1.0-dev.20261030.1',
+    compilerVersion: worker?.compilerVersion,
     crossOriginIsolated: false,
     durationMs: performance.now() - start,
     failedRequests,
     memory: await page.evaluate(() =>
       performance.memory ? { usedJSHeapSize: performance.memory.usedJSHeapSize } : null,
     ),
-    test: 'typescript.ts7-web',
-    worker: JSON.parse(
-      messages.find((message) => message.includes('TS7_METRICS '))?.split('TS7_METRICS ')[1] ?? 'null',
-    ),
+    test: testName,
+    worker,
   }
   await mkdir('.tmp/ts7-results', { recursive: true })
   await page.screenshot({ path: '.tmp/ts7-results/static-chrome.png', fullPage: true })

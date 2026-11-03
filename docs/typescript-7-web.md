@@ -58,17 +58,49 @@ The initial browser target is Chrome. Firefox and WebKit are not release gates f
 this migration. The upstream WASM API is experimental; upgrade its host and compiler
 artifact together and rerun the same regressions.
 
-## Initial measurement
+## Initial comparison
 
-A local Chrome 151 run of the actual static artifact on November 3, 2026 completed
-the editor regression in 6.28 seconds with no failed HTTP requests and
-`crossOriginIsolated === false`. Worker initialization took 691 ms; the first
-diagnostic request took 1,421 ms. Subsequent diagnostic requests took 178–288 ms,
-and completion requests took 165–391 ms. The worker's WASM linear memory reached
-96,468,992 bytes. This is allocated WASM memory, not the page's JavaScript heap or
-the browser's total memory.
+Three alternating local trials on November 3, 2026 used Chrome 151.0.7922.34,
+fresh browser contexts, the same static host without isolation headers, and the
+same multi-file fixture with dependency declarations and unsaved edits. OS file
+caches were retained. Each trial includes three completion requests and five
+diagnostic requests. The table reports the median across trials; repeated-request
+rows first take the median within each trial. All six scenarios passed with no
+failed HTTP requests and `crossOriginIsolated === false`.
 
-These are small-fixture worker timings on the local machine, excluding editor
-rendering and RPC from the per-operation measurements. They do not establish
-performance on a large project or a speedup over TS6. CI saves measurements from
-its own run separately.
+| Worker operation       |      TS6 | TS7 WASM |
+| ---------------------- | -------: | -------: |
+| Initialization         |   299 ms |   596 ms |
+| First diagnostics      | 1,234 ms | 1,374 ms |
+| Subsequent diagnostics |    73 ms |   237 ms |
+| Completion             |    35 ms |   254 ms |
+
+TS7 is slower on this fixture, particularly while editing. Fresh snapshots trade
+incremental reuse for straightforward filesystem consistency. These worker
+measurements exclude editor rendering and browser startup and are not a
+large-project benchmark. Handler timing boundaries also differ slightly: the TS6
+instrumentation wraps its existing worker commands, while TS7 records the backend
+operation after collecting open editor URIs. Do not interpret the ratios as
+isolated compiler-speed comparisons.
+
+The TS7 worker's allocated WASM linear memory reached 96,468,992 bytes across these
+trials. This is not the page's JavaScript heap or total browser memory; no
+comparable TS6 worker-memory measurement was taken.
+
+[Raw results](typescript-7-web-comparison.json) record every sample and the exact
+commits. The TS6 baseline is commit `24963d316ef4` with the same OPFS text-handle
+repair and measurement wrappers, preserved in
+[the baseline patch](typescript-7-web-baseline.patch). Neither compiler was
+modified. The common scenario excludes the additional syntax-diagnostic assertion
+covered by the TS7 acceptance test.
+
+To reproduce, prepare isolated baseline and candidate checkouts and install their
+dependencies. Apply the baseline patch to the baseline checkout, copy the
+`ts7-web` fixture and
+[`typescript.ts-web-benchmark.ts`](../scripts/fixtures/typescript.ts-web-benchmark.ts)
+into each checkout's e2e fixtures and source folders, and copy
+`scripts/test-ts7-static.mjs` to the baseline. Build each extension and static site,
+then alternate runs of
+`TS_WEB_TEST=typescript.ts-web-benchmark node scripts/test-ts7-static.mjs` in the
+two checkouts. Use the same Chrome executable through `CHROMIUM_EXECUTABLE_PATH`.
+CI saves its normal TS7 acceptance measurements separately.
