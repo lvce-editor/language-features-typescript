@@ -11,7 +11,9 @@ for the existing build tools and legacy unit tests.
 The web worker registers completion and diagnostic providers. It resolves project
 configuration, imported files, and dependency declarations through LVCE's
 filesystem. Virtual URI files explicitly select their containing configured project
-when included, preserving options such as `lib`, `strict`, and `noUnusedLocals`. Current document contents take precedence over stored files. The
+when included, preserving options such as `lib`, `strict`, and `noUnusedLocals`.
+Synthetic WASM root probes stay outside the host filesystem for virtual projects;
+Windows file projects reject probes without a drive or network host. Current document contents take precedence over stored files. The
 optional application-bundled native TS7 server remains available on native hosts.
 
 Hover, navigation, rename, references, import actions, and the other previous

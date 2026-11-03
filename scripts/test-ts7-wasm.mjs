@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import { instantiateWasm } from 'typescript7/wasm'
-import { createSession, version } from '../packages/typescript-worker/src/parts/Ts7Session/Ts7Session.ts'
+import { createSession, getHostUri, version } from '../packages/typescript-worker/src/parts/Ts7Session/Ts7Session.ts'
 
 const libRoot = new URL('../node_modules/@typescript/typescript-wasip1-wasm/lib/', import.meta.url)
 const names = JSON.parse(await readFile(new URL('libFiles.json', libRoot), 'utf8'))
@@ -20,7 +21,7 @@ test('the bundled host, compiler artifact, and reported compiler version match e
   assert.equal(artifact.version, version)
 })
 
-const setup = async (t, base = 'file:///workspace') => {
+const setup = async (t, base = 'file:///workspace', validateUri = () => {}) => {
   const files = new Map([
     [
       `${base}/tsconfig.json`,
@@ -34,8 +35,12 @@ const setup = async (t, base = 'file:///workspace') => {
     [`${base}/node_modules/example/index.d.ts`, 'export declare const dependency: { packageValue: string };'],
   ])
   const host = {
-    readFile: (uri) => files.get(uri),
+    readFile: (uri) => {
+      validateUri(uri)
+      return files.get(uri)
+    },
     readDirectory(uri) {
+      validateUri(uri)
       const prefix = uri.replace(/\/$/, '') + '/'
       const entries = [...files.keys()]
         .filter((path) => path.startsWith(prefix))
@@ -164,7 +169,9 @@ test('completion prefers the typed case among otherwise equally ranked suggestio
 })
 
 test('hoisted package-name completion works for a file excluded by its nearest config', async (t) => {
-  const { base, document, files, session } = await setup(t, 'memfs:///fixture')
+  const { base, document, files, session } = await setup(t, 'memfs:///fixture', (uri) => {
+    assert(!uri.startsWith('file:'), `Unexpected host disk probe: ${uri}`)
+  })
   files.clear()
   const paths = [
     'package.json',
@@ -202,4 +209,12 @@ test('equally ranked import paths have a stable name order', async (t) => {
       ['add.js', 'tsconfig.json'],
     )
   }
+})
+
+test('synthetic WASM roots cannot become drive-less Windows host paths', () => {
+  const document = new URL('file:///C:/workspace/main.ts')
+  assert.equal(getHostUri('/node_modules/@types', document), undefined)
+  const uri = getHostUri('C:/workspace/main.ts', document)
+  assert.equal(fileURLToPath(uri, { windows: true }), 'c:\\workspace\\main.ts')
+  assert.equal(getHostUri('/workspace/main.ts', new URL('file:///workspace/main.ts')), 'file:///workspace/main.ts')
 })

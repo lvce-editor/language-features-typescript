@@ -38,26 +38,44 @@ const identifierPrefix = (text: string, offset: number): string => {
   return text.slice(start, offset)
 }
 
+const hasDrive = (url: URL): boolean => /^\/[a-z](?::|%3a)\//i.test(url.pathname)
+export const getHostUri = (path: string, documentUrl: URL): string | undefined => {
+  const uri = fileNameToDocumentURI(path)
+  if (!uri.startsWith('file:')) return uri
+  // The WASM cwd is synthetic. Its root-level type probes must not escape a
+  // virtual filesystem or become drive-less file URLs on Windows.
+  if (documentUrl.protocol !== 'file:') return undefined
+  const target = new URL(uri)
+  if ((hasDrive(documentUrl) || documentUrl.hostname) && !hasDrive(target) && !target.hostname) return undefined
+  return uri
+}
+
 /** One compiler session; each request receives a fresh, immutable project snapshot. */
 export const createSession = (instance: WasmReactorInstance, libraries: Record<string, string>, host: Host) => {
   const libraryRoot = 'bundled:///libs/'
   const documents = new Map<string, string>()
   const savedDocuments = new Set<string>()
-  let lastCompletion: unknown
+  let documentUrl = new URL('file:///')
   // Cache only within a request. Changes on disk and failed lookups are rechecked
   // on the next request, without relying on a watcher being available on the web.
   const files = new Map<string, string | undefined>()
   const directories = new Map<string, { files: string[]; directories: string[] } | undefined>()
   const readFile = (path: string): string | undefined => {
     if (path.startsWith(libraryRoot)) return libraries[path.slice(libraryRoot.length)]
-    if (!files.has(path)) files.set(path, host.readFile(fileNameToDocumentURI(path)))
+    if (!files.has(path)) {
+      const uri = getHostUri(path, documentUrl)
+      files.set(path, uri ? host.readFile(uri) : undefined)
+    }
     return files.get(path)
   }
   const readDirectory = (path: string) => {
     if (path === libraryRoot.slice(0, -1) || path === libraryRoot) {
       return { directories: [], files: Object.keys(libraries) }
     }
-    if (!directories.has(path)) directories.set(path, host.readDirectory(fileNameToDocumentURI(path)))
+    if (!directories.has(path)) {
+      const uri = getHostUri(path, documentUrl)
+      directories.set(path, uri ? host.readDirectory(uri) : undefined)
+    }
     return directories.get(path)
   }
   const fs: FileSystemCallbacks = {
@@ -94,6 +112,7 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
     }
   }
   const prepare = (document: Document, openUris: readonly string[]) => {
+    documentUrl = new URL(document.uri)
     files.clear()
     directories.clear()
     for (const uri of documents.keys()) {
@@ -142,37 +161,11 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
       savedDocuments.clear()
       files.clear()
       directories.clear()
-      lastCompletion = undefined
     },
     completion(document: Document, offset: number, openUris: readonly string[]) {
       const { project, snapshot } = prepare(document, openUris)
       try {
         const result = project.languageService.getCompletionsAtPosition(documentURIToFileName(document.uri), offset)
-        {
-          lastCompletion = {
-            configFileName: project.configFileName,
-            directoryReads: Array.from(directories, ([path, entries]) => ({
-              directories: entries?.directories.slice(0, 32),
-              files: entries?.files.slice(0, 32),
-              path,
-            })).slice(0, 32),
-            document: {
-              length: document.text.length,
-              nearbyText: document.text.slice(Math.max(0, offset - 40), offset + 40),
-              offset,
-              uri: document.uri,
-            },
-            entries: result?.entries.slice(0, 32).map(({ filterText, insertText, kind, name, sortText }) => ({
-              filterText,
-              insertText,
-              kind,
-              name,
-              sortText,
-            })),
-            entryCount: result?.entries.length,
-            fileReads: Array.from(files, ([path, text]) => ({ length: text?.length ?? null, path })).slice(0, 64),
-          }
-        }
         const prefix = identifierPrefix(document.text, offset)
         const rank = (name: string): number => {
           if (name.startsWith(prefix)) return 0
@@ -249,7 +242,6 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
     },
     statistics() {
       return {
-        lastCompletion,
         openDocumentCount: documents.size,
         wasmMemoryBytes: (instance.exports as { memory: WebAssembly.Memory }).memory.buffer.byteLength,
       }
