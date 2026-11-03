@@ -12,7 +12,7 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
   await Workspace.setUri(root)
   await Main.openUri(uri)
   await Editor.setCursor(2, 15)
-  const document = { uri, text, languageId: 'typescript', version: 1 }
+  const document = { languageId: 'typescript', text, uri, version: 1 }
   const symbols = (await Command.executeExtensionCommand(
     'ExtensionApi.executeLanguageProvider',
     'document symbol',
@@ -25,5 +25,6 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
   if (text.slice(widget.selectionStartOffset, widget.selectionEndOffset) !== 'Widget')
     throw new Error('Invalid outline selection range')
   await Command.execute('Editor.showSignatureHelp')
-  await expect(Locator('.SignatureHelp')).toContainText('widget.method(input: string): number')
+  const signatureHelp = Locator('.SignatureHelp')
+  await expect(signatureHelp).toContainText('widget.method(input: string): number')
 }
