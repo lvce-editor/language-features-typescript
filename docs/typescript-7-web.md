@@ -10,7 +10,8 @@ for the existing build tools and legacy unit tests.
 
 The web worker registers completion and diagnostic providers. It resolves project
 configuration, imported files, and dependency declarations through LVCE's
-filesystem. Current document contents take precedence over stored files. The
+filesystem. Virtual URI files explicitly select their containing configured project
+when included, preserving options such as `lib`, `strict`, and `noUnusedLocals`. Current document contents take precedence over stored files. The
 optional application-bundled native TS7 server remains available on native hosts.
 
 Hover, navigation, rename, references, import actions, and the other previous
@@ -70,10 +71,10 @@ failed HTTP requests and `crossOriginIsolated === false`.
 
 | Worker operation       |      TS6 | TS7 WASM |
 | ---------------------- | -------: | -------: |
-| Initialization         |   299 ms |   596 ms |
-| First diagnostics      | 1,234 ms | 1,374 ms |
-| Subsequent diagnostics |    73 ms |   237 ms |
-| Completion             |    35 ms |   254 ms |
+| Initialization         |   340 ms |   543 ms |
+| First diagnostics      | 1,283 ms | 1,603 ms |
+| Subsequent diagnostics |    74 ms |   276 ms |
+| Completion             |    37 ms |   357 ms |
 
 TS7 is slower on this fixture, particularly while editing. Fresh snapshots trade
 incremental reuse for straightforward filesystem consistency. These worker
@@ -83,7 +84,7 @@ instrumentation wraps its existing worker commands, while TS7 records the backen
 operation after collecting open editor URIs. Do not interpret the ratios as
 isolated compiler-speed comparisons.
 
-The TS7 worker's allocated WASM linear memory reached 96,468,992 bytes across these
+The TS7 worker's allocated WASM linear memory reached 99,090,432 bytes across these
 trials. This is not the page's JavaScript heap or total browser memory; no
 comparable TS6 worker-memory measurement was taken.
 
