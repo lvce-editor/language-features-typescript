@@ -76,7 +76,12 @@ const registerProvider = (provider: any): { dispose(): void } => {
 
 export const registerProviders = (providers: any[], beforeProvide: () => Promise<void>): { dispose(): void }[] => {
   const registrations: { dispose(): void }[] = []
-  for (const languageId of [LanguageId.JavaScript, LanguageId.TypeScript, LanguageId.TypeScriptReact]) {
+  for (const languageId of [
+    LanguageId.JavaScript,
+    LanguageId.TypeScript,
+    LanguageId.TypeScriptReact,
+    LanguageId.JavaScriptReact,
+  ]) {
     for (const provider of providers) {
       const actualProvider = {
         ...Object.fromEntries(

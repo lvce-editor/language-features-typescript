@@ -25,16 +25,42 @@
   "repository": "https://github.com/lvce-editor/language-features-typescript",
   "icon": "media/icon.png",
   "activation": [
+    "onBraceCompletion:javascript",
+    "onBraceCompletion:typescript",
     "onCompletion:typescript",
     "onCompletion:javascript",
+    "onDefinition:javascript",
+    "onDefinition:typescript",
+    "onDefinition:typescriptreact",
     "onDiagnostic:javascript",
     "onDiagnostic:typescript",
+    "onDocumentSymbol:javascript",
+    "onDocumentSymbol:typescript",
+    "onDocumentSymbol:typescriptreact",
     "onLanguage:javascript",
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
     "onLanguage:javascriptreact",
     "onCommand:typescript.showPerformanceTrace",
-    "onCommand:typescript.getProjectCacheStatistics"
+    "onCommand:typescript.getProjectCacheStatistics",
+    "onRename:javascript",
+    "onRename:typescript",
+    "onReferences:javascript",
+    "onReferences:typescript",
+    "onReferences:typescriptreact",
+    "onImplementation:javascript",
+    "onImplementation:typescript",
+    "onClosingTag:javascript",
+    "onClosingTag:typescript",
+    "onTypeDefinition:typescript",
+    "onHover:javascript",
+    "onHover:typescript",
+    "onHover:typescriptreact",
+    "onSignatureHelp:javascript",
+    "onSignatureHelp:typescript",
+    "onSignatureHelp:typescriptreact",
+    "onTabCompletion:javascript",
+    "onTabCompletion:typescript"
   ],
   "completionProviders": [
     {
@@ -146,6 +172,62 @@
       "connectionId": "typescript.ts7",
       "languageId": "typescriptreact",
       "activationCommand": "typescript.awaitActivation"
+    }
+  ],
+  "hoverProviders": [
+    {
+      "id": "typescript.provideHover.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideHover.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideHover.typescriptreact",
+      "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideHover.javascriptreact",
+      "languageId": "javascriptreact"
+    }
+  ],
+  "signatureHelpProviders": [
+    {
+      "id": "typescript.provideSignatureHelp.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.typescriptreact",
+      "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.javascriptreact",
+      "languageId": "javascriptreact"
+    }
+  ],
+  "codeActions": [
+    {
+      "kind": "source.organizeImports",
+      "name": "Organize Imports",
+      "command": "Editor.organizeImports",
+      "languageId": "typescript"
+    },
+    {
+      "kind": "source.addMissingImports",
+      "name": "Add All Missing Imports",
+      "command": "Editor.addAllMissingImports",
+      "languageId": "typescript"
+    },
+    {
+      "kind": "source.sortImports",
+      "name": "Sort Imports",
+      "command": "Editor.sortImports",
+      "languageId": "typescript"
     }
   ]
 }

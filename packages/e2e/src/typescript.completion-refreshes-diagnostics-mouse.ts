@@ -66,4 +66,10 @@ export const test: Test = async ({
   await expect(problems).toHaveCount(2)
   const unrelatedProblem = problems.nth(1).locator('.ProblemLabel')
   await expect(unrelatedProblem).toHaveText("Type 'number' is not assignable to type 'string'.")
+
+  await Editor.setCursor(4, 46)
+  await Editor.openHover()
+  const hover = Locator('.EditorHover')
+  await expect(hover).toBeVisible()
+  await expect(hover).toContainText('(property) BoxGeometry: number')
 }

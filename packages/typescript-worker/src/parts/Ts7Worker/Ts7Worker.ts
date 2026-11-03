@@ -1,5 +1,6 @@
 import { instantiateWasm } from 'typescript7/wasm'
 import { createSyncRpcClient } from '../CreateSyncRpcClient/CreateSyncRpcClient.ts'
+import { getOffset } from '../GetOffset/GetOffset.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import { createSession, type Document, type Host, version } from '../Ts7Session/Ts7Session.ts'
 
@@ -49,7 +50,10 @@ const start = async (crossOriginIsolated: boolean) => {
       readDirectory: (uri) => rpc.value.invokeSync('SyncApi.readDirectoryEntries', uri) ?? undefined,
       readFile: (uri) => rpc.value.invokeSync('SyncApi.readFileOptional', uri) ?? undefined,
     }
-    state.session = createSession(await instantiateWasm(wasm.value), libraries.value, host)
+    state.session = createSession(await instantiateWasm(wasm.value), libraries.value, host, (name) => {
+      const url = new URL(`../../../.tmp/dist/typescript/${name}`, import.meta.url)
+      return url.protocol === 'http:' || url.protocol === 'https:' ? `fetch://${url.host}${url.pathname}` : url.href
+    })
     state.startupMs = performance.now() - started
   } catch (error) {
     await state.client?.dispose?.()
@@ -148,15 +152,58 @@ export const dispose = async () => {
   state.diagnostics.length = 0
 }
 
+type Features = Parameters<Backend['feature']>[2] extends (features: infer T) => unknown ? T : never
+const feature =
+  <A extends readonly unknown[], T>(execute: (features: Features, ...args: A) => T) =>
+  (document: Document, ...args: A) =>
+    request((backend, uris) => backend.feature(document, uris, (features) => execute(features, ...args)))
+
+const references = feature((features, offset: number) => features.references(offset))
+const fileDocument = async (uri: string): Promise<Document> => ({
+  text: await Rpc.invoke('FileSystem.readFile', uri),
+  uri,
+})
 export const commandMap = {
+  'AddMissingImports.addMissingImports': feature((features) => features.addMissingImports()),
+  'BraceCompletion.provide': feature((features, offset: number, openingBrace: string) =>
+    features.braceCompletion(offset, openingBrace),
+  ),
+  'CodeActions.getCodeActions': feature((features, offset: number) => features.quickFixes(offset)),
+  'Comment.provide': () => ['/*', '*/'],
   'Completion.getCompletions': completion,
-  'Completion.resolveCompletion': (_document: Document, _offset: number, _name: string, item: unknown) => item,
+  'Completion.resolveCompletion': feature((features, offset: number, name: string, item: Record<string, unknown>) =>
+    features.resolveCompletion(offset, name, item),
+  ),
+  'Definition.getDefinition': feature((features, offset: number) => features.definition(offset)),
   'Diagnostic.getDiagnostics': diagnostics,
   'Diagnostic.getFirstPerformanceTrace': firstPerformanceTrace,
   'Diagnostic.getPerformanceTrace': performanceTrace,
+  'DocumentSymbols.getDocumentSymbols': feature((features) => features.documentSymbols()),
+  'Hover.getHover': feature((features, offset: number) => features.hover(offset)),
+  'Implementation.getImplementations': feature((features, offset: number) => features.implementations(offset)),
   'Initialize.initialize': initialize,
+  'OrganizeImports.organizeImports': feature((features) => features.organizeImports()),
   'ProjectLifecycle.configure': () => {},
   'ProjectLifecycle.getStatistics': statistics,
   'ProjectLifecycle.waitForIdle': statistics,
+  'References.provideFileReferences': feature((features) => features.fileReferences()),
+  'References.provideReferences': references,
+  'References.provideReferences2': async ({
+    position,
+    uri,
+  }: {
+    uri: string
+    position: { rowIndex: number; columnIndex: number }
+  }) => {
+    const document = await fileDocument(uri)
+    return references(document, getOffset(document.text, position.rowIndex, position.columnIndex))
+  },
+  'Rename.prepareRename': feature((features, offset: number) => features.prepareRename(offset)),
+  'Rename.rename': feature((features, offset: number, newName: string) => features.rename(offset, newName)),
+  'Selection.expandSelections': feature((features, positions: readonly number[] | Uint32Array) =>
+    features.selections(positions),
+  ),
+  'SignatureHelp.getSignatureHelp': feature((features, offset: number) => features.signatureHelp(offset)),
   'Ts7.dispose': dispose,
+  'TypeDefinition.getTypeDefinition': feature((features, offset: number) => features.definition(offset, true)),
 }

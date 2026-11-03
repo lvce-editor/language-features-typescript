@@ -1,48 +1,15 @@
-// @ts-nocheck
-import * as Completion from '../Completion/Completion.ts'
-import * as GetTabCompletionFromTsResult from '../GetTabCompletionFromTsResult/GetTabCompletionFromTsResult.ts'
-import * as LanguageId from '../LanguageId/LanguageId.ts'
-
-export const languageId = LanguageId.TypeScript
-
-const isWordCharacter = (character: string): boolean => {
-  return /[\dA-Za-z-]/.test(character)
-}
-
-const getWord = (text: string, offset: number): string => {
-  let start = offset
-  while (start > 0 && isWordCharacter(text[start - 1])) {
-    start--
-  }
-  return text.slice(start, offset)
-}
-
-/**
- * @type {vscode.CompletionProvider['provideCompletions']}
- */
+import * as TypeScriptWorker from '../TypeScriptWorker/TypeScriptWorker.ts'
 export const provideTabCompletion = async (textDocument: any, offset: number): Promise<any> => {
-  const { text } = textDocument
-  const word = getWord(text, offset)
-  if (!word) {
-    return undefined
-  }
-  if (word === 'con') {
-    return {
-      deleted: 3,
-      inserted: 'console',
-      offset: offset - 3,
-      type: /* Snippet */ 2,
-    }
-  }
-  if (word === 'cons') {
-    return {
-      deleted: 4,
-      inserted: 'console',
-      offset: offset - 4,
-      type: /* Snippet */ 2,
-    }
-  }
-  const tsResult = await Completion.getCompletion(textDocument, offset)
-  const tabCompletion = GetTabCompletionFromTsResult.getTabCompletionFromTsResult(tsResult, offset, word)
-  return tabCompletion
+  let start = offset
+  while (start > 0 && /[$\p{ID_Continue}]/u.test(textDocument.text[start - 1])) start--
+  const prefix = textDocument.text.slice(start, offset)
+  if (!prefix) return undefined
+  const worker = await TypeScriptWorker.getInstance()
+  const items: { label: string; snippet: string }[] = await worker.invoke(
+    'Completion.getCompletions',
+    textDocument,
+    offset,
+  )
+  const item = items.find((entry) => entry.label.startsWith(prefix))
+  return item ? { deleted: prefix.length, inserted: item.snippet, offset: offset - prefix.length, type: 2 } : undefined
 }

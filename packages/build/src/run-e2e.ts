@@ -16,12 +16,33 @@ const testPath = join(root, '.tmp', 'e2e-manifests', manifestName)
 const testSourcePath = join(e2ePath, 'src')
 const allTestNames = (await readdir(testSourcePath)).filter((name) => !name.startsWith('_'))
 const testNames = isTs7E2e
-  ? allTestNames.filter(
-      (name) =>
-        name === 'typescript.ts7-web.ts' ||
-        name.startsWith('typescript.completion') ||
-        name.startsWith('typescript.diagnostics'),
-    )
+  ? allTestNames.filter((name) => {
+      const features = [
+        'completion',
+        'diagnostics',
+        'definition',
+        'references',
+        'rename',
+        'grow-selection',
+        'no-definition',
+        'no-reference',
+        'auto-import',
+        'path-completion',
+        'tsconfig-completion',
+        'toggle-',
+        'brace-completion',
+        'hover',
+        'implementations',
+        'organize-imports',
+        'add-missing-imports',
+        'auto-fix-',
+        'quick-fix',
+        'remove-unused-import',
+        'symbols',
+        'ts7-web',
+      ]
+      return features.some((feature) => name.startsWith(`typescript.${feature}`))
+    })
   : isNativeE2e
     ? allTestNames.filter((name) => name === 'typescript.native-ts7.ts')
     : isThreeJsE2e

@@ -218,3 +218,112 @@ test('synthetic WASM roots cannot become drive-less Windows host paths', () => {
   assert.equal(fileURLToPath(uri, { windows: true }), 'c:\\workspace\\main.ts')
   assert.equal(getHostUri('/workspace/main.ts', new URL('file:///workspace/main.ts')), 'file:///workspace/main.ts')
 })
+
+test('TS7 preserves hover, outline, signatures, and navigation across source and bundled libraries', async (t) => {
+  const { document, session } = await setup(t)
+  const text =
+    '/** The current model. */\nexport const hoverExample: string | undefined = undefined;\nexport class Widget { value = 1; method(input: string): number { return input.length; } }\nconst widget = new Widget();\nwidget.method("hello");\nconsole.log(hoverExample);'
+  const doc = document(text)
+  const run = (execute) => session.feature(doc, [doc.uri], execute)
+  const hover = run((features) => features.hover(text.indexOf('hoverExample')))
+  assert.equal(hover.displayString, 'const hoverExample: string | undefined')
+  assert.equal(hover.documentation, 'The current model.')
+  const symbols = run((features) => features.documentSymbols())
+  const widget = symbols.find((symbol) => symbol.name === 'Widget')
+  assert.deepEqual(
+    widget.children.map((symbol) => symbol.name),
+    ['value', 'method'],
+  )
+  assert.equal(text.slice(widget.selectionStartOffset, widget.selectionEndOffset), 'Widget')
+  const definition = run((features) => features.definition(text.lastIndexOf('hoverExample')))
+  assert.equal(definition.uri, doc.uri)
+  assert.equal(definition.startOffset, text.indexOf('hoverExample'))
+  const library = run((features) => features.definition(text.indexOf('console.log')))
+  assert(library.uri.startsWith('bundled:///libs/'))
+  const signature = run((features) => features.signatureHelp(text.indexOf('"hello"') + 1))
+  assert.equal(signature.signatures[0].label, 'widget.method(input: string): number')
+  const type = run((features) => features.definition(text.indexOf('widget.method'), true))
+  assert.equal(type.startOffset, text.indexOf('Widget'))
+})
+
+test('TS7 semantic references and rename include unsaved cross-file uses without changing shadowed names', async (t) => {
+  const { base, document, files, session } = await setup(t, 'memfs:///project')
+  const model = 'export const model = 1;'
+  files.set(`${base}/model.ts`, model)
+  const text = 'import { model } from "./model.js"; console.log(model); function local(model: string) { return model; }'
+  const doc = document(text)
+  const run = (execute) => session.feature(doc, [doc.uri], execute)
+  const refs = run((features) => features.references(text.indexOf('console.log(model') + 12))
+  assert.equal(refs.length, 3)
+  assert.equal(refs.filter((ref) => ref.uri === doc.uri).length, 2)
+  const rename = run((features) => features.rename(text.indexOf('console.log(model') + 12, 'renamed'))
+  assert.equal(rename.edits.length, 3)
+  assert(rename.edits.every((edit) => edit.edits[0].inserted === 'renamed'))
+  const imported = run((features) => features.definition(text.indexOf('console.log(model') + 12))
+  assert.equal(imported.uri, `${base}/model.ts`)
+  assert.equal(imported.startOffset, model.indexOf('model'))
+})
+
+test('TS7 import actions preserve used bindings and side effects and add unambiguous exports', async (t) => {
+  const { document, session } = await setup(t)
+  const text =
+    'import unused from "unused";\nimport { model, missing } from "./model.js";\nimport "./side-effect.js";\nconsole.log(model);\n'
+  const doc = document(text)
+  const edits = session.feature(doc, [doc.uri], (features) => features.organizeImports())
+  const apply = (text, edits) =>
+    edits
+      .toSorted((a, b) => b.startOffset - a.startOffset)
+      .reduce((text, edit) => text.slice(0, edit.startOffset) + edit.inserted + text.slice(edit.endOffset), text)
+  assert.equal(
+    apply(text, edits),
+    'import { model } from "./model.js";\nimport "./side-effect.js";\nconsole.log(model);\n',
+  )
+  const missing = document('export const value = model.title;')
+  const added = session.feature(missing, [missing.uri], (features) => features.addMissingImports())
+  assert(apply(missing.text, added).includes('import { model } from "./model.js";'))
+})
+
+test('TS7 quick fixes preserve spelling, unused-import, and missing-property actions', async (t) => {
+  const { document, session } = await setup(t)
+  const run = (text, offset) => session.feature(document(text), [], (features) => features.quickFixes(offset))
+  assert(run('globalThis.AbortSignal.abrot()', 28).some((action) => action.name === "Change spelling to 'abort'"))
+  assert(
+    run('import unused from "unused";\nexport {};', 10).some((action) => action.name === "Remove import from 'unused'"),
+  )
+  const text = 'interface Item { data: string; type: string }\nconst items: Item[] = [{}];'
+  const action = run(text, text.indexOf('{}') + 1).find((action) => action.name === 'Add missing properties')
+  assert(action)
+  assert(action.edits[0].inserted.includes('data: ""'))
+})
+
+test('TS7 rename handles object shorthand and import aliases without changing public property names', async (t) => {
+  const { document, files, base, session } = await setup(t)
+  files.set(`${base}/model.ts`, 'export const model = 1;')
+  const doc = document('import { model as local } from "./model.js"; const object = { local }; console.log(local);')
+  const result = session.feature(doc, [doc.uri], (features) =>
+    features.rename(doc.text.lastIndexOf('local'), 'renamed'),
+  )
+  assert.equal(result.edits.length, 3)
+  assert(result.edits.every((edit) => edit.uri === doc.uri))
+  assert.equal(result.edits[1].edits[0].inserted, 'local: renamed')
+})
+
+test('TS7 selection keeps the established nested-call expansion sequence', async (t) => {
+  const { document, session } = await setup(t)
+  const doc = document('function run(id: string, options: object) {\n  return foo.bar(getUser(id), options)\n}\n')
+  let selection = [1, 26, 1, 26]
+  const expected = [
+    [1, 25, 1, 27],
+    [1, 17, 1, 28],
+    [1, 17, 1, 37],
+    [1, 9, 1, 38],
+    [1, 2, 1, 38],
+    [0, 43, 2, 0],
+    [0, 42, 2, 1],
+    [0, 0, 2, 1],
+  ]
+  for (let index = 0; index < expected.length; index++) {
+    selection = session.feature(doc, [doc.uri], (features) => features.selections(selection))
+    assert.deepEqual(selection, expected[index])
+  }
+})

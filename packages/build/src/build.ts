@@ -49,6 +49,7 @@ const libNames: string[] = JSON.parse(await readFile(join(wasmLib, 'libFiles.jso
 const libraries = Object.fromEntries(
   await Promise.all(libNames.map(async (name) => [name, await readFile(join(wasmLib, name), 'utf8')])),
 )
+await Promise.all(libNames.map((name) => copyFile(join(wasmLib, name), join(dist, 'typescript', name))))
 // One request loads the standard libraries, rather than issuing a request per declaration file.
 await writeFile(join(dist, 'typescript', 'libs.json'), JSON.stringify(libraries))
 

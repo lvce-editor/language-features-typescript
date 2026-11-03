@@ -48,7 +48,7 @@ jobs:
         run: npx playwright install-deps chromium
       - name: Test actual Pages artifact without cross-origin isolation
         run: node scripts/test-ts7-static.mjs
-      - name: Test completion and diagnostics in the editor
+      - name: Test TypeScript language features in the editor
         run: node packages/build/src/run-e2e.ts ts7-e2e --headless --trace-renderer-worker
       - uses: actions/upload-pages-artifact@v5
         if: runner.os == 'Linux'

@@ -3,6 +3,7 @@ import { createFileSystemLayer, serverFS, type FileSystemCallbacks } from 'types
 import { API, documentURIToFileName, fileNameToDocumentURI, type Diagnostic } from 'typescript7/sync'
 import { WasmTransport, type WasmReactorInstance } from 'typescript7/wasm'
 import { getDiagnosticSeverity } from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
+import { createFeatures } from '../Ts7Features/Ts7Features.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 
 export interface Document {
@@ -51,7 +52,12 @@ export const getHostUri = (path: string, documentUrl: URL): string | undefined =
 }
 
 /** One compiler session; each request receives a fresh, immutable project snapshot. */
-export const createSession = (instance: WasmReactorInstance, libraries: Record<string, string>, host: Host) => {
+export const createSession = (
+  instance: WasmReactorInstance,
+  libraries: Record<string, string>,
+  host: Host,
+  libraryUri = (name: string) => 'bundled:///libs/' + name,
+) => {
   const libraryRoot = 'bundled:///libs/'
   const documents = new Map<string, string>()
   const savedDocuments = new Set<string>()
@@ -189,6 +195,20 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
           sortText: entry.sortText,
           source: 'ts',
         }))
+      } finally {
+        snapshot.dispose()
+      }
+    },
+    feature<T>(
+      document: Document,
+      openUris: readonly string[],
+      execute: (features: ReturnType<typeof createFeatures>) => T,
+    ): T {
+      const { project, snapshot } = prepare(document, openUris)
+      try {
+        const source = project.program.getSourceFile(documentURIToFileName(document.uri))
+        if (!source) throw new Error(`TypeScript 7 could not load ${document.uri}`)
+        return execute(createFeatures(project, source, libraryUri))
       } finally {
         snapshot.dispose()
       }

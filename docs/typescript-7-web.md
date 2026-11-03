@@ -8,7 +8,9 @@ for the existing build tools and legacy unit tests.
 
 ## Supported scope
 
-The web worker registers completion and diagnostic providers. It resolves project
+The web worker keeps completion, diagnostics, hover, document symbols, definitions,
+type definitions, references, rename, implementations, signature help, selection
+expansion, comments, brace completion, tab completion, and import actions. It resolves project
 configuration, imported files, and dependency declarations through LVCE's
 filesystem. Virtual URI files explicitly select their containing configured project
 when included, preserving options such as `lib`, `strict`, and `noUnusedLocals`.
@@ -16,10 +18,18 @@ Synthetic WASM root probes stay outside the host filesystem for virtual projects
 Windows file projects reject probes without a drive or network host. Current document contents take precedence over stored files. The
 optional application-bundled native TS7 server remains available on native hosts.
 
-Hover, navigation, rename, references, import actions, and the other previous
-worker providers are outside this first migration. Their legacy source and tests
-remain in the repository, but are not part of the shipped worker. Auto-import
-completion is not a release requirement.
+The adapter uses the official AST, type checker, semantic reference API, and import
+edit API. It does not depend on the TS6 language service. Completion resolution
+includes types and JSDoc; library definitions open the bundled TS7 declarations.
+Rename uses semantic references and preserves object shorthand property names.
+
+Quick fixes cover spelling suggestions, unused imports, missing imports, and missing
+object properties. The experimental API does not yet expose the full language-server
+quick-fix catalog. Missing-import actions only choose unambiguous exports already in
+the project; discovery of arbitrary unreferenced packages is still limited. Import
+cleanup removes unused bindings and preserves side-effect imports and embedded
+comments. It does not yet merge or reorder import declarations. Closing-tag and
+semantic-token providers were not registered before this migration and remain so.
 
 ## Plain static hosting
 
@@ -38,7 +48,10 @@ which permits WebAssembly compilation. The current host rejects the narrower
   sources, npm declarations, unsaved overrides, disk changes, configuration changes,
   syntax errors, Unicode ranges, and virtual filesystem URIs.
 - `node packages/build/src/run-e2e.ts ts7-e2e --headless` runs editor completion and
-  diagnostic scenarios. Other legacy feature suites remain separate.
+  diagnostic scenarios plus the existing hover, navigation, reference, rename,
+  implementation, selection, comment, brace, and source-action regressions, and new
+  symbol/signature coverage. TS6 cache-internal tests remain separate because TS7
+  uses fresh snapshots.
 - After `npm run build` and `npm run build:static`, run
   `node scripts/test-ts7-static.mjs` to serve the actual Pages artifact without
   isolation headers and exercise completion, dependency types, imported unsaved

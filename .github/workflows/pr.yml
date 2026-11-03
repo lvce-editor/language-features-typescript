@@ -42,7 +42,7 @@ jobs:
       - name: Test hoisted package completion on Windows
         if: runner.os == 'Windows'
         run: node packages/build/src/run-e2e.ts ts7-e2e --filter=typescript.completion-from-node-modules-monorepo --headless --trace-renderer-worker
-      - name: Test completion and diagnostics in the editor
+      - name: Test TypeScript language features in the editor
         run: node packages/build/src/run-e2e.ts ts7-e2e --headless --trace-renderer-worker
       - name: Prepare native TypeScript test host
         run: node scripts/prepare-native-test-host.mjs
