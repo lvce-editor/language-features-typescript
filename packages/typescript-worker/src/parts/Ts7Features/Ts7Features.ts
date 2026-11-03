@@ -98,7 +98,12 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
         seen.add(key)
         return [name]
       })
-      .toSorted((a, b) => a.getSourceFile().fileName.localeCompare(b.getSourceFile().fileName) || a.pos - b.pos)
+      .toSorted(
+        (a, b) =>
+          Number(b.getSourceFile() === source) - Number(a.getSourceFile() === source) ||
+          a.getSourceFile().fileName.localeCompare(b.getSourceFile().fileName) ||
+          a.pos - b.pos,
+      )
   }
   const describe = (symbol: CompilerSymbol): string => {
     const declaration = declarations(symbol)[0]
