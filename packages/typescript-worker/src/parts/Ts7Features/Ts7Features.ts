@@ -11,6 +11,7 @@ import {
   isClassExpression,
   isFunctionDeclaration,
   isIdentifier,
+  isPrivateIdentifier,
   isInterfaceDeclaration,
   isMethodDeclaration,
   isNewExpression,
@@ -47,6 +48,12 @@ const walk = (node: Node, visit: (node: Node) => void): void => {
 }
 
 const nameOf = (node: Node): Node => getNameOfDeclaration(node as Declaration) ?? node
+const isNameToken = (node: Node): boolean =>
+  isIdentifier(node) ||
+  isPrivateIdentifier(node) ||
+  isStringLiteralLikeNode(node) ||
+  node.kind === SyntaxKind.ThisKeyword ||
+  node.kind === SyntaxKind.SuperKeyword
 
 export const createFeatures = (project: Project, source: SourceFile, libraryUri: (name: string) => string) => {
   const { checker, program } = project
@@ -55,7 +62,9 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
   const resolveAlias = (symbol: CompilerSymbol) =>
     symbol.flags & SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
   const symbolAt = (offset: number) => {
-    const symbol = checker.getSymbolAtLocation(tokenAt(offset))
+    const token = tokenAt(offset)
+    if (!isNameToken(token) || offset < token.getStart(source) || offset > token.end) return undefined
+    const symbol = checker.getSymbolAtPosition(source.fileName, offset)
     return symbol ? resolveAlias(symbol) : undefined
   }
   const uriOf = (file: SourceFile) =>
@@ -85,7 +94,12 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
     })
   const referenceNodes = (offset: number): Node[] => {
     const token = tokenAt(offset)
-    if (!isIdentifier(token) && !isStringLiteralLikeNode(token)) return []
+    if (
+      offset < token.getStart(source) ||
+      offset > token.end ||
+      (!isIdentifier(token) && !isStringLiteralLikeNode(token))
+    )
+      return []
     const result = project.languageService.getReferencedSymbolsForNode(token, offset)
     const seen = new Set<string>()
     return result
@@ -174,7 +188,9 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
     return collect(source)
   }
   const definition = (offset: number, typeDefinition = false) => {
-    const symbol = typeDefinition ? checker.getTypeAtLocation(tokenAt(offset)).getSymbol() : symbolAt(offset)
+    const token = tokenAt(offset)
+    if (!isNameToken(token) || offset < token.getStart(source) || offset > token.end) return undefined
+    const symbol = typeDefinition ? checker.getTypeAtPosition(source.fileName, offset)?.getSymbol() : symbolAt(offset)
     const node = declarations(symbol)[0]
     return node ? location(nameOf(node)) : undefined
   }

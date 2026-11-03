@@ -416,3 +416,29 @@ test('TS7 brace completion excludes comments and unterminated strings', async (t
   assert.equal(pair('/* comment */', 5), false)
   assert.equal(pair('const value = "text"; '), true)
 })
+
+test('TS7 implementations resolve an imported function at the start of its name', async (t) => {
+  const { base, document, files, session } = await setup(t, 'memfs:///fixture')
+  files.set(`${base}/add.ts`, 'export const add = () => {}')
+  const doc = document('import { add } from "./add.js";\nadd();')
+  const result = session.feature(doc, [doc.uri], (features) => features.implementations(9))
+  assert.equal(result.length, 1)
+  assert.equal(result[0].uri, `${base}/add.ts`)
+})
+
+test('TS7 navigation does not select an adjacent identifier on whitespace or a keyword', async (t) => {
+  const { document, session } = await setup(t)
+  const doc = document('import { model } from \"./model.js\";\n\nmodel;')
+  assert.deepEqual(
+    session.feature(doc, [], (features) => features.references(doc.text.indexOf('\n') + 1)),
+    [],
+  )
+  assert.equal(
+    session.feature(doc, [], (features) => features.hover(0)),
+    undefined,
+  )
+  assert.equal(
+    session.feature(doc, [], (features) => features.definition(doc.text.indexOf('\n') + 1)),
+    undefined,
+  )
+})

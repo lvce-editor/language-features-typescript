@@ -175,6 +175,7 @@ export const commandMap = {
     request((backend, uris) =>
       backend.feature(document, uris, (features) => features.resolveCompletion(offset, name, item), true),
     ),
+  'Definition.getDefinition': feature((features, offset: number) => features.definition(offset)),
   'Diagnostic.getDiagnostics': diagnostics,
   'Diagnostic.getFirstPerformanceTrace': firstPerformanceTrace,
   'Diagnostic.getPerformanceTrace': performanceTrace,

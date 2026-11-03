@@ -124,6 +124,7 @@ export const createSession = (
     }
   }
   const prepare = (document: Document, openUris: readonly string[], autoImports = false) => {
+    if (typeof document.text !== 'string') throw new TypeError('TypeScript requests require the current document text')
     documentUrl = new URL(document.uri)
     files.clear()
     directories.clear()
