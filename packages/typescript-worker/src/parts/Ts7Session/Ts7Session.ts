@@ -26,6 +26,18 @@ const messageText = (diagnostic: Diagnostic, depth = 0): string => {
   return text
 }
 
+const identifierPrefix = (text: string, offset: number): string => {
+  const identifier = /^[$\p{ID_Continue}]$/u
+  let start = offset
+  while (start > 0) {
+    const last = text.codePointAt(start - 1) ?? 0
+    const width = last >= 0xdc_00 && last <= 0xdf_ff && start > 1 ? 2 : 1
+    if (!identifier.test(text.slice(start - width, start))) break
+    start -= width
+  }
+  return text.slice(start, offset)
+}
+
 /** One compiler session; each request receives a fresh, immutable project snapshot. */
 export const createSession = (instance: WasmReactorInstance, libraries: Record<string, string>, host: Host) => {
   const libraryRoot = 'bundled:///libs/'
@@ -63,6 +75,23 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
   }
   const transport = new WasmTransport({ cwd: '/', fs, instance })
   const api = new API({ transport })
+  const findProject = (uri: string): string | undefined => {
+    let directory: URL
+    try {
+      directory = new URL('.', uri)
+    } catch {
+      return undefined
+    }
+    while (true) {
+      for (const name of ['tsconfig.json', 'jsconfig.json']) {
+        const path = documentURIToFileName(new URL(name, directory).href)
+        if (readFile(path) !== undefined) return path
+      }
+      const parent = new URL('../', directory)
+      if (parent.href === directory.href) return undefined
+      directory = parent
+    }
+  }
   const prepare = (document: Document, openUris: readonly string[]) => {
     files.clear()
     directories.clear()
@@ -83,14 +112,21 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
     if (documents.get(document.uri) !== document.text) savedDocuments.delete(document.uri)
     documents.set(document.uri, document.text)
     if (host.readFile(document.uri) === document.text) savedDocuments.add(document.uri)
+    const config = findProject(document.uri)
     const snapshot = api.createSnapshot({
       fileSystem: createFileSystemLayer(
         Array.from(documents, ([uri, text]) => [documentURIToFileName(uri), text] as const),
       ),
       openFiles: [documentURIToFileName(document.uri)],
+      ...(config && { openProjects: [config] }),
+      userPreferences: { importModuleSpecifierEnding: 'js' },
     })
     try {
-      const project = snapshot.getDefaultProjectForFile(documentURIToFileName(document.uri))
+      const path = documentURIToFileName(document.uri)
+      const configured = config ? snapshot.getConfiguredProject(config) : undefined
+      // Native auto-selection treats virtual URIs as inferred files. Use the
+      // explicitly opened config only when its program contains this document.
+      const project = configured?.program.getSourceFile(path) ? configured : snapshot.getDefaultProjectForFile(path)
       if (!project) throw new Error(`TypeScript 7 could not load a project for ${document.uri}`)
       return { project, snapshot }
     } catch (error) {
@@ -110,7 +146,17 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
       const { project, snapshot } = prepare(document, openUris)
       try {
         const result = project.languageService.getCompletionsAtPosition(documentURIToFileName(document.uri), offset)
-        return (result?.entries ?? []).map((entry) => ({
+        const prefix = identifierPrefix(document.text, offset)
+        const rank = (name: string): number => {
+          if (name.startsWith(prefix)) return 0
+          if (name.toLowerCase().startsWith(prefix.toLowerCase())) return 1
+          return 2
+        }
+        const entries = (result?.entries ?? []).toSorted(
+          (left, right) =>
+            (left.sortText ?? '').localeCompare(right.sortText ?? '') || rank(left.name) - rank(right.name),
+        )
+        return entries.map((entry) => ({
           completionName: entry.name,
           detail: entry.detail,
           filterText: entry.filterText,

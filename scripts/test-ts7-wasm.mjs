@@ -140,3 +140,25 @@ test('completion offsets remain correct after non-ASCII text', async (t) => {
   const { complete } = await setup(t)
   assert(complete('const emoji = "😀"; const model = { hello: true }; model.').includes('hello'))
 })
+
+test('virtual projects apply their declared libraries, strictness, and unused-code settings', async (t) => {
+  const { base, complete, diagnostics, files } = await setup(t, 'memfs:///fixture')
+  files.set(
+    `${base}/tsconfig.json`,
+    JSON.stringify({
+      compilerOptions: { strict: true, noUnusedLocals: true, types: [], lib: ['esnext', 'webworker'] },
+    }),
+  )
+  const completions = complete('WorkerG')
+  assert(completions.includes('WorkerGlobalScope'))
+  assert(!completions.includes('window'))
+  assert(diagnostics('function f(arg) { return arg; }').some((item) => item.code === 7006))
+  assert(diagnostics('export {}; const unused = 1;').some((item) => item.code === 6133))
+  files.set(`${base}/tsconfig.json`, JSON.stringify({ compilerOptions: { strict: false, types: [] } }))
+  assert.equal(diagnostics('function f(arg) { return arg; }').length, 0)
+})
+
+test('completion prefers the typed case among otherwise equally ranked suggestions', async (t) => {
+  const { complete } = await setup(t)
+  assert.equal(complete('win')[0], 'window')
+})
