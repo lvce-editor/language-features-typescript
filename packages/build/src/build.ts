@@ -39,6 +39,12 @@ await copyFile(
   join(root, 'node_modules', '@typescript', 'typescript-wasip1-wasm', 'LICENSE'),
   join(dist, 'typescript', 'LICENSE'),
 )
+await copyFile(
+  join(root, 'node_modules', '@typescript', 'typescript-wasip1-wasm', 'NOTICE.txt'),
+  join(dist, 'typescript', 'NOTICE.txt'),
+)
+await copyFile(join(root, 'node_modules', 'typescript7', 'LICENSE'), join(dist, 'typescript', 'API-LICENSE'))
+await copyFile(join(root, 'node_modules', 'typescript7', 'NOTICE.txt'), join(dist, 'typescript', 'API-NOTICE.txt'))
 const libNames: string[] = JSON.parse(await readFile(join(wasmLib, 'libFiles.json'), 'utf8'))
 const libraries = Object.fromEntries(
   await Promise.all(libNames.map(async (name) => [name, await readFile(join(wasmLib, name), 'utf8')])),

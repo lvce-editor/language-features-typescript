@@ -117,3 +117,26 @@ test('virtual filesystem URIs preserve project and dependency resolution', async
   const result = diagnostics('const bad: number = "string";')
   assert.equal(result[0].uri, 'memfs://project/workspace/main.ts')
 })
+
+test('diagnostic chains and unnecessary-code warnings retain their editor metadata', async (t) => {
+  const { base, diagnostics, files } = await setup(t)
+  files.set(
+    `${base}/tsconfig.json`,
+    JSON.stringify({ compilerOptions: { strict: true, types: [], noUnusedLocals: true } }),
+  )
+  const result = diagnostics('export {}; type A = { foo: string }; const obj = { foo: 1 }; const a: A = obj;')
+  const error = result.find((item) => item.code === 2322)
+  assert(
+    error.message.includes(
+      "\n  Types of property 'foo' are incompatible.\n    Type 'number' is not assignable to type 'string'.",
+    ),
+  )
+  const unused = result.find((item) => item.code === 6133)
+  assert.equal(unused.type, 'warning')
+  assert.deepEqual(unused.tags, [1])
+})
+
+test('completion offsets remain correct after non-ASCII text', async (t) => {
+  const { complete } = await setup(t)
+  assert(complete('const emoji = "😀"; const model = { hello: true }; model.').includes('hello'))
+})

@@ -1,6 +1,8 @@
+import { DiagnosticTag } from '@lvce-editor/api'
 import { createFileSystemLayer, serverFS, type FileSystemCallbacks } from 'typescript7/fs'
-import { API, documentURIToFileName, fileNameToDocumentURI } from 'typescript7/sync'
+import { API, documentURIToFileName, fileNameToDocumentURI, type Diagnostic } from 'typescript7/sync'
 import { WasmTransport, type WasmReactorInstance } from 'typescript7/wasm'
+import { getDiagnosticSeverity } from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
 
 export interface Document {
@@ -14,6 +16,15 @@ export interface Host {
 }
 
 export const version = '7.1.0-dev.20261030.1'
+
+const messageText = (diagnostic: Diagnostic, depth = 0): string => {
+  let { text } = diagnostic
+  const children = diagnostic.messageChain ?? []
+  for (const child of children) {
+    text += `\n${'  '.repeat(depth + 1)}${messageText(child, depth + 1)}`
+  }
+  return text
+}
 
 /** One compiler session; each request receives a fresh, immutable project snapshot. */
 export const createSession = (instance: WasmReactorInstance, libraries: Record<string, string>, host: Host) => {
@@ -131,14 +142,29 @@ export const createSession = (instance: WasmReactorInstance, libraries: Record<s
             const end = item.endPosition
               ? { columnIndex: item.endPosition.character, rowIndex: item.endPosition.line }
               : getPositionAt(document.text, item.end)
+            const relatedInformation = item.relatedInformation?.flatMap((related) => {
+              if (!related.fileName || !related.startPosition || !related.endPosition) return []
+              return [
+                {
+                  columnIndex: related.startPosition.character,
+                  endColumnIndex: related.endPosition.character,
+                  endRowIndex: related.endPosition.line,
+                  message: messageText(related),
+                  rowIndex: related.startPosition.line,
+                  uri: fileNameToDocumentURI(related.fileName),
+                },
+              ]
+            })
             return {
               ...start,
               code: item.code,
               endColumnIndex: end.columnIndex,
               endRowIndex: end.rowIndex,
-              message: item.text,
+              message: messageText(item),
+              ...(relatedInformation?.length && { relatedInformation }),
               source: 'ts',
-              type: item.category === 1 ? 'error' : 'warning',
+              ...(item.reportsUnnecessary && { tags: [DiagnosticTag.Unnecessary] }),
+              type: getDiagnosticSeverity(item),
               uri: document.uri,
             }
           })
