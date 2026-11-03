@@ -327,3 +327,21 @@ test('TS7 selection keeps the established nested-call expansion sequence', async
     assert.deepEqual(selection, expected[index])
   }
 })
+
+test('TS7 namespace-import rename retains the declaration and importing use', async (t) => {
+  const { base, document, files, session } = await setup(t, 'memfs:///fixture')
+  files.clear()
+  files.set(
+    `${base}/tsconfig.json`,
+    '{"compilerOptions":{"lib":["esnext"],"types":[],"module":"nodenext","moduleResolution":"nodenext"}}',
+  )
+  files.set(`${base}/src/parts/Main/Main.ts`, 'export const main = () => 1\n')
+  const text = "import * as Main from './parts/Main/Main.js'\n\nMain.main()\n"
+  const doc = document(text, 'src/aboutWorkerMain.ts')
+  const refs = session.feature(doc, [doc.uri], (features) => features.references(text.lastIndexOf('main')))
+  assert.equal(session.diagnostics(doc, [doc.uri]).length, 0)
+  assert.equal(refs.length, 2)
+  const result = session.feature(doc, [doc.uri], (features) => features.rename(text.lastIndexOf('main') + 1, 'gain'))
+  assert.equal(result.edits[0].edits[0].offset, text.lastIndexOf('main'))
+  assert.equal(result.edits.length, 2)
+})

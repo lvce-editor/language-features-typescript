@@ -36,7 +36,7 @@ export const test: Test = async ({
   await EditorRename.accept()
 
   // assert
-  await Editor.shouldHaveText("import * as Main from './parts/Main/Main'\n\nMain.gain()\n")
+  await Editor.shouldHaveText("import * as Main from './parts/Main/Main.js'\n\nMain.gain()\n")
   await expect(exporterGroup).toContainText('export const gain = () => 1')
   await expect(importerGroup).toContainText('Main.gain()')
   await Command.execute('Editor.waitForDiagnostics')
@@ -66,12 +66,12 @@ export const test: Test = async ({
   await Main.selectTab(0, 0)
   await Main.closeAllEditors()
   await Main.openUri(`${workspaceUrl}/src/aboutWorkerMain.ts`)
-  await Editor.shouldHaveText("import * as Main from './parts/Main/Main'\n\nMain.gain()\n")
+  await Editor.shouldHaveText("import * as Main from './parts/Main/Main.js'\n\nMain.gain()\n")
   await Command.execute('Editor.waitForDiagnostics')
   await Editor.shouldHaveDiagnostics([])
 
   // An actual disagreement must still produce a diagnostic.
-  await Editor.setText("import * as Main from './parts/Main/Main'\n\nMain.main()\n")
+  await Editor.setText("import * as Main from './parts/Main/Main.js'\n\nMain.main()\n")
   await Command.execute('Editor.waitForDiagnostics')
   await expect(diagnostics).toHaveCount(1)
 }

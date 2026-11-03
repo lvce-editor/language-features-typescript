@@ -137,7 +137,7 @@ export const createActions = (project: Project, source: SourceFile) => {
       .filter((item) => item.pos >= 0 && item.pos <= offset && item.end >= offset)
     for (const item of diagnostic) {
       const suggestion = item.text.match(/Did you mean '([^']+)'\?/)
-      if (suggestion)
+      if (suggestion && [2551, 2552, 2561].includes(item.code))
         actions.push({
           edits: [{ endOffset: item.end, inserted: suggestion[1], startOffset: item.pos }],
           kind: 'quickfix',

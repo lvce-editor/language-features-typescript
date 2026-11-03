@@ -48,6 +48,10 @@ jobs:
         run: npx playwright install-deps chromium
       - name: Test actual Pages artifact without cross-origin isolation
         run: node scripts/test-ts7-static.mjs
+      - name: Test symbols and signature help without cross-origin isolation
+        env:
+          TS_WEB_TEST: typescript.symbols
+        run: node scripts/test-ts7-static.mjs
       - name: Test TypeScript language features in the editor
         run: node packages/build/src/run-e2e.ts ts7-e2e --headless --trace-renderer-worker
       - uses: actions/upload-pages-artifact@v5
