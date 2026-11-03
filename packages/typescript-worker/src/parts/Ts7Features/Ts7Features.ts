@@ -15,8 +15,8 @@ import {
   isMethodDeclaration,
   isNewExpression,
   isParameterDeclaration,
-  isPropertyDeclaration,
-  isPropertySignatureDeclaration,
+  isPropertyAccessExpression,
+  isQualifiedName,
   isStringLiteralLikeNode,
   isTypeAliasDeclaration,
   isVariableDeclaration,
@@ -50,6 +50,7 @@ const nameOf = (node: Node): Node => getNameOfDeclaration(node as Declaration) ?
 
 export const createFeatures = (project: Project, source: SourceFile, libraryUri: (name: string) => string) => {
   const { checker, program } = project
+  const actions = createActions(project, source)
   const tokenAt = (offset: number) => getTouchingPropertyName(source, Math.max(0, Math.min(offset, source.text.length)))
   const resolveAlias = (symbol: CompilerSymbol) =>
     symbol.flags & SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
@@ -117,8 +118,7 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
     if (isFunctionDeclaration(declaration)) return `function ${name}${type.replace(' => ', ': ')}`
     if (isParameterDeclaration(declaration)) return `(parameter) ${name}: ${type}`
     if (isMethodDeclaration(declaration)) return `(method) ${name}${type.replace(' => ', ': ')}`
-    if (isPropertyDeclaration(declaration) || isPropertySignatureDeclaration(declaration))
-      return `(property) ${name}: ${type}`
+    if (symbol.flags & SymbolFlags.Property) return `(property) ${name}: ${type}`
     if (isInterfaceDeclaration(declaration)) return `interface ${name}`
     if (isClassDeclaration(declaration) || isClassExpression(declaration)) return `class ${name}`
     if (isTypeAliasDeclaration(declaration)) return `type ${name} = ${declaration.type.getText()}`
@@ -324,19 +324,19 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
     while (scanner.scan() !== SyntaxKind.EndOfFile) {
       if (scanner.getTokenEnd() < offset) continue
       const kind = scanner.getToken()
-      return (
-        ![
-          SyntaxKind.SingleLineCommentTrivia,
-          SyntaxKind.MultiLineCommentTrivia,
-          SyntaxKind.StringLiteral,
-          SyntaxKind.NoSubstitutionTemplateLiteral,
-          SyntaxKind.TemplateHead,
-          SyntaxKind.TemplateMiddle,
-          SyntaxKind.TemplateTail,
-          SyntaxKind.RegularExpressionLiteral,
-        ].includes(kind) ||
-        (scanner.getTokenEnd() === offset && !['"', "'", '`'].includes(openingBrace))
-      )
+      const excluded = [
+        SyntaxKind.SingleLineCommentTrivia,
+        SyntaxKind.MultiLineCommentTrivia,
+        SyntaxKind.StringLiteral,
+        SyntaxKind.NoSubstitutionTemplateLiteral,
+        SyntaxKind.TemplateHead,
+        SyntaxKind.TemplateMiddle,
+        SyntaxKind.TemplateTail,
+        SyntaxKind.RegularExpressionLiteral,
+      ]
+      if (!excluded.includes(kind)) return true
+      if (kind === SyntaxKind.SingleLineCommentTrivia || scanner.isUnterminated()) return false
+      return scanner.getTokenEnd() === offset && !['"', "'", '`'].includes(openingBrace)
     }
     return true
   }
@@ -353,21 +353,66 @@ export const createFeatures = (project: Project, source: SourceFile, libraryUri:
         )
         .map(location)
     })
-  const resolveCompletion = (offset: number, name: string, item: Record<string, unknown>) => {
+  const exportCompletions = (offset: number, prefix: string) => {
+    const token = tokenAt(offset)
+    if (!prefix || !isIdentifier(token) || token.end < offset) return []
+    const { parent } = token
+    if (
+      (isPropertyAccessExpression(parent) && parent.name === token) ||
+      (isQualifiedName(parent) && parent.right === token)
+    )
+      return []
+    if (getNameOfDeclaration(parent as Declaration) === token) return []
+    return actions
+      .exportedSymbols()
+      .entries()
+      .flatMap(([name, symbols]) => {
+        if (name === 'default' || !name.toLowerCase().startsWith(prefix.toLowerCase())) return []
+        return symbols.map((symbol) => ({
+          completionSource: uriOf(declarations(symbol)[0].getSourceFile()),
+          kind: symbol.flags & SymbolFlags.Function ? 3 : 6,
+          name,
+          sortText: '16',
+        }))
+      })
+      .toArray()
+  }
+  const resolveCompletion = (offset: number, requestedName: string, item: Record<string, unknown>) => {
+    const name = typeof item.completionName === 'string' ? item.completionName : requestedName
     const entry = project.languageService
       .getCompletionsAtPosition(source.fileName, offset, { includeSymbol: true })
       ?.entries.find((entry) => entry.name === name)
-    const symbol = entry?.symbol
+    const candidates = typeof item.completionSource === 'string' ? (actions.exportedSymbols().get(name) ?? []) : []
+    const exported = candidates.find((symbol) =>
+      declarations(symbol).some((declaration) => uriOf(declaration.getSourceFile()) === item.completionSource),
+    )
+    const symbol = entry?.symbol ?? exported
     if (!symbol) return item
-    return { ...item, detail: describe(symbol), documentation: symbol.getDocumentationComment(checker) }
+    const signature = checker.getTypeOfSymbol(symbol).getCallSignatures()[0]
+    let snippet = typeof item.snippet === 'string' ? item.snippet : name
+    if (signature && !source.text.slice(offset).trimStart().startsWith('(')) {
+      const required = signature.getParameters().filter((parameter) => {
+        const declaration = declarations(parameter)[0]
+        return (
+          isParameterDeclaration(declaration) &&
+          !declaration.questionToken &&
+          !declaration.initializer &&
+          !declaration.dotDotDotToken &&
+          parameter.name !== 'this'
+        )
+      })
+      snippet = `${name}(${required.map((parameter) => parameter.name).join(', ')})`
+    }
+    return { ...item, detail: describe(symbol), documentation: symbol.getDocumentationComment(checker), snippet }
   }
   return {
     fileReferences,
     resolveCompletion,
-    ...createActions(project, source),
+    ...actions,
     braceCompletion,
     definition,
     documentSymbols,
+    exportCompletions,
     hover,
     implementations,
     prepareRename,

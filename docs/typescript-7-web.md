@@ -20,7 +20,9 @@ optional application-bundled native TS7 server remains available on native hosts
 
 The adapter uses the official AST, type checker, semantic reference API, and import
 edit API. It does not depend on the TS6 language service. Completion resolution
-includes types and JSDoc; library definitions open the bundled TS7 declarations.
+includes types, JSDoc, and function arguments; library definitions open the bundled
+TS7 declarations. Project-export suggestions also work for virtual files, where
+the upstream auto-import index currently follows an inferred default project.
 Rename uses semantic references and preserves object shorthand property names.
 
 Quick fixes cover spelling suggestions, unused imports, missing imports, and missing

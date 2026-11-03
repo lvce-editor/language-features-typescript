@@ -62,6 +62,7 @@ export const createActions = (project: Project, source: SourceFile) => {
   const exportedSymbols = () => {
     const exports = new Map<string, CompilerSymbol[]>()
     for (const name of program.getSourceFileNames()) {
+      if (name.startsWith('bundled:///libs/')) continue
       const file = program.getSourceFile(name)
       if (!file || file === source || program.isSourceFileDefaultLibrary(file)) continue
       const module = checker.getSymbolOfSourceFile(file.fileName)
@@ -159,5 +160,10 @@ export const createActions = (project: Project, source: SourceFile) => {
     if (diagnostic.some((item) => [2739, 2741, 2345].includes(item.code))) actions.push(...missingProperties(offset))
     return actions
   }
-  return { addMissingImports: () => missingImports(), organizeImports: () => editorEdits(importEdits()), quickFixes }
+  return {
+    addMissingImports: () => missingImports(),
+    exportedSymbols,
+    organizeImports: () => editorEdits(importEdits()),
+    quickFixes,
+  }
 }

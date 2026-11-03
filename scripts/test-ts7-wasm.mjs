@@ -345,3 +345,74 @@ test('TS7 namespace-import rename retains the declaration and importing use', as
   assert.equal(result.edits[0].edits[0].offset, text.lastIndexOf('main'))
   assert.equal(result.edits.length, 2)
 })
+
+test('TS7 completion discovers project exports and resolves local symbol documentation', async (t) => {
+  const { document, session } = await setup(t)
+  const doc = document('export const value = mod')
+  const completions = session.completion(doc, doc.text.length, [doc.uri])
+  assert(completions.some((item) => item.label === 'model'))
+  const local = document('/** A local model. */ const localModel = { title: "" }; localMod')
+  const resolved = session.feature(
+    local,
+    [local.uri],
+    (features) => features.resolveCompletion(local.text.length, 'localModel', { label: 'localModel' }),
+    true,
+  )
+  assert.equal(resolved.documentation, 'A local model.')
+  assert(resolved.detail.includes('localModel'))
+})
+
+test('TS7 function completion retains required arguments and avoids duplicate call parentheses', async (t) => {
+  const { document, session } = await setup(t)
+  const text =
+    '/** Adds a value. */ function add(value: number, optional?: string, ...rest: number[]) { return value; }\nadd'
+  const doc = document(text)
+  const resolve = (doc, offset) =>
+    session.feature(
+      doc,
+      [doc.uri],
+      (features) => features.resolveCompletion(offset, 'add', { label: 'add', snippet: 'add' }),
+      true,
+    )
+  assert.equal(resolve(doc, text.length).snippet, 'add(value)')
+  assert.equal(resolve(document(text + '()'), text.length).snippet, 'add')
+})
+test('TS7 virtual completion discovers project exports and resolves local symbol documentation', async (t) => {
+  const { document, session } = await setup(t, 'memfs:///fixture')
+  const doc = document('export const value = mod')
+  const completions = session.completion(doc, doc.text.length, [doc.uri])
+  assert(completions.some((item) => item.label === 'model'))
+  const local = document('/** A local model. */ const localModel = { title: "" }; localMod')
+  const resolved = session.feature(
+    local,
+    [local.uri],
+    (features) => features.resolveCompletion(local.text.length, 'localModel', { label: 'localModel' }),
+    true,
+  )
+  assert.equal(resolved.documentation, 'A local model.')
+  assert(resolved.detail.includes('localModel'))
+})
+
+test('TS7 auto-import fixture offers its unreferenced exported function', async (t) => {
+  const { base, document, files, session } = await setup(t, 'memfs:///fixture')
+  files.clear()
+  for (const name of ['package.json', 'tsconfig.json', 'src/add.ts', 'src/test.ts'])
+    files.set(
+      `${base}/${name}`,
+      await readFile(new URL('../packages/e2e/fixtures/auto-import/' + name, import.meta.url), 'utf8'),
+    )
+  const doc = document(files.get(`${base}/src/test.ts`), 'src/test.ts')
+  const result = session.completion(doc, 11, [doc.uri])
+  assert(result.some((item) => item.label === 'add'))
+})
+
+test('TS7 brace completion excludes comments and unterminated strings', async (t) => {
+  const { document, session } = await setup(t)
+  const pair = (text, offset = text.length) =>
+    session.feature(document(text), [], (features) => features.braceCompletion(offset, '{'))
+  assert.equal(pair('const value = '), true)
+  assert.equal(pair('// a comment'), false)
+  assert.equal(pair('const value = "text'), false)
+  assert.equal(pair('/* comment */', 5), false)
+  assert.equal(pair('const value = "text"; '), true)
+})

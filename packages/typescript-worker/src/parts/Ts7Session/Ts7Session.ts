@@ -1,10 +1,16 @@
 import { DiagnosticTag } from '@lvce-editor/api'
 import { createFileSystemLayer, serverFS, type FileSystemCallbacks } from 'typescript7/fs'
-import { API, documentURIToFileName, fileNameToDocumentURI, type Diagnostic } from 'typescript7/sync'
+import {
+  API,
+  documentURIToFileName,
+  fileNameToDocumentURI,
+  type Diagnostic,
+  type CompletionEntry,
+} from 'typescript7/sync'
 import { WasmTransport, type WasmReactorInstance } from 'typescript7/wasm'
 import { getDiagnosticSeverity } from '../GetDiagnosticSeverity/GetDiagnosticSeverity.ts'
-import { createFeatures } from '../Ts7Features/Ts7Features.ts'
 import { getPositionAt } from '../GetPositionAt/GetPositionAt.ts'
+import { createFeatures } from '../Ts7Features/Ts7Features.ts'
 
 export interface Document {
   readonly text: string
@@ -117,7 +123,7 @@ export const createSession = (
       directory = parent
     }
   }
-  const prepare = (document: Document, openUris: readonly string[]) => {
+  const prepare = (document: Document, openUris: readonly string[], autoImports = false) => {
     documentUrl = new URL(document.uri)
     files.clear()
     directories.clear()
@@ -144,8 +150,13 @@ export const createSession = (
         Array.from(documents, ([uri, text]) => [documentURIToFileName(uri), text] as const),
       ),
       openFiles: [documentURIToFileName(document.uri)],
+      ...(autoImports && { prepareAutoImports: documentURIToFileName(document.uri) }),
       ...(config && { openProjects: [config] }),
-      userPreferences: { importModuleSpecifierEnding: 'js' },
+      userPreferences: {
+        importModuleSpecifierEnding: 'js',
+        includeCompletionsForImportStatements: true,
+        includeCompletionsForModuleExports: true,
+      },
     })
     try {
       const path = documentURIToFileName(document.uri)
@@ -169,7 +180,7 @@ export const createSession = (
       directories.clear()
     },
     completion(document: Document, offset: number, openUris: readonly string[]) {
-      const { project, snapshot } = prepare(document, openUris)
+      const { project, snapshot } = prepare(document, openUris, true)
       try {
         const result = project.languageService.getCompletionsAtPosition(documentURIToFileName(document.uri), offset)
         const prefix = identifierPrefix(document.text, offset)
@@ -178,7 +189,20 @@ export const createSession = (
           if (name.toLowerCase().startsWith(prefix.toLowerCase())) return 1
           return 2
         }
-        const entries = (result?.entries ?? []).toSorted(
+        const nativeEntries = result?.entries ?? []
+        const source = project.program.getSourceFile(documentURIToFileName(document.uri))
+        const names = new Set(nativeEntries.map((entry) => entry.name))
+        // The upstream auto-import index only follows default projects for virtual
+        // URIs. Keep configured-project exports visible through the checker API.
+        const exports =
+          result && source
+            ? createFeatures(project, source, libraryUri)
+                .exportCompletions(offset, prefix)
+                .filter((entry) => !names.has(entry.name))
+            : []
+        const entries = (
+          [...nativeEntries, ...exports] as (CompletionEntry & { completionSource?: string })[]
+        ).toSorted(
           (left, right) =>
             (left.sortText ?? '').localeCompare(right.sortText ?? '') ||
             rank(left.name) - rank(right.name) ||
@@ -186,6 +210,7 @@ export const createSession = (
         )
         return entries.map((entry) => ({
           completionName: entry.name,
+          ...('completionSource' in entry && { completionSource: entry.completionSource }),
           detail: entry.detail,
           filterText: entry.filterText,
           flags: 0,
@@ -195,20 +220,6 @@ export const createSession = (
           sortText: entry.sortText,
           source: 'ts',
         }))
-      } finally {
-        snapshot.dispose()
-      }
-    },
-    feature<T>(
-      document: Document,
-      openUris: readonly string[],
-      execute: (features: ReturnType<typeof createFeatures>) => T,
-    ): T {
-      const { project, snapshot } = prepare(document, openUris)
-      try {
-        const source = project.program.getSourceFile(documentURIToFileName(document.uri))
-        if (!source) throw new Error(`TypeScript 7 could not load ${document.uri}`)
-        return execute(createFeatures(project, source, libraryUri))
       } finally {
         snapshot.dispose()
       }
@@ -256,6 +267,21 @@ export const createSession = (
               uri: document.uri,
             }
           })
+      } finally {
+        snapshot.dispose()
+      }
+    },
+    feature<T>(
+      document: Document,
+      openUris: readonly string[],
+      execute: (features: ReturnType<typeof createFeatures>) => T,
+      autoImports = false,
+    ): T {
+      const { project, snapshot } = prepare(document, openUris, autoImports)
+      try {
+        const source = project.program.getSourceFile(documentURIToFileName(document.uri))
+        if (!source) throw new Error(`TypeScript 7 could not load ${document.uri}`)
+        return execute(createFeatures(project, source, libraryUri))
       } finally {
         snapshot.dispose()
       }

@@ -171,10 +171,10 @@ export const commandMap = {
   'CodeActions.getCodeActions': feature((features, offset: number) => features.quickFixes(offset)),
   'Comment.provide': () => ['/*', '*/'],
   'Completion.getCompletions': completion,
-  'Completion.resolveCompletion': feature((features, offset: number, name: string, item: Record<string, unknown>) =>
-    features.resolveCompletion(offset, name, item),
-  ),
-  'Definition.getDefinition': feature((features, offset: number) => features.definition(offset)),
+  'Completion.resolveCompletion': (document: Document, offset: number, name: string, item: Record<string, unknown>) =>
+    request((backend, uris) =>
+      backend.feature(document, uris, (features) => features.resolveCompletion(offset, name, item), true),
+    ),
   'Diagnostic.getDiagnostics': diagnostics,
   'Diagnostic.getFirstPerformanceTrace': firstPerformanceTrace,
   'Diagnostic.getPerformanceTrace': performanceTrace,
