@@ -64,13 +64,15 @@ jobs:
       - name: Test WebKit language features
         if: runner.os != 'Windows'
         run: node packages/build/src/run-e2e.ts ts7-e2e --browser=webkit --headless --no-reuse-page
+      # TS7 creates fresh snapshots for all six analyses; measured WebKit total is 70s.
+      # Keep the per-RPC deadline at 30s and bound this cumulative UI scenario separately.
       - name: Test Three.js Chromium graph
-        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --timeout=60000 --trace-renderer-worker
+        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --timeout=120000 --trace-renderer-worker
       - name: Test Three.js Firefox graph
-        run: node packages/build/src/run-e2e.ts threejs-e2e --browser=firefox --headless --timeout=60000 --trace-renderer-worker
+        run: node packages/build/src/run-e2e.ts threejs-e2e --browser=firefox --headless --timeout=120000 --trace-renderer-worker
       - name: Test Three.js WebKit graph
         if: runner.os != 'Windows'
-        run: node packages/build/src/run-e2e.ts threejs-e2e --browser=webkit --headless --no-reuse-page --timeout=60000
+        run: node packages/build/src/run-e2e.ts threejs-e2e --browser=webkit --headless --no-reuse-page --timeout=120000
       - name: Prepare native TypeScript test host
         run: node scripts/prepare-native-test-host.mjs
       - name: Run native TypeScript regression
