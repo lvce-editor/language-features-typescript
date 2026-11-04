@@ -56,10 +56,8 @@ test('raw shared text preserves empty, multichunk Unicode and consecutive source
 
 test('timeout cancels the producer and prevents reuse of an unfinished request', async () => {
   const { results, setup } = await run([{}, {}], { maxDelay: 20, respond: false })
-  assert.deepEqual(results, [
-    { error: 'Rpc error: timeout of 20ms exceeded' },
-    { error: 'Synchronous RPC client is unavailable after a timeout' },
-  ])
+  assert.match(results[0].error, /^Rpc error: timeout of 20ms exceeded/)
+  assert.deepEqual(results.slice(1), [{ error: 'Synchronous RPC client is unavailable after a timeout' }])
   await writeSharedResult(setup, 'late result', undefined)
   assert.equal(Atomics.load(new Int32Array(setup.shared), 0), 3)
 })

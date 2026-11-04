@@ -4,6 +4,7 @@ import {
   readDirWithFileTypes,
   readFile,
 } from '@lvce-editor/api'
+import * as SharedTransportTrace from '../SharedTransportTrace/SharedTransportTrace.ts'
 import * as SyncSetupState from '../SyncSetupState/SyncSetupState.ts'
 import { toFileUri } from '../ToFileUri/ToFileUri.ts'
 import { writeResult } from '../WriteResult/WriteResult.ts'
@@ -64,10 +65,19 @@ export const syncSetup = async (
 }
 
 export const readFileSync = async (id: number, uri: string): Promise<void> => {
-  const resultGenerator = () => {
-    return readFile(toFileUri(uri))
+  SharedTransportTrace.record('read-start', { id, uri })
+  const resultGenerator = async () => {
+    try {
+      const result = await readFile(toFileUri(uri))
+      SharedTransportTrace.record('read-done', { id, uri, length: result.length })
+      return result
+    } catch (error) {
+      SharedTransportTrace.record('read-error', { id, uri, error: String(error) })
+      throw error
+    }
   }
   await writeResult(id, resultGenerator, true)
+  SharedTransportTrace.record('response-done', { id, uri })
 }
 
 export const readDirSync = async (id: number, uri: string): Promise<void> => {

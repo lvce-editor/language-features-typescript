@@ -35,10 +35,20 @@ export const createSharedSyncRpcClient = async (syncId: number, maxDelay: number
       while (true) {
         const remaining = deadline - performance.now()
         if (remaining <= 0 || Atomics.wait(header, 0, 0, remaining) === 'timed-out') {
+          const timeoutState = {
+            state: Atomics.load(header, 0),
+            length: Atomics.load(header, 1),
+            sharedText,
+            received: content.length,
+            method,
+            params,
+          }
           failed = true
           Atomics.store(header, 0, 3)
           Atomics.notify(header, 0)
-          throw new Error(`Rpc error: timeout of ${maxDelay}ms exceeded`)
+          throw new Error(
+            `Rpc error: timeout of ${maxDelay}ms exceeded [DEBUG-rename-transport] ${JSON.stringify(timeoutState)}`,
+          )
         }
         const state = Atomics.load(header, 0)
         const chunk = bytes.slice(0, Atomics.load(header, 1))
