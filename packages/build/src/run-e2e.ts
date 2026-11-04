@@ -9,25 +9,54 @@ const e2ePath = join(root, 'packages', 'e2e')
 const isSmartSelectionE2e = manifestName === 'smart-selection-e2e'
 const isNativeE2e = manifestName === 'native-e2e'
 const isThreeJsE2e = manifestName === 'threejs-e2e'
+const isTs7E2e = manifestName === 'ts7-e2e'
 const requireFromE2e = createRequire(join(e2ePath, 'package.json'))
 const runnerPath = requireFromE2e.resolve('@lvce-editor/test-with-playwright/bin/test-with-playwright.js')
 const testPath = join(root, '.tmp', 'e2e-manifests', manifestName)
 const testSourcePath = join(e2ePath, 'src')
 const allTestNames = (await readdir(testSourcePath)).filter((name) => !name.startsWith('_'))
-const testNames = isNativeE2e
-  ? allTestNames.filter((name) => name === 'typescript.native-ts7.ts')
-  : isThreeJsE2e
-    ? allTestNames.filter((name) => name === 'typescript.threejs-warm-edits.ts')
-    : isSmartSelectionE2e
-      ? allTestNames.filter(
-          (name) => name.startsWith('typescript.grow-selection') || name === 'typescript.shrink-selection.ts',
-        )
-      : allTestNames.filter(
-          (name) =>
-            name !== 'typescript.shrink-selection.ts' &&
-            name !== 'typescript.threejs-warm-edits.ts' &&
-            name !== 'typescript.native-ts7.ts',
-        )
+const testNames = isTs7E2e
+  ? allTestNames.filter((name) => {
+      const features = [
+        'completion',
+        'diagnostics',
+        'definition',
+        'references',
+        'rename',
+        'grow-selection',
+        'no-definition',
+        'no-reference',
+        'auto-import',
+        'path-completion',
+        'tsconfig-completion',
+        'toggle-',
+        'brace-completion',
+        'hover',
+        'implementations',
+        'organize-imports',
+        'add-missing-imports',
+        'auto-fix-',
+        'quick-fix',
+        'remove-unused-import',
+        'symbols',
+        'ts7-web',
+      ]
+      return features.some((feature) => name.startsWith(`typescript.${feature}`))
+    })
+  : isNativeE2e
+    ? allTestNames.filter((name) => name === 'typescript.native-ts7.ts')
+    : isThreeJsE2e
+      ? allTestNames.filter((name) => name === 'typescript.threejs-warm-edits.ts')
+      : isSmartSelectionE2e
+        ? allTestNames.filter(
+            (name) => name.startsWith('typescript.grow-selection') || name === 'typescript.shrink-selection.ts',
+          )
+        : allTestNames.filter(
+            (name) =>
+              name !== 'typescript.shrink-selection.ts' &&
+              name !== 'typescript.threejs-warm-edits.ts' &&
+              name !== 'typescript.native-ts7.ts',
+          )
 
 await rm(testPath, { force: true, recursive: true })
 await mkdir(join(testPath, 'src'), { recursive: true })

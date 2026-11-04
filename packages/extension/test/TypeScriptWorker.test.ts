@@ -23,3 +23,12 @@ test('creates the worker lazily and shares the first request', async () => {
   resolveWorker(rpc)
   await expect(Promise.all([firstRequest, secondRequest])).resolves.toEqual([rpc, rpc])
 })
+
+test('failed initialization can be retried', async () => {
+  const rpc = { invoke: jest.fn() }
+  const launch = jest.fn<() => Promise<any>>()
+  launch.mockRejectedValueOnce(new Error('WASM fetch failed')).mockResolvedValueOnce(rpc)
+  TypeScriptWorker.state.launchTypeScriptWorker = launch
+  await expect(TypeScriptWorker.getInstance()).rejects.toThrow('WASM fetch failed')
+  await expect(TypeScriptWorker.getInstance()).resolves.toBe(rpc)
+})

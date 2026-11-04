@@ -17,3 +17,7 @@ export const set = (id: number, setup: SyncSetup | SharedSetup): void => {
 export const get = (id: number): SyncSetup | SharedSetup => {
   return syncSetups[id]
 }
+
+export const remove = (id: number): void => {
+  delete syncSetups[id]
+}

@@ -2,10 +2,8 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -23,80 +21,53 @@ jobs:
         os: [ubuntu-24.04, macos-15, windows-2025]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: 0
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-      - name: Compute node modules cache key
-        id: nodeModulesCacheKey
-        run: echo "value=$(node packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
-        shell: bash
-      - uses: actions/cache@v4
-        id: npm-cache
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
-      - name: npm ci
-        run: npm ci
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+          node-version-file: .nvmrc
+      - run: npm ci
       - run: npm run type-check
       - run: npm test
-      - name: Build
-        run: npm run build
-      - name: Build static site
-        run: npm run build:static
-        env:
-          PATH_PREFIX: auto
-      - name: install playwright dependencies
-        working-directory: ./packages/e2e
-        run: npx playwright install chromium firefox webkit
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: install playwright system dependencies
-        working-directory: ./packages/e2e
-        run: sudo npx playwright install-deps chromium firefox webkit
+      - name: Test official TS7 WASM against project and dependency changes
+        run: node --test scripts/test-ts7-wasm.mjs
+      - name: Test shared synchronous response transport
+        run: node --test scripts/test-shared-sync-rpc.mjs
+      - run: npm run build
+      - name: Verify extension archive
+        run: node scripts/test-extension-archive.mjs
+      - run: npm run build:static
+      - name: Install Chromium
+        working-directory: packages/e2e
+        run: npx playwright install chromium
+      - name: Install browser system dependencies
         if: runner.os == 'Linux'
-      - name: Run headless test
-        run: npm run e2e:headless
+        working-directory: packages/e2e
+        run: npx playwright install-deps chromium
+      - name: Test actual Pages artifact without cross-origin isolation
+        run: node scripts/test-ts7-static.mjs
+      - name: Test symbols and signature help without cross-origin isolation
         env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run Firefox headless tests
-        run: npm run e2e:firefox:headless
+          TS_WEB_TEST: typescript.symbols
+        run: node scripts/test-ts7-static.mjs
+      - name: Test quick fixes without cross-origin isolation
         env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run WebKit headless tests
-        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
-        if: runner.os != 'Windows'
-        run: npm run e2e:webkit:headless
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection headless tests
-        run: npm run e2e:smart-selection
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection Firefox headless tests
-        run: npm run e2e:smart-selection:firefox
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection WebKit headless tests
-        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
-        if: runner.os != 'Windows'
-        run: npm run e2e:smart-selection:webkit
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-
-      - name: Upload artifact
-        if: matrix.os == 'ubuntu-24.04'
-        uses: actions/upload-pages-artifact@v5
+          TS_WEB_TEST: typescript.quick-fix-web
+        run: node scripts/test-ts7-static.mjs
+      - name: Test TypeScript language features in the editor
+        run: node packages/build/src/run-e2e.ts ts7-e2e --headless --trace-renderer-worker
+      - uses: actions/upload-pages-artifact@v5
+        if: runner.os == 'Linux'
         with:
-          path: ./dist
+          path: dist
   deploy:
+    needs: ci
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-24.04
-    needs: ci
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

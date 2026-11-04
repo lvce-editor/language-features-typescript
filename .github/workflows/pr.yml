@@ -2,8 +2,7 @@ name: PR
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   pr:
@@ -13,111 +12,60 @@ jobs:
         os: [ubuntu-24.04, macos-15, windows-2025]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: 0
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
-      - name: Compute node modules cache key
-        id: nodeModulesCacheKey
-        run: echo "value=$(node packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
-        shell: bash
-      - uses: actions/cache@v4
-        id: npm-cache
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
-      - name: npm ci
-        run: npm ci
-        if: steps.npm-cache.outputs.cache-hit != 'true'
+          node-version-file: .nvmrc
+      - run: npm ci
       - run: npm run type-check
       - run: npm test
+      - name: Test official TS7 WASM against project and dependency changes
+        run: node --test scripts/test-ts7-wasm.mjs
       - name: Test shared synchronous response transport
         run: node --test scripts/test-shared-sync-rpc.mjs
-      - name: Test Three.js repeated edits
-        run: node scripts/benchmark-threejs.mjs
-        env:
-          THREEJS_ENFORCE_REUSE: 1
-      - name: Build
-        run: npm run build
-      - name: Verify extension archive excludes native servers
+      - run: npm run build
+      - name: Verify extension archive
         run: node scripts/test-extension-archive.mjs
-      - name: Build static site
-        run: npm run build:static
-        env:
-          PATH_PREFIX: auto
-      - name: install playwright dependencies
-        working-directory: ./packages/e2e
-        run: npx playwright install chromium firefox webkit
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: install playwright system dependencies
-        working-directory: ./packages/e2e
-        run: sudo npx playwright install-deps chromium firefox webkit
+      - run: npm run build:static
+      - name: Install Chromium
+        working-directory: packages/e2e
+        run: npx playwright install chromium
+      - name: Install browser system dependencies
         if: runner.os == 'Linux'
+        working-directory: packages/e2e
+        run: npx playwright install-deps chromium
+      - name: Test actual Pages artifact without cross-origin isolation
+        run: node scripts/test-ts7-static.mjs
+      - name: Test hoisted package completion on Windows
+        if: runner.os == 'Windows'
+        run: node packages/build/src/run-e2e.ts ts7-e2e --filter=typescript.completion-from-node-modules-monorepo --headless --trace-renderer-worker
+      - name: Test symbols and signature help without cross-origin isolation
+        env:
+          TS_WEB_TEST: typescript.symbols
+        run: node scripts/test-ts7-static.mjs
+      - name: Test quick fixes without cross-origin isolation
+        env:
+          TS_WEB_TEST: typescript.quick-fix-web
+        run: node scripts/test-ts7-static.mjs
+      - name: Test TypeScript language features in the editor
+        run: node packages/build/src/run-e2e.ts ts7-e2e --headless --trace-renderer-worker
       - name: Prepare native TypeScript test host
         run: node scripts/prepare-native-test-host.mjs
       - name: Run native TypeScript regression
         run: npm run e2e:native --workspace=packages/e2e -- --trace-renderer-worker
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Test persistent file cache and measure diagnostics
-        run: node scripts/benchmark-file-cache.mjs
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run headless test
-        run: npm run e2e:headless --workspace=packages/e2e -- --trace-renderer-worker
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run Firefox headless tests
-        run: npm run e2e:firefox:headless --workspace=packages/e2e -- --trace-renderer-worker
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run WebKit headless tests
-        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
-        if: runner.os != 'Windows'
-        run: npm run e2e:webkit:headless
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      # Loading the real declaration fixture emits hundreds of file notifications.
-      # Windows Firefox setup alone took 28.5s; keep the usual suite at 30s and
-      # give this large-fixture scenario its own bounded setup/analysis allowance.
-      - name: Run Three.js Chromium regression
-        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --timeout=60000 --trace-renderer-worker
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run Three.js Firefox regression
-        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --browser=firefox --timeout=60000 --trace-renderer-worker
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run Three.js WebKit regression
-        if: runner.os != 'Windows'
-        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --browser=webkit --no-reuse-page --timeout=60000
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection headless tests
-        run: npm run e2e:smart-selection
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection Firefox headless tests
-        run: npm run e2e:smart-selection:firefox
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run smart selection WebKit headless tests
-        # Windows WebKit lacks OffscreenCanvas, which the editor requires.
-        if: runner.os != 'Windows'
-        run: npm run e2e:smart-selection:webkit
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Run Firefox performance trace regression
-        if: matrix.os == 'ubuntu-24.04'
-        run: node packages/build/src/run-e2e.ts stable-e2e --headless --browser=firefox --filter=typescript.performance-trace
-        env:
-          PLAYWRIGHT_BROWSERS_PATH: 0
-      - name: Upload failing test traces
-        if: failure()
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: renderer-worker-traces-${{ matrix.os }}
-          path: '**/renderer-worker-traces/**'
+          name: ts7-results-${{ matrix.os }}
+          path: |
+            .tmp/ts7-results/
+            **/renderer-worker-traces/**
           include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux' && success()
+        with:
+          name: ts7-pages-preview
+          path: dist

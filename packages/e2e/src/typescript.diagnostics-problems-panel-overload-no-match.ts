@@ -31,6 +31,6 @@ export const test: Test = async ({
   const problemInfo = problems.nth(1)
   const label = problemInfo.locator('.ProblemLabel')
   await expect(label).toHaveText(
-    "No overload matches this call.\n  Overload 1 of 2, '(value: string): string', gave the following error.\n    Argument of type 'boolean' is not assignable to parameter of type 'string'.\n  Overload 2 of 2, '(value: number): number', gave the following error.\n    Argument of type 'boolean' is not assignable to parameter of type 'number'.",
+    "No overload matches this call.\n  The last overload gave the following error.\n    Argument of type 'boolean' is not assignable to parameter of type 'number'.",
   )
 }
