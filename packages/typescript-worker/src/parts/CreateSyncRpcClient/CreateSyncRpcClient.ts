@@ -1,5 +1,7 @@
 import type { SyncClientOptions } from '../SyncClientOptions/SyncClientOptions.ts'
 import type { SyncRpc } from '../SyncRpc/SyncRpc.ts'
+import { createAsyncFileClient } from '../CreateAsyncFileClient/CreateAsyncFileClient.ts'
+import { supportsConcurrentFileHandles } from '../SupportsConcurrentFileHandles/SupportsConcurrentFileHandles.ts'
 import { createBuffer } from '../CreateBuffer/CreateBuffer.ts'
 import { createSharedSyncRpcClient } from '../CreateSharedSyncRpcClient/CreateSharedSyncRpcClient.ts'
 import { trackTransport } from '../FileWatchClient/FileWatchClient.ts'
@@ -16,6 +18,7 @@ export const createSyncRpcClient = async ({
   if (crossOriginIsolated) {
     return trackTransport(await createSharedSyncRpcClient(syncId, maxDelay))
   }
+  if (!(await supportsConcurrentFileHandles())) return createAsyncFileClient()
   const buffer = createBuffer(crossOriginIsolated)
   const namespace = crypto.randomUUID()
   const statusFileName = `${namespace}-draft.txt`

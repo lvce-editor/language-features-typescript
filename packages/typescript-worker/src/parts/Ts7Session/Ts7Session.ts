@@ -68,6 +68,7 @@ export const createSession = (
   libraryUri = (name: string) => 'bundled:///libs/' + name,
 ) => {
   const libraryRoot = 'bundled:///libs/'
+  let loadedFileCount = 0
   const documents = new Map<string, string>()
   const savedDocuments = new Set<string>()
   const documentUris = new Map<string, string>()
@@ -172,6 +173,7 @@ export const createSession = (
       // explicitly opened config only when its program contains this document.
       const project = configured?.program.getSourceFile(path) ? configured : snapshot.getDefaultProjectForFile(path)
       if (!project) throw new Error(`TypeScript 7 could not load a project for ${document.uri}`)
+      loadedFileCount = project.program.getSourceFileNames().length
       return { project, snapshot }
     } catch (error) {
       snapshot.dispose()
@@ -298,6 +300,7 @@ export const createSession = (
     },
     statistics() {
       return {
+        loadedFileCount,
         openDocumentCount: documents.size,
         wasmMemoryBytes: (instance.exports as { memory: WebAssembly.Memory }).memory.buffer.byteLength,
       }

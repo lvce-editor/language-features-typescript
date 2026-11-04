@@ -1,5 +1,7 @@
 import { beforeEach, expect, jest, test } from '@jest/globals'
 
+const client: { runRequest?: any } = {}
+jest.unstable_mockModule('../src/parts/LanguageServices/LanguageServices.ts', () => ({ get: () => ({ client }) }))
 const writeFile = jest.fn()
 const getRenameInfo = jest.fn((_uri: string, _offset: number, _options: any): any => ({
   canRename: true,
@@ -22,6 +24,7 @@ const prepareRename = commandMap['Rename.prepareRename']
 const textDocument = { text: 'const alpha = 1\n', uri: 'memfs:///workspace/main.ts' }
 
 beforeEach(() => {
+  delete client.runRequest
   writeFile.mockClear()
   getRenameInfo.mockClear()
 })
@@ -45,4 +48,13 @@ test('preparation command preserves provider failures', async () => {
     throw new Error('preparation failed')
   })
   await expect(prepareRename(textDocument, 8)).rejects.toThrow('preparation failed')
+})
+
+test('executes provider requests inside the asynchronous snapshot lease', async () => {
+  client.runRequest = jest.fn(async (request: () => Promise<unknown>, reset: () => void) => {
+    reset()
+    return request()
+  })
+  await expect(prepareRename(textDocument, 8)).resolves.toHaveProperty('placeholder', 'alpha')
+  expect(client.runRequest).toHaveBeenCalledTimes(1)
 })

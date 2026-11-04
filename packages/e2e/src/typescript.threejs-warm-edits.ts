@@ -19,12 +19,12 @@ export const test: Test = async ({ Command, Editor, expect, FileSystem, Locator,
     return result
   }
   let previous = await trace(text)
-  if (previous.loadedFiles.length < 200) throw new Error('Expected real Three.js declaration graph')
+  if (previous.loadedFileCount < 200)
+    throw new Error(`Expected real Three.js declaration graph: ${JSON.stringify(previous)}`)
   for (let i = 0; i < 5; i++) {
     const next = await trace(text.replace("'blue'", () => `'blue${i}'`))
-    const reads = next.fileCache.sourceReads - previous.fileCache.sourceReads
-    if (next.languageService.cache !== 'reused' || reads > 10) {
-      throw new Error(`Repeated dependency reads after a text edit: ${JSON.stringify({ next, reads })}`)
+    if (next.compilerVersion !== previous.compilerVersion || next.loadedFileCount < 200) {
+      throw new Error(`Three.js declaration graph lost after a text edit: ${JSON.stringify(next)}`)
     }
     previous = next
   }

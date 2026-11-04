@@ -9,6 +9,7 @@ import * as DocumentSymbols from '../DocumentSymbols/DocumentSymbols.ts'
 import * as GetOrCreateLanguageService from '../GetOrCreateLanguageService/GetOrCreateLanguageService.ts'
 import * as Hover from '../Hover/Hover.ts'
 import * as Implementation from '../Implementation/Implementation.ts'
+import * as LanguageServices from '../LanguageServices/LanguageServices.ts'
 import * as Initialize from '../Initialize/Initialize.ts'
 import * as OrganizeImports from '../OrganizeImports/OrganizeImports.ts'
 import * as PrepareRename from '../PrepareRename/PrepareRename.ts'
@@ -46,7 +47,20 @@ const requests = {
 }
 
 export const commandMap = {
-  ...Object.fromEntries(Object.entries(requests).map(([name, fn]) => [name, RequestActivity.wrapRequest(fn)])),
+  ...Object.fromEntries(
+    Object.entries(requests).map(([name, fn]) => {
+      const request = RequestActivity.wrapRequest(fn)
+      return [
+        name,
+        (...args: any[]) => {
+          const client = LanguageServices.get(1)?.client
+          return client?.runRequest
+            ? client.runRequest(() => request(...args), GetOrCreateLanguageService.resetLanguageServices)
+            : request(...args)
+        },
+      ]
+    }),
+  ),
   'Initialize.initialize': Initialize.initialize,
   'ProjectLifecycle.collect': ProjectLifecycle.collect,
   'ProjectLifecycle.configure': ProjectLifecycle.configure,

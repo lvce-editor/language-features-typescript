@@ -83,7 +83,11 @@ const request = <T>(execute: (backend: Backend, uris: readonly string[]) => T) =
     await state.initializing
     if (!state.session) throw new Error('TypeScript 7 worker has not been initialized')
     const uris: readonly string[] = await Rpc.invoke('DocumentLifecycle.getOpenUris')
-    return execute(state.session, uris)
+    const session = state.session
+    const run = async () => execute(session, uris)
+    // Every TS7 operation creates and disposes its own immutable snapshot.
+    // Replay only filesystem discovery when concurrent OPFS handles are unavailable.
+    return state.client?.runRequest ? state.client.runRequest(run, () => {}) : run()
   })()
   state.pending = settle(result)
   return result
@@ -113,17 +117,21 @@ const analyze = (backend: Backend, document: Document, uris: readonly string[]) 
     crossOriginIsolated: globalThis.crossOriginIsolated,
     diagnostics: { count: diagnostics.length, items: diagnostics.slice(0, 10) },
     file: { uri: document.uri },
+    loadedFileCount: backend.statistics().loadedFileCount,
     schemaVersion: 1,
     totalDurationMs: performance.now() - started,
   }
-  if (!state.firstTraces.has(document.uri) && state.firstTraces.size < 8) state.firstTraces.set(document.uri, trace)
   return { diagnostics, trace }
 }
 
-export const diagnostics = (document: Document) =>
-  request((backend, uris) => analyze(backend, document, uris).diagnostics)
-export const performanceTrace = (document: Document) =>
-  request((backend, uris) => analyze(backend, document, uris).trace)
+const analyzeRequest = async (document: Document) => {
+  const result = await request((backend, uris) => analyze(backend, document, uris))
+  if (!state.firstTraces.has(document.uri) && state.firstTraces.size < 8)
+    state.firstTraces.set(document.uri, result.trace)
+  return result
+}
+export const diagnostics = async (document: Document) => (await analyzeRequest(document)).diagnostics
+export const performanceTrace = async (document: Document) => (await analyzeRequest(document)).trace
 export const firstPerformanceTrace = async (document: Document) =>
   state.firstTraces.get(document.uri) ?? performanceTrace(document)
 

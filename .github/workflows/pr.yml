@@ -30,13 +30,20 @@ jobs:
       - name: Verify extension archive
         run: node scripts/test-extension-archive.mjs
       - run: npm run build:static
-      - name: Install Chromium
+      - name: Install browsers
         working-directory: packages/e2e
-        run: npx playwright install chromium
+        run: npx playwright install chromium firefox webkit
       - name: Install browser system dependencies
         if: runner.os == 'Linux'
         working-directory: packages/e2e
-        run: npx playwright install-deps chromium
+        run: npx playwright install-deps chromium firefox webkit
+      - name: Test Firefox rename without cross-origin isolation
+        run: node scripts/test-static-rename.mjs
+      - name: Test WebKit rename without cross-origin isolation
+        if: runner.os != 'Windows'
+        run: node scripts/test-static-rename.mjs
+        env:
+          RENAME_BROWSER: webkit
       - name: Test actual Pages artifact without cross-origin isolation
         run: node scripts/test-ts7-static.mjs
       - name: Test hoisted package completion on Windows
@@ -52,6 +59,20 @@ jobs:
         run: node scripts/test-ts7-static.mjs
       - name: Test TypeScript language features in the editor
         run: node packages/build/src/run-e2e.ts ts7-e2e --headless --trace-renderer-worker
+      - name: Test Firefox language features
+        run: node packages/build/src/run-e2e.ts ts7-e2e --browser=firefox --headless --trace-renderer-worker
+      - name: Test WebKit language features
+        if: runner.os != 'Windows'
+        run: node packages/build/src/run-e2e.ts ts7-e2e --browser=webkit --headless --no-reuse-page
+      # TS7 creates fresh snapshots for all six analyses; measured WebKit total is 70s.
+      # Keep the per-RPC deadline at 30s and bound this cumulative UI scenario separately.
+      - name: Test Three.js Chromium graph
+        run: node packages/build/src/run-e2e.ts threejs-e2e --headless --timeout=120000 --trace-renderer-worker
+      - name: Test Three.js Firefox graph
+        run: node packages/build/src/run-e2e.ts threejs-e2e --browser=firefox --headless --timeout=120000 --trace-renderer-worker
+      - name: Test Three.js WebKit graph
+        if: runner.os != 'Windows'
+        run: node packages/build/src/run-e2e.ts threejs-e2e --browser=webkit --headless --no-reuse-page --timeout=120000
       - name: Prepare native TypeScript test host
         run: node scripts/prepare-native-test-host.mjs
       - name: Run native TypeScript regression
@@ -62,6 +83,7 @@ jobs:
           name: ts7-results-${{ matrix.os }}
           path: |
             .tmp/ts7-results/
+            .tmp/static-rename/
             **/renderer-worker-traces/**
           include-hidden-files: true
       - uses: actions/upload-artifact@v4

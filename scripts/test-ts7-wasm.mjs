@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { instantiateWasm } from 'typescript7/wasm'
+import { createAsyncFileClient } from '../packages/typescript-worker/src/parts/CreateAsyncFileClient/CreateAsyncFileClient.ts'
 import { createSession, getHostUri, version } from '../packages/typescript-worker/src/parts/Ts7Session/Ts7Session.ts'
 
 const libRoot = new URL('../node_modules/@typescript/typescript-wasip1-wasm/lib/', import.meta.url)
@@ -21,7 +22,7 @@ test('the bundled host, compiler artifact, and reported compiler version match e
   assert.equal(artifact.version, version)
 })
 
-const setup = async (t, base = 'file:///workspace', validateUri = () => {}) => {
+const setup = async (t, base = 'file:///workspace', validateUri = () => {}, asynchronous = false) => {
   const files = new Map([
     [
       `${base}/tsconfig.json`,
@@ -52,13 +53,27 @@ const setup = async (t, base = 'file:///workspace', validateUri = () => {}) => {
       }
     },
   }
-  const session = createSession(await instantiateWasm(wasm), libraries, host)
+  const client = createAsyncFileClient(async (method, uri) => {
+    const result = method === 'FileSystem.readFile' ? host.readFile(uri) : host.readDirectory(uri)
+    if (result === undefined) throw new Error(`ENOENT: ${uri}`)
+    if (method === 'FileSystem.readFile') return result
+    return [
+      ...result.directories.map((name) => ({ name, type: 3 })),
+      ...result.files.map((name) => ({ name, type: 1 })),
+    ]
+  })
+  const snapshotHost = {
+    readFile: (uri) => client.invokeSync('SyncApi.readFileOptional', uri) ?? undefined,
+    readDirectory: (uri) => client.invokeSync('SyncApi.readDirectoryEntries', uri) ?? undefined,
+  }
+  const session = createSession(await instantiateWasm(wasm), libraries, asynchronous ? snapshotHost : host)
+  const run = (fn) => client.runRequest(fn, () => {})
   t.after(() => session.close())
   const document = (text, name = 'main.ts') => ({ text, uri: `${base}/${name}` })
   const complete = (text) =>
     session.completion(document(text), text.length, [`${base}/main.ts`, `${base}/model.ts`]).map((item) => item.label)
   const diagnostics = (text) => session.diagnostics(document(text), [`${base}/main.ts`, `${base}/model.ts`])
-  return { base, complete, diagnostics, document, files, session }
+  return { base, complete, diagnostics, document, files, session, run }
 }
 
 test('official WASM resolves imported source and npm declarations for completion and diagnostics', async (t) => {
@@ -453,4 +468,21 @@ test('TS7 diagnostics support Windows drive URIs and temporary paths', async (t)
   assert(result.every((diagnostic) => diagnostic.uri === doc.uri))
   const rename = session.feature(doc, [doc.uri], (features) => features.rename(doc.text.indexOf('items'), 'renamed'))
   assert.equal(rename.edits[0].uri, doc.uri)
+})
+
+test('asynchronous TS7 snapshots resolve cross-file rename and refresh changed dependencies', async (t) => {
+  const { base, document, files, session, run } = await setup(t, 'memfs:///project', () => {}, true)
+  const text = 'import { model } from "./model.js"; console.log(model.title);'
+  const doc = document(text)
+  const rename = await run(async () =>
+    session.feature(doc, [doc.uri], (features) => features.rename(text.indexOf('model.title'), 'renamed')),
+  )
+  assert.equal(rename.edits.length, 3)
+  assert(rename.edits.some((edit) => edit.uri === `${base}/model.ts`))
+  assert.deepEqual(await run(async () => session.diagnostics(doc, [doc.uri])), [])
+  files.set(`${base}/model.ts`, 'export const model = { different: 1 };')
+  const changed = await run(async () => session.diagnostics(doc, [doc.uri]))
+  assert(changed.some((diagnostic) => diagnostic.message.includes('title')))
+  files.set(`${base}/model.ts`, 'export const model = { title: "updated" };')
+  assert.deepEqual(await run(async () => session.diagnostics(doc, [doc.uri])), [])
 })
