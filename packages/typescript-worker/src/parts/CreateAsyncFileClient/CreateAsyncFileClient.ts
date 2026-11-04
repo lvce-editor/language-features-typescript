@@ -12,6 +12,32 @@ interface Entry {
 
 const read = async (invoke: Invoke, method: string, params: readonly any[]): Promise<any> => {
   switch (method) {
+    case 'SyncApi.readFileOptional':
+      try {
+        return await invoke('FileSystem.readFile', ...params)
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          /ENOENT|ENOTDIR|EISDIR|not found|no such file|not a directory/i.test(error.message)
+        )
+          return null
+        throw error
+      }
+    case 'SyncApi.readDirectoryEntries':
+      try {
+        const entries = await invoke('FileSystem.readDir', ...params)
+        return {
+          directories: entries.filter((entry: any) => entry.type === 3).map((entry: any) => entry.name),
+          files: entries.filter((entry: any) => entry.type !== 3).map((entry: any) => entry.name),
+        }
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          /ENOENT|ENOTDIR|EISDIR|not found|no such file|not a directory/i.test(error.message)
+        )
+          return null
+        throw error
+      }
     case 'SyncApi.readFileSync':
       return invoke('FileSystem.readFile', ...params)
     case 'SyncApi.exists':

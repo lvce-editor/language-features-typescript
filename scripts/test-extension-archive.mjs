@@ -11,4 +11,13 @@ assert(
   'Native TypeScript server must be bundled by the application',
 )
 assert(!entries.some((entry) => entry.includes('/language-servers/')))
+assert(
+  entries.some((entry) => entry.endsWith('typescript/tsc.wasm')),
+  'Official TS7 WASM must be bundled',
+)
+assert(
+  entries.some((entry) => entry.endsWith('typescript/libs.json')),
+  'Matching TS7 libraries must be bundled',
+)
+assert(!entries.some((entry) => /typescript(?:-esm)?\.js$/.test(entry)), 'No TS6 compiler or fallback may be shipped')
 console.log('Extension archive contains no native TypeScript server')

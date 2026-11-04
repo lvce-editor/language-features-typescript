@@ -32,9 +32,11 @@
     "printWidth": 120
   },
   "dependencies": {
-    "typescript": "^6.0.3"
+    "@typescript/typescript-wasip1-wasm": "7.1.0-dev.20261030.1",
+    "typescript7": "npm:typescript@7.1.0-dev.20261030.1"
   },
   "devDependencies": {
+    "typescript": "6.0.3",
     "@lvce-editor/api": "^9.46.0",
     "@lvce-editor/eslint-config": "^18.14.2",
     "@types/three": "0.186.0",

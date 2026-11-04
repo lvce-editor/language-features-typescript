@@ -2,13 +2,20 @@ import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { extname, resolve, sep } from 'node:path'
-import { firefox } from 'playwright'
+import { firefox, webkit } from 'playwright'
+const browserType = process.env.RENAME_BROWSER === 'webkit' ? webkit : firefox
 
 // Exercise the built Pages runtime without cross-origin isolation. The ordinary
 // Firefox e2e server enables shared memory and cannot catch OPFS lock failures.
 const root = resolve('dist')
 const prefix = '/language-features-typescript'
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css' }
+const types = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.json': 'application/json',
+  '.css': 'text/css',
+  '.wasm': 'application/wasm',
+}
 const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url, 'http://localhost')
@@ -27,9 +34,10 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
 let browser
 const messages = []
 try {
-  browser = await firefox.launch({
+  browser = await browserType.launch({
     headless: true,
-    ...(process.env.FIREFOX_EXECUTABLE_PATH && { executablePath: process.env.FIREFOX_EXECUTABLE_PATH }),
+    ...(browserType === firefox &&
+      process.env.FIREFOX_EXECUTABLE_PATH && { executablePath: process.env.FIREFOX_EXECUTABLE_PATH }),
   })
   for (const test of ['typescript.rename', 'typescript.rename-cross-file']) {
     const context = await browser.newContext()
@@ -47,7 +55,7 @@ try {
         await writeFile(`.tmp/static-rename/${test}.txt`, await page.locator('body').innerText())
       }
       assert.equal(await overlay.getAttribute('data-state'), 'pass', await overlay.textContent())
-      console.log(`PASS non-isolated Firefox: ${test}`)
+      console.log(`PASS non-isolated ${browserType.name()}: ${test}`)
     } finally {
       await context.close()
     }

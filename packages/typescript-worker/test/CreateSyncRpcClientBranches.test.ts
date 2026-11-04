@@ -28,8 +28,11 @@ const { createSyncRpcClient } = await import('../src/parts/CreateSyncRpcClient/C
 
 const createHandle = (size = 0) => {
   let contents: Uint8Array<ArrayBufferLike> = new Uint8Array(size)
+  const close = jest.fn()
   return {
+    close,
     createSyncAccessHandle: jest.fn(async (_options: { mode: string }) => ({
+      close,
       flush: jest.fn(),
       getSize: jest.fn(() => contents.length),
       read: jest.fn((target: Uint8Array, options: { at: number }) => {
@@ -56,6 +59,7 @@ const createHandle = (size = 0) => {
 }
 
 const setupClient = async () => {
+  const removeEntry = jest.fn(async (_name: string) => {})
   const draft = createHandle()
   const resultFile = createHandle(5)
   const errorFile = createHandle(errorSize)
@@ -71,13 +75,15 @@ const setupClient = async () => {
     value: {
       storage: {
         getDirectory: async () => ({
-          getFileHandle: async (name: string) => handles[name],
+          removeEntry,
+          getFileHandle: async (name: string) =>
+            handles[name.endsWith('-text.txt') ? 'file-content-7.txt' : name.slice(name.lastIndexOf('-') + 1)],
         }),
       },
     },
   })
   const client = await createSyncRpcClient({ crossOriginIsolated: false, maxDelay: 20, syncId: 7 })
-  return { client, draft, errorFile, resultFile, textFile }
+  return { client, draft, errorFile, removeEntry, resultFile, textFile }
 }
 
 const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
@@ -101,9 +107,9 @@ test('sets up the shared handles and returns parsed synchronous results', async 
     'SyncApi.setup',
     7,
     bufferResult,
-    'draft.txt',
-    'result.txt',
-    'error.txt',
+    expect.stringMatching(/-draft\.txt$/),
+    expect.stringMatching(/-result\.txt$/),
+    expect.stringMatching(/-error\.txt$/),
     expect.any(Object),
     expect.any(Object),
     expect.any(Object),
@@ -168,4 +174,30 @@ test('uses asynchronous filesystem requests when concurrent OPFS handles are una
   )
   expect(invoke).toHaveBeenCalledWith('FileSystem.readFile', '/file.ts')
   expect(invoke).not.toHaveBeenCalledWith('SyncApi.setup', expect.anything())
+})
+
+test("disposal closes both endpoints, removes only this client's files, and is idempotent", async () => {
+  const first = await setupClient()
+  const firstNames = invoke.mock.calls[0].slice(3, 6) as string[]
+  const second = await setupClient()
+  const secondNames = invoke.mock.calls[1].slice(3, 6) as string[]
+  expect(firstNames.every((name) => !secondNames.includes(name))).toBe(true)
+  await first.client.dispose?.()
+  expect(invoke).toHaveBeenCalledWith('SyncApi.dispose', 7)
+  expect(first.removeEntry).toHaveBeenCalledTimes(4)
+  expect(second.removeEntry).not.toHaveBeenCalled()
+  for (const file of [first.draft, first.errorFile, first.resultFile, first.textFile]) {
+    expect(file.close).toHaveBeenCalledTimes(1)
+  }
+  await first.client.dispose?.()
+  expect(first.removeEntry).toHaveBeenCalledTimes(4)
+  expect(() => first.client.invokeSync('SyncApi.exists')).toThrow('disposed')
+})
+
+test('local resources are closed even when remote disposal fails', async () => {
+  const { client, draft, removeEntry } = await setupClient()
+  invoke.mockRejectedValueOnce(new Error('worker disconnected'))
+  await expect(client.dispose?.()).rejects.toThrow('worker disconnected')
+  expect(draft.close).toHaveBeenCalledTimes(1)
+  expect(removeEntry).toHaveBeenCalledTimes(4)
 })

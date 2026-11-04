@@ -36,7 +36,8 @@ const items: DragDataItem[] = [
       uri,
     },
   ] as const
-  await expect(Locator('.Diagnostic')).toHaveCount(expectedDiagnostics.length)
+  const diagnostics = Locator('.Diagnostic')
+  await expect(diagnostics).toHaveCount(expectedDiagnostics.length)
   await Editor.shouldHaveDiagnostics(expectedDiagnostics)
   await Editor.setCursor(6, 4)
 
@@ -46,12 +47,15 @@ const items: DragDataItem[] = [
   // assert
   const action = Locator('.SourceActionItem', { hasText: 'Add missing properties' })
   await expect(action).toBeVisible()
-  await expect(Locator('.SourceActionItem', { hasText: 'Organize Imports' })).toBeVisible()
-  await expect(Locator('.SourceActionItem', { hasText: 'Add All Missing Imports' })).toBeVisible()
+  const organizeImports = Locator('.SourceActionItem', { hasText: 'Organize Imports' })
+  await expect(organizeImports).toBeVisible()
+  const addImports = Locator('.SourceActionItem', { hasText: 'Add All Missing Imports' })
+  await expect(addImports).toBeVisible()
   await Command.execute('EditorSourceAction.selectItem', 'Add missing properties')
 
   // assert
-  await expect(Locator('.SourceActionItem')).toBeHidden()
+  const actions = Locator('.SourceActionItem')
+  await expect(actions).toBeHidden()
   await Editor.shouldHaveText(`interface DragDataItem {
   data: string
   type: string
@@ -64,5 +68,6 @@ type: ""
 },
 ]
 `)
+  await Command.execute('Editor.waitForDiagnostics')
   await Editor.shouldHaveDiagnostics([])
 }

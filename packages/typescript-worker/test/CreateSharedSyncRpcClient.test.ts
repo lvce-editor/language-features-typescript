@@ -158,3 +158,49 @@ test.each([0, 5])('cancels timed out requests with a %sms deadline', async (maxD
   expect(Atomics.load(new Int32Array(state.shared), 0)).toBe(3)
   expect(() => client.invokeSync('SyncApi.readFileSync')).toThrow('unavailable after a timeout')
 })
+
+test('disposal releases both OPFS endpoints and removes its unique transfer file', async () => {
+  const close = jest.fn()
+  const removeEntry = jest.fn(async (_name: string) => {})
+  const getFileHandle = jest.fn(async (_name: string) => ({ createSyncAccessHandle: async () => ({ close }) }))
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: { storage: { getDirectory: async () => ({ getFileHandle, removeEntry }) } },
+  })
+  configure(() => {})
+  const client = await createSharedSyncRpcClient(7, 100)
+  await client.dispose?.()
+  expect(globalThis.rpc.invoke).toHaveBeenCalledWith('SyncApi.dispose', 7)
+  expect(close).toHaveBeenCalledTimes(1)
+  expect(removeEntry).toHaveBeenCalledWith(getFileHandle.mock.calls[0][0])
+  expect(() => client.invokeSync('test.read')).toThrow('unavailable')
+})
+
+test('disposal works when OPFS is unavailable', async () => {
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: {
+      storage: {
+        getDirectory: async () => {
+          throw new Error('OPFS unavailable')
+        },
+      },
+    },
+  })
+  configure(() => {})
+  const client = await createSharedSyncRpcClient(7, 100)
+  await client.dispose?.()
+  expect(globalThis.rpc.invoke).toHaveBeenCalledWith('SyncApi.dispose', 7)
+})
+
+test('disposal removes a transfer file even if synchronous handles were unavailable', async () => {
+  const removeEntry = jest.fn(async (_name: string) => {})
+  Object.defineProperty(globalThis, 'navigator', {
+    configurable: true,
+    value: { storage: { getDirectory: async () => ({ getFileHandle: async () => ({}), removeEntry }) } },
+  })
+  configure(() => {})
+  const client = await createSharedSyncRpcClient(7, 100)
+  await client.dispose?.()
+  expect(removeEntry).toHaveBeenCalledTimes(1)
+})

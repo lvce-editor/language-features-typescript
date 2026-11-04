@@ -112,3 +112,47 @@ test('stops a non-converging query and rejects requests disposed during filesyst
     ),
   ).rejects.toThrow('disposed')
 })
+
+test('TS7 optional reads distinguish missing paths from real filesystem failures', async () => {
+  const invoke = jest.fn(async (_method: string, uri: string): Promise<any> => {
+    if (uri === '/missing') throw new Error('ENOENT: not found')
+    if (uri === '/denied') throw new Error('Permission denied')
+    if (uri === '/invalid-error') throw 'disconnected'
+    return 'source'
+  })
+  const client = createAsyncFileClient(invoke)
+  const read = (uri: string) =>
+    client.runRequest!(
+      async () => client.invokeSync('SyncApi.readFileOptional', uri),
+      () => {},
+    )
+  await expect(read('/file')).resolves.toBe('source')
+  await expect(read('/missing')).resolves.toBeNull()
+  await expect(read('/denied')).rejects.toThrow('Permission denied')
+  await expect(read('/invalid-error')).rejects.toBe('disconnected')
+})
+
+test('TS7 directory snapshots include files and directories and refresh between requests', async () => {
+  let names = [
+    { name: 'src', type: 3 },
+    { name: 'main.ts', type: 1 },
+  ]
+  const invoke = jest.fn(async (_method: string, uri: string): Promise<any> => {
+    if (uri === '/missing') throw new Error('ENOTDIR: not a directory')
+    if (uri === '/denied') throw new Error('Permission denied')
+    if (uri === '/invalid-error') throw 'disconnected'
+    return names
+  })
+  const client = createAsyncFileClient(invoke)
+  const read = (uri: string) =>
+    client.runRequest!(
+      async () => client.invokeSync('SyncApi.readDirectoryEntries', uri),
+      () => {},
+    )
+  await expect(read('/project')).resolves.toEqual({ directories: ['src'], files: ['main.ts'] })
+  names = []
+  await expect(read('/project')).resolves.toEqual({ directories: [], files: [] })
+  await expect(read('/missing')).resolves.toBeNull()
+  await expect(read('/denied')).rejects.toThrow('Permission denied')
+  await expect(read('/invalid-error')).rejects.toBe('disconnected')
+})

@@ -4,8 +4,8 @@ import { join } from 'node:path'
 import { root } from './root.ts'
 
 import { pathToFileURL } from 'node:url'
-import { normalizeFileMapPaths } from './normalizeFileMapPaths.ts'
 import { updateStaticExtension } from './updateStaticExtension.ts'
+import { normalizeFileMapPaths } from './normalizeFileMapPaths.ts'
 
 const sharedProcessPath = join(root, 'node_modules', '@lvce-editor', 'shared-process', 'index.js')
 
@@ -21,8 +21,8 @@ const { commitHash } = await sharedProcess.exportStatic({
   root,
 })
 
-// The static exporter builds nested fixture keys with native path separators.
-// Normalize generated fixture URIs before serving them to browser tests.
+// The current static exporter uses native separators for nested fixture keys.
+// Browser filesystem URIs require forward slashes on every build platform.
 const fixturesPath = join(root, 'dist', commitHash, 'packages', 'extension-host-worker-tests', 'fixtures')
 for (const entry of await readdir(fixturesPath, { recursive: true, withFileTypes: true })) {
   if (!entry.isFile() || entry.name !== 'fileMap.json') continue

@@ -1,5 +1,3 @@
-import * as SharedTransportTrace from '../SharedTransportTrace/SharedTransportTrace.ts'
-
 export interface SharedSetup {
   readonly maxDelay: number
   readonly shared: SharedArrayBuffer
@@ -11,7 +9,6 @@ const sendChunk = async (setup: SharedSetup, bytes: Uint8Array, chunk: Uint8Arra
   if (Atomics.load(header, 0) === 3) {
     return false
   }
-  SharedTransportTrace.record('publish', { state, length: chunk.length, previous: Atomics.load(header, 0) })
   bytes.set(chunk)
   Atomics.store(header, 1, chunk.length)
   Atomics.store(header, 0, state)
@@ -19,10 +16,7 @@ const sendChunk = async (setup: SharedSetup, bytes: Uint8Array, chunk: Uint8Arra
   if (state !== 1) {
     return true
   }
-  const wait = Atomics.waitAsync(header, 0, 1, setup.maxDelay)
-  SharedTransportTrace.record('ack-wait', { async: wait.async, state: Atomics.load(header, 0) })
-  const acknowledged = await wait.value
-  SharedTransportTrace.record('ack-done', { acknowledged, state: Atomics.load(header, 0) })
+  const acknowledged = await Atomics.waitAsync(header, 0, 1, setup.maxDelay).value
   return acknowledged !== 'timed-out'
 }
 
@@ -64,12 +58,10 @@ export const writeSharedResult = async (
       ? { __textTransfer: 'opfs' }
       : { result }
   if (isText && !error && setup.textAccessHandle) {
-    SharedTransportTrace.record('opfs-start', { length: (result as string).length })
     const encodedText = new TextEncoder().encode(result as string)
     setup.textAccessHandle.truncate(encodedText.length)
     setup.textAccessHandle.write(encodedText, { at: 0 })
     setup.textAccessHandle.flush()
-    SharedTransportTrace.record('opfs-done', { length: encodedText.length })
   }
   const encoded = new TextEncoder().encode(JSON.stringify(response))
   for (let offset = 0; offset < encoded.length; offset += bytes.length) {

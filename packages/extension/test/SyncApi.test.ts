@@ -1,6 +1,7 @@
 import { beforeEach, expect, jest, test } from '@jest/globals'
 
 const existsApi = jest.fn<(uri: string) => Promise<boolean>>()
+const readFileApi = jest.fn<(uri: string) => Promise<string>>()
 const writeResultValue = jest.fn()
 const readDirApi = jest.fn<() => Promise<readonly { name: string; type: number }[]>>()
 
@@ -8,7 +9,7 @@ jest.unstable_mockModule('@lvce-editor/api', () => ({
   exists: existsApi,
   getWorkspaceUri: jest.fn(async () => 'file:///workspace'),
   readDirWithFileTypes: readDirApi,
-  readFile: jest.fn(),
+  readFile: readFileApi,
 }))
 
 jest.unstable_mockModule('../src/parts/WriteResult/WriteResult.ts', () => ({
@@ -57,4 +58,29 @@ test('exists preserves remote filesystem uris', async () => {
 
   expect(existsApi).toHaveBeenCalledWith(uri)
   expect(writeResultValue).toHaveBeenCalledWith(true)
+})
+
+test('TS7 distinguishes missing files from filesystem failures', async () => {
+  readFileApi.mockRejectedValueOnce(new Error('ENOENT: no such file'))
+  await SyncApi.readFileOptional(1, 'memfs:///missing.ts')
+  expect(writeResultValue).toHaveBeenCalledWith(null)
+  readFileApi.mockRejectedValueOnce(new Error('permission denied'))
+  await expect(SyncApi.readFileOptional(1, 'memfs:///secret.ts')).rejects.toThrow('permission denied')
+  readFileApi.mockResolvedValueOnce('export const valid = 1')
+  await SyncApi.readFileOptional(1, 'memfs:///valid.ts')
+  expect(writeResultValue).toHaveBeenLastCalledWith('export const valid = 1')
+})
+
+test('TS7 directory results preserve file and directory kinds', async () => {
+  readDirApi.mockResolvedValueOnce([
+    { name: 'main.ts', type: 1 },
+    { name: 'src', type: 3 },
+  ])
+  await SyncApi.readDirectoryEntries(1, 'memfs:///workspace')
+  expect(writeResultValue).toHaveBeenCalledWith({ directories: ['src'], files: ['main.ts'] })
+  readDirApi.mockRejectedValueOnce(new Error('ENOENT'))
+  await SyncApi.readDirectoryEntries(1, 'memfs:///missing')
+  expect(writeResultValue).toHaveBeenLastCalledWith(null)
+  readDirApi.mockRejectedValueOnce(new Error('connection unavailable'))
+  await expect(SyncApi.readDirectoryEntries(1, 'memfs:///workspace')).rejects.toThrow('connection unavailable')
 })

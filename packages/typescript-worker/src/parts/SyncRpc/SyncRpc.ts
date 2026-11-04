@@ -20,7 +20,7 @@ export interface FileCacheStatistics {
 export interface SyncRpc {
   readonly runRequest?: (fn: () => Promise<any>, reset: () => void) => Promise<any>
   readonly clearReferences?: () => void
-  readonly dispose?: () => void
+  readonly dispose?: () => void | Promise<void>
   readonly forgetReferences?: (uris: readonly string[]) => void
   readonly getCacheStatistics?: () => FileCacheStatistics
   readonly getChangedFiles?: () => readonly string[] | undefined

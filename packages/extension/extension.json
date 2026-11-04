@@ -7,32 +7,10 @@
   "isolated": true,
   "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self'"],
   "configuration": {
-    "typescript.projectIdleTimeout": {
-      "type": "number",
-      "default": 30000,
-      "minimum": 0,
-      "description": "Milliseconds before retiring TypeScript projects with no open documents. Applied when the TypeScript worker starts."
-    },
-    "typescript.maxIdleProjects": {
-      "type": "number",
-      "default": 0,
-      "minimum": 0,
-      "description": "Maximum number of idle TypeScript projects to keep warm. Applied when the TypeScript worker starts."
-    },
-    "typescript.cacheNodeModules": {
-      "type": "boolean",
-      "default": true,
-      "description": "Use a separate cache for dependency contents. Ready filesystem watches detect disk changes; unavailable watches use per-file validation. Applied when the TypeScript worker starts."
-    },
-    "typescript.verifiedDiagnostics": {
-      "type": "array",
-      "default": [],
-      "description": "Prevalidated documents for static demos. Each entry must match the exact document URI, SHA-256 text hash, compiler configuration URI and SHA-256 configuration hash. Only use with fixed, validated project dependencies. Edits and missing evidence resume diagnostics; other language features are unaffected."
-    },
     "typescript.useTs7": {
       "type": "boolean",
       "default": false,
-      "description": "Use the application-bundled TypeScript 7 language server instead of the TypeScript web worker. Requires a native LVCE host. Reload the window after changing this setting."
+      "description": "Use the application-bundled native TypeScript 7 language server instead of the bundled TypeScript 7 WebAssembly worker. Requires a native LVCE host. Reload the window after changing this setting."
     }
   },
   "rpc": [
@@ -41,7 +19,7 @@
       "type": "web-worker",
       "name": "TypeScript Worker",
       "url": "../../typescriptWorkerMain.js",
-      "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self'"]
+      "contentSecurityPolicy": ["default-src 'none'", "script-src 'self' 'unsafe-eval'", "connect-src 'self'"]
     }
   ],
   "repository": "https://github.com/lvce-editor/language-features-typescript",
@@ -130,42 +108,6 @@
       "label": "TypeScript: Get Project Cache Statistics"
     }
   ],
-  "hoverProviders": [
-    {
-      "id": "typescript.provideHover.javascript",
-      "languageId": "javascript"
-    },
-    {
-      "id": "typescript.provideHover.typescript",
-      "languageId": "typescript"
-    },
-    {
-      "id": "typescript.provideHover.typescriptreact",
-      "languageId": "typescriptreact"
-    },
-    {
-      "id": "typescript.provideHover.javascriptreact",
-      "languageId": "javascriptreact"
-    }
-  ],
-  "signatureHelpProviders": [
-    {
-      "id": "typescript.provideSignatureHelp.javascript",
-      "languageId": "javascript"
-    },
-    {
-      "id": "typescript.provideSignatureHelp.typescript",
-      "languageId": "typescript"
-    },
-    {
-      "id": "typescript.provideSignatureHelp.typescriptreact",
-      "languageId": "typescriptreact"
-    },
-    {
-      "id": "typescript.provideSignatureHelp.javascriptreact",
-      "languageId": "javascriptreact"
-    }
-  ],
   "languages": [
     {
       "id": "typescript",
@@ -182,26 +124,6 @@
     {
       "id": "javascriptreact",
       "extensions": [".jsx"]
-    }
-  ],
-  "codeActions": [
-    {
-      "kind": "source.organizeImports",
-      "name": "Organize Imports",
-      "command": "Editor.organizeImports",
-      "languageId": "typescript"
-    },
-    {
-      "kind": "source.addMissingImports",
-      "name": "Add All Missing Imports",
-      "command": "Editor.addAllMissingImports",
-      "languageId": "typescript"
-    },
-    {
-      "kind": "source.sortImports",
-      "name": "Sort Imports",
-      "command": "Editor.sortImports",
-      "languageId": "typescript"
     }
   ],
   "jsonValidation": [
@@ -250,6 +172,62 @@
       "connectionId": "typescript.ts7",
       "languageId": "typescriptreact",
       "activationCommand": "typescript.awaitActivation"
+    }
+  ],
+  "hoverProviders": [
+    {
+      "id": "typescript.provideHover.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideHover.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideHover.typescriptreact",
+      "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideHover.javascriptreact",
+      "languageId": "javascriptreact"
+    }
+  ],
+  "signatureHelpProviders": [
+    {
+      "id": "typescript.provideSignatureHelp.javascript",
+      "languageId": "javascript"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.typescript",
+      "languageId": "typescript"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.typescriptreact",
+      "languageId": "typescriptreact"
+    },
+    {
+      "id": "typescript.provideSignatureHelp.javascriptreact",
+      "languageId": "javascriptreact"
+    }
+  ],
+  "codeActions": [
+    {
+      "kind": "source.organizeImports",
+      "name": "Organize Imports",
+      "command": "Editor.organizeImports",
+      "languageId": "typescript"
+    },
+    {
+      "kind": "source.addMissingImports",
+      "name": "Add All Missing Imports",
+      "command": "Editor.addAllMissingImports",
+      "languageId": "typescript"
+    },
+    {
+      "kind": "source.sortImports",
+      "name": "Sort Imports",
+      "command": "Editor.sortImports",
+      "languageId": "typescript"
     }
   ]
 }

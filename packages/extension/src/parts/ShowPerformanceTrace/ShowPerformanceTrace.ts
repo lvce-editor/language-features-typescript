@@ -1,6 +1,5 @@
 import { closeUri, executeCommand, getUserDataDir, openUri, remove, writeFile } from '@lvce-editor/api'
 import * as Rpc from '../Rpc/Rpc.ts'
-import * as SharedTransportTrace from '../SharedTransportTrace/SharedTransportTrace.ts'
 
 interface TextDocument {
   readonly text: string
@@ -163,10 +162,7 @@ const getActiveTextDocument = async (): Promise<TextDocument | undefined> => {
 
 const defaultDependencies: Dependencies = {
   getActiveTextDocument,
-  getPerformanceTrace: async (textDocument) => ({
-    ...(await Rpc.invoke('Diagnostic.getPerformanceTrace', textDocument)),
-    sharedTransportDebug: SharedTransportTrace.snapshot(),
-  }),
+  getPerformanceTrace: (textDocument) => Rpc.invoke('Diagnostic.getPerformanceTrace', textDocument),
   openTrace,
 }
 
