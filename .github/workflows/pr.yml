@@ -55,6 +55,10 @@ jobs:
         working-directory: ./packages/e2e
         run: sudo npx playwright install-deps chromium firefox webkit
         if: runner.os == 'Linux'
+      - name: Test Firefox rename without cross-origin isolation
+        run: node scripts/test-static-rename.mjs
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: 0
       - name: Prepare native TypeScript test host
         run: node scripts/prepare-native-test-host.mjs
       - name: Run native TypeScript regression

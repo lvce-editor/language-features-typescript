@@ -1,4 +1,4 @@
-import { readDirWithFileTypes, readFile as readFileApi } from '@lvce-editor/api'
+import { getWorkspaceUri, readDirWithFileTypes, readFile as readFileApi, stat } from '@lvce-editor/api'
 import * as DiskWatch from '../DiskWatch/DiskWatch.ts'
 import * as DocumentLifecycle from '../DocumentLifecycle/DocumentLifecycle.ts'
 import * as FileCacheApi from '../FileCacheApi/FileCacheApi.ts'
@@ -38,6 +38,15 @@ export const commandMap = {
   'FileCache.getWatchState': DiskWatch.getWatchState,
   'FileCache.startWatching': DiskWatch.startWatching,
   'FileCache.stopWatching': DiskWatch.stopWatching,
+  'FileSystem.exists': async (uri: string) => {
+    try {
+      await stat(toFileUri(uri))
+      return true
+    } catch {
+      return false
+    }
+  },
+  'FileSystem.getWorkspaceUri': getWorkspaceUri,
   'FileSystem.readDir': readDir,
   'FileSystem.readFile': readFile,
   'Position.getOffset': getOffset,

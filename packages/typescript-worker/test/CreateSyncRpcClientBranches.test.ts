@@ -11,6 +11,12 @@ const waitForSyncRpcResult = jest.fn(
   (_handle: unknown, _maxDelay: number, _buffer: Uint8Array | undefined) => resultType,
 )
 
+const supportsConcurrentFileHandles = jest.fn(async () => true)
+
+jest.unstable_mockModule('../src/parts/SupportsConcurrentFileHandles/SupportsConcurrentFileHandles.ts', () => ({
+  supportsConcurrentFileHandles,
+}))
+
 jest.unstable_mockModule('../src/parts/CreateBuffer/CreateBuffer.ts', () => ({
   createBuffer: jest.fn(() => bufferResult),
 }))
@@ -150,4 +156,16 @@ test('supports browsers where shared atomic buffers are unavailable', async () =
 
   expect(await client.invokeSync('SyncApi.readDirSync')).toEqual(result)
   expect(waitForSyncRpcResult).toHaveBeenCalledWith(expect.any(Object), 20, undefined)
+})
+
+test('uses asynchronous filesystem requests when concurrent OPFS handles are unavailable', async () => {
+  supportsConcurrentFileHandles.mockResolvedValueOnce(false)
+  const client = await createSyncRpcClient({ crossOriginIsolated: false, maxDelay: 20, syncId: 7 })
+  expect(client.runRequest).toEqual(expect.any(Function))
+  await client.runRequest!(
+    async () => client.invokeSync('SyncApi.readFileSync', '/file.ts'),
+    () => {},
+  )
+  expect(invoke).toHaveBeenCalledWith('FileSystem.readFile', '/file.ts')
+  expect(invoke).not.toHaveBeenCalledWith('SyncApi.setup', expect.anything())
 })

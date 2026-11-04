@@ -3,7 +3,7 @@ import { afterEach, expect, jest, test } from '@jest/globals'
 const cacheReady = Promise.withResolvers<void>()
 const initializeCache = jest.fn(() => cacheReady.promise)
 const fs = {}
-const client = {}
+const client: { runRequest?: any } = {}
 const ts = {}
 const set = jest.fn()
 const dispose = jest.fn()
@@ -107,4 +107,15 @@ test('preserves transport setup errors when source caches cannot open', async ()
   initializeFiles.mockRejectedValueOnce(new Error('Transport unavailable'))
   await expect(initialize('', true)).rejects.toThrow('Transport unavailable')
   expect(set).not.toHaveBeenCalled()
+})
+
+test('keeps the asynchronous snapshot client without synchronous file caches', async () => {
+  client.runRequest = jest.fn()
+  try {
+    await initialize('', false)
+    expect(initializeFiles).not.toHaveBeenCalled()
+    expect(set).toHaveBeenCalledWith(1, fs, client, ts)
+  } finally {
+    delete client.runRequest
+  }
 })

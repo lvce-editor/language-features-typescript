@@ -26,7 +26,7 @@ export const initialize = async (typeScriptPath: string, crossOriginIsolated: bo
   // Serializing these operations delays the first diagnostics on cold startup.
   const cachedClientReady = (async () => {
     sourceClient = await clientReady
-    return CachedFileClient.initialize(sourceClient, fs, cacheNodeModules)
+    return sourceClient.runRequest ? sourceClient : CachedFileClient.initialize(sourceClient, fs, cacheNodeModules)
   })()
   try {
     const [ts, cachedClient] = await Promise.all([loadTypeScript(tsPath), cachedClientReady])

@@ -207,3 +207,13 @@ test('editing an override does not invalidate unchanged disk files on every keys
   fs.writeFile('/main.ts', 'unsaved second edit')
   expect(fs.getScriptVersion('/dependency.ts')).toBe(initial)
 })
+
+test('recognizes saved contents once an asynchronous snapshot becomes available', () => {
+  let disk: string | undefined
+  const fs = createFileSystem(() => disk)
+  fs.writeFile('/file.ts', 'saved')
+  disk = 'saved'
+  fs.writeFile('/file.ts', 'saved')
+  disk = undefined
+  expect(fs.releaseFile?.('/file.ts')).toBe(true)
+})

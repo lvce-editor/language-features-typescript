@@ -14,6 +14,7 @@ test('createSyncRpcClient should create a sync RPC client with proper configurat
   // Mock navigator.storage
   const mockFileHandle = {
     createSyncAccessHandle: () => ({
+      close: () => {},
       flush: () => {},
       getSize: () => 0,
       truncate: () => {},
@@ -65,6 +66,7 @@ test('createSyncRpcClient should handle crossOriginIsolated false', async () => 
 
   const mockFileHandle = {
     createSyncAccessHandle: () => ({
+      close: () => {},
       flush: () => {},
       getSize: () => 0,
       truncate: () => {},

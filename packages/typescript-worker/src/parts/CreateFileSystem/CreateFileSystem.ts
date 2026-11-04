@@ -6,6 +6,13 @@ export const createFileSystem = (readSavedFile?: (uri: string) => string | undef
   const saved = new Set<string>()
   let version = 0
   let diskVersion = 0
+  const recordSaved = (uri: string, content: string): void => {
+    try {
+      if (readSavedFile && readSavedFile(uri) === content) saved.add(uri)
+    } catch {
+      // Unreadable and untitled documents retain their overrides.
+    }
+  }
   const fileSystem: IFileSystem = {
     getScriptFileNames() {
       return Object.keys(files)
@@ -39,16 +46,14 @@ export const createFileSystem = (readSavedFile?: (uri: string) => string | undef
     },
     writeFile(uri, content) {
       if (files[uri] === content) {
+        // A speculative read may have been unavailable on the previous pass.
+        if (!saved.has(uri)) recordSaved(uri, content)
         return
       }
       files[uri] = content
       versions[uri] = ++version
       saved.delete(uri)
-      try {
-        if (readSavedFile && readSavedFile(uri) === content) saved.add(uri)
-      } catch {
-        // Unreadable and untitled documents retain their overrides.
-      }
+      recordSaved(uri, content)
     },
   }
   return fileSystem
