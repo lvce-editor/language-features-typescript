@@ -123,5 +123,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: renderer-worker-traces-${{ matrix.os }}
-          path: '**/renderer-worker-traces/**'
+          path: |
+            **/renderer-worker-traces/**
+            .tmp/static-rename/**
           include-hidden-files: true

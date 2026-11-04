@@ -27,7 +27,10 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
 let browser
 const messages = []
 try {
-  browser = await firefox.launch({ headless: true })
+  browser = await firefox.launch({
+    headless: true,
+    ...(process.env.FIREFOX_EXECUTABLE_PATH && { executablePath: process.env.FIREFOX_EXECUTABLE_PATH }),
+  })
   for (const test of ['typescript.rename', 'typescript.rename-cross-file']) {
     const context = await browser.newContext()
     try {
@@ -38,6 +41,11 @@ try {
       assert.equal(await page.evaluate(() => crossOriginIsolated), false)
       const overlay = page.locator('#TestOverlay')
       await overlay.waitFor({ state: 'visible', timeout: 120_000 })
+      if ((await overlay.getAttribute('data-state')) !== 'pass') {
+        await mkdir('.tmp/static-rename', { recursive: true })
+        await page.screenshot({ path: `.tmp/static-rename/${test}.png`, fullPage: true })
+        await writeFile(`.tmp/static-rename/${test}.txt`, await page.locator('body').innerText())
+      }
       assert.equal(await overlay.getAttribute('data-state'), 'pass', await overlay.textContent())
       console.log(`PASS non-isolated Firefox: ${test}`)
     } finally {

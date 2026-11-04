@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import { cp } from 'node:fs/promises'
+import { cp, readFile, readdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { root } from './root.ts'
 
 import { pathToFileURL } from 'node:url'
+import { normalizeFileMapPaths } from './normalizeFileMapPaths.ts'
 import { updateStaticExtension } from './updateStaticExtension.ts'
 
 const sharedProcessPath = join(root, 'node_modules', '@lvce-editor', 'shared-process', 'index.js')
@@ -19,6 +20,16 @@ const { commitHash } = await sharedProcess.exportStatic({
   testPath: 'packages/e2e',
   root,
 })
+
+// The static exporter builds nested fixture keys with native path separators.
+// Normalize generated fixture URIs before serving them to browser tests.
+const fixturesPath = join(root, 'dist', commitHash, 'packages', 'extension-host-worker-tests', 'fixtures')
+for (const entry of await readdir(fixturesPath, { recursive: true, withFileTypes: true })) {
+  if (!entry.isFile() || entry.name !== 'fileMap.json') continue
+  const filePath = join(entry.parentPath, entry.name)
+  const files = JSON.parse(await readFile(filePath, 'utf8'))
+  await writeFile(filePath, JSON.stringify(normalizeFileMapPaths(files), null, 2))
+}
 
 const updateJson = (path: string, update: (oldJson: any) => any): void => {
   const oldJson = JSON.parse(readFileSync(path, 'utf8'))
