@@ -3,7 +3,7 @@ import { afterEach, expect, jest, test } from '@jest/globals'
 const cacheReady = Promise.withResolvers<void>()
 const initializeCache = jest.fn(() => cacheReady.promise)
 const fs = {}
-const client: { runRequest?: any } = {}
+const client: { dispose?: () => void; runRequest?: any } = {}
 const ts = {}
 const set = jest.fn()
 const dispose = jest.fn()
