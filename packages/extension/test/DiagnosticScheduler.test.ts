@@ -133,3 +133,23 @@ test('successful obsolete active result is suppressed while the newest analysis 
   expect(await first).toEqual([])
   expect(await latest).toEqual(['latest'])
 })
+
+test('a dependency revision runs a new analysis of the same open document', async () => {
+  jest.useFakeTimers()
+  const active = Promise.withResolvers<readonly string[]>()
+  const execute = jest
+    .fn<() => Promise<readonly string[]>>()
+    .mockResolvedValue(['real error'])
+    .mockImplementationOnce(() => active.promise)
+  const schedule = createDiagnosticScheduler(execute)
+  const first = schedule(document('same text'), 1)
+  await jest.advanceTimersByTimeAsync(150)
+
+  const refreshed = schedule(document('same text'), 2)
+  active.resolve(['missing types', 'real error'])
+  await jest.advanceTimersByTimeAsync(150)
+
+  expect(await first).toEqual([])
+  expect(await refreshed).toEqual(['real error'])
+  expect(execute).toHaveBeenCalledTimes(2)
+})

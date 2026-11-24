@@ -10,6 +10,7 @@ interface Pending<T> {
   readonly promise: Promise<readonly T[]>
   readonly reject: (error: unknown) => void
   readonly resolve: (value: readonly T[]) => void
+  readonly revision: number
 }
 
 interface Entry<T> {
@@ -26,7 +27,7 @@ const isSameSnapshot = (left: Document, right: Document): boolean =>
 export const createDiagnosticScheduler = <T>(
   execute: (document: Document) => Promise<readonly T[]>,
   delayMs = 150,
-): ((document: Document) => Promise<readonly T[]>) => {
+): ((document: Document, revision?: number) => Promise<readonly T[]>) => {
   const entries = new Map<string, Entry<T>>()
   const schedule = (key: string, entry: Entry<T>): void => {
     if (entry.active) return
@@ -48,20 +49,20 @@ export const createDiagnosticScheduler = <T>(
       }
     }, delayMs)
   }
-  return (document) => {
+  return (document, revision = 0) => {
     const key = JSON.stringify([document.uri, document.documentId])
     const entry: Entry<T> = entries.get(key) || {}
     entries.set(key, entry)
-    if (entry.pending && isSameSnapshot(entry.pending.document, document)) {
+    if (entry.pending && entry.pending.revision === revision && isSameSnapshot(entry.pending.document, document)) {
       return entry.pending.promise
     }
     entry.pending?.resolve([])
-    if (entry.active && isSameSnapshot(entry.active.document, document)) {
+    if (entry.active && entry.active.revision === revision && isSameSnapshot(entry.active.document, document)) {
       entry.pending = undefined
       return entry.active.promise
     }
     const { promise, reject, resolve } = Promise.withResolvers<readonly T[]>()
-    entry.pending = { document, promise, reject, resolve }
+    entry.pending = { document, promise, reject, resolve, revision }
     schedule(key, entry)
     return promise
   }
