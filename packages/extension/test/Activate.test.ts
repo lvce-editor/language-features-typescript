@@ -24,6 +24,7 @@ jest.unstable_mockModule('../src/parts/Providers/Providers.ts', () => ({ provide
 jest.unstable_mockModule('../src/parts/DiskWatch/DiskWatch.ts', () => ({ stopAll: jest.fn() }))
 jest.unstable_mockModule('../src/parts/Rpc/Rpc.ts', () => ({ invoke: jest.fn() }))
 jest.unstable_mockModule('../src/parts/TypeScriptWorker/TypeScriptWorker.ts', () => ({ dispose: jest.fn() }))
+jest.unstable_mockModule('../src/parts/WatchDiagnostics/WatchDiagnostics.ts', () => ({ dispose: jest.fn() }))
 jest.unstable_mockModule('../src/parts/ShowPerformanceTrace/ShowPerformanceTrace.ts', () => ({
   showPerformanceTrace: jest.fn(),
 }))
